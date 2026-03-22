@@ -1173,7 +1173,7 @@ topic_labels <- top_words |>
   group_by(topic) |>
   slice_max(beta, n = 1) |>
   mutate(label = paste0("Topic ", topic, "\n(e.g. '", term, "')")) |>
-  select(topic, label)
+  dplyr::select(topic, label)
 
 top_words <- top_words |>
   left_join(topic_labels, by = "topic")
@@ -2577,7 +2577,7 @@ Most researchers assume larger samples make experiments safer. The bottom plot r
 # Extract Scenario B only; compute power = 1 - miss rate; reshape to long for facets
 danger_df <- err_df |>
   filter(DGP == "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)") |>
-  select(N, t1_rate, t2_rate, pct_fail) |>
+  dplyr::select(N, t1_rate, t2_rate, pct_fail) |>
   mutate(power = 1 - t2_rate) |>                     # power = 1 - miss rate
   tidyr::pivot_longer(c(t1_rate, power),
                       names_to  = "metric",
