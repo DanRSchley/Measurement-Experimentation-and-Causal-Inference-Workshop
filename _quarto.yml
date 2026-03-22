@@ -4,7 +4,7 @@ project:
 
 book:
   title: "Measurement, Experimentation & Causal Inference"
-  subtitle: "Advanced Methods Workshop · RSM PhD"
+  subtitle: "Advanced Methods Workshop · RSM"
   author: "Dan Schley"
   date: today
   repo-url: https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop

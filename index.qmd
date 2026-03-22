@@ -3,7 +3,7 @@ title: "Measurement, Experimentation & Causal Inference"
 subtitle: "Advanced Methods Workshop"
 ---
 
-This workshop is a three-module sequence designed for PhD students in management and social science. Each module combines conceptual foundations with hands-on R tutorials and interactive simulations.
+This workshop is a three-module sequence designed for researchers in management and social science. Each module combines conceptual foundations with hands-on R tutorials and interactive simulations.
 
 The workshop is built around a core question that runs through all three modules: **how do we draw valid inferences from data?** Measurement shapes what we can even ask. Hypothesis testing governs what counts as evidence. Causal reasoning determines what we can conclude.
 

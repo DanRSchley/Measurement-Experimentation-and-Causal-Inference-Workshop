@@ -3,18 +3,1902 @@ title: "Module 3 Code Tutorial"
 subtitle: "Treatment Effects, Natural Experiments, and Causal Mechanisms"
 ---
 
-<!--
-  SETUP INSTRUCTIONS
-  ==================
-  1. Open "Module 3- Causal Inference/Module 3 Code Tutorials.qmd"
-  2. Copy everything AFTER the closing --- of the YAML block (i.e., from the ```{r setup chunk onward)
-  3. Paste it below this comment block
-  4. Also copy both figs/ and figures/ folders from "Module 3- Causal Inference/" into this folder (module-3/)
+```{r setup, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
 
-  The YAML above replaces the original --- block entirely.
-  Do NOT copy the original title/format/execute YAML — it is already handled by _quarto.yml.
+if (!requireNamespace("remotes",  quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("synthdid", quietly = TRUE))
+  remotes::install_github("synth-did/synthdid")
 
-  NOTE: Module 3 installs several packages at runtime including synthdid from GitHub.
-  On first render this will take several minutes.
-  After the first render, execute: freeze: auto in _quarto.yml means it won't re-run unless you change the source.
--->
+pkgs <- c(
+  "tidyverse", "broom", "knitr", "patchwork",
+  "conflicted",
+  "MatchIt", "WeightIt", "cobalt",
+  "rdrobust", "rddensity",
+  "did",
+  "mediation", "robmed",
+  "estimatr", "sandwich", "lmtest"
+)
+for (p in pkgs) {
+  if (!requireNamespace(p, quietly = TRUE)) install.packages(p, dependencies = TRUE)
+  library(p, character.only = TRUE)
+}
+library(synthdid)
+
+library(conflicted)
+conflicts_prefer(dplyr::select, dplyr::filter, dplyr::rename, dplyr::mutate,
+                 dplyr::summarise, dplyr::arrange, dplyr::lag)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 9, fig.height = 5,
+  fig.path = "figs/", dev = "svg"
+)
+
+clr_eco     <- "#2d6a4f"
+clr_ctrl    <- "#4a90d9"
+clr_treated <- clr_eco
+
+theme_mod3 <- function() {
+  theme_minimal(base_size = 12) +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#f0f4f8", colour = NA),
+          legend.position  = "bottom")
+}
+
+# ── Lightweight DAG helper ─────────────────────────────────────────────────────
+.dag <- function(nodes, solid = NULL, dashed = NULL,
+                 unobserved = character(0), title = "") {
+  nd <- do.call(rbind, lapply(names(nodes), function(nm)
+    data.frame(id=nm, x=nodes[[nm]][1], y=nodes[[nm]][2], stringsAsFactors=FALSE)))
+  nd$type <- ifelse(nd$id %in% unobserved, "unobs", "obs")
+  segs <- function(pairs, lt) {
+    if (is.null(pairs) || length(pairs)==0) return(NULL)
+    do.call(rbind, lapply(pairs, function(ab) {
+      fr <- nd[nd$id==ab[1],]; to <- nd[nd$id==ab[2],]
+      dx <- to$x-fr$x; dy <- to$y-fr$y
+      len <- sqrt(dx^2+dy^2)+1e-9; pad <- 0.12
+      data.frame(x=fr$x+pad*dx/len, y=fr$y+pad*dy/len,
+                 xend=to$x-pad*dx/len, yend=to$y-pad*dy/len,
+                 lt=lt, stringsAsFactors=FALSE)
+    }))
+  }
+  edf <- rbind(segs(solid,"solid"), segs(dashed,"dashed"))
+  xs <- range(nd$x); ys <- range(nd$y)
+  p <- ggplot() + theme_void() + ggtitle(title) +
+    coord_cartesian(xlim=c(xs[1]-.3,xs[2]+.3), ylim=c(ys[1]-.3,ys[2]+.3), expand=FALSE) +
+    theme(plot.title=element_text(size=10,face="bold",hjust=.5,margin=margin(b=6)),
+          plot.background=element_rect(fill="grey98",colour="grey80",linewidth=.4),
+          plot.margin=margin(10,16,10,16), legend.position="none")
+  if (!is.null(edf) && nrow(edf)>0)
+    p <- p +
+      geom_segment(data=edf, aes(x=x,y=y,xend=xend,yend=yend,colour=lt,linetype=lt),
+                   arrow=arrow(length=unit(.20,"cm"),type="closed"), linewidth=.85) +
+      scale_colour_manual(values=c(solid="grey20",dashed="firebrick")) +
+      scale_linetype_manual(values=c(solid="solid",dashed="dashed"))
+  if (any(nd$type=="obs"))
+    p <- p + geom_label(data=nd[nd$type=="obs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold", fill="white", colour="black",
+                        label.size=.9, label.padding=unit(.4,"lines"))
+  if (any(nd$type=="unobs"))
+    p <- p + geom_label(data=nd[nd$type=="unobs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold.italic", fill="#fff3e0", colour="#b45309",
+                        label.size=1.1, label.padding=unit(.4,"lines"),
+                        label.r=unit(.5,"lines"))
+  p
+}
+
+# ── Mediation extraction helper (handles robmed version differences) ───────────
+rob_extract <- function(fit) {
+  # point estimate: try $ab, then $indirect, then coef()["ab"]
+  ab <- tryCatch(fit$ab,
+    error = function(e) tryCatch(fit$indirect,
+      error = function(e2) tryCatch(coef(fit)["ab"],
+        error = function(e3) NA_real_)))
+  # CI: try $ci (matrix or vector), then confint()
+  ci <- tryCatch({
+    r <- fit$ci
+    if (is.matrix(r)) r[1,] else r
+  }, error = function(e) tryCatch(confint(fit)["ab",],
+    error = function(e2) c(NA_real_, NA_real_)))
+  list(est=unname(ab), lo=unname(ci[1]), hi=unname(ci[2]))
+}
+```
+
+```{=html}
+<style>
+#global-output-toggle {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center;
+  padding: 11px 24px;
+  background: #1e3a5f; border-top: 3px solid #4a90d9;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
+}
+#global-output-toggle span {
+  color: #c8d8ed; font-size: 0.85em; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase; margin-right: 6px;
+}
+body { padding-bottom: 70px !important; }
+.gtbtn {
+  padding: 9px 24px; color: #ffffff; border-radius: 7px;
+  font-size: 1em; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.2px; transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap; border: 2px solid transparent;
+}
+.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
+.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
+.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
+.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
+details.out-fold { margin: 6px 0 14px 0; }
+summary.out-fold-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 20px; background: #eef4fb;
+  border: 2px solid #4a90d9; border-radius: 7px; cursor: pointer;
+  font-size: 0.94em; font-weight: 700; color: #1a3a6b;
+  user-select: none; list-style: none; transition: background 0.12s;
+}
+summary.out-fold-btn::-webkit-details-marker { display: none; }
+summary.out-fold-btn:hover { background: #cfe2f7; }
+details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
+summary.out-fold-btn .fold-icon { font-size: 1em; }
+details[open] .fold-icon-closed { display: none; }
+details:not([open]) .fold-icon-open  { display: none; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var outputSels = ['.cell-output-stdout','.cell-output-stderr','.cell-output-display'];
+  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
+    if (el.closest('.callout') || el.closest('details.out-fold')) return;
+    var hasImg = !!el.querySelector('img, svg, canvas');
+    var hasTbl = !!el.querySelector('table');
+    var label  = hasImg ? '📊  Show plot' : hasTbl ? '📋  Show table' : '📄  Show output';
+    var det = document.createElement('details'); det.className = 'out-fold';
+    var sum = document.createElement('summary'); sum.className = 'out-fold-btn';
+    sum.innerHTML = '<span class="fold-icon fold-icon-closed">▶</span><span class="fold-icon fold-icon-open">▼</span>' + label;
+    el.parentNode.insertBefore(det, el); det.appendChild(sum); det.appendChild(el);
+  });
+  var bar = document.createElement('div'); bar.id = 'global-output-toggle';
+  bar.innerHTML = '<span>Quick controls:</span><button id="code-toggle-btn" class="gtbtn code-btn" onclick="toggleCode()">\u25bc Expand All Code</button><button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">\u25bc Expand All Output</button>';
+  document.body.appendChild(bar);
+});
+var codeOpen = false, outputOpen = false;
+function toggleCode() {
+  codeOpen = !codeOpen;
+  document.querySelectorAll('details').forEach(function(d) {
+    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) d.open = codeOpen;
+  });
+  var btn = document.getElementById('code-toggle-btn');
+  if (btn) btn.textContent = codeOpen ? '\u25b2 Collapse All Code' : '\u25bc Expand All Code';
+}
+function toggleOutput() {
+  outputOpen = !outputOpen;
+  document.querySelectorAll('details.out-fold').forEach(function(d) { d.open = outputOpen; });
+  var btn = document.getElementById('output-toggle-btn');
+  if (btn) btn.textContent = outputOpen ? '\u25b2 Collapse All Output' : '\u25bc Expand All Output';
+}
+</script>
+```
+
+## What This Tutorial Is About {.unnumbered}
+
+There is a single thread running through all three modules:
+
+> **Your observable may not accurately reflect the latent quantity you want to study.**
+
+In **Module 1** that problem lived in your outcome variable — your scale picked up variance from constructs you never intended to measure. In **Module 2** it appeared in your treatment variable and your significance test — a manipulated treatment can inject multiple signals simultaneously, and a p-value only means what it means when randomisation is actually achieved.
+
+Both modules used the same running example: **AlterEco Coffee's eco-label experiment**, where participants were randomly assigned to see (or not see) an eco-label and reported their willingness to pay (WTP, \$1–\$10).
+
+This module asks a harder set of questions — what if we cannot run that clean experiment?
+
+| Question | Tool |
+|---|---|
+| *What does "the effect" mean for an individual?* | Potential outcomes / treatment effect taxonomy |
+| *What if consumers freely choose eco-labelled products?* | Selection on observables |
+| *What if a certification rule creates a natural threshold?* | Regression discontinuity |
+| *What if eco-labelling was rolled out by policy over time?* | Difference-in-differences |
+| *Does the eco-label work **because** of perceived sustainability?* | Causal mediation analysis |
+
+Every section uses simulated data with **known true effects** so you can see exactly when each method recovers the truth — and when it does not.
+
+::: {.callout-note}
+## Learning Objectives
+- Distinguish ATE, ATT, ATC, LATE, ITT, and CATE — and know which one answers your question
+- Apply regression adjustment, IPW, covariate matching, propensity-score matching, entropy balancing, and doubly-robust estimation
+- Conduct an RDD analysis and test its assumptions
+- Implement DiD, an event study, and synthetic DiD
+- Diagnose when standard mediation gives wrong answers (three structural failure modes)
+- Use `robmed` and `mediation` packages; interpret sensitivity analyses
+- Compare bias across methods using a known data-generating system
+:::
+
+---
+
+# Part 1: What Do We Mean by "Causal Effect"?
+
+## The Fundamental Problem of Causal Inference {#sec-fundamental}
+
+Every participant in the AlterEco eco-label study had **two potential outcomes**:
+
+- $Y_i(0)$: their WTP if they did *not* see the eco-label
+- $Y_i(1)$: their WTP if they *did* see the eco-label
+
+Their **individual treatment effect** is $\tau_i = Y_i(1) - Y_i(0)$.
+
+The problem? **We can only observe one of these for any individual.** This is called the **Fundamental Problem of Causal Inference** (Holland, 1986). Everything that follows is a strategy for getting around it.
+
+```{r dgs-potential-outcomes}
+#| code-summary: "▶ Build the data-generating system"
+set.seed(2024)
+N <- 2000
+
+env        <- rnorm(N, 0, 1)
+price_sens <- rnorm(N, 0, 1)
+income     <- rnorm(N, 0, 1)
+
+Y0 <- 5.50 + 0.80*env - 0.50*price_sens + 0.30*income + rnorm(N, 0, 1.10)
+Y0 <- pmax(1, pmin(10, Y0))
+
+ITE <- 0.60 + 0.80*env - 0.55*price_sens + rnorm(N, 0, 0.40)
+Y1  <- pmax(1, pmin(10, Y0 + ITE))
+
+ATE_true <- mean(Y1 - Y0)
+cat(sprintf("True ATE  = %.3f\nTrue ITE SD = %.3f\n", ATE_true, sd(Y1 - Y0)))
+```
+
+```{r fundamental-problem-table, echo=FALSE}
+#| code-summary: "▶ Show the missing-data structure"
+set.seed(42)
+demo_idx <- c(which(env > 1.2)[1:2], which(abs(env) < 0.15)[1], which(env < -1.2)[1:2])
+assigned <- c("Control","Treatment","Control","Treatment","Control")
+tibble(
+  Person             = c("Sophie (high concern)","Rens (moderate+)","Lotte (neutral)","Daan (low concern)","Kim (price-sensitive)"),
+  `Env concern`      = round(env[demo_idx], 1),
+  `Y(0) No label`   = round(Y0[demo_idx], 2),
+  `Y(1) With label` = round(Y1[demo_idx], 2),
+  `True ITE`        = round(Y1[demo_idx]-Y0[demo_idx], 2),
+  `Assigned to`     = assigned,
+  `What we observe` = c(
+    sprintf("Y(0)=$%.2f  Y(1)=???", Y0[demo_idx[1]]),
+    sprintf("Y(0)=???   Y(1)=$%.2f", Y1[demo_idx[2]]),
+    sprintf("Y(0)=$%.2f  Y(1)=???", Y0[demo_idx[3]]),
+    sprintf("Y(0)=???   Y(1)=$%.2f", Y1[demo_idx[4]]),
+    sprintf("Y(0)=$%.2f  Y(1)=???", Y0[demo_idx[5]])
+  )
+) |> knitr::kable(caption="The fundamental problem: exactly ONE potential outcome per person is observed.")
+```
+
+## Individual Treatment Effects (ITE) {#sec-ite}
+
+```{r ite-distribution, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Plot the distribution of individual treatment effects"
+tibble(ITE=ITE,
+       env_grp=cut(env, c(-Inf,-0.5,0.5,Inf), labels=c("Low","Moderate","High"))) |>
+  ggplot(aes(x=ITE, fill=env_grp)) +
+  geom_histogram(bins=50, alpha=0.75, position="identity") +
+  geom_vline(xintercept=ATE_true, linetype="dashed", linewidth=1.1, colour="grey20") +
+  annotate("text", x=ATE_true+0.06, y=82,
+           label=sprintf("ATE = $%.2f", ATE_true), hjust=0, size=3.5, fontface="bold") +
+  scale_fill_manual(values=c("High"=clr_eco,"Moderate"="#74b9a0","Low"=clr_ctrl)) +
+  labs(x="Individual Treatment Effect  Y(1)−Y(0)  ($)", y="Count", fill=NULL,
+       title="The eco-label effect is wildly different across individuals",
+       subtitle="In real research you never see this distribution — only the ATE is estimable") +
+  theme_mod3()
+```
+
+## Average Treatment Effect (ATE) {#sec-ate}
+
+$$\text{ATE} = E[\tau_i] = E[Y_i(1) - Y_i(0)]$$
+
+In a **randomised experiment**, random assignment makes the treated and control groups exchangeable, so a simple difference in group means is unbiased for the ATE.
+
+```{r ate-rct}
+treat_rct <- rbinom(N, 1, 0.5)
+Y_obs_rct <- ifelse(treat_rct==1, Y1, Y0)
+df_rct    <- tibble(id=1:N, treat=treat_rct, Y_obs=Y_obs_rct, Y0, Y1, ITE, env, price_sens, income)
+
+ATE_est <- mean(Y_obs_rct[treat_rct==1]) - mean(Y_obs_rct[treat_rct==0])
+lm(Y_obs ~ treat, data=df_rct) |> tidy() |>
+  filter(term=="treat") |>
+  transmute(Estimand="ATE", `True value`=round(ATE_true,3), Estimate=round(estimate,3),
+            SE=round(std.error,3),
+            `95% CI`=sprintf("[%.3f, %.3f]", estimate-1.96*std.error, estimate+1.96*std.error)) |>
+  knitr::kable(caption="ATE estimate from randomised eco-label experiment")
+```
+
+## Conditional Average Treatment Effect (CATE) {#sec-cate}
+
+```{r cate-by-subgroup, fig.height=4.5, fig.width=9}
+df_rct |>
+  mutate(env_grp=cut(env, c(-Inf,-1,0,1,Inf), labels=c("Very Low","Low","High","Very High"))) |>
+  group_by(env_grp) |>
+  summarise(CATE_true=mean(Y1-Y0), CATE_est=mean(Y_obs[treat==1])-mean(Y_obs[treat==0]),
+            n=n(), .groups="drop") |>
+  pivot_longer(starts_with("CATE"), names_to="type", values_to="val") |>
+  ggplot(aes(x=env_grp, y=val, fill=type)) +
+  geom_col(position="dodge", alpha=0.85, width=0.65) +
+  geom_hline(yintercept=ATE_true, linetype="dashed", colour="grey30") +
+  annotate("text", x=0.65, y=ATE_true+0.05, label="Overall ATE", size=3.5) +
+  scale_fill_manual(values=c(CATE_true=clr_eco, CATE_est=clr_ctrl),
+                    labels=c("True CATE","Estimated CATE")) +
+  labs(x="Environmental Concern", y="Eco-label effect ($)", fill=NULL,
+       title="CATE: the label works far better for environmentally engaged consumers",
+       subtitle="Reporting only the ATE hides this story completely") +
+  theme_mod3()
+```
+
+## Compliance, ITT, LATE, ATT, and ATC {#sec-late}
+
+```{r compliance-dgs}
+set.seed(2024)
+Z <- treat_rct
+p_comply_if_Z1 <- plogis(0.8 + 0.6*env)
+p_always_taker <- plogis(-2.5 + 0.5*env)
+D_if_Z1 <- rbinom(N, 1, p_comply_if_Z1)
+D_if_Z0 <- rbinom(N, 1, p_always_taker)
+D       <- ifelse(Z==1, D_if_Z1, D_if_Z0)
+compliance_type <- case_when(
+  D_if_Z1==1 & D_if_Z0==0 ~ "Complier",
+  D_if_Z1==1 & D_if_Z0==1 ~ "Always-taker",
+  D_if_Z1==0 & D_if_Z0==0 ~ "Never-taker",
+  D_if_Z1==0 & D_if_Z0==1 ~ "Defier"
+)
+knitr::kable(table(compliance_type), col.names=c("Compliance type","Count"),
+             caption="True compliance breakdown (observable only in simulation)")
+```
+
+```{r itt-late-att-atc}
+Y_obs_iv <- ifelse(D==1, Y1, Y0)
+df_iv    <- tibble(Z, D, Y_obs_iv, Y0, Y1, ITE, compliance_type, env, price_sens)
+
+ITT       <- mean(Y_obs_iv[Z==1]) - mean(Y_obs_iv[Z==0])
+FS        <- mean(D[Z==1]) - mean(D[Z==0])
+LATE_est  <- ITT / FS
+LATE_true <- mean(ITE[compliance_type=="Complier"])
+ATT_est   <- mean(ITE[D==1])
+ATC_est   <- mean(ITE[D==0])
+
+tibble(
+  Estimand    = c("ATE","ITT","LATE (Wald)","ATT","ATC"),
+  Description = c(
+    "Effect averaged over all 2,000 consumers",
+    "Effect of *assigning* the label regardless of compliance",
+    "Effect for consumers who complied *because* they were assigned",
+    "Effect for consumers who *actually saw* the label",
+    "Effect for those who *did not see* it"
+  ),
+  `True value` = round(c(ATE_true, ITT, LATE_true, ATT_est, ATC_est), 3),
+  Estimated    = round(c(ATE_true, ITT, LATE_est,  ATT_est, ATC_est), 3)
+) |> knitr::kable(caption="Five ways to summarise 'the effect' of the eco-label")
+```
+
+```{r estimands-plot, fig.height=4, fig.width=8, echo=FALSE}
+tibble(
+  Estimand=c("ATE\n(all consumers)","ITT\n(assigned, any)","LATE\n(compliers only)",
+             "ATT\n(label seen)","ATC\n(label not seen)"),
+  Value=c(ATE_true, ITT, LATE_est, ATT_est, ATC_est),
+  Type=c("Population","Assignment","Compliers","Treated","Control")
+) |>
+  mutate(Estimand=fct_reorder(Estimand, Value)) |>
+  ggplot(aes(y=Estimand, x=Value, fill=Type)) +
+  geom_col(width=0.6, alpha=0.85) +
+  geom_vline(xintercept=ATE_true, linetype="dashed", colour="grey30") +
+  scale_fill_brewer(palette="Set2") +
+  labs(x="Eco-label effect on WTP ($)", y=NULL, fill=NULL,
+       title="Five estimands — same experiment, different questions",
+       subtitle="ATT > ATE > ATC: consumers who seek eco-labels respond more strongly to them") +
+  theme_mod3()
+```
+
+::: {.callout-warning}
+## Connection to Module 2
+Module 2's permutation test estimated the **ITT** — comparing all participants assigned to the eco-label condition against all assigned to control, regardless of whether they actually processed the label. In a well-controlled lab study, ITT ≈ ATE. In field settings — where consumers scroll past labels or ignore shelf information — the distinction matters greatly.
+:::
+
+---
+
+# Part 2: Selection on Observables
+
+## The Problem: Consumers Choose to Buy Eco-Labelled Products {#sec-obs-problem}
+
+Outside the lab, consumers freely *choose* whether to pick up the eco-labelled bag of coffee. This creates **selection bias**. The DGP below adds two realistic complications beyond Part 1:
+
+1. **Non-linear confounding**: environmental concern has a *quadratic* effect on baseline WTP and *interacts* with income. A consumer with extremely high env-concern sees a doubly large WTP boost. Simple linear regression will miss this.
+2. **Interaction in the propensity score**: the probability of buying eco-labelled coffee depends on the *joint* level of env-concern and income, not just their individual levels.
+
+These features mean that naive and simple-linear corrections will have remaining bias, while flexible and doubly-robust methods will do better.
+
+```{r obs-dgs}
+#| code-summary: "▶ Simulate observational data with non-linear confounding"
+set.seed(2024)
+N <- 2000
+
+env        <- rnorm(N, 0, 1)
+price_sens <- rnorm(N, 0, 1)
+income     <- rnorm(N, 0, 1)
+age        <- round(rnorm(N, 38, 12))
+
+# Non-linear outcome model: env has quadratic effect + env:income interaction
+# Linear regression misses these → remaining bias after covariate adjustment
+Y0 <- pmax(1, pmin(10,
+  5.20 + 0.80*env - 0.50*price_sens + 0.30*income +
+  0.25*env^2 + 0.18*env*income +
+  rnorm(N, 0, 0.85)
+))
+
+ITE <- 0.55 + 0.65*env - 0.38*price_sens + rnorm(N, 0, 0.35)
+Y1  <- pmax(1, pmin(10, Y0 + ITE))
+
+# True PS includes env:income interaction
+# Standard logit (no interaction) will slightly misspecify the PS
+ps_true   <- plogis(-0.40 + 0.95*env + 0.42*income - 0.32*price_sens + 0.14*env*income)
+treat_obs <- rbinom(N, 1, ps_true)
+Y_obs     <- ifelse(treat_obs==1, Y1, Y0)
+
+# Pre-compute nonlinear features for use in flexible models
+env_sq      <- env^2
+env_income  <- env * income
+
+df_obs <- tibble(id=1:N, treat=treat_obs, Y_obs, Y0, Y1, ITE,
+                 env, price_sens, income, age, env_sq, env_income, ps_true)
+
+ATE_true_obs <- mean(Y1 - Y0)
+ATT_true_obs <- mean(ITE[treat_obs==1])
+cat(sprintf("True ATE = %.3f  |  True ATT = %.3f  |  Treatment rate = %.1f%%\n",
+            ATE_true_obs, ATT_true_obs, 100*mean(treat_obs)))
+```
+
+```{r naive-bias, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Show why naive comparison overestimates the eco-label effect"
+naive_diff <- mean(Y_obs[treat_obs==1]) - mean(Y_obs[treat_obs==0])
+cat(sprintf("True ATE             = %.3f\nNaive diff-in-means  = %.3f\nBias                 = +%.3f\n",
+            ATE_true_obs, naive_diff, naive_diff - ATE_true_obs))
+
+bind_rows(
+  tibble(group="Eco-label buyers",     env=env[treat_obs==1]),
+  tibble(group="Non-eco-label buyers", env=env[treat_obs==0])
+) |>
+  ggplot(aes(x=env, fill=group)) +
+  geom_density(alpha=0.55) +
+  scale_fill_manual(values=c("Eco-label buyers"=clr_eco,"Non-eco-label buyers"=clr_ctrl)) +
+  labs(x="Environmental Concern (standardised)", y="Density",
+       title="Eco-label buyers have higher environmental concern AND higher baseline WTP",
+       subtitle="Positive selection on a cause of the outcome inflates the naive comparison",
+       fill=NULL) +
+  theme_mod3()
+```
+
+## Regression Adjustment {#sec-reg-adj}
+
+**What it does:** Controls for confounders in the outcome regression, comparing eco-label buyers and non-buyers who are *similar on measured covariates*.
+
+**Intuition:** Among consumers with the same env-concern, income, and price-sensitivity, any remaining WTP difference is more plausibly causal. But if the true relationship between covariates and WTP is *non-linear*, a linear regression will not fully remove the confounding.
+
+```{r regression-adjustment}
+#| code-summary: "▶ Linear vs. flexible regression adjustment"
+m_naive   <- lm(Y_obs ~ treat, data=df_obs)
+m_linear  <- lm(Y_obs ~ treat + env + price_sens + income, data=df_obs)
+m_flex    <- lm(Y_obs ~ treat + env + price_sens + income + env_sq + env_income, data=df_obs)
+
+bind_rows(
+  tidy(m_naive)  |> mutate(model="1. Unadjusted"),
+  tidy(m_linear) |> mutate(model="2. Linear adjustment"),
+  tidy(m_flex)   |> mutate(model="3. Flexible adjustment\n(+ env² + env×income)")
+) |>
+  filter(term=="treat") |>
+  transmute(Model=model, Estimate=round(estimate,3), SE=round(std.error,3),
+            `95% CI`=sprintf("[%.3f, %.3f]",estimate-1.96*std.error,estimate+1.96*std.error)) |>
+  add_row(Model="True ATE", Estimate=round(ATE_true_obs,3), SE=NA, `95% CI`="—") |>
+  knitr::kable(caption="Flexible regression (with non-linear terms) gets closer to the true ATE than linear")
+```
+
+::: {.callout-tip}
+The flexible model including `env²` and `env × income` tracks the true ATE noticeably better than the linear adjustment. The lesson: **the form of your covariate adjustment matters**. If you don't know the true functional form (you never do in practice), doubly robust estimation provides insurance.
+:::
+
+## Inverse Probability Weighting (IPW) {#sec-ipw}
+
+**What it does:** Reweights each observation by the inverse of its probability of being in its actual group, creating a pseudo-population where eco-label buyers and non-buyers look like random draws from the same population.
+
+**Concrete weights:**
+- An eco-conscious, high-income consumer (PS = 0.85) who buys eco-labelled coffee: weight = $1/0.85 = 1.18$ — not surprising, downweighted.
+- A price-sensitive, low-income consumer (PS = 0.08) who buys eco-labelled coffee: weight = $1/0.08 = 12.5$ — very surprising, heavily upweighted.
+
+**Entropy balancing** (via `WeightIt`) takes this further: instead of estimating a parametric PS model, it directly finds weights that exactly balance the *moments* (means, variances, and cross-products) of the covariate distribution between groups. No model to misspecify.
+
+```{r ipw}
+#| code-summary: "▶ Standard IPW vs. entropy-balanced IPW"
+# Standard IPW: logistic regression on linear terms (misses interaction)
+ps_logit <- glm(treat ~ env + price_sens + income, data=df_obs, family=binomial)
+ps_hat   <- fitted(ps_logit)
+
+df_obs <- df_obs |>
+  mutate(ps_hat  = ps_hat,
+         ipw_wt  = ifelse(treat==1, 1/ps_hat, 1/(1-ps_hat)),
+         # Stabilised weights (reduces variance from extreme PS values)
+         ipw_stab= ifelse(treat==1, mean(treat)/ps_hat, mean(1-treat)/(1-ps_hat)))
+
+ATE_ipw_raw   <- with(df_obs,
+  weighted.mean(Y_obs[treat==1], ipw_wt[treat==1]) -
+  weighted.mean(Y_obs[treat==0], ipw_wt[treat==0]))
+ATE_ipw_stab  <- lm(Y_obs ~ treat, data=df_obs, weights=ipw_stab) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+# Entropy balancing: directly balance means + variances + covariances
+# Includes quadratic and interaction terms for thorough moment matching
+wb_ebal <- weightit(treat ~ env + price_sens + income + env_sq + env_income,
+                    data=df_obs, method="ebal", estimand="ATE")
+ATE_ebal <- lm(Y_obs ~ treat, data=df_obs, weights=wb_ebal$weights) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+cat(sprintf(
+  "True ATE              = %.3f\nIPW (standard logit)  = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\n",
+  ATE_true_obs, ATE_ipw_raw, ATE_ipw_stab, ATE_ebal
+))
+```
+
+```{r ps-overlap, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Propensity score overlap and entropy-balanced weight distribution"
+p_overlap <- df_obs |>
+  mutate(group=ifelse(treat==1,"Eco-label buyers","Non-buyers")) |>
+  ggplot(aes(x=ps_hat, fill=group)) +
+  geom_histogram(bins=40, alpha=0.65, position="identity") +
+  geom_vline(xintercept=c(0.05,0.95), linetype="dashed", colour="firebrick") +
+  scale_fill_manual(values=c("Eco-label buyers"=clr_eco,"Non-buyers"=clr_ctrl)) +
+  labs(x="Estimated PS", y="Count", title="PS overlap", fill=NULL,
+       subtitle="Red lines = extreme weights zone") +
+  theme_mod3()
+
+p_wts <- tibble(wt=wb_ebal$weights, group=ifelse(treat_obs==1,"Treated","Control")) |>
+  ggplot(aes(x=wt, fill=group)) +
+  geom_histogram(bins=40, alpha=0.7, position="identity") +
+  scale_fill_manual(values=c("Treated"=clr_eco,"Control"=clr_ctrl)) +
+  labs(x="Entropy-balanced weight", y="Count",
+       title="Entropy-balanced weights",
+       subtitle="Well-behaved: no extreme spikes", fill=NULL) +
+  theme_mod3()
+
+p_overlap + p_wts
+```
+
+::: {.callout-warning}
+## IPW can be unstable with extreme propensity scores
+
+Unstabilised IPW weights become enormous near PS = 0 or 1. Entropy balancing avoids this by finding the *minimum-variance* weights that achieve balance — it never requires extreme weights to correct for outlier PS values.
+:::
+
+## Covariate Matching (Mahalanobis) {#sec-matching}
+
+**What it does:** For each eco-label buyer, finds the most similar non-buyer based on raw covariate values (Mahalanobis distance accounts for covariate correlations). The matched sample mimics a randomised experiment — but only for the *treated* group (estimates ATT, not ATE).
+
+```{r covariate-matching}
+#| code-summary: "▶ 1:1 Mahalanobis nearest-neighbour matching"
+m_match_maha <- matchit(treat ~ env + price_sens + income, data=df_obs,
+                        method="nearest", distance="mahalanobis", ratio=1)
+df_matched_maha <- match.data(m_match_maha)
+ATT_match_maha  <- lm(Y_obs ~ treat, data=df_matched_maha, weights=weights) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+cat(sprintf("True ATT (treated group)              = %.3f\nMatching (Mahalanobis, 1:1 NN) est.   = %.3f\n",
+            ATT_true_obs, ATT_match_maha))
+```
+
+## Propensity Score Matching (PSM) {#sec-psm}
+
+**What it does:** Condenses all covariates into a single scalar — the propensity score — and matches on that. The catch: **the PS model must be specified correctly**. Different models give different matched samples and often quite different estimates.
+
+```{r psm-comparison, fig.height=5.5, fig.width=10}
+#| code-summary: "▶ Compare five PS model specifications"
+# Misspecified models (common practice — miss the env:income interaction)
+m_ps1 <- matchit(treat ~ env + price_sens + income,
+                 data=df_obs, method="nearest", distance="logit")
+m_ps2 <- matchit(treat ~ env * price_sens + income,
+                 data=df_obs, method="nearest", distance="probit")
+m_ps3 <- matchit(treat ~ poly(env,2) + poly(price_sens,2) + income,
+                 data=df_obs, method="nearest", distance="logit")
+m_ps4 <- matchit(treat ~ env + price_sens + income,
+                 data=df_obs, method="nearest", distance="logit",
+                 caliper=0.1, std.caliper=TRUE)
+# Correctly specified: matches the true DGP (includes env^2 and env:income)
+m_ps5 <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+                 data=df_obs, method="nearest", distance="logit",
+                 caliper=0.15, std.caliper=TRUE)
+
+results_psm <- map_dfr(
+  list("1. Logit (linear)"              = m_ps1,
+       "2. Probit + env×price"          = m_ps2,
+       "3. Logit + poly(env,2)"         = m_ps3,
+       "4. Logit + caliper (0.1 SD)"    = m_ps4,
+       "5. Logit + env²+env×income\n+ caliper (correct PS)" = m_ps5),
+  function(m) {
+    d   <- match.data(m)
+    est <- lm(Y_obs ~ treat, data=d, weights=weights) |>
+      tidy() |> filter(term=="treat")
+    tibble(estimate=est$estimate, se=est$std.error,
+           n_matched=nrow(d[d$treat==1,]))
+  }, .id="PS model"
+)
+
+results_psm |>
+  mutate(lo=estimate-1.96*se, hi=estimate+1.96*se,
+         `N retained`=n_matched,
+         correct = str_detect(`PS model`, "correct")) |>
+  ggplot(aes(y=`PS model`, x=estimate, xmin=lo, xmax=hi,
+             colour=correct, shape=correct)) +
+  geom_vline(xintercept=ATT_true_obs, linetype="dashed", colour=clr_eco, linewidth=1) +
+  geom_vline(xintercept=ATE_true_obs, linetype="dotted", colour=clr_ctrl, linewidth=1) +
+  geom_pointrange(size=0.8) +
+  geom_text(aes(label=sprintf("N=%d", `N retained`), x=hi+0.03), hjust=0, size=3) +
+  annotate("text", x=ATT_true_obs+0.01, y=5.45,
+           label="True ATT", hjust=0, size=3.2, colour=clr_eco) +
+  annotate("text", x=ATE_true_obs+0.01, y=5.1,
+           label="True ATE", hjust=0, size=3.2, colour=clr_ctrl) +
+  scale_colour_manual(values=c("FALSE"="grey50","TRUE"="#b45309"),
+                      labels=c("Misspecified PS","Correctly specified PS")) +
+  scale_shape_manual(values=c("FALSE"=16,"TRUE"=18),
+                     labels=c("Misspecified PS","Correctly specified PS")) +
+  labs(x="ATT estimate — eco-label effect ($)", y=NULL, colour=NULL, shape=NULL,
+       title="PSM estimates converge on the true ATT only when the PS model is correctly specified",
+       subtitle="The correctly specified model (orange) recovers the true ATT most accurately") +
+  theme_mod3()
+```
+
+```{r covariate-balance, fig.height=5, fig.width=8}
+#| code-summary: "▶ Love plot: balance before and after correctly-specified PSM"
+love.plot(m_ps5, thresholds=c(m=0.1), stars="std",
+          title="Covariate balance: correctly specified PSM (env² + env×income + caliper)",
+          colors=c(clr_ctrl, clr_eco))
+```
+
+## Doubly Robust Estimation {#sec-doubly-robust}
+
+**What it does:** Combines an outcome model *and* a propensity score model. The estimate is consistent if **either** model is correctly specified — it only needs one to be right.
+
+Here both the outcome model and PS model include the non-linear terms (`env²`, `env × income`), so both are correctly specified. The DR estimate should perform best.
+
+```{r doubly-robust}
+#| code-summary: "▶ AIPW with correctly-specified outcome and PS models"
+# Outcome models (correctly specified: include env^2 and env:income)
+mu1_model <- lm(Y_obs ~ env + price_sens + income + env_sq + env_income,
+                data=df_obs[df_obs$treat==1,])
+mu0_model <- lm(Y_obs ~ env + price_sens + income + env_sq + env_income,
+                data=df_obs[df_obs$treat==0,])
+mu1_hat   <- predict(mu1_model, newdata=df_obs)
+mu0_hat   <- predict(mu0_model, newdata=df_obs)
+
+# PS model (correctly specified)
+ps_hat_dr <- fitted(glm(treat ~ env + price_sens + income + env_sq + env_income,
+                        data=df_obs, family=binomial))
+
+# AIPW estimator
+Y_v <- df_obs$Y_obs; D_v <- df_obs$treat
+tau_dr <- (mu1_hat - mu0_hat) +
+          D_v*(Y_v - mu1_hat)/ps_hat_dr -
+          (1-D_v)*(Y_v - mu0_hat)/(1-ps_hat_dr)
+
+ATE_dr <- mean(tau_dr)
+SE_dr  <- sd(tau_dr)/sqrt(N)
+
+cat(sprintf(
+  "True ATE              = %.3f\nNaive estimate        = %.3f\nLinear reg. adj.      = %.3f\nFlexible reg. adj.    = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\nDR/AIPW (correct)     = %.3f  (SE = %.3f)\n",
+  ATE_true_obs, naive_diff,
+  coef(m_linear)["treat"], coef(m_flex)["treat"],
+  ATE_ipw_stab, ATE_ebal,
+  ATE_dr, SE_dr
+))
+```
+
+## How Well Do All Section 2 Methods Recover the True ATE? {#sec-sec2-comparison}
+
+```{r section2-summary-plot, fig.height=5.5, fig.width=10, echo=FALSE}
+#| code-summary: "▶ Comprehensive comparison of all observational estimators"
+tibble(
+  Method   = c(
+    "Naive (no adjustment)",
+    "Linear regression\nadjustment",
+    "Flexible regression\n(env² + env×income)",
+    "IPW — stabilised\n(logit, linear PS)",
+    "Entropy balancing\n(moment-matching IPW)",
+    "Matching — Mahalanobis\n1:1 NN",
+    "PSM — misspecified\n(logit linear)",
+    "PSM — correctly\nspecified + caliper",
+    "Doubly Robust\nAIPW (correct models)"
+  ),
+  Estimate = c(
+    naive_diff,
+    coef(m_linear)["treat"],
+    coef(m_flex)["treat"],
+    ATE_ipw_stab,
+    ATE_ebal,
+    ATT_match_maha,
+    results_psm$estimate[1],
+    results_psm$estimate[5],
+    ATE_dr
+  ),
+  Target  = c("ATE","ATE","ATE","ATE","ATE","ATT","ATT","ATT","ATE"),
+  Quality = c("Naive","Basic","Flexible","IPW","Advanced","Matching","PSM","PSM","Advanced")
+) |>
+  mutate(Method  = fct_inorder(Method),
+         Bias    = Estimate - ATE_true_obs) |>
+  ggplot(aes(y=Method, x=Estimate, colour=Quality, shape=Target)) +
+  geom_vline(xintercept=ATE_true_obs, linetype="dashed", colour=clr_eco,  linewidth=1.1) +
+  geom_vline(xintercept=ATT_true_obs, linetype="dotted", colour=clr_ctrl, linewidth=1.1) +
+  geom_point(size=4) +
+  annotate("text", x=ATE_true_obs+0.01, y=9.45,
+           label="True ATE", hjust=0, size=3.3, colour=clr_eco, fontface="bold") +
+  annotate("text", x=ATT_true_obs+0.01, y=9.0,
+           label="True ATT", hjust=0, size=3.3, colour=clr_ctrl) +
+  scale_colour_manual(
+    values=c(Naive="#c0392b", Basic="#e67e22", Flexible="#f1c40f",
+             IPW="#3498db", Matching="#9b59b6", PSM="#16a085", Advanced="#2d6a4f")) +
+  scale_shape_manual(values=c(ATE=16, ATT=18)) +
+  labs(x="Estimate ($)", y=NULL, colour="Method class", shape="Target estimand",
+       title="Nine estimators compared against the known true ATE and ATT",
+       subtitle="Non-linear DGP: methods that model non-linearity or balance moments perform best") +
+  theme_mod3()
+```
+
+::: {.callout-tip}
+## What the gradient shows
+
+| Method class | Why it performs that way |
+|---|---|
+| **Naive** | No correction — pure selection bias |
+| **Linear regression** | Removes linear confounding; missing `env²` and `env×income` leaves residual bias |
+| **Flexible regression** | Includes non-linear terms → less bias |
+| **IPW (stabilised)** | PS model also misspecified (linear logit) → some remaining bias |
+| **Entropy balancing** | Directly balances covariate *moments* — robust to PS misspecification |
+| **Matching/PSM** | Targets ATT (higher than ATE because treated have stronger responses) |
+| **Doubly Robust** | Both outcome model AND PS model correctly specified → lowest bias |
+
+The **doubly robust** and **entropy balancing** approaches consistently outperform simpler methods when the true confounding is non-linear. The correctly specified PSM recovers the ATT accurately; the misspecified PSM does less well.
+:::
+
+## Synthetic Controls {#sec-synth}
+
+What if you only have **one treated unit** — say, AlterEco's flagship Rotterdam store introduced eco-labels?
+
+```{r synthetic-control, fig.height=5, fig.width=9}
+#| code-summary: "▶ Synthetic control for Rotterdam flagship store"
+set.seed(2024)
+n_stores <- 21; n_pre <- 20; n_post <- 10; treat_store <- 1
+store_fe <- rnorm(n_stores, 0, 0.8)
+
+panel_df <- expand.grid(store=1:n_stores, period=1:(n_pre+n_post)) |>
+  as_tibble() |>
+  mutate(treated=(store==treat_store & period>n_pre),
+         WTP=5.5 + store_fe[store] + 0.02*(period-n_pre) +
+             treated*0.80 + rnorm(n(), 0, 0.40))
+
+pre_means <- panel_df |> filter(period<=n_pre) |>
+  group_by(store) |> summarise(pre_mean=mean(WTP), .groups="drop")
+treated_pre_mean <- pre_means$pre_mean[pre_means$store==treat_store]
+
+control_stores <- pre_means |> filter(store!=treat_store) |>
+  mutate(dist=abs(pre_mean-treated_pre_mean), w_raw=1/(dist+0.01), w=w_raw/sum(w_raw))
+
+synth_ts <- panel_df |> filter(store!=treat_store) |>
+  left_join(control_stores[,c("store","w")], by="store") |>
+  group_by(period) |> summarise(WTP_synth=weighted.mean(WTP,w), .groups="drop") |>
+  mutate(series="Synthetic Rotterdam")
+
+treated_ts <- panel_df |> filter(store==treat_store) |>
+  dplyr::select(period, WTP) |> rename(WTP_synth=WTP) |>
+  mutate(series="Rotterdam (actual)")
+
+bind_rows(synth_ts, treated_ts) |>
+  ggplot(aes(x=period, y=WTP_synth, colour=series, linetype=series)) +
+  geom_line(linewidth=1) +
+  geom_vline(xintercept=n_pre+0.5, linetype="dashed", colour="grey50") +
+  annotate("text", x=n_pre+1, y=5.0, label="Eco-label\nintroduced", hjust=0, size=3.5, colour="grey40") +
+  scale_colour_manual(values=c("Rotterdam (actual)"=clr_eco,"Synthetic Rotterdam"=clr_ctrl)) +
+  scale_linetype_manual(values=c("Rotterdam (actual)"="solid","Synthetic Rotterdam"="dashed")) +
+  labs(x="Period", y="Mean WTP ($)", colour=NULL, linetype=NULL,
+       title="Synthetic Control: Rotterdam vs. its synthetic twin built from control stores",
+       subtitle="Good pre-period fit validates the synthetic match; gap after dashed line = causal effect") +
+  theme_mod3()
+```
+
+---
+
+# Part 3: Regression Discontinuity Design
+
+## The Core Idea {#sec-rdd-idea}
+
+AlterEco's retailer awards a **"Certified Sustainable"** badge to any coffee product scoring **70 or above** on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is *nearly random* near 70. We exploit this near-randomness.
+
+::: {.callout-note}
+## Why the jump at 70 is causal — the "as-good-as-random" intuition
+
+Imagine two products with audit scores of 69 and 71. They have almost identical green credentials — similar supply chains, similar materials — but the auditor's ruler is imprecise. Those two points of difference are largely measurement noise. Yet one gets the badge and the other doesn't. **Near the cutoff, badge assignment is as good as a coin flip.**
+
+This local near-randomness is what makes the jump causal. It is equivalent to a mini natural experiment: products just above and just below 70 are exchangeable in every way except for badge receipt. The jump in WTP at that threshold is therefore attributable *entirely* to the badge.
+
+**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently.
+
+**A practical check to run first**: If brands can game the audit score to land just above 70, the "as-good-as-random" assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.
+:::
+
+## Simulating an RDD {#sec-rdd-sim}
+
+```{r rdd-dgp, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Simulate 1,200 products near the 70-point certification threshold"
+set.seed(2024)
+N_rdd <- 1200; cutoff <- 70; true_jump <- 0.80
+audit_score <- runif(N_rdd, 30, 100)
+treat_rdd   <- as.integer(audit_score >= cutoff)
+
+WTP_rdd <- 4.0 + 0.02*(audit_score-cutoff) - 0.0003*(audit_score-cutoff)^2 +
+           true_jump*treat_rdd + rnorm(N_rdd, 0, 0.60)
+WTP_rdd <- pmax(1, pmin(10, WTP_rdd))
+df_rdd  <- tibble(audit_score, treat_rdd, WTP_rdd, running=audit_score-cutoff)
+
+df_rdd |>
+  ggplot(aes(x=audit_score, y=WTP_rdd, colour=factor(treat_rdd))) +
+  geom_point(alpha=0.30, size=0.9) +
+  geom_vline(xintercept=cutoff, linewidth=1, colour="grey30") +
+  geom_smooth(method="lm", formula=y~poly(x,2), se=TRUE, alpha=0.2) +
+  scale_colour_manual(values=c("0"=clr_ctrl,"1"=clr_eco),
+                      labels=c("Below 70 (no badge)","Above 70 (badge)")) +
+  annotate("text", x=71, y=9.2, label="Cutoff = 70", hjust=0, size=3.5, fontface="bold") +
+  annotate("segment", x=70, xend=70, y=3.85, yend=4.85, colour="firebrick",
+           arrow=arrow(ends="both", length=unit(.2,"cm")), linewidth=0.8) +
+  annotate("text", x=71, y=4.35,
+           label=sprintf("~$%.2f jump\n(badge effect)", true_jump),
+           hjust=0, size=3, colour="firebrick") +
+  labs(x="Audit Score (running variable)", y="Consumer WTP ($)", colour=NULL,
+       title="Regression Discontinuity: the jump at 70 estimates the badge's causal effect") +
+  theme_mod3()
+```
+
+## Key Assumptions and How to Test Them {#sec-rdd-assumptions}
+
+### Assumption 1: No Manipulation
+
+```{r rdd-density-test, fig.height=4, fig.width=7}
+dens_test <- rddensity(X=df_rdd$audit_score, c=cutoff)
+summary(dens_test)
+rdplotdensity(dens_test, X=df_rdd$audit_score,
+              title="Density test: checking for bunching at the 70-point cutoff",
+              xlabel="Audit score", ylabel="Density")
+```
+
+A significant p-value signals that brands are gaming audit scores to land just above 70. With our simulated uniform running variable, the density is continuous.
+
+### Assumption 2: Covariate Continuity
+
+```{r rdd-covariate-balance}
+env_rdd <- rnorm(N_rdd, 0 + 0.01*(audit_score-cutoff)/10, 1)
+rdd_env <- rdrobust(y=env_rdd, x=df_rdd$audit_score, c=cutoff)
+cat("Covariate balance — env. concern should NOT jump at the threshold:\n")
+summary(rdd_env)
+```
+
+## Estimating the RDD Effect {#sec-rdd-estimate}
+
+```{r rdd-estimate, fig.height=4.5, fig.width=8}
+rdd_est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff)
+summary(rdd_est)
+rdplot(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff,
+       title="RDD estimate: causal effect of sustainability badge on WTP",
+       x.label="Audit Score", y.label="WTP ($)")
+```
+
+```{r rdd-bandwidth-sensitivity, fig.height=4, fig.width=8}
+bw_results <- map_dfr(c(5,8,10,15,20,25,30), function(bw) {
+  est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff, h=bw)
+  tibble(bandwidth=bw, estimate=est$coef["Conventional",1], se=est$se["Robust",1])
+})
+
+bw_results |>
+  mutate(lo=estimate-1.96*se, hi=estimate+1.96*se) |>
+  ggplot(aes(x=bandwidth, y=estimate, ymin=lo, ymax=hi)) +
+  geom_hline(yintercept=true_jump, linetype="dashed", colour="grey40", linewidth=1) +
+  geom_ribbon(alpha=0.15, fill=clr_eco) +
+  geom_line(colour=clr_eco, linewidth=1) + geom_point(colour=clr_eco, size=2.5) +
+  annotate("text", x=5.5, y=true_jump+0.05, label=sprintf("True = $%.2f", true_jump),
+           hjust=0, size=3.5) +
+  labs(x="Bandwidth (audit score units)", y="Estimated badge effect ($)",
+       title="RDD estimates stable across bandwidths h = 5 to 30",
+       subtitle="Instability would indicate sensitivity to bandwidth — a red flag") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## The bandwidth trade-off: bias vs. variance
+
+The bandwidth $h$ controls which products are included in the RDD comparison — only those with audit scores in $[70-h,\ 70+h]$. This creates a fundamental tension:
+
+| Narrow $h$ | Wide $h$ |
+|---|---|
+| Products are very similar to each other near the cutoff ✔ | More observations → tighter CI ✔ |
+| Few observations → wide CI ✖ | Products far from 70 differ systematically from each other ✖ |
+
+**`rdrobust` selects the bandwidth automatically** using a mean-squared-error optimal rule — it finds the $h$ that best balances bias and variance. The bandwidth-sensitivity plot above is a sanity check: stable estimates across a wide range of $h$ suggest the result is not an artefact of a specific choice.
+
+When estimates collapse or swing wildly as $h$ changes, it usually means the polynomial fit on one side of the cutoff is extrapolating too aggressively. That's a red flag that warrants narrowing $h$ or using a local linear fit.
+:::
+
+---
+
+# Part 4: Difference-in-Differences
+
+## The Setup {#sec-did-setup}
+
+The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
+
+## Simulating Panel Data {#sec-did-sim}
+
+```{r did-dgp, fig.height=4.5, fig.width=9}
+set.seed(2024)
+n_dutch <- 15; n_belgian <- 20; n_stores_did <- n_dutch+n_belgian
+years <- 2018:2024; T_treat <- 2022
+
+panel_did <- expand.grid(store=1:n_stores_did, year=years) |>
+  as_tibble() |>
+  mutate(
+    country      = ifelse(store<=n_dutch,"Netherlands","Belgium"),
+    treated      = (country=="Netherlands"),
+    post         = (year>=T_treat),
+    did_indicator= treated & post,
+    store_fe     = rnorm(n_stores_did, 0, 0.5)[store],
+    time_trend   = 0.10*(year-2018),
+    country_fe   = ifelse(country=="Netherlands", 0.30, 0),
+    treat_effect = did_indicator * 0.70,
+    WTP_did      = 5.20 + store_fe + time_trend + country_fe + treat_effect + rnorm(n(), 0, 0.35)
+  )
+
+panel_did |>
+  group_by(country, year) |>
+  summarise(mean_WTP=mean(WTP_did), .groups="drop") |>
+  ggplot(aes(x=year, y=mean_WTP, colour=country, group=country)) +
+  geom_vline(xintercept=T_treat-0.5, linetype="dashed", colour="grey50") +
+  geom_line(linewidth=1.2) + geom_point(size=2.5) +
+  annotate("text", x=T_treat+0.1, y=5.1,
+           label="Dutch eco-label\nlaw takes effect", hjust=0, size=3.2) +
+  scale_colour_manual(values=c("Netherlands"=clr_eco,"Belgium"=clr_ctrl)) +
+  labs(x="Year", y="Mean WTP ($)", colour=NULL,
+       title="DiD: parallel pre-trends are the key identifying assumption",
+       subtitle="Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## What "parallel trends" actually means — and why Belgium is the key
+
+DiD hinges on one unanswerable question: *what would Dutch stores have done after 2022 if the eco-label law had never passed?* We can't observe this counterfactual. **The parallel trends assumption supplies the answer**: Belgian stores tell us.
+
+More precisely, the assumption states that **absent treatment, the Dutch–Belgian WTP gap would have remained constant** — both series drifting up or down by identical amounts each year. Under this assumption:
+
+$$\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_{\text{Belgian}}}_{\text{counterfactual proxy}} = \delta_{\text{DiD}}$$
+
+**Reading the plot above:** The two lines run nearly parallel from 2018–2021 (same slope, constant gap). After 2022 the Dutch line separates from the Belgian. DiD attributes that separation — roughly \$0.70 — to the eco-label law, *after* subtracting whatever movement Belgium showed over the same period (which would have happened anyway).
+
+**What makes this assumption fail?** Anything that makes Dutch and Belgian stores diverge *for reasons unrelated to the law* — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.
+:::
+
+## Two-Way Fixed Effects (TWFE) {#sec-did-twfe}
+
+$$Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}$$
+
+```{r did-twfe}
+did_twfe <- lm_robust(WTP_did ~ did_indicator + factor(store) + factor(year),
+                      data=panel_did, clusters=store)
+did_coef <- tidy(did_twfe) |> filter(term=="did_indicatorTRUE")
+cat(sprintf(
+  "True DiD effect  = 0.70\nEstimated DiD    = %.3f  (SE = %.3f, p = %.4f)\n95%% CI: [%.3f, %.3f]\n",
+  did_coef$estimate, did_coef$std.error, did_coef$p.value,
+  did_coef$conf.low, did_coef$conf.high
+))
+```
+
+::: {.callout-note}
+## What the two sets of fixed effects absorb
+
+$$Y_{it} = \underbrace{\alpha_i}_{\text{store FE}} + \underbrace{\lambda_t}_{\text{year FE}} + \delta \cdot D_{it} + \varepsilon_{it}$$
+
+Each type of fixed effect removes a specific source of confounding:
+
+| Term | What it controls for | Example here |
+|---|---|---|
+| $\alpha_i$ — store fixed effects | Time-invariant differences between stores | Store size, neighbourhood demographics, pre-existing customer base |
+| $\lambda_t$ — year fixed effects | Year-level shocks that hit *all* stores equally | Euro-area inflation, global supply chain costs, macro consumer sentiment |
+| $\delta$ — the DiD estimator | How much *more* the treated group changed *after* treatment vs. the control group | Causal effect of the Dutch eco-label law |
+
+**The critical residual $\varepsilon_{it}$**: whatever the fixed effects can't absorb — differential trends (treated and control groups moving at different rates), time-varying store-specific shocks — ends up here. This is exactly where parallel-trends violations hide. Adding pre-treatment event-study coefficients is a way to interrogate whether $\varepsilon_{it}$ contains systematic pre-treatment divergence.
+:::
+
+## Testing Parallel Trends: Event Study {#sec-did-event}
+
+```{r did-event-study, fig.height=4.5, fig.width=9}
+panel_did <- panel_did |>
+  mutate(year_rel=year-T_treat,
+         year_rel_fac=relevel(factor(year_rel), ref="-1"))
+
+event_formula <- as.formula("WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)")
+did_event     <- lm_robust(event_formula, data=panel_did, clusters=store)
+
+event_tbl <- tidy(did_event) |>
+  filter(str_detect(term,"year_rel_fac")) |>
+  mutate(yr=as.integer(str_extract(term,"-?\\d+$")),
+         period=if_else(yr<0,"Pre-treatment","Post-treatment")) |>
+  add_row(yr=-1L, estimate=0, conf.low=0, conf.high=0, period="Reference (−1)")
+
+event_tbl |>
+  ggplot(aes(x=yr, y=estimate, ymin=conf.low, ymax=conf.high, colour=period)) +
+  geom_hline(yintercept=0, linetype="dashed", colour="grey50") +
+  geom_vline(xintercept=-0.5, linetype="dotted", colour="grey60") +
+  geom_pointrange(size=0.7) +
+  scale_colour_manual(values=c("Pre-treatment"=clr_ctrl,"Post-treatment"=clr_eco,
+                               "Reference (−1)"="grey40")) +
+  labs(x="Years relative to Dutch eco-label law (0 = 2022)", y="DiD coefficient ($)",
+       colour=NULL,
+       title="Event study: pre-treatment coefficients near zero — parallel trends supported",
+       subtitle="Post-treatment estimates rise consistently — evidence of a sustained law effect") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## How to read an event study plot
+
+Each point is the DiD coefficient for that relative year — how much the Dutch–Belgian gap in that year differed from the gap in the reference year (here: year $-1$, the year just before treatment).
+
+**Pre-treatment years (left of the dotted line)**: If parallel trends holds, these should be near zero with overlapping CIs. A systematic upward or downward trend here is evidence of a *pre-existing differential trend* — the most direct threat to identification.
+
+**Post-treatment years (right of the dotted line)**: These estimate the treatment effect over time. A sustained positive trajectory (as here) suggests a genuine, growing effect of the law rather than a one-off jump.
+
+**What to worry about**: (1) Any pre-period estimate far from zero and statistically significant; (2) CIs so wide they can't rule out large violations — this happens when you have very few pre-periods (see the next section).
+:::
+
+## Synthetic Difference-in-Differences {#sec-synthdid}
+
+```{r synthdid, fig.height=4, fig.width=8}
+sdid_wide <- panel_did |>
+  dplyr::select(store, year, WTP_did, treated) |>
+  pivot_wider(names_from=year, values_from=WTP_did) |>
+  arrange(treated)
+
+N0 <- sum(!sdid_wide$treated); T0 <- sum(years < T_treat)
+Y_matrix <- sdid_wide |> dplyr::select(-store,-treated) |> as.matrix()
+
+sdid_est <- synthdid_estimate(Y_matrix, N0, T0)
+sc_est   <- sc_estimate(Y_matrix, N0, T0)
+did_est  <- did_estimate(Y_matrix, N0, T0)
+
+tibble(
+  Method       = c("Standard DiD","Synthetic Control","Synthetic DiD"),
+  Estimate     = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est)), 3),
+  `True effect`= 0.70,
+  Bias         = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est))-0.70, 3)
+) |> knitr::kable(caption="All three estimators vs. the true effect of 0.70")
+```
+
+```{r synthdid-plot, fig.height=5, fig.width=8}
+plot(sdid_est, se.method="placebo")
+```
+
+## When Parallel Trends Fails — and Pre-Testing Cannot Always Save You {#sec-pt-failure}
+
+Parallel trends is **not directly testable** — you never observe what Dutch stores would have done without the eco-label law. What you *can* test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:
+
+1. **Too few pre-treatment periods.** Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.
+2. **You collect whatever data exists.** Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.
+
+::: {.callout-important}
+## What the pre-trend test does — and does not — establish
+
+The event study tests whether *observed pre-treatment outcomes* moved in parallel. It does **not** test:
+
+- Whether unmeasured confounders were evolving differently for treated and control units
+- Whether the differential dynamic would have continued into the post-period absent treatment
+- Whether a violation is simply too small to detect given the available pre-periods
+
+Passing the pre-trend test is necessary but far from sufficient for causal identification.
+:::
+
+### A Realistic Parallel Trends Violation {#sec-pt-violation-viz}
+
+Suppose Dutch stores were *already* attracting more environmentally conscious shoppers whose WTP grew \$0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there (selection). **The true treatment effect is zero.** The eco-label law is irrelevant. But this ongoing differential growth will trick DiD into finding one.
+
+```{r pt-violation-dgp, fig.height=6.5, fig.width=10}
+#| code-summary: "▶ Same violation: unmistakeable with 8 pre-periods, invisible with 2"
+set.seed(2025)
+n_dutch_v  <- 15; n_belgian_v <- 20; n_stores_v <- n_dutch_v + n_belgian_v
+T_treat_v  <- 2022; n_post_v <- 3
+diff_slope_v <- 0.15   # Dutch stores grow $0.15/yr faster throughout (selection, not treatment)
+store_fes_v  <- rnorm(n_stores_v, 0, 0.6)
+
+make_violation_panel <- function(yrs, true_eff = 0) {
+  expand.grid(store = 1:n_stores_v, year = yrs) |> as_tibble() |>
+    mutate(
+      treated       = as.numeric(store <= n_dutch_v),
+      country       = ifelse(treated == 1, "Netherlands", "Belgium"),
+      post          = as.numeric(year >= T_treat_v),
+      did_indicator = treated * post,
+      store_fe      = store_fes_v[store],
+      diff_trend    = treated * diff_slope_v * (year - T_treat_v),
+      WTP           = 5.20 + store_fe + 0.08 * (year - T_treat_v) +
+                      diff_trend + true_eff * did_indicator + rnorm(n(), 0, 0.40)
+    )
+}
+
+panel_many_v <- make_violation_panel(2014:2024)   # 8 pre-periods
+panel_few_v  <- make_violation_panel(2020:2024)   # 2 pre-periods
+
+plot_pt_panel <- function(panel, subtitle) {
+  panel |> group_by(country, year) |>
+    summarise(WTP = mean(WTP), .groups = "drop") |>
+    ggplot(aes(x = year, y = WTP, colour = country, group = country)) +
+    geom_vline(xintercept = T_treat_v - 0.5, linetype = "dashed",
+               colour = "grey50", linewidth = 0.9) +
+    geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+    scale_colour_manual(values = c("Netherlands" = clr_eco, "Belgium" = clr_ctrl)) +
+    scale_x_continuous(breaks = unique(panel$year)) +
+    labs(x = NULL, y = "Mean WTP ($)", colour = NULL, subtitle = subtitle) +
+    theme_mod3()
+}
+
+p_many_v <- plot_pt_panel(panel_many_v,
+  "8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here")
+p_few_v  <- plot_pt_panel(panel_few_v,
+  "2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged")
+
+(p_many_v / p_few_v) +
+  plot_annotation(
+    title    = "Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)",
+    subtitle = "How many pre-periods you happen to collect determines whether you can even see the problem",
+    theme    = theme(plot.title    = element_text(size = 13, face = "bold"),
+                     plot.subtitle = element_text(size = 11))
+  )
+```
+
+With 8 pre-periods the violation is glaringly obvious — you would never run DiD here. With 2 pre-periods the same violation is invisible. Yet the DiD estimate is equally spurious in both cases:
+
+```{r pt-violation-did}
+#| code-summary: "▶ DiD on 2-pre-period data: statistically significant, entirely spurious"
+did_viol <- lm_robust(WTP ~ did_indicator + factor(store) + factor(year),
+                      data = panel_few_v, clusters = store)
+dv <- tidy(did_viol) |> dplyr::filter(term == "did_indicator")
+cat(sprintf(
+  "True treatment effect  = $0.000\n
+DiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)\n95%% CI: [$%.3f, $%.3f]\n\nThis looks like a meaningful, significant eco-label effect.\nIt is entirely spurious. The violation was undetectable with 2 pre-periods.\n",
+  dv$estimate, dv$std.error, dv$p.value, dv$conf.low, dv$conf.high
+))
+```
+
+### Monte Carlo: Pre-Test Power and Type I Error {#sec-pt-mc}
+
+We now formalise this with 300 simulations per condition. **True effect = \$0 throughout.** We vary the number of pre-treatment periods from 1 to 6 and track three quantities:
+
+| Quantity | What it means |
+|---|---|
+| **Pre-test power** | How often does the pre-trend test detect the violation? (p < .05) |
+| **Overall Type I error** | How often does DiD falsely reject H₀? |
+| **Conditional Type I error** | Given the pre-test *passes* (p ≥ .05), how often does DiD still falsely reject? |
+
+The conditional rate is what matters most: it is the false-positive rate faced by researchers who *did their due diligence* with an event study and got a clean-looking pre-trend.
+
+```{r pt-simulation}
+#| code-summary: "▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)"
+set.seed(2025)
+N_SIM_PT <- 300
+
+pt_sim_one <- function(n_pre) {
+  years_s <- c(seq(T_treat_v - n_pre, T_treat_v - 1),
+               T_treat_v:(T_treat_v + n_post_v - 1))
+  n_yrs <- length(years_s)
+
+  mat <- replicate(N_SIM_PT, {
+    n_obs     <- n_stores_v * n_yrs
+    store_s   <- rep(1:n_stores_v, each = n_yrs)
+    year_s    <- rep(years_s, times = n_stores_v)
+    treated_s <- as.numeric(store_s <= n_dutch_v)
+    post_s    <- as.numeric(year_s >= T_treat_v)
+    did_s     <- treated_s * post_s
+    diff_s    <- treated_s * diff_slope_v * (year_s - T_treat_v)
+    fe_s      <- rnorm(n_stores_v, 0, 0.6)[store_s]
+    WTP_s     <- 5.20 + fe_s + 0.08 * (year_s - T_treat_v) + diff_s + rnorm(n_obs, 0, 0.40)
+
+    df_s <- data.frame(
+      WTP     = WTP_s,
+      did     = did_s,
+      store   = factor(store_s),
+      year    = factor(year_s),
+      treated = treated_s,
+      post    = post_s,
+      year_num= year_s
+    )
+
+    # DiD p-value with clustered SEs
+    fit_d  <- lm(WTP ~ did + store + year, data = df_s)
+    pval_d <- coeftest(fit_d, vcovCL(fit_d, cluster = ~store))["did", 4]
+
+    # Pre-trend test: treated x linear year interaction in pre-period only
+    if (n_pre >= 2) {
+      pre_s      <- df_s[df_s$post == 0, ]
+      pre_s$yr_c <- pre_s$year_num - mean(pre_s$year_num)
+      fit_p  <- lm(WTP ~ treated * yr_c + store, data = pre_s)
+      ct_p   <- coeftest(fit_p, vcovCL(fit_p, cluster = ~store))
+      pval_p <- tryCatch(ct_p["treated:yr_c", 4], error = function(e) 1.0)
+    } else {
+      pval_p <- 1.0   # Cannot test with only 1 pre-period — always "passes"
+    }
+
+    c(pval_d, pval_p)
+  })  # 2 × N_SIM_PT matrix
+
+  data.frame(n_pre    = n_pre,
+             did_pval = mat[1, ],
+             pre_pval = mat[2, ])
+}
+
+sim_all_pt <- map_dfr(1:6, pt_sim_one)
+cat(sprintf("Simulation complete: %d total runs across 6 pre-period conditions.\n",
+            nrow(sim_all_pt)))
+```
+
+```{r pt-type1-plot, fig.height=5, fig.width=10, echo=FALSE}
+type1_pt <- sim_all_pt |>
+  group_by(n_pre) |>
+  summarise(
+    pwr_pretest = mean(pre_pval < 0.05, na.rm = TRUE),
+    t1_overall  = mean(did_pval < 0.05, na.rm = TRUE),
+    t1_cond     = {
+      pass_idx <- pre_pval >= 0.05 | is.na(pre_pval)
+      if (!any(pass_idx)) NA_real_ else mean(did_pval[pass_idx] < 0.05, na.rm = TRUE)
+    },
+    n_pass = sum(pre_pval >= 0.05 | is.na(pre_pval), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+type1_pt |>
+  transmute(
+    n_pre,
+    `Pre-test power\n(detects violation)`          = pwr_pretest,
+    `Overall DiD\nType I error`                    = t1_overall,
+    `Conditional Type I\n(given pre-test passes)`  = t1_cond
+  ) |>
+  pivot_longer(-n_pre, names_to = "Metric", values_to = "Rate") |>
+  mutate(Metric = factor(Metric, levels = c(
+    "Pre-test power\n(detects violation)",
+    "Overall DiD\nType I error",
+    "Conditional Type I\n(given pre-test passes)"
+  ))) |>
+  ggplot(aes(x = n_pre, y = Rate, colour = Metric, shape = Metric)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 1.15, y = 0.07, label = "Nominal 5%", size = 3.2,
+           colour = "grey40", hjust = 0) +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "Pre-test power\n(detects violation)"         = "#2563a8",
+    "Overall DiD\nType I error"                   = "#e67e22",
+    "Conditional Type I\n(given pre-test passes)" = "firebrick"
+  )) +
+  scale_shape_manual(values = c(
+    "Pre-test power\n(detects violation)"         = 16,
+    "Overall DiD\nType I error"                   = 17,
+    "Conditional Type I\n(given pre-test passes)" = 18
+  )) +
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(
+    x = "Number of pre-treatment periods collected",
+    y = "Rate",
+    colour = NULL, shape = NULL,
+    title = "Type I error inflation under parallel trends violation (true treatment effect = $0)",
+    subtitle = sprintf(
+      "Dutch stores grow $0.15/yr faster than Belgian — entirely spurious; %d sims per condition",
+      N_SIM_PT)
+  ) +
+  theme_mod3() +
+  theme(legend.key.width = unit(2, "cm"))
+```
+
+```{r pt-summary-table, echo=FALSE}
+type1_pt |>
+  transmute(
+    `Pre-periods`         = n_pre,
+    `Pre-test power`      = sprintf("%.0f%%", 100 * pwr_pretest),
+    `Sims passing`        = sprintf("%d / %d", n_pass, N_SIM_PT),
+    `Overall Type I`      = sprintf("%.0f%%", 100 * t1_overall),
+    `Conditional Type I`  = sprintf("%.0f%%", 100 * t1_cond)
+  ) |>
+  knitr::kable(
+    caption = sprintf(
+      "Monte Carlo summary (%d sims per condition, true effect = $0, differential trend = $0.15/yr). 'Conditional' = false positive rate among studies where the pre-trend test passed.",
+      N_SIM_PT)
+  )
+```
+
+::: {.callout-warning}
+## What this means for practice
+
+**The key pattern:**
+
+- With **1 pre-period**: The test is impossible. The false-positive rate can be 40–70% — a researcher following standard practice would be nearly flipping a coin.
+- With **2–3 pre-periods**: Pre-test power is low. Most violations slip through. Conditional Type I error is still far above the nominal 5%.
+- With **5–6 pre-periods**: Power improves substantially. But violations that slip through the test still produce inflated Type I error.
+
+**The fundamental problem is not the test — it is the data.** Researchers often have no choice but to use available archives, which may span only 1–3 pre-treatment periods. This is structurally similar to mediation: just as researchers rarely measure all possible confounders of the M→Y path, they rarely collect enough pre-treatment history to reliably test parallel trends.
+
+**What to do:**
+
+- Report the number of pre-treatment periods and be honest about the test's power
+- Run placebo DiDs — apply the treatment label to earlier years or non-treated units and check that "effects" are near zero
+- Use **Rambachan & Roth's (2023) `HonestDiD`** sensitivity analysis, which asks: *how large a pre-trend violation would be required to explain away your result?* This reframes the question from "is there a violation?" (often unknowable) to "how large a violation would matter?" (estimable and reportable)
+- Treat a passing event study as weak evidence, not proof, of parallel trends
+:::
+
+---
+
+# Part 5: Mediation — Does the Eco-Label Work *Through* Perceived Sustainability?
+
+Mediation analysis asks whether the eco-label affects WTP **directly** or **through a mechanism** — here, *perceived sustainability* (M). Three estimators are compared across three scenarios that each challenge a different method.
+
+| Scenario | Key feature | Who wins |
+|---|---|---|
+| **1: Clean normal data** | No violations — a baseline | All methods perform well |
+| **2: Large outliers** | Correlated high-leverage points inflate OLS b-path | **ROBMED** wins |
+| **3: M–Y confounded** | Unobserved U causes both M and Y; true ACME = 0 | **Imai sensitivity** catches it |
+
+::: {.callout-note}
+## The mediation arithmetic — and where it can break
+
+Baron–Kenny mediation decomposes X's total effect on Y into two paths:
+
+$$\underbrace{X \xrightarrow{\;a\;} M \xrightarrow{\;b\;} Y}_{\text{indirect (ACME) = } a \times b} \quad + \quad \underbrace{X \xrightarrow{\;c'\;} Y}_{\text{direct (ADE)}}$$
+
+The **ACME** (Average Causal Mediation Effect) is the product $a \times b$. It has two failure modes that the three scenarios below are specifically designed to reveal:
+
+1. **The *b*-path can be estimated on the wrong data** — if outliers inflate the apparent slope between M and Y, $\hat{b}$ is too large, and so is $\hat{a} \times \hat{b}$. ROBMED addresses this.
+2. **The *b*-path can be estimated on the wrong model** — if an unobserved variable $U^*$ drives both M and Y, the OLS $\hat{b}$ picks up the $U^*$ signal as if it were causal M→Y. No regression method alone can fix this; Imai's sensitivity analysis quantifies how severe the problem would need to be to explain away the result.
+:::
+
+## Causal Structures {#sec-med-dags}
+
+```{r med-dag-scenarios, fig.height=3.2, fig.width=10, echo=FALSE}
+#| code-summary: "▶ DAGs: true mediation (Scenarios 1 & 2) vs. confounded (Scenario 3)"
+dA <- .dag(nodes = list(X=c(0,.5), M=c(.5,.9), Y=c(1,.5)),
+           solid  = list(c("X","M"), c("M","Y"), c("X","Y")),
+           title  = "Scenarios 1 & 2: True mediation\nX → M → Y  (+ direct path X → Y)")
+dB <- .dag(nodes     = list(X=c(0,.5), M=c(.5,.9), Y=c(1,.5), U=c(.5,.1)),
+           solid     = list(c("X","M"), c("X","Y"), c("U","M"), c("U","Y")),
+           dashed    = list(c("M","Y")),
+           unobserved= "U",
+           title     = "Scenario 3: No causal M→Y\nU* confounds M and Y  (M→Y is spurious)")
+dA | dB
+```
+
+## Setup: Three DGPs {#sec-med-dgp}
+
+```{r med-dgp-setup}
+#| code-summary: "▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded"
+set.seed(2025)
+N_med <- 350
+X     <- rbinom(N_med, 1, 0.5)   # eco-label (1 = exposed to label)
+
+# True parameters (Scenarios 1 & 2)
+a_true    <- 0.50   # eco_label → perc_sust
+b_true    <- 0.55   # perc_sust → WTP
+c_prime   <- 0.30   # eco_label → WTP (direct path)
+ACME_true <- a_true * b_true   # 0.275
+
+# ── Scenario 1: Clean normal data ────────────────────────────────────────────
+# No violations; both OLS and ROBMED should recover ACME ≈ 0.275
+M_s1   <- a_true * X + rnorm(N_med, 0, 0.60)
+Y_s1   <- c_prime * X + b_true * M_s1 + rnorm(N_med, 0, 0.60)
+df_s1  <- data.frame(eco_label = X, perc_sust = M_s1, WTP = Y_s1)
+
+# ── Scenario 2: Large correlated outliers (12% contamination) ───────────────
+# Correlated shocks to M and Y residuals in the same direction: outlier obs
+# suggest a much steeper M→Y slope → OLS b-path inflated → OLS ACME >> 0.275
+# ROBMED MM-estimator downweights these high-leverage points → stays near truth
+out_n   <- ceiling(N_med * 0.12)
+out_idx <- sample(N_med, out_n)
+out_sgn <- sample(c(-1, 1), out_n, replace = TRUE)
+out_mag <- runif(out_n, 6, 10)   # 10–17× the baseline SD: strong leverage
+eps_M2  <- rnorm(N_med, 0, 0.60)
+eps_Y2  <- rnorm(N_med, 0, 0.60)
+eps_M2[out_idx] <- eps_M2[out_idx] + out_sgn * out_mag          # M outlier
+eps_Y2[out_idx] <- eps_Y2[out_idx] + out_sgn * out_mag * 0.90   # correlated Y outlier
+M_s2   <- a_true * X + eps_M2
+Y_s2   <- c_prime * X + b_true * M_s2 + eps_Y2
+df_s2  <- data.frame(eco_label = X, perc_sust = M_s2, WTP = Y_s2)
+
+# ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────
+# U* drives both perc_sust and WTP; there is NO causal M → Y path
+# OLS and ROBMED both find spurious ACME (Type I error) because they cannot
+# separate causal M→Y from U-induced M–Y correlation
+# Imai's medsens() reveals the finding's fragility via a small critical ρ*
+U      <- rnorm(N_med, 0, 1)
+M_s3   <- a_true * X + 0.60 * U + rnorm(N_med, 0, 0.55)
+Y_s3   <- c_prime * X + 0.65 * U + rnorm(N_med, 0, 0.55)   # no M_s3 term!
+df_s3  <- data.frame(eco_label = X, perc_sust = M_s3, WTP = Y_s3)
+ACME_true_s3 <- 0   # no causal M → Y
+
+cat(sprintf("N = %d  |  Treatment rate = %.0f%%\n", N_med, 100 * mean(X)))
+cat(sprintf("Scenarios 1 & 2: true ACME = %.3f  (a=%.2f, b=%.2f, c'=%.2f)\n",
+            ACME_true, a_true, b_true, c_prime))
+cat(sprintf("Scenario 3:      true ACME = %.3f  (U* confounds both M and Y)\n",
+            ACME_true_s3))
+```
+
+## Estimating All Three Methods {#sec-med-run}
+
+```{r run-all-mediation, cache=FALSE}
+#| code-summary: "▶ Run OLS delta method, ROBMED, and Imai on all three scenarios"
+run_mediation_triple <- function(df, R = 500) {
+  m_m <- lm(perc_sust ~ eco_label, data = df)
+  m_y <- lm(WTP ~ eco_label + perc_sust, data = df)
+
+  # 1. OLS: a × b with delta-method CI
+  a_hat   <- coef(m_m)["eco_label"]
+  b_hat   <- coef(m_y)["perc_sust"]
+  ols_est <- a_hat * b_hat
+  se_ab   <- sqrt(b_hat^2 * vcov(m_m)["eco_label","eco_label"] +
+                  a_hat^2 * vcov(m_y)["perc_sust","perc_sust"])
+  ols_lo  <- ols_est - 1.96 * se_ab
+  ols_hi  <- ols_est + 1.96 * se_ab
+
+  # 2. ROBMED: MM-robust regression (downweights high-leverage outliers)
+  set.seed(99)
+  med_rob  <- test_mediation(WTP ~ m(perc_sust) + eco_label,
+                             data = df, method = "regression", robust = TRUE, R = R)
+  rob      <- rob_extract(med_rob)
+
+  # 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)
+  set.seed(99)
+  med_imai <- mediate(m_m, m_y, treat = "eco_label", mediator = "perc_sust",
+                      boot = FALSE, sims = R)
+
+  list(a_hat    = a_hat,          b_hat    = b_hat,
+       ols_est  = ols_est,        ols_lo   = ols_lo,       ols_hi  = ols_hi,
+       rob_est  = rob$est,        rob_lo   = rob$lo,       rob_hi  = rob$hi,
+       imai_est = med_imai$d0,    imai_lo  = med_imai$d0.ci[1],
+       imai_hi  = med_imai$d0.ci[2],
+       med_imai = med_imai,       med_rob  = med_rob)
+}
+
+cat("Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...\n")
+res_s1 <- run_mediation_triple(df_s1)
+res_s2 <- run_mediation_triple(df_s2)
+res_s3 <- run_mediation_triple(df_s3)
+cat(sprintf("Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
+            res_s1$ols_est, res_s1$rob_est, ACME_true))
+cat(sprintf("Scenario 2 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
+            res_s2$ols_est, res_s2$rob_est, ACME_true))
+cat(sprintf("Scenario 3 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f [no M→Y path])\n",
+            res_s3$ols_est, res_s3$rob_est, ACME_true_s3))
+```
+
+## Scenario 1: Clean Normal Data — All Methods Should Work {#sec-med-clean}
+
+With textbook normal errors and no confounding, OLS, ROBMED, and Imai all estimate ACME accurately. This is the baseline case each method was designed for.
+
+```{r med-scenario1, echo=FALSE}
+#| code-summary: "▶ Scenario 1 results: clean normal data"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  Paths    = c(sprintf("a=%.3f, b=%.3f", res_s1$a_hat, res_s1$b_hat),
+               "-- (robust MM)",
+               "-- (uses OLS)"),
+  Estimate = round(c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est), 3),
+  CI95     = sprintf("[%.3f, %.3f]",
+                     c(res_s1$ols_lo, res_s1$rob_lo, res_s1$imai_lo),
+                     c(res_s1$ols_hi, res_s1$rob_hi, res_s1$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est) - ACME_true),
+  Verdict  = c("On target", "On target", "On target")
+) |>
+  knitr::kable(
+    col.names = c("Method", "a & b paths", "Estimate", "95% CI", "Bias", "Verdict"),
+    caption   = paste0("Scenario 1 \u2014 Clean normal data | true ACME = ",
+                       round(ACME_true, 3), " | N = ", N_med),
+    align     = c("l","l","r","c","r","c")
+  )
+```
+
+## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
+
+Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55 to OLS — inflating the b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
+
+::: {.callout-note}
+## Why correlated outliers inflate the *b*-path specifically
+
+The key is *direction*: when participants who score unusually high on M also score unusually high on Y (same-sign shocks), they create data points that pull the OLS regression line steeply upward. To OLS, these are just informative extreme observations — it can't distinguish "genuinely high M causes genuinely high Y" from "an external shock hit both M and Y simultaneously."
+
+**ROBMED's MM-estimator** assigns lower weight to observations whose residuals are large relative to the bulk of the data. The outlier participants — who are far from the M–Y regression cloud — receive close to zero weight, leaving the slope estimate dominated by the non-contaminated 88%.
+
+**Why Imai doesn't help here**: `mediate()` calls the same `lm()` models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. ROBMED is the right tool; Imai is not.
+:::
+
+
+```{r med-scenario2, echo=FALSE}
+#| code-summary: "▶ Scenario 2 results: large outliers inflate OLS but not ROBMED"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  `b-path` = sprintf("%.3f (true = %.2f)",
+                     c(res_s2$b_hat, res_s2$rob_est / res_s2$a_hat, res_s2$b_hat),
+                     rep(b_true, 3)),
+  Estimate = round(c(res_s2$ols_est, res_s2$rob_est, res_s2$imai_est), 3),
+  `95% CI` = sprintf("[%.3f, %.3f]",
+                     c(res_s2$ols_lo, res_s2$rob_lo, res_s2$imai_lo),
+                     c(res_s2$ols_hi, res_s2$rob_hi, res_s2$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s2$ols_est, res_s2$rob_est, res_s2$imai_est) - ACME_true),
+  Verdict  = c("\u2716 Inflated \u2014 outliers pull b-path up",
+               "\u2713 Robust \u2014 outliers down-weighted",
+               "\u2716 Inflated \u2014 uses OLS internally")
+) |>
+  knitr::kable(
+    caption = sprintf(
+      "Scenario 2 \u2014 12%% correlated outlier contamination | true ACME = %.3f | N = %d",
+      ACME_true, N_med),
+    align = c("l","l","r","c","r","l")
+  )
+```
+
+```{r med-outlier-scatter, fig.height=3.5, fig.width=10, echo=FALSE}
+#| code-summary: "▶ Scatter: clean vs contaminated data showing outlier leverage on OLS slope"
+p_s1_sc <- ggplot(df_s1, aes(x = perc_sust, y = WTP)) +
+  geom_point(alpha = 0.35, size = 1.5, colour = clr_ctrl) +
+  geom_smooth(method = "lm", se = TRUE, colour = "firebrick", linewidth = 1.2) +
+  labs(x = "Perceived sustainability (M)", y = "WTP ($)",
+       title = "Scenario 1: Clean data",
+       subtitle = sprintf("OLS b = %.3f  (true = %.2f)", res_s1$b_hat, b_true)) +
+  theme_mod3()
+
+df_s2_vis <- df_s2 |> mutate(outlier = seq_len(n()) %in% out_idx)
+p_s2_sc <- ggplot(df_s2_vis, aes(x = perc_sust, y = WTP, colour = outlier)) +
+  geom_point(alpha = 0.45, size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, colour = "firebrick", linewidth = 1.2) +
+  scale_colour_manual(values = c("FALSE" = "grey55", "TRUE" = "#e74c3c"),
+                      labels = c("FALSE" = "Clean obs", "TRUE" = "Outlier (12%)"),
+                      name = NULL) +
+  labs(x = "Perceived sustainability (M)", y = "WTP ($)",
+       title = "Scenario 2: Outliers (red) inflate the OLS slope",
+       subtitle = sprintf("OLS b = %.3f  ROBMED b ≈ %.3f  (true = %.2f)",
+                          res_s2$b_hat, res_s2$rob_est / res_s2$a_hat, b_true)) +
+  theme_mod3()
+
+p_s1_sc | p_s2_sc
+```
+
+## Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses {#sec-med-confounded}
+
+U* drives both perceived sustainability and WTP. **There is no causal M→Y path.** The true ACME = 0. Yet both OLS and ROBMED find a large, significant "mediation effect" because they cannot distinguish causal M→Y from U-induced M–Y correlation. This is a structural identification failure, not an estimation problem — no regression method alone can fix it. But Imai's sensitivity analysis reveals that the result is fragile.
+
+```{r med-scenario3, echo=FALSE}
+#| code-summary: "▶ Scenario 3: both OLS and ROBMED produce a Type I error"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  `b-path (spurious)` = sprintf("%.3f (true = 0.00)", c(res_s3$b_hat, NA_real_, res_s3$b_hat)) |>
+                        (\(x) { x[2] <- sprintf("%.3f (true = 0.00)", res_s3$rob_est / res_s3$a_hat); x })(),
+  Estimate = round(c(res_s3$ols_est, res_s3$rob_est, res_s3$imai_est), 3),
+  `95% CI` = sprintf("[%.3f, %.3f]",
+                     c(res_s3$ols_lo, res_s3$rob_lo, res_s3$imai_lo),
+                     c(res_s3$ols_hi, res_s3$rob_hi, res_s3$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s3$ols_est, res_s3$rob_est, res_s3$imai_est) - ACME_true_s3),
+  Verdict  = c("\u2716 Type I error \u2014 spurious mediation",
+               "\u2716 Type I error \u2014 U* not outlier-based",
+               "\u2716 Type I error \u2014 see \u03c1* below")
+) |>
+  knitr::kable(
+    caption = sprintf(
+      "Scenario 3 \u2014 M\u2013Y confounded via U* | true ACME = %.3f (no M\u2192Y path) | N = %d",
+      ACME_true_s3, N_med),
+    align = c("l","l","r","c","r","l")
+  )
+```
+
+## Where Imai's Framework Shines: Sensitivity Analysis {#sec-med-sensitivity}
+
+Imai et al.'s `medsens()` asks: *how large would the correlation between M-equation and Y-equation residuals (ρ) need to be to drive ACME to zero?* This **critical ρ\*** measures fragility:
+
+- **Large ρ***: only substantial unmeasured confounding could explain away the result → **robust**
+- **Small ρ***: even modest unmeasured confounding suffices → **fragile**
+
+```{r med-sensitivity-compare, fig.height=4.5, fig.width=10}
+#| code-summary: "▶ Sensitivity analysis: clean DGP (robust) vs. confounded DGP (fragile)"
+set.seed(99)
+sens_s1 <- medsens(res_s1$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
+set.seed(99)
+sens_s3 <- medsens(res_s3$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
+
+safe_crit_rho <- function(s) {
+  tryCatch({
+    idx_neg <- which(s$d0 <= 0)
+    if (length(idx_neg) == 0) NA_real_
+    else round(min(abs(s$rho[idx_neg]), na.rm = TRUE), 2)
+  }, error = function(e) NA_real_)
+}
+crit_rho_s1 <- safe_crit_rho(sens_s1)
+crit_rho_s3 <- safe_crit_rho(sens_s3)
+
+fmt_rho <- function(x) if (is.na(x)) "> 1.0" else sprintf("%.2f", x)
+cat(sprintf("Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding\n",
+            fmt_rho(crit_rho_s1)))
+cat(sprintf("Scenario 3 (true ACME = 0):     critical ρ* ≈ %s  → FRAGILE finding\n",
+            fmt_rho(crit_rho_s3)))
+cat("\nSmaller ρ* = less confounding is needed to explain away the result.\n")
+
+# Build tidy sensitivity curves using only the guaranteed $rho and $d0 fields
+sens_df <- bind_rows(
+  data.frame(rho      = sens_s1$rho,
+             ACME     = sens_s1$d0,
+             Scenario = "Scenario 1: Clean data (true ACME = 0.275)",
+             stringsAsFactors = FALSE),
+  data.frame(rho      = sens_s3$rho,
+             ACME     = sens_s3$d0,
+             Scenario = "Scenario 3: M\u2013Y confounded (true ACME = 0)",
+             stringsAsFactors = FALSE)
+)
+
+ggplot(sens_df, aes(x = rho, y = ACME, colour = Scenario)) +
+  geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.9) +
+  geom_line(linewidth = 1.4) +
+  { if (!is.na(crit_rho_s1))
+      list(
+        geom_vline(xintercept =  crit_rho_s1, linetype = "dashed",
+                   colour = clr_eco, linewidth = 0.9),
+        geom_vline(xintercept = -crit_rho_s1, linetype = "dashed",
+                   colour = clr_eco, linewidth = 0.9),
+        annotate("text", x = crit_rho_s1 + 0.03, y = 0.06,
+                 label = sprintf("\u03c1*= %s\n(clean \u2014 ROBUST)", fmt_rho(crit_rho_s1)),
+                 hjust = 0, size = 3.3, colour = clr_eco)
+      ) } +
+  { if (!is.na(crit_rho_s3))
+      list(
+        geom_vline(xintercept =  crit_rho_s3, linetype = "dashed",
+                   colour = clr_ctrl, linewidth = 0.9),
+        geom_vline(xintercept = -crit_rho_s3, linetype = "dashed",
+                   colour = clr_ctrl, linewidth = 0.9),
+        annotate("text", x = crit_rho_s3 + 0.03, y = -0.05,
+                 label = sprintf("\u03c1*= %s\n(confounded \u2014 FRAGILE)", fmt_rho(crit_rho_s3)),
+                 hjust = 0, size = 3.3, colour = clr_ctrl)
+      ) } +
+  scale_colour_manual(
+    values = c("Scenario 1: Clean data (true ACME = 0.275)" = clr_eco,
+               "Scenario 3: M\u2013Y confounded (true ACME = 0)"  = clr_ctrl)) +
+  labs(x       = expression(paste("Sensitivity parameter ", rho,
+                                  "  (correlation between M- and Y-equation residuals)")),
+       y       = "ACME (indirect effect)",
+       colour  = NULL,
+       title   = "Imai sensitivity: how much confounding would nullify the ACME?",
+       subtitle = paste0("\u03c1* = critical value at which ACME crosses zero",
+                         "  \u2014  smaller \u03c1* = more fragile result")) +
+  theme_mod3() +
+  theme(legend.position = "top")
+```
+
+::: {.callout-tip}
+## Reading the sensitivity plot
+
+Both Scenario 1 and Scenario 3 produce a *statistically significant* ACME from OLS — they look equally convincing at face value. The sensitivity analysis reveals very different levels of trust:
+
+- **Scenario 1 (clean)**: ACME reaches zero only at $\rho^* \approx$ `r fmt_rho(crit_rho_s1)`. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is **robust**.
+- **Scenario 3 (confounded)**: ACME crosses zero at $\rho^* \approx$ `r fmt_rho(crit_rho_s3)`. Only modest confounding is enough to nullify the result. The "significant" ACME is **fragile** — correctly so, since the true ACME is 0.
+
+**The Imai advantage is not a better point estimate** (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the *sensitivity analysis itself* — an honest diagnostic that Baron–Kenny completely omits. A finding that reports both the ROBMED estimate and a large ρ* from `medsens()` is far more credible than one that does neither.
+:::
+
+## Comprehensive Bias Comparison Across All Scenarios {#sec-med-comparison}
+
+```{r mediation-bias-comparison, fig.height=7, fig.width=11, echo=FALSE}
+#| code-summary: "▶ Forest plot: OLS vs ROBMED vs Imai across all three scenarios"
+comp_df <- tibble(
+  Scenario = rep(c(
+    sprintf("Scenario 1: Clean normal data\n(true ACME = %.3f)", ACME_true),
+    sprintf("Scenario 2: Large outliers\n(true ACME = %.3f)", ACME_true),
+    sprintf("Scenario 3: M\u2013Y confounded\n(true ACME = %.3f)", ACME_true_s3)
+  ), each = 3),
+  Method   = rep(c("OLS delta method", "ROBMED", "Imai (quasi-Bayes)"), 3),
+  Truth    = rep(c(ACME_true, ACME_true, ACME_true_s3), each = 3),
+  Estimate = c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est,
+               res_s2$ols_est, res_s2$rob_est, res_s2$imai_est,
+               res_s3$ols_est, res_s3$rob_est, res_s3$imai_est),
+  CI_lo    = c(res_s1$ols_lo,  res_s1$rob_lo,  res_s1$imai_lo,
+               res_s2$ols_lo,  res_s2$rob_lo,  res_s2$imai_lo,
+               res_s3$ols_lo,  res_s3$rob_lo,  res_s3$imai_lo),
+  CI_hi    = c(res_s1$ols_hi,  res_s1$rob_hi,  res_s1$imai_hi,
+               res_s2$ols_hi,  res_s2$rob_hi,  res_s2$imai_hi,
+               res_s3$ols_hi,  res_s3$rob_hi,  res_s3$imai_hi)
+) |>
+  mutate(
+    Bias         = Estimate - Truth,
+    Scenario     = fct_inorder(Scenario),
+    Method       = factor(Method, levels = c("Imai (quasi-Bayes)", "ROBMED", "OLS delta method")),
+    covers_truth = (CI_lo <= Truth & CI_hi >= Truth)
+  )
+
+method_colours <- c(
+  "OLS delta method"  = clr_ctrl,
+  "ROBMED"            = clr_eco,
+  "Imai (quasi-Bayes)" = "#8e44ad"
+)
+
+ggplot(comp_df, aes(y = Method, x = Estimate, xmin = CI_lo, xmax = CI_hi,
+                    colour = Method, shape = covers_truth)) +
+  geom_vline(aes(xintercept = Truth), linetype = "dashed",
+             colour = "grey30", linewidth = 1) +
+  geom_pointrange(size = 0.7, linewidth = 1) +
+  geom_text(aes(label = sprintf("bias=%+.3f", Bias), x = CI_hi + 0.012),
+            hjust = 0, size = 2.8, colour = "grey20") +
+  facet_wrap(~Scenario, ncol = 1, scales = "free_x") +
+  scale_colour_manual(values = method_colours) +
+  scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 4),
+                     labels = c("TRUE" = "CI covers truth", "FALSE" = "CI misses truth"),
+                     name   = NULL) +
+  labs(x = "Estimated ACME (indirect effect)", y = NULL,
+       colour = "Estimator",
+       title  = "Bias comparison: OLS vs. ROBMED vs. Imai across three mediation scenarios",
+       subtitle = paste0("Dashed line = true ACME  |  \u00d7 = CI misses truth  |  labels show signed bias\n",
+                         "Scenario 3 note: all point estimates are spurious \u2014 ",
+                         "Imai adds value via sensitivity analysis, not point estimates")) +
+  theme_mod3() +
+  theme(legend.position = "right",
+        strip.text = element_text(face = "bold", size = 9),
+        legend.key.size = unit(0.8, "cm"))
+```
+
+::: {.callout-warning}
+## Method × scenario decision guide
+
+| Scenario | OLS | ROBMED | Imai `medsens()` |
+|---|---|---|---|
+| **Clean normal data** | ✔ Unbiased | ✔ Unbiased | ✔ Large ρ* confirms robustness |
+| **Large outliers** | ✖ Biased upward | ✔ Downweights outliers | ✖ Inherits OLS bias |
+| **M–Y confounded** | ✖ Type I error | ✖ Type I error | ✔ Small ρ* flags fragility |
+
+**Key lesson**: ROBMED addresses *estimation* failures (non-normality, outliers). Imai's sensitivity analysis addresses *identification* failures (unmeasured confounding). They solve different problems and should be used together.
+
+**In practice**: report ROBMED as your primary ACME estimate (robustness to outliers) *and* `medsens()` to quantify fragility to unmeasured confounding. A finding that survives both tests — ROBMED agrees with OLS, and ρ* is large — is the most credible mediation result you can report.
+:::
+
+## The Potential Outcomes Framework {#sec-mediation-imai}
+
+Imai, Keele & Yamamoto (2010) reframe mediation in **potential outcomes** terms:
+
+> If we forced M to the value it would take under X = 0, but kept X = 1, what would Y be?
+
+The **ACME** = how much of X's effect on Y operates *through* changing M. The critical assumption — **sequential ignorability** — says no unmeasured confounders of M→Y given X. Scenario 3 violates this. The sensitivity analysis makes the violation's consequences explicit and quantifiable.
+
+```{r mediation-imai-detail, fig.height=4, fig.width=8}
+#| code-summary: "▶ Imai mediate() on clean DGP with bootstrap CIs"
+m_m_s1  <- lm(perc_sust ~ eco_label, data = df_s1)
+m_y_s1  <- lm(WTP ~ eco_label + perc_sust, data = df_s1)
+set.seed(99)
+med_imai_full <- mediate(m_m_s1, m_y_s1, treat = "eco_label",
+                         mediator = "perc_sust", boot = TRUE, sims = 1000)
+summary(med_imai_full)
+
+# Replace base-R plot() (which emits 4 separate figures) with a single ggplot
+tibble(
+  Quantity = factor(
+    c("ACME\n(indirect)", "ADE\n(direct)", "Total\neffect", "Prop.\nmediated"),
+    levels = c("Prop.\nmediated", "Total\neffect", "ADE\n(direct)", "ACME\n(indirect)")
+  ),
+  Estimate = c(med_imai_full$d0,         med_imai_full$z0,
+               med_imai_full$tau.coef,   med_imai_full$n0),
+  CI_lo    = c(med_imai_full$d0.ci[1],   med_imai_full$z0.ci[1],
+               med_imai_full$tau.ci[1],  med_imai_full$n0.ci[1]),
+  CI_hi    = c(med_imai_full$d0.ci[2],   med_imai_full$z0.ci[2],
+               med_imai_full$tau.ci[2],  med_imai_full$n0.ci[2])
+) |>
+  ggplot(aes(x = Estimate, xmin = CI_lo, xmax = CI_hi, y = Quantity)) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50", linewidth = 0.9) +
+  geom_pointrange(colour = clr_eco, size = 0.7, linewidth = 1.1) +
+  geom_text(aes(label = sprintf("%.3f\n[%.3f, %.3f]", Estimate, CI_lo, CI_hi)),
+            hjust = -0.12, size = 3, colour = "grey20") +
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.35))) +
+  labs(x = "Estimate (bootstrap 95% CI, 1 000 sims)", y = NULL,
+       title = "Imai mediate(): all four quantities on clean DGP (Scenario 1)",
+       subtitle = "ACME = indirect effect (a \u00d7 b)  |  ADE = direct effect (c\u2019)  |  Total = ADE + ACME") +
+  theme_mod3()
+```
+
+### Parameter Recovery on Clean DGP {#sec-mediation-comparison-table}
+
+```{r mediation-truth-comparison, echo=FALSE}
+#| code-summary: "▶ All three estimators vs. true values (clean DGP)"
+tibble(
+  Parameter       = c("a path  (X → M)", "b path  (M → Y)", "ACME  (indirect)",
+                      "ADE  (direct)", "Total effect"),
+  `True value`    = c(a_true, b_true, ACME_true, c_prime, c_prime + ACME_true),
+  `OLS`           = round(c(res_s1$a_hat, res_s1$b_hat,
+                             res_s1$ols_est,
+                             med_imai_full$z0,
+                             med_imai_full$tau.coef), 3),
+  `ROBMED`        = round(c(NA, NA, res_s1$rob_est, NA, NA), 3),
+  `95% CI (OLS/Imai)` = c("—", "—",
+    sprintf("[%.3f, %.3f]", res_s1$ols_lo, res_s1$ols_hi),
+    sprintf("[%.3f, %.3f]", med_imai_full$z0.ci[1],  med_imai_full$z0.ci[2]),
+    sprintf("[%.3f, %.3f]", med_imai_full$tau.ci[1], med_imai_full$tau.ci[2]))
+) |>
+  knitr::kable(caption = "Parameter recovery on clean DGP (N = 350, normal errors)",
+               digits = 3, na.rep = "—")
+```
+
+::: {.callout-note}
+## Connecting Modules 1, 2, and 3
+
+- **Module 1** (measurement): if perceived sustainability and WTP both reflect the same latent *green attitude*, their shared variance mimics Scenario 3's U-confound. Testing HTMT and discriminant validity guards against this before mediation is attempted.
+- **Module 2** (hypothesis testing): the RCT establishes X→Y with high confidence. Mediation adds the claim X→M→Y, which rests on sequential ignorability — an assumption the RCT does not guarantee.
+- **ROBMED** handles realistic data quality problems (Scenario 2); Imai's sensitivity analysis quantifies identification fragility (Scenario 3). Use both, and be honest about what each can and cannot rule out.
+:::
+
+---
+
+## Summary of Methods {#sec-summary-table}
+
+```{r summary-table, echo=FALSE}
+tibble(
+  Method = c(
+    "Randomised Experiment",
+    "Linear Regression Adjustment",
+    "Flexible Regression Adjustment",
+    "IPW (stabilised)",
+    "Entropy Balancing (WeightIt)",
+    "Covariate Matching (Mahalanobis)",
+    "Propensity Score Matching",
+    "Doubly Robust (AIPW)",
+    "Synthetic Control",
+    "Regression Discontinuity",
+    "Difference-in-Differences (TWFE)",
+    "Synthetic DiD",
+    "Mediation (Baron–Kenny OLS)",
+    "Mediation (Imai et al.)",
+    "ROBMED"
+  ),
+  `Key identifying assumption` = c(
+    "Random assignment; SUTVA",
+    "All confounders measured; linear functional form",
+    "All confounders measured; correct non-linear specification",
+    "All confounders measured; positivity (overlap)",
+    "All confounders measured; moment balance sufficient",
+    "All confounders measured; sufficient overlap",
+    "All confounders measured; PS model correctly specified",
+    "Either PS model OR outcome model is correctly specified",
+    "Good pre-treatment fit; no interference",
+    "Continuity at cutoff; no manipulation; no other discontinuities",
+    "Parallel trends (in absence of treatment)",
+    "Parallel trends after reweighting control units",
+    "Sequential ignorability; no M–Y confounders",
+    "Sequential ignorability; sensitivity analysis quantifies fragility",
+    "Sequential ignorability; robust to outliers and non-normality"
+  ),
+  `Target estimand` = c(
+    "ATE","ATE","ATE","ATE","ATE","ATT","ATT","ATE",
+    "ATT (one treated unit)","LATE (near threshold)","ATT","ATT",
+    "ACME","ACME","ACME"
+  ),
+  `When to use` = c(
+    "Can randomise",
+    "Observational; confounders measured; linear DGP",
+    "Observational; confounders measured; non-linear DGP",
+    "Observational; want ATE; good PS overlap",
+    "Observational; want ATE; many covariates to balance",
+    "Observational; want ATT; sufficient control units",
+    "Observational; many covariates; report PS model sensitivity",
+    "Observational; insurance against one misspecified model",
+    "Few treated units; many pre-treatment periods",
+    "Sharp threshold in a running variable",
+    "Panel data; policy change in subset of units",
+    "Panel data; parallel trends may not hold exactly",
+    "Mediation hypothesis; well-controlled experiment",
+    "Mediation with explicit assumptions + sensitivity analysis",
+    "Mediation; non-normal WTP data or suspected outliers"
+  )
+) |>
+  knitr::kable(caption="All methods in Module 3: assumptions, estimands, and use cases")
+```
+
+---
+
+## Session Info {.unnumbered}
+
+```{r session-info}
+sessionInfo()
+```
