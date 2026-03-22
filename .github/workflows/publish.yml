@@ -52,6 +52,19 @@ jobs:
             any::sandwich
             any::lmtest
             any::conflicted
+            any::corrplot
+            any::dbscan
+            any::AER
+            any::MASS
+            any::scales
+            any::tidytext
+            any::topicmodels
+            any::remotes
+
+      - name: Install GitHub packages
+        run: |
+          remotes::install_github("synth-did/synthdid")
+        shell: Rscript {0}
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
