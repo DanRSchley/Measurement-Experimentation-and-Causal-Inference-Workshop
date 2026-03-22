@@ -1,0 +1,20 @@
+---
+title: "Module 3 Code Tutorial"
+subtitle: "Treatment Effects, Natural Experiments, and Causal Mechanisms"
+---
+
+<!--
+  SETUP INSTRUCTIONS
+  ==================
+  1. Open "Module 3- Causal Inference/Module 3 Code Tutorials.qmd"
+  2. Copy everything AFTER the closing --- of the YAML block (i.e., from the ```{r setup chunk onward)
+  3. Paste it below this comment block
+  4. Also copy both figs/ and figures/ folders from "Module 3- Causal Inference/" into this folder (module-3/)
+
+  The YAML above replaces the original --- block entirely.
+  Do NOT copy the original title/format/execute YAML — it is already handled by _quarto.yml.
+
+  NOTE: Module 3 installs several packages at runtime including synthdid from GitHub.
+  On first render this will take several minutes.
+  After the first render, execute: freeze: auto in _quarto.yml means it won't re-run unless you change the source.
+-->

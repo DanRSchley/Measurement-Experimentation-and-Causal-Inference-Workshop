@@ -1,0 +1,16 @@
+---
+title: "Module 1 Code Tutorial"
+subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers"
+---
+
+<!--
+  SETUP INSTRUCTIONS
+  ==================
+  1. Open "Module 1- Measurement/Module 1 Code Tutorials.qmd"
+  2. Copy everything AFTER the closing --- of the YAML block (i.e., from the ```{r setup chunk onward)
+  3. Paste it below this comment block
+  4. Also copy the figs/ folder from "Module 1- Measurement/figs/" into this folder (module-1/figs/)
+
+  The YAML above replaces the original --- block entirely.
+  Do NOT copy the original title/format/execute YAML — it is already handled by _quarto.yml.
+-->

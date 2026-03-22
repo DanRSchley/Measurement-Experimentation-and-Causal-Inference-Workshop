@@ -1,0 +1,49 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "Measurement, Experimentation & Causal Inference"
+  subtitle: "Advanced Methods Workshop · RSM PhD"
+  author: "Dan Schley"
+  date: today
+  repo-url: https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop
+  repo-actions: [issue]
+  sidebar:
+    style: docked
+    background: light
+  chapters:
+    - index.qmd
+    - part: "Module 1: Measurement"
+      chapters:
+        - module-1/index.qmd
+        - module-1/tutorial.qmd
+    - part: "Module 2: Hypothesis Testing"
+      chapters:
+        - module-2/index.qmd
+        - module-2/tutorial.qmd
+    - part: "Module 3: Causal Inference"
+      chapters:
+        - module-3/index.qmd
+        - module-3/tutorial.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    code-tools:
+      source: false
+      toggle: true
+      caption: "Show/Hide All Code"
+    code-summary: "▶ Show R code"
+    highlight-style: github
+    df-print: kable
+
+execute:
+  warning: false
+  message: false
+  freeze: auto

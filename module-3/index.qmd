@@ -1,0 +1,49 @@
+---
+title: "Module 3: Causal Inference"
+subtitle: "Did the Eco-Label Actually Cause Higher WTP?"
+---
+
+## Overview
+
+Randomized experiments are the gold standard for causal inference — but most interesting research questions cannot be randomized. This module covers the modern toolkit for drawing causal conclusions from observational data, and for thinking more clearly about what "causation" even means.
+
+We work through the potential outcomes framework (Rubin), the causal graphical framework (Pearl), matching and weighting estimators, regression discontinuity, difference-in-differences, synthetic control, and causal mediation analysis. Each method is motivated by a concrete research question and implemented in R.
+
+---
+
+## Learning Goals
+
+By the end of this module you should be able to:
+
+- Define average treatment effects (ATE, ATT, ATC) in the potential outcomes framework and explain the fundamental problem of causal inference
+- Read and draw a DAG, identify confounders, mediators, colliders, and back-door paths
+- Apply propensity score matching and inverse probability weighting, and assess covariate balance
+- Interpret a regression discontinuity design, choose bandwidth, and test for manipulation of the running variable
+- Explain the parallel trends assumption in difference-in-differences and assess its plausibility
+- Implement synthetic control and interpret the placebo tests
+- Distinguish total effects from direct and indirect effects, and explain when mediation analysis is and is not identified
+
+---
+
+## Slides
+
+[Download Slides (.pptx)](../slides/Module-3-Causal-Inference.pptx){.btn .btn-outline-primary}
+
+---
+
+## Code Tutorial
+
+[Go to Tutorial →](tutorial.qmd){.btn .btn-primary}
+
+---
+
+## Recommended Reading
+
+| Paper | Why it matters |
+|---|---|
+| Stuart (2015) — *Introduction to Rubin Causal Model* | Accessible introduction to the potential outcomes framework |
+| Introduction to Pearl Framework | DAGs and the do-calculus explained for social scientists |
+| Spencer, Zanna & Fong (2005) — *Establishing a Causal Chain* | When and how to test mediation with experiments |
+| Pieters (2017) — *Meaningful Mediation Analysis* | What mediation analysis can and cannot establish |
+
+All papers are available in the `Module 3 - Recommended Reading/` folder.

@@ -1,0 +1,17 @@
+---
+title: "Module 2 Code Tutorial"
+subtitle: "P-values, Permutation Inference, and the Hidden Assumptions of Random Assignment"
+---
+
+<!--
+  SETUP INSTRUCTIONS
+  ==================
+  1. Open "Module 2- Hypothesis Testing/Module 2 Code Tutorials.qmd"
+  2. Copy everything AFTER the closing --- of the YAML block (i.e., from the ```{r setup chunk onward)
+  3. Paste it below this comment block
+  4. Also copy the figs/ folder from "Module 2- Hypothesis Testing/figs/" into this folder (module-2/figs/)
+     and copy fig_sensitivity_regression.png into module-2/ as well
+
+  The YAML above replaces the original --- block entirely.
+  Do NOT copy the original title/format/execute YAML — it is already handled by _quarto.yml.
+-->

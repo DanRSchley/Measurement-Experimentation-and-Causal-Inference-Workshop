@@ -1,0 +1,54 @@
+---
+title: "Measurement, Experimentation & Causal Inference"
+subtitle: "Advanced Methods Workshop"
+---
+
+This workshop is a three-module sequence designed for PhD students in management and social science. Each module combines conceptual foundations with hands-on R tutorials and interactive simulations.
+
+The workshop is built around a core question that runs through all three modules: **how do we draw valid inferences from data?** Measurement shapes what we can even ask. Hypothesis testing governs what counts as evidence. Causal reasoning determines what we can conclude.
+
+---
+
+## Modules
+
+::: {.grid}
+
+::: {.g-col-12 .g-col-md-4}
+### Module 1
+**Measurement**
+
+When does your scale measure what you think it measures — and when does it measure something else entirely?
+
+[Overview](module-1/index.qmd){.btn .btn-primary}  [Tutorial](module-1/tutorial.qmd){.btn .btn-outline-secondary}
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### Module 2
+**Hypothesis Testing**
+
+What does a p-value actually tell you? How does randomization create valid inference, and when does it fail?
+
+[Overview](module-2/index.qmd){.btn .btn-primary}  [Tutorial](module-2/tutorial.qmd){.btn .btn-outline-secondary}
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### Module 3
+**Causal Inference**
+
+When can we say that X *caused* Y? What methods go beyond randomized experiments, and what do they assume?
+
+[Overview](module-3/index.qmd){.btn .btn-primary}  [Tutorial](module-3/tutorial.qmd){.btn .btn-outline-secondary}
+:::
+
+:::
+
+---
+
+## How to use this site
+
+Each module has two parts:
+
+- **Overview** — the conceptual framing, learning goals, and slides
+- **Code Tutorial** — a fully worked R tutorial with collapsible code, figures, and exercises
+
+The tutorials assume basic R literacy but no prior familiarity with the methods covered.
