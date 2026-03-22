@@ -63,7 +63,7 @@ jobs:
 
       - name: Install GitHub packages
         run: |
-          remotes::install_github("synth-did/synthdid")
+          remotes::install_github("synth-inference/synthdid")
         shell: Rscript {0}
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
