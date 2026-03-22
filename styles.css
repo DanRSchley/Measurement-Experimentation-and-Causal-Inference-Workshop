@@ -1,0 +1,46 @@
+/* ── Workshop site styles ───────────────────────────────────────────────── */
+
+/* Keep the floating bottom toolbar from the tutorials from going behind the
+   Quarto book nav bar */
+body {
+  padding-bottom: 80px !important;
+}
+
+/* Module overview cards on the home page */
+.g-col-12 h3 {
+  margin-top: 0.5rem;
+  color: #1e3a5f;
+}
+
+/* Button overrides to match the workshop's blue palette */
+.btn-primary {
+  background-color: #1e3a5f;
+  border-color: #1e3a5f;
+}
+.btn-primary:hover {
+  background-color: #4a90d9;
+  border-color: #4a90d9;
+}
+.btn-outline-primary {
+  color: #1e3a5f;
+  border-color: #1e3a5f;
+}
+.btn-outline-primary:hover {
+  background-color: #1e3a5f;
+  color: #fff;
+}
+.btn-outline-secondary {
+  color: #555;
+  border-color: #ccc;
+}
+
+/* Tighten up the recommended reading tables */
+table {
+  font-size: 0.92em;
+}
+
+/* Sidebar refinements */
+.sidebar-title {
+  font-weight: 700;
+  color: #1e3a5f;
+}
