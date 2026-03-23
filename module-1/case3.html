@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Case 3: Measurement Invariance – Measurement, Experimentation &amp; Causal Inference</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../module-1/case4.html" rel="next">
+<link href="../module-1/case2.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/case3.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Measurement, Experimentation &amp; Causal Inference</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 1: Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cases 5 &amp; 6: Outliers and Systematic Error</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 2: Hypothesis Testing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Module 2 Code Tutorial</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 3: Causal Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-case3" id="toc-sec-case3" class="nav-link active" data-scroll-target="#sec-case3"><span class="header-section-number">6</span> Case 3: Measurement Non-Invariance — A Special Case of Discriminant Validity</a>
+  <ul class="collapse">
+  <li><a href="#connecting-to-cases-1-and-2" id="toc-connecting-to-cases-1-and-2" class="nav-link" data-scroll-target="#connecting-to-cases-1-and-2"><span class="header-section-number">6.1</span> Connecting to Cases 1 and 2</a></li>
+  <li><a href="#two-scenarios-to-compare" id="toc-two-scenarios-to-compare" class="nav-link" data-scroll-target="#two-scenarios-to-compare"><span class="header-section-number">6.2</span> Two Scenarios to Compare</a></li>
+  <li><a href="#simulating-the-two-scenarios" id="toc-simulating-the-two-scenarios" class="nav-link" data-scroll-target="#simulating-the-two-scenarios"><span class="header-section-number">6.3</span> Simulating the Two Scenarios</a></li>
+  <li><a href="#visualising-item-shift-vs.-construct-shift" id="toc-visualising-item-shift-vs.-construct-shift" class="nav-link" data-scroll-target="#visualising-item-shift-vs.-construct-shift"><span class="header-section-number">6.4</span> Visualising Item Shift vs.&nbsp;Construct Shift</a></li>
+  <li><a href="#testing-measurement-invariance-step-by-step" id="toc-testing-measurement-invariance-step-by-step" class="nav-link" data-scroll-target="#testing-measurement-invariance-step-by-step"><span class="header-section-number">6.5</span> Testing Measurement Invariance Step by Step</a></li>
+  <li><a href="#identifying-the-non-invariant-items" id="toc-identifying-the-non-invariant-items" class="nav-link" data-scroll-target="#identifying-the-non-invariant-items"><span class="header-section-number">6.6</span> Identifying the Non-Invariant Items</a></li>
+  <li><a href="#fitting-the-partial-invariance-model" id="toc-fitting-the-partial-invariance-model" class="nav-link" data-scroll-target="#fitting-the-partial-invariance-model"><span class="header-section-number">6.7</span> Fitting the Partial Invariance Model</a></li>
+  <li><a href="#separating-item-shift-from-construct-shift" id="toc-separating-item-shift-from-construct-shift" class="nav-link" data-scroll-target="#separating-item-shift-from-construct-shift"><span class="header-section-number">6.8</span> Separating Item Shift from Construct Shift</a></li>
+  <li><a href="#other-methods-for-testing-measurement-invariance" id="toc-other-methods-for-testing-measurement-invariance" class="nav-link" data-scroll-target="#other-methods-for-testing-measurement-invariance"><span class="header-section-number">6.9</span> Other Methods for Testing Measurement Invariance</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/case3.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Load required packages</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment to install if needed:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("lavaan", "semTools", "MASS", "ggplot2",</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "mclust", "dbscan"))</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)       <span class="co"># CFA and SEM (Cases 1 and 3)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(semTools)     <span class="co"># htmt() and auxiliary SEM tools (Cases 1 and 3)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)         <span class="co"># mvrnorm(): generate multivariate normal data (all cases)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)      <span class="co"># Visualizations (all cases)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)        <span class="co"># Data manipulation (all cases)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)        <span class="co"># Data reshaping (Cases 2 and 3)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)     <span class="co"># Correlation heatmap (Case 1)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)        <span class="co"># Nicely formatted tables (all cases)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)       <span class="co"># Breusch-Pagan heteroskedasticity test (Case 2)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mclust)       <span class="co"># Gaussian mixture models / latent class analysis (Case 4)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dbscan)       <span class="co"># Local outlier factor and DBSCAN clustering (Case 5)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Helper objects shared with Cases 1 and 3 ──────────────────────────────────</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Factor correlation matrix used in simulation</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>phi_pop <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">1.00</span>, <span class="fl">0.93</span>, <span class="fl">0.45</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.93</span>, <span class="fl">1.00</span>, <span class="fl">0.50</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.45</span>, <span class="fl">0.50</span>, <span class="fl">1.00</span>),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"EC"</span>, <span class="st">"GPI"</span>, <span class="st">"BA"</span>), <span class="fu">c</span>(<span class="st">"EC"</span>, <span class="st">"GPI"</span>, <span class="st">"BA"</span>))</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Item generation helper</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>gen_items <span class="ot">&lt;-</span> <span class="cf">function</span>(latent, loadings) {</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(loadings, <span class="cf">function</span>(lam) {</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    lam <span class="sc">*</span> latent <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> lam<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="fu">length</span>(latent))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={2a83ad5d-e6e7-4cd7-95bb-833de1799feb}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen="" title="Module 1 Part 2: Measurement Invariance">
+</iframe>
+<hr>
+<section id="sec-case3" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Case 3: Measurement Non-Invariance — A Special Case of Discriminant Validity</h1>
+<section id="connecting-to-cases-1-and-2" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="connecting-to-cases-1-and-2"><span class="header-section-number">6.1</span> Connecting to Cases 1 and 2</h2>
+<p>Cases 1 and 2 both showed how Y captures more than X. Case 3 is actually a <strong>special case of the discriminant validity problem from Case 1</strong> — it just appears in an experimental context.</p>
+<p>Here’s the connection: in Case 1, the GPI scale failed discriminant validity because it was contaminated by a <em>different construct</em> (Environmental Concern). In Case 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.</p>
+<p>When that happens, “GPI” no longer measures the same construct across groups. Within each group the scale may be fine; but across groups, the same item is measuring subtly different things. This is a discriminant validity failure in disguise — the measurement model is picking up “item-specific sensitivity to the marketing treatment” alongside “genuine purchase intention.”</p>
+<p>And if your sample contains latent subgroups (Case 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Two kinds of shift to distinguish
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Item shift</strong>: A specific item’s baseline level changes across groups, independent of any change in the latent construct. Example: <em>“I always choose the most eco-friendly option available”</em> might score higher after green marketing exposure simply because it sounds more socially appropriate — not because purchase intention truly increased. This is a <em>measurement problem</em>. It’s a bias in the ruler itself.</p></li>
+<li><p><strong>Construct shift</strong>: The latent construct itself genuinely has a different mean across groups. This is what we <em>want</em> to detect with our experiment — a real change in Green Purchase Intention. This is a substantive finding.</p></li>
+</ul>
+<p><strong>Item shift always accompanies construct shift when non-invariance is present.</strong> That is, if your scale is non-invariant, any real construct shift will be mixed in with the spurious item shift — and you can’t separate them without formal testing.</p>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>What produces the group difference in Y</th>
+<th>How it shows up</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Case 1</strong></td>
+<td>GPI and EC overlap as constructs</td>
+<td>High factor correlation; HTMT &gt; 0.90</td>
+</tr>
+<tr class="even">
+<td><strong>Case 2</strong></td>
+<td>Omitted store quality confounds X and Y</td>
+<td>Fan-shaped residuals; coefficient instability</td>
+</tr>
+<tr class="odd">
+<td><strong>Case 3</strong></td>
+<td>GPI items shift across conditions</td>
+<td>Scalar model fails; mod. indices flag specific items</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="two-scenarios-to-compare" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="two-scenarios-to-compare"><span class="header-section-number">6.2</span> Two Scenarios to Compare</h2>
+<p>We will simulate <strong>two versions</strong> of the data to make the distinction crystal clear:</p>
+<ul>
+<li><p><strong>Scenario A — Item shift only</strong>: The true GPI construct does NOT change due to the treatment. GPI1 and GPI2 score higher in the treatment group purely because of item-level response shift. Any apparent treatment effect in the data is entirely artifactual.</p></li>
+<li><p><strong>Scenario B — Item shift + construct shift</strong>: The true GPI construct DOES change (by 0.40 SD). GPI1 and GPI2 also shift at the item level. The total observed difference in GPI items overestimates the real treatment effect.</p></li>
+</ul>
+<p>Both scenarios show what non-invariance looks like. Scenario A is the extreme case where none of the observed treatment effect is real. Scenario B is more common in practice — there is a real effect, but it gets inflated.</p>
+</section>
+<section id="simulating-the-two-scenarios" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="simulating-the-two-scenarios"><span class="header-section-number">6.3</span> Simulating the Two Scenarios</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate two non-invariance scenarios (A: item shift only; B: item + construct shift)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n3     <span class="ot">&lt;-</span> <span class="dv">400</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>treat3 <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">1</span>L), n3, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Shared factor structure (same phi_pop as Case 1) ──────────────────────────</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>latent3  <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(n3, <span class="at">mu =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="at">Sigma =</span> phi_pop)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>EC_lat3  <span class="ot">&lt;-</span> latent3[, <span class="dv">1</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>BA_lat3  <span class="ot">&lt;-</span> latent3[, <span class="dv">3</span>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>lam_GPI3  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.80</span>, <span class="fl">0.76</span>, <span class="fl">0.82</span>, <span class="fl">0.78</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>item_shift <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.80</span>, <span class="fl">0.80</span>, <span class="fl">0.00</span>, <span class="fl">0.00</span>)   <span class="co"># GPI1 and GPI2 shift; GPI3/GPI4 do not</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ── EC and BA: fully invariant across scenarios ────────────────────────────────</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>EC3_items <span class="ot">&lt;-</span> <span class="fu">gen_items</span>(EC_lat3, <span class="fu">c</span>(<span class="fl">0.78</span>, <span class="fl">0.82</span>, <span class="fl">0.74</span>, <span class="fl">0.76</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>BA3_items <span class="ot">&lt;-</span> <span class="fu">gen_items</span>(BA_lat3, <span class="fu">c</span>(<span class="fl">0.72</span>, <span class="fl">0.76</span>, <span class="fl">0.70</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario A: item shift ONLY — true latent GPI is unchanged by treatment ───</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>GPI_lat3a <span class="ot">&lt;-</span> latent3[, <span class="dv">2</span>]           <span class="co"># NO construct shift</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>GPI3a <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_along</span>(lam_GPI3), <span class="cf">function</span>(i) {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  lam_GPI3[i] <span class="sc">*</span> GPI_lat3a <span class="sc">+</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> lam_GPI3[i]<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(n3) <span class="sc">+</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    item_shift[i] <span class="sc">*</span> treat3</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>df3a <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition =</span> <span class="fu">factor</span>(treat3, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Green Marketing"</span>)),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC1 =</span> EC3_items[,<span class="dv">1</span>], <span class="at">EC2 =</span> EC3_items[,<span class="dv">2</span>], <span class="at">EC3 =</span> EC3_items[,<span class="dv">3</span>], <span class="at">EC4 =</span> EC3_items[,<span class="dv">4</span>],</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPI1 =</span> GPI3a[,<span class="dv">1</span>], <span class="at">GPI2 =</span> GPI3a[,<span class="dv">2</span>], <span class="at">GPI3 =</span> GPI3a[,<span class="dv">3</span>], <span class="at">GPI4 =</span> GPI3a[,<span class="dv">4</span>],</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">BA1 =</span> BA3_items[,<span class="dv">1</span>], <span class="at">BA2 =</span> BA3_items[,<span class="dv">2</span>], <span class="at">BA3 =</span> BA3_items[,<span class="dv">3</span>]</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario B: item shift + construct shift — TRUE effect = 0.40 SD ──────────</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>GPI_lat3b <span class="ot">&lt;-</span> latent3[, <span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.40</span> <span class="sc">*</span> treat3   <span class="co"># construct shift</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>GPI3b <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_along</span>(lam_GPI3), <span class="cf">function</span>(i) {</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  lam_GPI3[i] <span class="sc">*</span> GPI_lat3b <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> lam_GPI3[i]<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(n3) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    item_shift[i] <span class="sc">*</span> treat3</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>df3b <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition =</span> <span class="fu">factor</span>(treat3, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Green Marketing"</span>)),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">EC1 =</span> EC3_items[,<span class="dv">1</span>], <span class="at">EC2 =</span> EC3_items[,<span class="dv">2</span>], <span class="at">EC3 =</span> EC3_items[,<span class="dv">3</span>], <span class="at">EC4 =</span> EC3_items[,<span class="dv">4</span>],</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPI1 =</span> GPI3b[,<span class="dv">1</span>], <span class="at">GPI2 =</span> GPI3b[,<span class="dv">2</span>], <span class="at">GPI3 =</span> GPI3b[,<span class="dv">3</span>], <span class="at">GPI4 =</span> GPI3b[,<span class="dv">4</span>],</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">BA1 =</span> BA3_items[,<span class="dv">1</span>], <span class="at">BA2 =</span> BA3_items[,<span class="dv">2</span>], <span class="at">BA3 =</span> BA3_items[,<span class="dv">3</span>]</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="visualising-item-shift-vs.-construct-shift" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="visualising-item-shift-vs.-construct-shift"><span class="header-section-number">6.4</span> Visualising Item Shift vs.&nbsp;Construct Shift</h2>
+<p>The key visual diagnostic: compare the mean difference (treatment minus control) for each GPI item across both scenarios. If the treatment effect is a <strong>pure construct shift</strong>, all four items should show roughly the same difference (proportional to their loadings). If some items show <em>disproportionately large</em> differences, that excess is item shift.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Plot: item mean differences across the two scenarios</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute item mean differences for both scenarios</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>get_item_diffs <span class="ot">&lt;-</span> <span class="cf">function</span>(df, scenario_label) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(condition) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(GPI1<span class="sc">:</span>GPI4, mean), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> GPI1<span class="sc">:</span>GPI4, <span class="at">names_to =</span> <span class="st">"item"</span>, <span class="at">values_to =</span> <span class="st">"mean_score"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> condition, <span class="at">values_from =</span> mean_score) <span class="sc">|&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">difference =</span> <span class="st">`</span><span class="at">Green Marketing</span><span class="st">`</span> <span class="sc">-</span> Control,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">scenario   =</span> scenario_label,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">type       =</span> <span class="fu">if_else</span>(item <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"GPI1"</span>, <span class="st">"GPI2"</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Non-invariant (item shift)"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Invariant"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>diffs_a <span class="ot">&lt;-</span> <span class="fu">get_item_diffs</span>(df3a, <span class="st">"Scenario A: Item shift only</span><span class="sc">\n</span><span class="st">(true treatment effect = 0)"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>diffs_b <span class="ot">&lt;-</span> <span class="fu">get_item_diffs</span>(df3b, <span class="st">"Scenario B: Item shift + construct shift</span><span class="sc">\n</span><span class="st">(true treatment effect = 0.40 SD)"</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>all_diffs <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(diffs_a, diffs_b)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected construct-only difference: 0.40 * loading for items 3 &amp; 4 (scenario B)</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>expected_b <span class="ot">&lt;-</span> <span class="fl">0.40</span> <span class="sc">*</span> <span class="fu">mean</span>(lam_GPI3[<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>])</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(all_diffs, <span class="fu">aes</span>(<span class="at">x =</span> item, <span class="at">y =</span> difference, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> scenario) <span class="sc">+</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Non-invariant (item shift)"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Invariant"</span>                  <span class="ot">=</span> <span class="st">"#4575b4"</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="cn">NULL</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.15</span>))) <span class="sc">+</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"GPI Item"</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Mean Difference (Treatment − Control)"</span>,</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Visualising Item Shift vs. Construct Shift"</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Blue bars show only real construct shift; red bars show extra item-level inflation"</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/case3-item-means-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>What to look for across the two panels
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Scenario A (left panel):</strong> GPI3 and GPI4 show near-zero differences — correct, because the true treatment effect is zero. GPI1 and GPI2 show substantial positive differences — entirely due to item shift. If you averaged all four items and compared group means, you would conclude there is a treatment effect. There isn’t. The apparent effect is entirely measurement artifact.</p>
+<p><strong>Scenario B (right panel):</strong> GPI3 and GPI4 show moderate differences reflecting the real 0.40 SD construct shift. GPI1 and GPI2 show that same moderate shift <em>plus</em> the extra item shift on top. The total observed difference for GPI1/GPI2 is inflated well above what the latent shift would predict.</p>
+<p>In both cases, item-shifted items (red) show disproportionately large treatment–control differences compared to invariant items (blue). This asymmetry is the fingerprint of measurement non-invariance.</p>
+</div>
+</div>
+</section>
+<section id="testing-measurement-invariance-step-by-step" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="testing-measurement-invariance-step-by-step"><span class="header-section-number">6.5</span> Testing Measurement Invariance Step by Step</h2>
+<p>The formal test uses a sequence of nested CFA models, each adding one more constraint. We’ll demonstrate using <strong>Scenario B</strong> (item shift + construct shift), which is the more common real-world situation.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The three models and what they constrain — connected to item/construct shift
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>What is constrained</th>
+<th>What it tests</th>
+<th>Connection to shifts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Configural</strong></td>
+<td>Nothing (baseline)</td>
+<td>Same factor structure in both groups?</td>
+<td>If configural <strong>fails</strong>, the factor structure itself differs across groups — implying <strong>both item shift and construct shift</strong> are present (the most severe case)</td>
+</tr>
+<tr class="even">
+<td><strong>Metric</strong></td>
+<td>Factor loadings equal</td>
+<td>Do items relate to the construct with the same <em>sensitivity</em> across groups?</td>
+<td>If metric <strong>fails</strong> (but configural holds), loadings differ — items have different sensitivity to the latent construct across groups — this is <strong>item shift</strong> (the ruler has different gradations)</td>
+</tr>
+<tr class="odd">
+<td><strong>Scalar</strong></td>
+<td>Loadings + item intercepts equal</td>
+<td>Do items have the same <em>baseline level</em> across groups?</td>
+<td>If scalar <strong>fails</strong> (but metric holds), intercepts differ — items have different baseline levels — this is <strong>item baseline shift</strong> (pure item shift, the cleanest case to diagnose)</td>
+</tr>
+</tbody>
+</table>
+<p>Failing configural invariance is the most severe outcome — it means the factor structure itself is not replicable across groups, implying both the constructs and the items are behaving differently. Failing metric invariance (while configural holds) means loadings differ — items have different sensitivity to the latent construct in each group. This is a form of item shift: the ruler itself has different gradations. Failing scalar invariance (while metric holds) means item intercepts differ — items have different baseline levels in each group. This is the classic item-level shift we built into our simulation. <strong>You need scalar invariance at minimum to make valid comparisons of latent means across groups.</strong></p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Fit configural, metric, and scalar invariance models</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>invar_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">  EC  =~ EC1 + EC2 + EC3 + EC4</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">  GPI =~ GPI1 + GPI2 + GPI3 + GPI4</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">  BA  =~ BA1  + BA2  + BA3</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the three-model sequence on Scenario B</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>fit_config <span class="ot">&lt;-</span> <span class="fu">cfa</span>(invar_model, <span class="at">data =</span> df3b, <span class="at">group =</span> <span class="st">"condition"</span>, <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>fit_metric <span class="ot">&lt;-</span> <span class="fu">cfa</span>(invar_model, <span class="at">data =</span> df3b, <span class="at">group =</span> <span class="st">"condition"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">group.equal =</span> <span class="st">"loadings"</span>, <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>fit_scalar <span class="ot">&lt;-</span> <span class="fu">cfa</span>(invar_model, <span class="at">data =</span> df3b, <span class="at">group =</span> <span class="st">"condition"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                  <span class="at">group.equal =</span> <span class="fu">c</span>(<span class="st">"loadings"</span>, <span class="st">"intercepts"</span>), <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Likelihood ratio test sequence</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Likelihood ratio test: significant Δχ² = adding the constraint worsens fit</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>lrt_result <span class="ot">&lt;-</span> <span class="fu">lavTestLRT</span>(fit_config, fit_metric, fit_scalar)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lrt_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Chi-Squared Difference Test
+
+           Df   AIC   BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)    
+fit_config 82 10404 10691  74.105                                          
+fit_metric 90 10399 10655  85.376      11.27 0.04521       8     0.1868    
+fit_scalar 98 10563 10786 265.072     179.70 0.32758       8     &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Model fit indices table</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>extract_fit <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, label) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  fi <span class="ot">&lt;-</span> <span class="fu">fitmeasures</span>(fit, <span class="fu">c</span>(<span class="st">"chisq"</span>, <span class="st">"df"</span>, <span class="st">"cfi"</span>, <span class="st">"rmsea"</span>, <span class="st">"srmr"</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> label,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Chisq =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(fi[<span class="st">"chisq"</span>]), <span class="dv">1</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">df    =</span> <span class="fu">as.integer</span>(fi[<span class="st">"df"</span>]),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">CFI   =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(fi[<span class="st">"cfi"</span>]),   <span class="dv">3</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">RMSEA =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(fi[<span class="st">"rmsea"</span>]), <span class="dv">3</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SRMR  =</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(fi[<span class="st">"srmr"</span>]),  <span class="dv">3</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>fit_summary <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_config, <span class="st">"Configural"</span>),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_metric, <span class="st">"Metric"</span>),</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_scalar, <span class="st">"Scalar (full)"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(fit_summary) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(fit_summary,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"χ²"</span>, <span class="st">"df"</span>, <span class="st">"CFI"</span>, <span class="st">"RMSEA"</span>, <span class="st">"SRMR"</span>),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"Model Fit Across the Invariance Sequence (Scenario B)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Model Fit Across the Invariance Sequence (Scenario B)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">χ²</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">CFI</th>
+<th style="text-align: right;">RMSEA</th>
+<th style="text-align: right;">SRMR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Configural</td>
+<td style="text-align: right;">74.1</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Metric</td>
+<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Scalar (full)</td>
+<td style="text-align: right;">265.1</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.925</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">0.080</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Reading the results
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Configural → Metric</strong>: The χ² difference should be non-significant (p &gt; .05). This means item sensitivity (loadings) is the same across groups. The items relate to GPI equally strongly in both conditions. ✓</p></li>
+<li><p><strong>Metric → Scalar</strong>: The χ² difference <strong>should be significant</strong> (p &lt; .05), because we built non-invariant intercepts into GPI1 and GPI2. Full scalar invariance fails. This is the formal evidence of item shift. ✗</p></li>
+</ul>
+<p>When full scalar invariance fails, you cannot validly compare GPI scale means across conditions without first identifying <em>which</em> items are the problem.</p>
+</div>
+</div>
+</section>
+<section id="identifying-the-non-invariant-items" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="identifying-the-non-invariant-items"><span class="header-section-number">6.6</span> Identifying the Non-Invariant Items</h2>
+<p>Modification indices tell you which constrained parameters, if freed, would most improve model fit. For a failed scalar model, focus on the <strong>intercepts</strong> (<code>op == "~1"</code>): the items with the largest modification indices are the non-invariant ones.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Modification indices — find non-invariant items</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mi_scalar     <span class="ot">&lt;-</span> <span class="fu">modindices</span>(fit_scalar, <span class="at">sort. =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mi_intercepts <span class="ot">&lt;-</span> mi_scalar <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">"~1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mi)) <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lhs, op, block, mi, epc)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(mi_intercepts, <span class="dv">10</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Item"</span>, <span class="st">"Type"</span>, <span class="st">"Group block"</span>, <span class="st">"Mod. Index (MI)"</span>, <span class="st">"Expected Change"</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits    =</span> <span class="dv">2</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption   =</span> <span class="st">"Top Modification Indices for Item Intercepts (Scalar Model, Scenario B)"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Top Modification Indices for Item Intercepts (Scalar Model, Scenario B)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Item</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: right;">Group block</th>
+<th style="text-align: right;">Mod. Index (MI)</th>
+<th style="text-align: right;">Expected Change</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>How to read the modification indices
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Each row is a constrained parameter. The MI column tells you approximately how much the model χ² would drop if you freed that parameter. Large MI values for GPI item intercepts (op == “~1”) point to items with different baseline levels across groups — i.e., items that have shifted.</p>
+<p>GPI1 and GPI2 should appear at the top of this list. In real data, these are the items you would examine substantively: <em>why might these specific items behave differently after green marketing exposure, independently of any real change in purchase intention?</em></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>When can you drop non-invariant items?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you <strong>pre-registered your measurement invariance analysis</strong> before collecting data, you may be able to drop the flagged items (GPI1, GPI2) and use a shortened scale — but only if at least two items remain invariant per factor and you pre-specified this decision rule. Dropping items <em>after</em> finding non-invariance without pre-registration is post-hoc and will raise reviewers’ eyebrows.</p>
+<p>If the analysis was not pre-registered, the better approach is partial invariance (see below).</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="fitting-the-partial-invariance-model" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="fitting-the-partial-invariance-model"><span class="header-section-number">6.7</span> Fitting the Partial Invariance Model</h2>
+<p>Once you identify the non-invariant items, you free their intercepts and re-fit. This is called <strong>partial scalar invariance</strong>: most intercepts are constrained (equal across groups), but the problematic ones are freed.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Fit partial scalar invariance model</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_partial <span class="ot">&lt;-</span> <span class="fu">cfa</span>(invar_model, <span class="at">data =</span> df3b, <span class="at">group =</span> <span class="st">"condition"</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">group.equal   =</span> <span class="fu">c</span>(<span class="st">"loadings"</span>, <span class="st">"intercepts"</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">group.partial =</span> <span class="fu">c</span>(<span class="st">"GPI1~1"</span>, <span class="st">"GPI2~1"</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>lrt_partial <span class="ot">&lt;-</span> <span class="fu">lavTestLRT</span>(fit_metric, fit_partial, fit_scalar)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lrt_partial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Chi-Squared Difference Test
+
+            Df   AIC   BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)    
+fit_metric  90 10399 10655  85.376                                          
+fit_partial 96 10394 10626  92.350      6.974 0.02849       6     0.3232    
+fit_scalar  98 10563 10786 265.072    172.722 0.65330       2     &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Full fit comparison (configural through full scalar)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fit_summary2 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_config,  <span class="st">"Configural"</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_metric,  <span class="st">"Metric"</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_partial, <span class="st">"Partial scalar (GPI1, GPI2 freed)"</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit</span>(fit_scalar,  <span class="st">"Full scalar"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(fit_summary2) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(fit_summary2,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"χ²"</span>, <span class="st">"df"</span>, <span class="st">"CFI"</span>, <span class="st">"RMSEA"</span>, <span class="st">"SRMR"</span>),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"Model Fit Including Partial Invariance Model (Scenario B)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Model Fit Including Partial Invariance Model (Scenario B)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">χ²</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">CFI</th>
+<th style="text-align: right;">RMSEA</th>
+<th style="text-align: right;">SRMR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Configural</td>
+<td style="text-align: right;">74.1</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Metric</td>
+<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Partial scalar (GPI1, GPI2 freed)</td>
+<td style="text-align: right;">92.3</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.043</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Full scalar</td>
+<td style="text-align: right;">265.1</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0.925</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">0.080</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What partial invariance means in practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Partial vs.&nbsp;metric</strong>: non-significant → freeing GPI1 and GPI2 intercepts is sufficient to restore acceptable fit. The measurement model is now accounting for item shift. ✓</li>
+<li><strong>Partial vs.&nbsp;full scalar</strong>: significant → full invariance genuinely fails; GPI1 and GPI2 were necessary to free.</li>
+</ul>
+<p>With partial scalar invariance, you <em>can</em> still compare latent means across groups — but you must be transparent about which items showed item shift and offer a theoretical explanation for why.</p>
+</div>
+</div>
+</section>
+<section id="separating-item-shift-from-construct-shift" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="separating-item-shift-from-construct-shift"><span class="header-section-number">6.8</span> Separating Item Shift from Construct Shift</h2>
+<p>Here is the payoff. We compare the estimated latent GPI mean difference (treatment − control) under three models:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Compare latent mean estimates across models</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>get_lv_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, <span class="at">lv =</span> <span class="st">"GPI"</span>) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  pe     <span class="ot">&lt;-</span> <span class="fu">parameterEstimates</span>(fit)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  lv_row <span class="ot">&lt;-</span> pe[pe<span class="sc">$</span>op <span class="sc">==</span> <span class="st">"~1"</span> <span class="sc">&amp;</span> pe<span class="sc">$</span>lhs <span class="sc">==</span> lv <span class="sc">&amp;</span> pe<span class="sc">$</span>group <span class="sc">==</span> <span class="dv">2</span>, ]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(lv_row) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  lv_row<span class="sc">$</span>est[<span class="dv">1</span>]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>lv_scalar  <span class="ot">&lt;-</span> <span class="fu">get_lv_mean</span>(fit_scalar)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>lv_partial <span class="ot">&lt;-</span> <span class="fu">get_lv_mean</span>(fit_partial)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>latent_comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Full scalar (ignores item shift — biased)"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Partial scalar (accounts for item shift — corrected)"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">"True value — known from Scenario B simulation"</span>),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPI_latent_mean =</span> <span class="fu">round</span>(<span class="fu">c</span>(lv_scalar, lv_partial, <span class="fl">0.40</span>), <span class="dv">3</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(latent_comparison,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Estimated GPI Latent Mean Difference (Treatment vs. Control)"</span>),</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"How Non-Invariance Inflates the Estimated Treatment Effect"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>How Non-Invariance Inflates the Estimated Treatment Effect</caption>
+<colgroup>
+<col style="width: 46%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Estimated GPI Latent Mean Difference (Treatment vs.&nbsp;Control)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Full scalar (ignores item shift — biased)</td>
+<td style="text-align: right;">0.865</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Partial scalar (accounts for item shift — corrected)</td>
+<td style="text-align: right;">0.191</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">True value — known from Scenario B simulation</td>
+<td style="text-align: right;">0.400</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The core lesson: item shift inflates construct shift estimates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The full scalar model forces GPI1 and GPI2 to behave as if they’re invariant. Since they’re not, their elevated scores in the treatment group get attributed to a larger latent GPI shift — inflating the estimated treatment effect above 0.40.</p>
+<p>The partial invariance model correctly absorbs the item-level shifts into the freed intercepts, and the estimated latent mean difference recovers to something close to the true 0.40.</p>
+<p><strong>This is the discriminant validity connection:</strong> the scale in the treatment group is partially measuring “item-specific response to green marketing” alongside “genuine purchase intention” — exactly the same “Y measures X + something else” problem as Case 1. Measurement invariance testing is how you detect it in an experimental setting.</p>
+</div>
+</div>
+</section>
+<section id="other-methods-for-testing-measurement-invariance" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="other-methods-for-testing-measurement-invariance"><span class="header-section-number">6.9</span> Other Methods for Testing Measurement Invariance</h2>
+<p>The configural → metric → scalar sequence using lavaan is the standard approach for continuous (or near-continuous) items. Other options:</p>
+<ul>
+<li><strong>WLSMV estimator (lavaan):</strong> For truly ordinal Likert data (5–7 points), use <code>estimator = "WLSMV"</code> in lavaan with polychoric correlations. The model comparison sequence is the same; the fit statistics and chi-square tests adjust for the ordinal scale.</li>
+<li><strong>Alignment optimization (Asparouhov &amp; Muthén, 2014):</strong> An alternative to the step-wise test sequence for large numbers of groups. Instead of testing constraints, it finds the optimal alignment of factor means and intercepts with minimum non-invariance. Useful when you have many groups (countries, time points) and expect some non-invariance.</li>
+<li><strong>Bayesian approximate measurement invariance (Muthén &amp; Asparouhov, 2013):</strong> Instead of exact equality constraints, allows parameters to be “approximately equal” across groups. Fits naturally in a Bayesian framework and gives more nuanced information about the degree of non-invariance.</li>
+<li><strong>Item Response Theory (IRT) / Differential Item Functioning (DIF):</strong> In educational and clinical measurement, non-invariance is called differential item functioning. Logistic IRT models can flag specific items and parameter levels where DIF occurs. Particularly useful for binary or polytomous items.</li>
+<li><strong>Random intercept cross-lagged panel model (RI-CLPM):</strong> For longitudinal data, this model separates within-person change from stable between-person differences, which is related to the question of whether your scale means the same thing for everyone.</li>
+</ul>
+<hr>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../module-1/case2.html" class="pagination-link" aria-label="Case 2: Omitted Variable Bias">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../module-1/case4.html" class="pagination-link" aria-label="Case 4: Latent Subgroups">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

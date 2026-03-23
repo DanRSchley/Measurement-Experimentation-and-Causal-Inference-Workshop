@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,7 +68,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../module-1/tutorial.html" rel="next">
+<link href="../module-1/case1.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -86,7 +121,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/index.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/index.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/intro.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -131,14 +166,38 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/tutorial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Module 1 Code Tutorial</span></span></a>
+  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cases 5 &amp; 6: Outliers and Systematic Error</span></span></a>
   </div>
 </li>
       </ul>
@@ -155,13 +214,13 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/tutorial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Module 2 Code Tutorial</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Module 2 Code Tutorial</span></span></a>
   </div>
 </li>
       </ul>
@@ -178,13 +237,13 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/tutorial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span></a>
   </div>
 </li>
       </ul>
@@ -201,19 +260,19 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">2.1</span> Overview</a></li>
   <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link" data-scroll-target="#learning-goals"><span class="header-section-number">2.2</span> Learning Goals</a></li>
-  <li><a href="#slides" id="toc-slides" class="nav-link" data-scroll-target="#slides"><span class="header-section-number">2.3</span> Slides</a></li>
-  <li><a href="#code-tutorial" id="toc-code-tutorial" class="nav-link" data-scroll-target="#code-tutorial"><span class="header-section-number">2.4</span> Code Tutorial</a></li>
-  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">2.5</span> Recommended Reading</a></li>
+  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">2.3</span> Recommended Reading</a></li>
+  <li><a href="#what-this-tutorial-is-about" id="toc-what-this-tutorial-is-about" class="nav-link" data-scroll-target="#what-this-tutorial-is-about"><span class="header-section-number">2.4</span> What This Tutorial Is About</a></li>
+  <li><a href="#packages-needed" id="toc-packages-needed" class="nav-link" data-scroll-target="#packages-needed"><span class="header-section-number">2.5</span> Packages Needed</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/index.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/index.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/intro.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></h1>
-<p class="subtitle lead">When Y Measures More Than You Think</p>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<p class="subtitle lead">Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers</p>
 </div>
 
 
@@ -230,6 +289,8 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen="" title="Module 1 Part 1: Validity">
+</iframe>
 <section id="overview" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="overview"><span class="header-section-number">2.1</span> Overview</h2>
 <p>Good measurement is the foundation of good research, yet it is the step most often skipped. This module asks: <em>does your scale actually measure the construct you intend?</em> — and introduces the tools to find out.</p>
@@ -249,20 +310,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <hr>
 </section>
-<section id="slides" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="slides"><span class="header-section-number">2.3</span> Slides</h2>
-<p>The lecture slides cover the conceptual foundations for each topic in the tutorial.</p>
-<p><a href="../slides/Module-1-Introduction-to-Measurement.pptx" class="btn btn-outline-primary">Download Slides (.pptx)</a></p>
-<hr>
-</section>
-<section id="code-tutorial" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="code-tutorial"><span class="header-section-number">2.4</span> Code Tutorial</h2>
-<p>The tutorial walks through each topic in R with fully reproducible examples, collapsible code blocks, and embedded figures.</p>
-<p><a href="../module-1/tutorial.html" class="btn btn-primary">Go to Tutorial →</a></p>
-<hr>
-</section>
-<section id="recommended-reading" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">2.5</span> Recommended Reading</h2>
+<section id="recommended-reading" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">2.3</span> Recommended Reading</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -294,6 +343,217 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p>All papers are available in the <code>Module 1 - Recommended Reading/</code> folder.</p>
+<hr>
+<style>
+/* ── Floating bottom control bar ──────────────────────────────────────────── */
+#global-output-toggle {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 11px 24px;
+  background: #1e3a5f;
+  border-top: 3px solid #4a90d9;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
+}
+#global-output-toggle span {
+  color: #c8d8ed;
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+/* Reserve space at page bottom so content never hides behind the bar */
+body { padding-bottom: 70px !important; }
+
+.gtbtn {
+  padding: 9px 24px;
+  color: #ffffff;
+  border-radius: 7px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+/* Code button — blue */
+.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
+.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
+/* Output button — teal/green */
+.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
+.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
+
+/* ── Per-output collapsible wrappers ──────────────────────────────────────── */
+details.out-fold { margin: 6px 0 14px 0; }
+summary.out-fold-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  background: #eef4fb;
+  border: 2px solid #4a90d9;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.94em;
+  font-weight: 700;
+  color: #1a3a6b;
+  user-select: none;
+  list-style: none;
+  transition: background 0.12s;
+}
+summary.out-fold-btn::-webkit-details-marker { display: none; }
+summary.out-fold-btn:hover { background: #cfe2f7; }
+details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
+summary.out-fold-btn .fold-icon { font-size: 1em; }
+details[open] .fold-icon-closed { display: none; }
+details:not([open]) .fold-icon-open { display: none; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── 1. Wrap every cell output in a collapsible <details> ──────────────── */
+  var outputSels = [
+    '.cell-output-stdout',
+    '.cell-output-stderr',
+    '.cell-output-display'
+  ];
+
+  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
+    if (el.closest('.callout') || el.closest('details.out-fold')) return;
+
+    var hasImg = !!el.querySelector('img, svg, canvas');
+    var hasTbl = !!el.querySelector('table');
+    var label  = hasImg ? '📊  Show plot'
+               : hasTbl ? '📋  Show table'
+               :           '📄  Show output';
+
+    var det = document.createElement('details');
+    det.className = 'out-fold';
+
+    var sum = document.createElement('summary');
+    sum.className = 'out-fold-btn';
+    sum.innerHTML =
+      '<span class="fold-icon fold-icon-closed">▶</span>' +
+      '<span class="fold-icon fold-icon-open">▼</span>' +
+      label;
+
+    el.parentNode.insertBefore(det, el);
+    det.appendChild(sum);
+    det.appendChild(el);
+  });
+
+  /* ── 2. Append the floating control bar to <body> ──────────────────────── */
+  var bar = document.createElement('div');
+  bar.id = 'global-output-toggle';
+  bar.innerHTML =
+    '<span>Quick controls:</span>' +
+    '<button id="code-toggle-btn"   class="gtbtn code-btn"   onclick="toggleCode()">▼ Expand All Code</button>' +
+    '<button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">▼ Expand All Output</button>';
+
+  document.body.appendChild(bar);
+});
+
+/* Track open/collapsed state separately for code and output */
+var codeOpen   = false;
+var outputOpen = false;
+
+function toggleCode() {
+  codeOpen = !codeOpen;
+  document.querySelectorAll('details').forEach(function (d) {
+    /* Code details contain a .sourceCode descendant; output folds carry class out-fold */
+    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) {
+      d.open = codeOpen;
+    }
+  });
+  var btn = document.getElementById('code-toggle-btn');
+  if (btn) btn.textContent = codeOpen ? '▲ Collapse All Code' : '▼ Expand All Code';
+}
+
+function toggleOutput() {
+  outputOpen = !outputOpen;
+  document.querySelectorAll('details.out-fold').forEach(function (d) {
+    d.open = outputOpen;
+  });
+  var btn = document.getElementById('output-toggle-btn');
+  if (btn) btn.textContent = outputOpen ? '▲ Collapse All Output' : '▼ Expand All Output';
+}
+</script>
+</section>
+<section id="what-this-tutorial-is-about" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="what-this-tutorial-is-about"><span class="header-section-number">2.4</span> What This Tutorial Is About</h2>
+<p>There is a single idea running through everything in this tutorial:</p>
+<blockquote class="blockquote">
+<p><strong>Y is supposed to reflect X — but it actually reflects X <em>plus something else</em>.</strong></p>
+</blockquote>
+<p>This problem shows up in five different guises that marketing researchers encounter regularly:</p>
+<ul>
+<li><p><strong>Case 1 — Discriminant Validity:</strong> Your Green Purchase Intention scale is supposed to measure <em>purchase intention</em> (X) — but its items also pick up <em>environmental concern</em> (something else). The scale cannot be told apart from a different construct.</p></li>
+<li><p><strong>Case 2 — Omitted Variable Bias:</strong> In your secondary data, observed <em>sales</em> (Y) is supposed to reflect <em>advertising spend</em> (X) — but sales also reflects <em>store quality</em> (something else, which you never measured). Your estimated advertising effect is inflated.</p></li>
+<li><p><strong>Case 3 — Measurement Non-Invariance:</strong> Your GPI items are supposed to reflect <em>green purchase intention</em> (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don’t mean the same thing in both groups.</p></li>
+<li><p><strong>Case 4 — Latent Subgroups:</strong> Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn’t apply cleanly to anyone.</p></li>
+<li><p><strong>Case 5 — Outliers:</strong> Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.</p></li>
+</ul>
+<p>The statistical symptoms differ across these five cases, but the <strong>underlying logic is identical</strong>: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Learning Objectives
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>By the end of this tutorial, you will be able to:</p>
+<ul>
+<li>Diagnose discriminant validity failures using HTMT and the DVI method (Pieters et al., 2025)</li>
+<li>Identify omitted variable bias through residual diagnostics and coefficient sensitivity analysis</li>
+<li>Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan</li>
+<li>Use modification indices to pinpoint which specific items are non-invariant</li>
+<li>Use Gaussian mixture models (via <code>mclust</code>) to detect latent subgroups that distort your outcome</li>
+<li>Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers</li>
+<li>Apply robust regression (MASS::rlm) as an alternative to deleting outliers</li>
+<li>Explain the conceptual link between all five problems to a non-technical audience</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="packages-needed" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="packages-needed"><span class="header-section-number">2.5</span> Packages Needed</h2>
+<p>Install and load the required packages. If you haven’t installed them before, run the <code>install.packages()</code> lines first.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Load required packages</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment to install if needed:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("lavaan", "semTools", "MASS", "ggplot2",</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "mclust", "dbscan"))</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)       <span class="co"># CFA and SEM (Cases 1 and 3)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(semTools)     <span class="co"># htmt() and auxiliary SEM tools (Cases 1 and 3)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)         <span class="co"># mvrnorm(): generate multivariate normal data (all cases)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)      <span class="co"># Visualizations (all cases)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)        <span class="co"># Data manipulation (all cases)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)        <span class="co"># Data reshaping (Cases 2 and 3)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)     <span class="co"># Correlation heatmap (Case 1)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)        <span class="co"># Nicely formatted tables (all cases)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)       <span class="co"># Breusch-Pagan heteroskedasticity test (Case 2)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mclust)       <span class="co"># Gaussian mixture models / latent class analysis (Case 4)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dbscan)       <span class="co"># Local outlier factor and DBSCAN clustering (Case 5)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<hr>
 
 
 </section>
@@ -757,8 +1017,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-1/tutorial.html" class="pagination-link" aria-label="Module 1 Code Tutorial">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Module 1 Code Tutorial</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-1/case1.html" class="pagination-link" aria-label="Case 1: Discriminant Validity">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
