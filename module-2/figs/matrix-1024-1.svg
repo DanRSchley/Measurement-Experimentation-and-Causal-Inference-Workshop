@@ -294,12 +294,12 @@
 <clipPath id="clip-0">
 <path clip-rule="nonzero" d="M 109.160156 89.308594 L 685 89.308594 L 685 407.847656 L 109.160156 407.847656 Z M 109.160156 89.308594 "/>
 </clipPath>
-<image id="source-1179" x="0" y="0" width="1024" height="10" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAAKCAIAAAClq7uhAAAABmJLR0QA/wD/AP+gvaeTAAABF0lEQVR4nO3XsW0DMQyFYWWNjOI6tReJx8kkrjOHp7gdzsW5uBQioEIhaH1/QRAPDw8EIRyO7bHtn5dvVVVVVVVVVVVXqB+PbW+tfV1vrbXf+49er9fr9Xq9Xq9/4/51ABwc0sFhotPpdDqdTqfT6e+k/zkAzpxNZ85B/Pz8/Pz8/Pz8/Py1/N0DoEcvqEdvIPny5cuXL1++fPny5f9//vABMMroQKOMLmgU88eYP8b8MeaPMX+M+WPMH2P+GPPHVJ9/+gEwm9kLms3sBzQb+8/F/nOx/1zsPxf7z8X+c6m+//IHQHWqP6DqVP8AVcf7z8X7z8X7z8X7z8X7z8UBgKXxAcLK+AHCyvj+Y2UcAACwKH6AAGBNniKxBIScnpLNAAAAAElFTkSuQmCC"/>
+<image id="source-261" x="0" y="0" width="1024" height="10" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAAKCAIAAAClq7uhAAAABmJLR0QA/wD/AP+gvaeTAAABF0lEQVR4nO3XsW0DMQyFYWWNjOI6tReJx8kkrjOHp7gdzsW5uBQioEIhaH1/QRAPDw8EIRyO7bHtn5dvVVVVVVVVVVVXqB+PbW+tfV1vrbXf+49er9fr9Xq9Xq9/4/51ABwc0sFhotPpdDqdTqfT6e+k/zkAzpxNZ85B/Pz8/Pz8/Pz8/Py1/N0DoEcvqEdvIPny5cuXL1++fPny5f9//vABMMroQKOMLmgU88eYP8b8MeaPMX+M+WPMH2P+GPPHVJ9/+gEwm9kLms3sBzQb+8/F/nOx/1zsPxf7z8X+c6m+//IHQHWqP6DqVP8AVcf7z8X7z8X7z8X7z8X7z8UBgKXxAcLK+AHCyvj+Y2UcAACwKH6AAGBNniKxBIScnpLNAAAAAElFTkSuQmCC"/>
 </defs>
 <rect x="-72" y="-43.2" width="864" height="518.4" fill="rgb(100%, 100%, 100%)" fill-opacity="1"/>
 <rect x="-72" y="-43.2" width="864" height="518.4" fill="rgb(100%, 100%, 100%)" fill-opacity="1"/>
 <g clip-path="url(#clip-0)">
-<use xlink:href="#source-1179" transform="matrix(0.562558, 0, 0, 31.853974, 109.160365, 89.308486)"/>
+<use xlink:href="#source-261" transform="matrix(0.562558, 0, 0, 31.853974, 109.160365, 89.308486)"/>
 </g>
 <g fill="rgb(30.196078%, 30.196078%, 30.196078%)" fill-opacity="1">
 <use xlink:href="#glyph-0-0" x="5.976562" y="395.418945"/>

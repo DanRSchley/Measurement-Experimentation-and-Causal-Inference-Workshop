@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>13&nbsp; Part 5: Experimental Design Strategies – Measurement, Experimentation &amp; Causal Inference</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../module-3/index.html" rel="next">
+<link href="../module-2/part4.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Hypothesis Testing</a></li><li class="breadcrumb-item"><a href="../module-2/part5.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Measurement, Experimentation &amp; Causal Inference</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 1: Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cases 5 &amp; 6: Outliers and Systematic Error</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 2: Hypothesis Testing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Part 1: What Does a P-value Mean?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Part 2: The Exclusion Restriction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Part 3: What Does Random Assignment Require?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: When Exchangeability Breaks Down</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part5.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 3: Causal Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-designs" id="toc-sec-designs" class="nav-link active" data-scroll-target="#sec-designs"><span class="header-section-number">14</span> Part 5: Experimental Design Strategies — Using Structure to Buy Efficiency</a>
+  <ul class="collapse">
+  <li><a href="#the-core-tension" id="toc-the-core-tension" class="nav-link" data-scroll-target="#the-core-tension"><span class="header-section-number">14.1</span> The Core Tension</a></li>
+  <li><a href="#completely-random-factorial-and-latin-square-designs" id="toc-completely-random-factorial-and-latin-square-designs" class="nav-link" data-scroll-target="#completely-random-factorial-and-latin-square-designs"><span class="header-section-number">14.2</span> Completely Random, Factorial, and Latin Square Designs</a></li>
+  <li><a href="#interactive-latin-square-design-builder" id="toc-interactive-latin-square-design-builder" class="nav-link" data-scroll-target="#interactive-latin-square-design-builder"><span class="header-section-number">14.3</span> Interactive Latin Square Design Builder</a>
+  <ul class="collapse">
+  <li><a href="#analysis-code-for-latin-square-designs" id="toc-analysis-code-for-latin-square-designs" class="nav-link" data-scroll-target="#analysis-code-for-latin-square-designs"><span class="header-section-number">14.3.1</span> Analysis code for Latin Square designs</a></li>
+  </ul></li>
+  <li><a href="#metastudies-pooling-power-across-multiple-factors" id="toc-metastudies-pooling-power-across-multiple-factors" class="nav-link" data-scroll-target="#metastudies-pooling-power-across-multiple-factors"><span class="header-section-number">14.4</span> Metastudies: Pooling Power Across Multiple Factors</a></li>
+  <li><a href="#within-participant-designs-same-observations-more-power" id="toc-within-participant-designs-same-observations-more-power" class="nav-link" data-scroll-target="#within-participant-designs-same-observations-more-power"><span class="header-section-number">14.5</span> Within-Participant Designs: Same Observations, More Power</a>
+  <ul class="collapse">
+  <li><a href="#the-intuition" id="toc-the-intuition" class="nav-link" data-scroll-target="#the-intuition"><span class="header-section-number">14.5.1</span> The Intuition</a></li>
+  <li><a href="#the-connection-to-section-3-within-participant-designs-and-the-design-space" id="toc-the-connection-to-section-3-within-participant-designs-and-the-design-space" class="nav-link" data-scroll-target="#the-connection-to-section-3-within-participant-designs-and-the-design-space"><span class="header-section-number">14.5.2</span> The connection to Section 3: within-participant designs and the design space</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Hypothesis Testing</a></li><li class="breadcrumb-item"><a href="../module-2/part5.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Load required packages</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse); <span class="fu">library</span>(ggplot2); <span class="fu">library</span>(knitr); <span class="fu">library</span>(scales); <span class="fu">library</span>(patchwork)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">"lavaan"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">"lavaan"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="sec-designs" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> Part 5: Experimental Design Strategies — Using Structure to Buy Efficiency</h1>
+<section id="the-core-tension" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="the-core-tension"><span class="header-section-number">14.1</span> The Core Tension</h2>
+<p>Parts 3 and 4 showed a fundamental tension:</p>
+<ul>
+<li><strong>More dimensions of Y</strong> → larger design space → more N needed for orthogonality</li>
+<li><strong>More N</strong> → more expensive → temptation to reduce sample → back to poor orthogonality</li>
+</ul>
+<p>Section 4 offered two partial design-based solutions (stratification, clustering). Here we go further: rather than trying to <em>achieve</em> orthogonality with brute-force N, we ask whether <strong>the experimental design itself</strong> can reduce the size of the design space you need to fill.</p>
+</section>
+<section id="completely-random-factorial-and-latin-square-designs" class="level2" data-number="14.2">
+<h2 data-number="14.2" class="anchored" data-anchor-id="completely-random-factorial-and-latin-square-designs"><span class="header-section-number">14.2</span> Completely Random, Factorial, and Latin Square Designs</h2>
+<p>The simplest way to see the tradeoffs is to contrast three design types on a common example.</p>
+<p><strong>Scenario:</strong> You want to test the effect of:</p>
+<ul>
+<li><strong>Factor A:</strong> Eco-certification badge (present / absent) — 2 levels</li>
+<li><strong>Factor B:</strong> Price level (low / medium / high) — 3 levels</li>
+<li><strong>Factor C:</strong> Message framing (individual benefit / social benefit) — 2 levels</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Visualize: CRD vs.&nbsp;Factorial vs.&nbsp;Latin Square cell structures</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Fully factorial: all A×B×C combinations ──────────────────────────────────</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fact_df <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">EcoBadge  =</span> <span class="fu">c</span>(<span class="st">"No Badge"</span>, <span class="st">"Eco Badge"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">PriceLevel =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Framing    =</span> <span class="fu">c</span>(<span class="st">"Individual</span><span class="sc">\n</span><span class="st">Benefit"</span>, <span class="st">"Social</span><span class="sc">\n</span><span class="st">Benefit"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cell =</span> <span class="fu">paste</span>(EcoBadge, PriceLevel, Framing, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">design =</span> <span class="st">"Fully Factorial</span><span class="sc">\n</span><span class="st">(12 cells, 12N total)"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Latin square: Factor C varied across rows and Factor A×B as column×row</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2×3 Latin Square (accommodate unequal levels by using 3×3 and dropping one row)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>ls_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">Row =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">Col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">EcoBadge   =</span> <span class="fu">ifelse</span>(Col <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="st">"No Badge"</span>, <span class="st">"Eco Badge"</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">PriceLevel =</span> <span class="fu">c</span>(<span class="st">"Low"</span>,<span class="st">"Medium"</span>,<span class="st">"High"</span>,<span class="st">"High"</span>,<span class="st">"Low"</span>,<span class="st">"Medium"</span>),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Framing    =</span> <span class="fu">c</span>(<span class="st">"Individual</span><span class="sc">\n</span><span class="st">Benefit"</span>,<span class="st">"Social</span><span class="sc">\n</span><span class="st">Benefit"</span>,<span class="st">"Individual</span><span class="sc">\n</span><span class="st">Benefit"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"Social</span><span class="sc">\n</span><span class="st">Benefit"</span>,<span class="st">"Individual</span><span class="sc">\n</span><span class="st">Benefit"</span>,<span class="st">"Social</span><span class="sc">\n</span><span class="st">Benefit"</span>),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">design     =</span> <span class="st">"Latin Square</span><span class="sc">\n</span><span class="st">(6 cells, 6N total)"</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CRD: just two cells (eco vs. no eco, collapsing B and C) ─────────────────</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>crd_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">EcoBadge   =</span> <span class="fu">c</span>(<span class="st">"No Badge"</span>, <span class="st">"Eco Badge"</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">PriceLevel =</span> <span class="st">"Pooled</span><span class="sc">\n</span><span class="st">(B,C varied</span><span class="sc">\n</span><span class="st">but uncontrolled)"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">Framing    =</span> <span class="st">"Pooled"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">design     =</span> <span class="st">"Simple A/B (CRA)</span><span class="sc">\n</span><span class="st">(2 cells, N total)"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">Row =</span> <span class="dv">1</span>, <span class="at">Col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Plot factorial and latin square side by side ──────────────────────────────</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>p_fact <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fact_df, <span class="fu">aes</span>(<span class="at">x =</span> PriceLevel, <span class="at">y =</span> Framing, <span class="at">fill =</span> EcoBadge)) <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>, <span class="at">width =</span> <span class="fl">0.95</span>, <span class="at">height =</span> <span class="fl">0.95</span>) <span class="sc">+</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"n\u2265"</span>, <span class="fu">ifelse</span>(EcoBadge <span class="sc">==</span> <span class="st">"Eco Badge"</span>, <span class="st">"1"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>, <span class="at">color =</span> <span class="st">"gray20"</span>) <span class="sc">+</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"No Badge"</span> <span class="ot">=</span> <span class="st">"#d6ecff"</span>, <span class="st">"Eco Badge"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>                    <span class="at">name =</span> <span class="st">"Eco Badge"</span>) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Fully Factorial (12 conditions)"</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Every combination tested  \u00b7  Min N = 12</span><span class="sc">\n</span><span class="st">Tests A, B, C main effects AND interactions"</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Price Level"</span>, <span class="at">y =</span> <span class="st">"Message Framing"</span>) <span class="sc">+</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>p_ls <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ls_grid, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(Col), <span class="at">y =</span> <span class="fu">factor</span>(Row), <span class="at">fill =</span> EcoBadge)) <span class="sc">+</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>, <span class="at">width =</span> <span class="fl">0.92</span>, <span class="at">height =</span> <span class="fl">0.92</span>) <span class="sc">+</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(EcoBadge, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, PriceLevel, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, Framing)),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">2.9</span>, <span class="at">lineheight =</span> <span class="fl">0.85</span>, <span class="at">color =</span> <span class="st">"gray10"</span>) <span class="sc">+</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"No Badge"</span> <span class="ot">=</span> <span class="st">"#d6ecff"</span>, <span class="st">"Eco Badge"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>),</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>                    <span class="at">name =</span> <span class="st">"Eco Badge"</span>) <span class="sc">+</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Latin Square (6 conditions)"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Each factor level appears exactly once per row and column</span><span class="sc">\n</span><span class="st">Min N = 6  \u00b7  Tests main effects only (no interactions)"</span>,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Column (order slot / price)"</span>, <span class="at">y =</span> <span class="st">"Row (participant block)"</span>) <span class="sc">+</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>))</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>p_fact <span class="sc">+</span> p_ls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/design-comparison-1.svg" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Table: design comparison on key dimensions</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>design_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Design =</span> <span class="fu">c</span>(<span class="st">"Simple A/B (CRA)"</span>, <span class="st">"Fully Factorial"</span>, <span class="st">"Latin Square"</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Conditions</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">12</span>, <span class="dv">6</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Min N (1 obs/cell)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">12</span>, <span class="dv">6</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Main effects testable</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"A only"</span>, <span class="st">"A, B, C"</span>, <span class="st">"A, B, C"</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Interactions testable</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"A\u00d7B, A\u00d7C, B\u00d7C, A\u00d7B\u00d7C"</span>, <span class="st">"None"</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Orthogonality coverage</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Only A vs. B,C confounded"</span>, <span class="st">"Perfect within cells"</span>, <span class="st">"Approximate — by design"</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(design_tab,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Design comparison: efficiency, testability, and orthogonality coverage"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Design comparison: efficiency, testability, and orthogonality coverage</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 9%">
+<col style="width: 16%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Design</th>
+<th style="text-align: right;">Conditions</th>
+<th style="text-align: right;">Min N (1 obs/cell)</th>
+<th style="text-align: left;">Main effects testable</th>
+<th style="text-align: left;">Interactions testable</th>
+<th style="text-align: left;">Orthogonality coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Simple A/B (CRA)</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">A only</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Only A vs.&nbsp;B,C confounded</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Fully Factorial</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">A, B, C</td>
+<td style="text-align: left;">A×B, A×C, B×C, A×B×C</td>
+<td style="text-align: left;">Perfect within cells</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Latin Square</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">A, B, C</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Approximate — by design</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connecting to Section 3: how designs reduce the effective design space
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recall from Section 3.6 that the required N for approximate orthogonality grows with the number of dimensions D and falls as <span class="math inline">\(r_{\max}\)</span> increases. A Latin Square design directly reduces the effective D by <strong>structurally balancing</strong> factors across the design matrix rather than relying on chance:</p>
+<ul>
+<li>A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.</li>
+<li>A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors’ levels.</li>
+<li>A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from Section 3.</li>
+</ul>
+<p>The Latin Square is a direct structural solution to the Section 3 problem: <strong>it buys you orthogonality through design structure rather than through sample size.</strong></p>
+</div>
+</div>
+</section>
+<section id="interactive-latin-square-design-builder" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="interactive-latin-square-design-builder"><span class="header-section-number">14.3</span> Interactive Latin Square Design Builder</h2>
+<p>Use the controls below to design your own Latin Square experiment. Set the number of factors, give each one a name and the number of levels you need, and specify your participant budget per cell. The grid updates instantly — colors show which level of the primary factor each cell receives, labels inside the cells show the other factors.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="141" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 140;"><span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>viewof ls_config <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">form</span>({</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>  <span class="dt">n_fac</span><span class="op">:</span>      Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">5</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>                <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of factors to study"</span>})<span class="op">,</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>  <span class="dt">a_name</span><span class="op">:</span>     Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor A — name"</span><span class="op">,</span>   <span class="dt">value</span><span class="op">:</span> <span class="st">"Eco badge"</span><span class="op">,</span>    <span class="dt">width</span><span class="op">:</span> <span class="dv">160</span>})<span class="op">,</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>  <span class="dt">a_levels</span><span class="op">:</span>   Inputs<span class="op">.</span><span class="fu">select</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor A — levels"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>  <span class="dt">b_name</span><span class="op">:</span>     Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor B — name"</span><span class="op">,</span>   <span class="dt">value</span><span class="op">:</span> <span class="st">"Price level"</span><span class="op">,</span>  <span class="dt">width</span><span class="op">:</span> <span class="dv">160</span>})<span class="op">,</span></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>  <span class="dt">b_levels</span><span class="op">:</span>   Inputs<span class="op">.</span><span class="fu">select</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor B — levels"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span>})<span class="op">,</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>  <span class="dt">c_name</span><span class="op">:</span>     Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor C — name"</span><span class="op">,</span>   <span class="dt">value</span><span class="op">:</span> <span class="st">"Framing"</span><span class="op">,</span>      <span class="dt">width</span><span class="op">:</span> <span class="dv">160</span>})<span class="op">,</span></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>  <span class="dt">c_levels</span><span class="op">:</span>   Inputs<span class="op">.</span><span class="fu">select</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor C — levels"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span></span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>  <span class="dt">d_name</span><span class="op">:</span>     Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor D — name"</span><span class="op">,</span>   <span class="dt">value</span><span class="op">:</span> <span class="st">"Source cred."</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">160</span>})<span class="op">,</span></span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>  <span class="dt">d_levels</span><span class="op">:</span>   Inputs<span class="op">.</span><span class="fu">select</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor D — levels"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span></span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>  <span class="dt">e_name</span><span class="op">:</span>     Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor E — name"</span><span class="op">,</span>   <span class="dt">value</span><span class="op">:</span> <span class="st">"Ad copy"</span><span class="op">,</span>      <span class="dt">width</span><span class="op">:</span> <span class="dv">160</span>})<span class="op">,</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>  <span class="dt">e_levels</span><span class="op">:</span>   Inputs<span class="op">.</span><span class="fu">select</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Factor E — levels"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span>})<span class="op">,</span></span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>  <span class="dt">n_per_cell</span><span class="op">:</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">30</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>                <span class="dt">label</span><span class="op">:</span> <span class="st">"Participants per cell"</span>})<span class="op">,</span></span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="164" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 163;"><span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>ls_state <span class="op">=</span> {</span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> nf   <span class="op">=</span> ls_config<span class="op">.</span><span class="at">n_fac</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> defs <span class="op">=</span> [</span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">name</span><span class="op">:</span> ls_config<span class="op">.</span><span class="at">a_name</span> <span class="op">||</span> <span class="st">"Factor A"</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">a_levels</span>}<span class="op">,</span></span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">name</span><span class="op">:</span> ls_config<span class="op">.</span><span class="at">b_name</span> <span class="op">||</span> <span class="st">"Factor B"</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">b_levels</span>}<span class="op">,</span></span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">name</span><span class="op">:</span> ls_config<span class="op">.</span><span class="at">c_name</span> <span class="op">||</span> <span class="st">"Factor C"</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">c_levels</span>}<span class="op">,</span></span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">name</span><span class="op">:</span> ls_config<span class="op">.</span><span class="at">d_name</span> <span class="op">||</span> <span class="st">"Factor D"</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">d_levels</span>}<span class="op">,</span></span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">name</span><span class="op">:</span> ls_config<span class="op">.</span><span class="at">e_name</span> <span class="op">||</span> <span class="st">"Factor E"</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">e_levels</span>}<span class="op">,</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> facs <span class="op">=</span> defs<span class="op">.</span><span class="fu">slice</span>(<span class="dv">0</span><span class="op">,</span> nf)</span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> maxL <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="op">...</span>facs<span class="op">.</span><span class="fu">map</span>(f <span class="kw">=&gt;</span> f<span class="op">.</span><span class="at">levels</span>))</span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cells <span class="op">=</span> []</span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> r <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> r <span class="op">&lt;</span> maxL<span class="op">;</span> r<span class="op">++</span>) {</span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> c <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> c <span class="op">&lt;</span> maxL<span class="op">;</span> c<span class="op">++</span>) {</span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> cell <span class="op">=</span> {<span class="dt">row</span><span class="op">:</span> r <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">col</span><span class="op">:</span> c <span class="op">+</span> <span class="dv">1</span>}</span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a>      facs<span class="op">.</span><span class="fu">forEach</span>((fac<span class="op">,</span> k) <span class="kw">=&gt;</span> {</span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a>        cell[<span class="st">"lv"</span> <span class="op">+</span> k]    <span class="op">=</span> ((r <span class="op">+</span> c <span class="op">+</span> k) <span class="op">%</span> fac<span class="op">.</span><span class="at">levels</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a>        cell[<span class="st">"short"</span> <span class="op">+</span> k] <span class="op">=</span> (fac<span class="op">.</span><span class="at">name</span> <span class="op">||</span> (<span class="st">"F"</span> <span class="op">+</span> (k<span class="op">+</span><span class="dv">1</span>)))<span class="op">.</span><span class="fu">substring</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">4</span>) <span class="op">+</span> <span class="st">"</span><span class="sc">\u202f</span><span class="st">"</span> <span class="op">+</span></span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a>                             (((r <span class="op">+</span> c <span class="op">+</span> k) <span class="op">%</span> fac<span class="op">.</span><span class="at">levels</span>) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a>      })</span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a>      cell<span class="op">.</span><span class="at">fa_label</span>     <span class="op">=</span> <span class="st">"Level</span><span class="sc">\u00a0</span><span class="st">"</span> <span class="op">+</span> (((r <span class="op">+</span> c) <span class="op">%</span> facs[<span class="dv">0</span>]<span class="op">.</span><span class="at">levels</span>) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a>      cell<span class="op">.</span><span class="at">other_labels</span> <span class="op">=</span> facs<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">map</span>((f<span class="op">,</span> i) <span class="kw">=&gt;</span> (f<span class="op">.</span><span class="at">name</span> <span class="op">||</span> (<span class="st">"F"</span> <span class="op">+</span> (i<span class="op">+</span><span class="dv">2</span>)))<span class="op">.</span><span class="fu">substring</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">4</span>) <span class="op">+</span> <span class="st">"</span><span class="sc">\u202f</span><span class="st">"</span> <span class="op">+</span></span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a>                        (((r <span class="op">+</span> c <span class="op">+</span> i <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> f<span class="op">.</span><span class="at">levels</span>) <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">join</span>(<span class="st">"  "</span>)</span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a>      cells<span class="op">.</span><span class="fu">push</span>(cell)</span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> full_factorial <span class="op">=</span> facs<span class="op">.</span><span class="fu">reduce</span>((acc<span class="op">,</span> f) <span class="kw">=&gt;</span> acc <span class="op">*</span> f<span class="op">.</span><span class="at">levels</span><span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ls_cells       <span class="op">=</span> maxL <span class="op">*</span> maxL</span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n_per_cell     <span class="op">=</span> <span class="op">+</span>ls_config<span class="op">.</span><span class="at">n_per_cell</span></span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {facs<span class="op">,</span> cells<span class="op">,</span> maxL<span class="op">,</span> full_factorial<span class="op">,</span> ls_cells<span class="op">,</span></span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a>          <span class="dt">total_n</span><span class="op">:</span> ls_cells <span class="op">*</span> n_per_cell<span class="op">,</span> n_per_cell<span class="op">,</span> nf}</span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="207" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 206;"><span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {facs<span class="op">,</span> cells<span class="op">,</span> maxL} <span class="op">=</span> ls_state</span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> palettes <span class="op">=</span> {</span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span><span class="op">:</span> [<span class="st">"#4e79a7"</span><span class="op">,</span><span class="st">"#f28e2b"</span>]<span class="op">,</span></span>
+<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span><span class="op">:</span> [<span class="st">"#4e79a7"</span><span class="op">,</span><span class="st">"#f28e2b"</span><span class="op">,</span><span class="st">"#59a14f"</span>]<span class="op">,</span></span>
+<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span><span class="op">:</span> [<span class="st">"#4e79a7"</span><span class="op">,</span><span class="st">"#f28e2b"</span><span class="op">,</span><span class="st">"#59a14f"</span><span class="op">,</span><span class="st">"#e15759"</span>]</span>
+<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pal    <span class="op">=</span> palettes[<span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(facs[<span class="dv">0</span>]<span class="op">.</span><span class="at">levels</span><span class="op">,</span> <span class="dv">4</span>)]</span>
+<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cellPx <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="dv">80</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="dv">150</span><span class="op">,</span> <span class="dv">540</span> <span class="op">/</span> maxL))</span>
+<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>    <span class="dt">width</span><span class="op">:</span>       cellPx <span class="op">*</span> maxL <span class="op">+</span> <span class="dv">110</span><span class="op">,</span></span>
+<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>    <span class="dt">height</span><span class="op">:</span>      cellPx <span class="op">*</span> maxL <span class="op">+</span> <span class="dv">90</span><span class="op">,</span></span>
+<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marginLeft</span><span class="op">:</span>  <span class="dv">85</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">52</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">36</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a>    <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> maxL}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>         <span class="dt">tickFormat</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="st">"Pos. "</span> <span class="op">+</span> d<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Order position </span><span class="sc">\u2192</span><span class="st">"</span> }<span class="op">,</span></span>
+<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>    <span class="dt">y</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> maxL}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a>         <span class="dt">tickFormat</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="st">"Block "</span> <span class="op">+</span> d<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"</span><span class="sc">\u2190</span><span class="st"> Participant block"</span> }<span class="op">,</span></span>
+<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a>    <span class="dt">color</span><span class="op">:</span> {</span>
+<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a>      <span class="dt">domain</span><span class="op">:</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> facs[<span class="dv">0</span>]<span class="op">.</span><span class="at">levels</span>}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> <span class="st">"Level</span><span class="sc">\u00a0</span><span class="st">"</span> <span class="op">+</span> (i<span class="op">+</span><span class="dv">1</span>))<span class="op">,</span></span>
+<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a>      <span class="dt">range</span><span class="op">:</span>  pal<span class="op">,</span> <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a>      <span class="dt">label</span><span class="op">:</span>  (facs[<span class="dv">0</span>]<span class="op">.</span><span class="at">name</span> <span class="op">||</span> <span class="st">"Factor A"</span>) <span class="op">+</span> <span class="st">" (cell color)"</span></span>
+<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a>    <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">cell</span>(cells<span class="op">,</span> {</span>
+<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"col"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"row"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"fa_label"</span><span class="op">,</span></span>
+<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a>        <span class="dt">stroke</span><span class="op">:</span> <span class="st">"white"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">rx</span><span class="op">:</span> <span class="dv">6</span></span>
+<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>      })<span class="op">,</span></span>
+<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">text</span>(cells<span class="op">,</span> {</span>
+<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"col"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"row"</span><span class="op">,</span></span>
+<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>        <span class="dt">text</span><span class="op">:</span> d <span class="kw">=&gt;</span> (facs[<span class="dv">0</span>]<span class="op">.</span><span class="at">name</span> <span class="op">||</span> <span class="st">"A"</span>)<span class="op">.</span><span class="fu">substring</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">4</span>) <span class="op">+</span> <span class="st">"</span><span class="sc">\u202f</span><span class="st">"</span> <span class="op">+</span> d[<span class="st">"lv0"</span>]<span class="op">,</span></span>
+<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a>        <span class="dt">fill</span><span class="op">:</span> <span class="st">"white"</span><span class="op">,</span> <span class="dt">fontWeight</span><span class="op">:</span> <span class="st">"bold"</span><span class="op">,</span> <span class="dt">fontSize</span><span class="op">:</span> <span class="dv">13</span><span class="op">,</span></span>
+<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a>        <span class="dt">dy</span><span class="op">:</span> facs<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">1</span> <span class="op">?</span> <span class="op">-</span><span class="dv">9</span> <span class="op">:</span> <span class="dv">0</span></span>
+<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a>      })<span class="op">,</span></span>
+<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a>      <span class="op">...</span>(facs<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">1</span> <span class="op">?</span> [Plot<span class="op">.</span><span class="fu">text</span>(cells<span class="op">,</span> {</span>
+<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"col"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"row"</span><span class="op">,</span></span>
+<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a>        <span class="dt">text</span><span class="op">:</span> <span class="st">"other_labels"</span><span class="op">,</span></span>
+<span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a>        <span class="dt">fill</span><span class="op">:</span> <span class="st">"white"</span><span class="op">,</span> <span class="dt">fontSize</span><span class="op">:</span> <span class="fl">9.5</span><span class="op">,</span> <span class="dt">opacity</span><span class="op">:</span> <span class="fl">0.92</span><span class="op">,</span> <span class="dt">dy</span><span class="op">:</span> <span class="dv">9</span></span>
+<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a>      })] <span class="op">:</span> [])</span>
+<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="256" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 255;"><span id="cb7-256"><a href="#cb7-256" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb7-257"><a href="#cb7-257" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {facs<span class="op">,</span> cells<span class="op">,</span> ls_cells<span class="op">,</span> full_factorial<span class="op">,</span> total_n<span class="op">,</span> n_per_cell<span class="op">,</span> maxL} <span class="op">=</span> ls_state</span>
+<span id="cb7-258"><a href="#cb7-258" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pct   <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(ls_cells <span class="op">/</span> full_factorial <span class="op">*</span> <span class="dv">100</span>)</span>
+<span id="cb7-259"><a href="#cb7-259" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> saved <span class="op">=</span> full_factorial <span class="op">-</span> ls_cells</span>
+<span id="cb7-260"><a href="#cb7-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-261"><a href="#cb7-261" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> balance <span class="op">=</span> facs<span class="op">.</span><span class="fu">map</span>((fac<span class="op">,</span> k) <span class="kw">=&gt;</span> {</span>
+<span id="cb7-262"><a href="#cb7-262" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> expected <span class="op">=</span> maxL <span class="op">/</span> fac<span class="op">.</span><span class="at">levels</span></span>
+<span id="cb7-263"><a href="#cb7-263" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ok <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb7-264"><a href="#cb7-264" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> r <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> r <span class="op">&lt;=</span> maxL<span class="op">;</span> r<span class="op">++</span>) {</span>
+<span id="cb7-265"><a href="#cb7-265" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (<span class="kw">let</span> lv <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> lv <span class="op">&lt;=</span> fac<span class="op">.</span><span class="at">levels</span><span class="op">;</span> lv<span class="op">++</span>) {</span>
+<span id="cb7-266"><a href="#cb7-266" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> n <span class="op">=</span> cells<span class="op">.</span><span class="fu">filter</span>(c <span class="kw">=&gt;</span> c<span class="op">.</span><span class="at">row</span> <span class="op">===</span> r <span class="op">&amp;&amp;</span> c[<span class="st">"lv"</span> <span class="op">+</span> k] <span class="op">===</span> lv)<span class="op">.</span><span class="at">length</span></span>
+<span id="cb7-267"><a href="#cb7-267" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(n <span class="op">-</span> expected) <span class="op">&gt;</span> <span class="fl">0.49</span>) ok <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb7-268"><a href="#cb7-268" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-269"><a href="#cb7-269" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-270"><a href="#cb7-270" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="dt">name</span><span class="op">:</span> fac<span class="op">.</span><span class="at">name</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> fac<span class="op">.</span><span class="at">levels</span><span class="op">,</span> <span class="dt">expected</span><span class="op">:</span> expected<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="op">,</span> <span class="dt">balanced</span><span class="op">:</span> ok}</span>
+<span id="cb7-271"><a href="#cb7-271" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb7-272"><a href="#cb7-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-273"><a href="#cb7-273" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">html</span><span class="vs">`</span></span>
+<span id="cb7-274"><a href="#cb7-274" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 10px"&gt;</span></span>
+<span id="cb7-275"><a href="#cb7-275" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="flex:1;min-width:110px;background:#e8f4f8;border-radius:10px;</span></span>
+<span id="cb7-276"><a href="#cb7-276" aria-hidden="true" tabindex="-1"></a><span class="vs">                padding:13px 16px;text-align:center;border-left:4px solid #457b9d"&gt;</span></span>
+<span id="cb7-277"><a href="#cb7-277" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:2em;font-weight:700;color:#457b9d;line-height:1"&gt;</span><span class="sc">${</span>ls_cells<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb7-278"><a href="#cb7-278" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:0.78em;color:#555;margin-top:4px"&gt;Latin Square&lt;br&gt;conditions&lt;/div&gt;</span></span>
+<span id="cb7-279"><a href="#cb7-279" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/div&gt;</span></span>
+<span id="cb7-280"><a href="#cb7-280" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="flex:1;min-width:110px;background:#fff8e1;border-radius:10px;</span></span>
+<span id="cb7-281"><a href="#cb7-281" aria-hidden="true" tabindex="-1"></a><span class="vs">                padding:13px 16px;text-align:center;border-left:4px solid #f9a825"&gt;</span></span>
+<span id="cb7-282"><a href="#cb7-282" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:2em;font-weight:700;color:#f9a825;line-height:1"&gt;</span><span class="sc">${</span>full_factorial<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb7-283"><a href="#cb7-283" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:0.78em;color:#555;margin-top:4px"&gt;Full factorial&lt;br&gt;conditions&lt;/div&gt;</span></span>
+<span id="cb7-284"><a href="#cb7-284" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/div&gt;</span></span>
+<span id="cb7-285"><a href="#cb7-285" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="flex:1;min-width:110px;background:#e8f5e9;border-radius:10px;</span></span>
+<span id="cb7-286"><a href="#cb7-286" aria-hidden="true" tabindex="-1"></a><span class="vs">                padding:13px 16px;text-align:center;border-left:4px solid #388e3c"&gt;</span></span>
+<span id="cb7-287"><a href="#cb7-287" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:2em;font-weight:700;color:#388e3c;line-height:1"&gt;</span><span class="sc">${</span>pct<span class="sc">}</span><span class="vs">%&lt;/div&gt;</span></span>
+<span id="cb7-288"><a href="#cb7-288" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:0.78em;color:#555;margin-top:4px"&gt;Design efficiency&lt;br&gt;(vs. full factorial)&lt;/div&gt;</span></span>
+<span id="cb7-289"><a href="#cb7-289" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/div&gt;</span></span>
+<span id="cb7-290"><a href="#cb7-290" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="flex:1;min-width:110px;background:#fce4ec;border-radius:10px;</span></span>
+<span id="cb7-291"><a href="#cb7-291" aria-hidden="true" tabindex="-1"></a><span class="vs">                padding:13px 16px;text-align:center;border-left:4px solid #c62828"&gt;</span></span>
+<span id="cb7-292"><a href="#cb7-292" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:2em;font-weight:700;color:#c62828;line-height:1"&gt;</span><span class="sc">${</span>total_n<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb7-293"><a href="#cb7-293" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;div style="font-size:0.78em;color:#555;margin-top:4px"&gt;Total participants&lt;br&gt;(</span><span class="sc">${</span>n_per_cell<span class="sc">}</span><span class="vs">/cell)&lt;/div&gt;</span></span>
+<span id="cb7-294"><a href="#cb7-294" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/div&gt;</span></span>
+<span id="cb7-295"><a href="#cb7-295" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb7-296"><a href="#cb7-296" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span><span class="sc">${</span>saved <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb7-297"><a href="#cb7-297" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> <span class="fu">html</span><span class="vs">`&lt;p style="color:#388e3c;font-size:0.88em;margin:6px 0 10px"&gt;</span></span>
+<span id="cb7-298"><a href="#cb7-298" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;strong&gt;&amp;#10003; Savings:&lt;/strong&gt; Testing all </span><span class="sc">${</span>facs<span class="op">.</span><span class="at">length</span><span class="sc">}</span><span class="vs"> factors with a Latin Square</span></span>
+<span id="cb7-299"><a href="#cb7-299" aria-hidden="true" tabindex="-1"></a><span class="vs">        uses &lt;strong&gt;</span><span class="sc">${</span>ls_cells<span class="sc">}</span><span class="vs"> conditions&lt;/strong&gt; instead of </span><span class="sc">${</span>full_factorial<span class="sc">}</span><span class="vs"> &amp;mdash;</span></span>
+<span id="cb7-300"><a href="#cb7-300" aria-hidden="true" tabindex="-1"></a><span class="vs">        saving </span><span class="sc">${</span>saved<span class="sc">}</span><span class="vs"> conditions (</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(saved<span class="op">/</span>full_factorial<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="vs">% fewer cells)</span></span>
+<span id="cb7-301"><a href="#cb7-301" aria-hidden="true" tabindex="-1"></a><span class="vs">        without losing any main-effect estimation power.</span></span>
+<span id="cb7-302"><a href="#cb7-302" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/p&gt;`</span></span>
+<span id="cb7-303"><a href="#cb7-303" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> <span class="fu">html</span><span class="vs">`&lt;p style="color:#666;font-size:0.88em;margin:6px 0 10px"&gt;</span></span>
+<span id="cb7-304"><a href="#cb7-304" aria-hidden="true" tabindex="-1"></a><span class="vs">        All factors have the same number of levels, so the Latin Square equals</span></span>
+<span id="cb7-305"><a href="#cb7-305" aria-hidden="true" tabindex="-1"></a><span class="vs">        the full factorial here. Try mixing levels (e.g., 2 and 3) to see the efficiency gain.</span></span>
+<span id="cb7-306"><a href="#cb7-306" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/p&gt;`</span></span>
+<span id="cb7-307"><a href="#cb7-307" aria-hidden="true" tabindex="-1"></a>  <span class="sc">}</span></span>
+<span id="cb7-308"><a href="#cb7-308" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;details style="margin-top:6px"&gt;</span></span>
+<span id="cb7-309"><a href="#cb7-309" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;summary style="cursor:pointer;color:#457b9d;font-weight:600;font-size:0.88em"&gt;</span></span>
+<span id="cb7-310"><a href="#cb7-310" aria-hidden="true" tabindex="-1"></a><span class="vs">      &amp;#9654; Balance check &amp;mdash; how many times does each factor level appear per row?</span></span>
+<span id="cb7-311"><a href="#cb7-311" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/summary&gt;</span></span>
+<span id="cb7-312"><a href="#cb7-312" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;table style="border-collapse:collapse;font-size:0.83em;margin-top:8px;width:100%"&gt;</span></span>
+<span id="cb7-313"><a href="#cb7-313" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;thead&gt;</span></span>
+<span id="cb7-314"><a href="#cb7-314" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;tr style="background:#f0f4f8"&gt;</span></span>
+<span id="cb7-315"><a href="#cb7-315" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;th style="padding:5px 10px;text-align:left;border:1px solid #ddd"&gt;Factor&lt;/th&gt;</span></span>
+<span id="cb7-316"><a href="#cb7-316" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;th style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;Levels&lt;/th&gt;</span></span>
+<span id="cb7-317"><a href="#cb7-317" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;th style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;Appearances per row&lt;/th&gt;</span></span>
+<span id="cb7-318"><a href="#cb7-318" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;th style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;Balanced?&lt;/th&gt;</span></span>
+<span id="cb7-319"><a href="#cb7-319" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;/tr&gt;</span></span>
+<span id="cb7-320"><a href="#cb7-320" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/thead&gt;</span></span>
+<span id="cb7-321"><a href="#cb7-321" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;tbody&gt;</span></span>
+<span id="cb7-322"><a href="#cb7-322" aria-hidden="true" tabindex="-1"></a><span class="vs">        </span><span class="sc">${</span>balance<span class="op">.</span><span class="fu">map</span>(b <span class="kw">=&gt;</span> <span class="fu">html</span><span class="vs">`&lt;tr&gt;</span></span>
+<span id="cb7-323"><a href="#cb7-323" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;td style="padding:5px 10px;border:1px solid #ddd"&gt;&lt;strong&gt;</span><span class="sc">${</span>b<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">&lt;/strong&gt;&lt;/td&gt;</span></span>
+<span id="cb7-324"><a href="#cb7-324" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;td style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;</span><span class="sc">${</span>b<span class="op">.</span><span class="at">levels</span><span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb7-325"><a href="#cb7-325" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;td style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;</span><span class="sc">${</span>b<span class="op">.</span><span class="at">expected</span><span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb7-326"><a href="#cb7-326" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;td style="padding:5px 10px;text-align:center;border:1px solid #ddd"&gt;</span></span>
+<span id="cb7-327"><a href="#cb7-327" aria-hidden="true" tabindex="-1"></a><span class="vs">            </span><span class="sc">${</span>b<span class="op">.</span><span class="at">balanced</span></span>
+<span id="cb7-328"><a href="#cb7-328" aria-hidden="true" tabindex="-1"></a>              <span class="op">?</span> <span class="fu">html</span><span class="vs">`&lt;span style="color:#388e3c;font-weight:bold"&gt;&amp;#10003; Perfect&lt;/span&gt;`</span></span>
+<span id="cb7-329"><a href="#cb7-329" aria-hidden="true" tabindex="-1"></a>              <span class="op">:</span> <span class="fu">html</span><span class="vs">`&lt;span style="color:#f9a825;font-weight:bold"&gt;&amp;#8776; Approximate&lt;/span&gt;`</span><span class="sc">}</span></span>
+<span id="cb7-330"><a href="#cb7-330" aria-hidden="true" tabindex="-1"></a><span class="vs">          &lt;/td&gt;</span></span>
+<span id="cb7-331"><a href="#cb7-331" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;/tr&gt;`</span>)<span class="sc">}</span></span>
+<span id="cb7-332"><a href="#cb7-332" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/tbody&gt;</span></span>
+<span id="cb7-333"><a href="#cb7-333" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/table&gt;</span></span>
+<span id="cb7-334"><a href="#cb7-334" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/details&gt;`</span></span>
+<span id="cb7-335"><a href="#cb7-335" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Latin Squares cannot estimate interactions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Latin Square tests each factor’s <strong>main effect</strong> using the full sample, but it <strong>cannot</strong> detect whether factors interact (e.g., whether the eco-badge effect depends on price level). If an interaction is theoretically important, use a full factorial design for those two factors and apply the Latin Square only to the remaining ones.</p>
+</div>
+</div>
+<section id="analysis-code-for-latin-square-designs" class="level3" data-number="14.3.1">
+<h3 data-number="14.3.1" class="anchored" data-anchor-id="analysis-code-for-latin-square-designs"><span class="header-section-number">14.3.1</span> Analysis code for Latin Square designs</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Analysis template: fit Latin Square model</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace Y, Factor_A, Factor_B, Factor_C with your actual variable names.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Row and Column are nuisance blocking variables — always include them.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Two-factor model</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> Factor_A <span class="sc">+</span> Factor_B <span class="sc">+</span> Row <span class="sc">+</span> Column, <span class="at">data =</span> your_df)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(fit2, pairwise <span class="sc">~</span> Factor_A, <span class="at">adjust =</span> <span class="st">"holm"</span>)<span class="sc">$</span>contrasts</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(fit2, pairwise <span class="sc">~</span> Factor_B, <span class="at">adjust =</span> <span class="st">"holm"</span>)<span class="sc">$</span>contrasts</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Three-factor model</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> Factor_A <span class="sc">+</span> Factor_B <span class="sc">+</span> Factor_C <span class="sc">+</span> Row <span class="sc">+</span> Column, <span class="at">data =</span> your_df)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(fit3, pairwise <span class="sc">~</span> Factor_A, <span class="at">adjust =</span> <span class="st">"holm"</span>)<span class="sc">$</span>contrasts</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(fit3, pairwise <span class="sc">~</span> Factor_B, <span class="at">adjust =</span> <span class="st">"holm"</span>)<span class="sc">$</span>contrasts</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(fit3, pairwise <span class="sc">~</span> Factor_C, <span class="at">adjust =</span> <span class="st">"holm"</span>)<span class="sc">$</span>contrasts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<hr>
+</section>
+</section>
+<section id="metastudies-pooling-power-across-multiple-factors" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="metastudies-pooling-power-across-multiple-factors"><span class="header-section-number">14.4</span> Metastudies: Pooling Power Across Multiple Factors</h2>
+<p>The Latin Square is efficient because it uses design structure to study multiple factors simultaneously. A related idea scales this up to the level of a research program: the <strong>metastudy</strong> (DeKay, Rubinchik, Li, &amp; De Boeck, 2022, <em>Perspectives on Psychological Science</em>).</p>
+<p>A metastudy is a single, pre-registered study that simultaneously tests many experimental factors — what DeKay et al.&nbsp;call <em>facets</em> — by crossing them in a balanced factorial design. Each participant sees one randomly sampled combination of facet levels (a <em>microstudy</em>); the researcher estimates each facet’s main effect by contrasting all participants who received the high level of that facet against all who received the low level, averaged across all other facets.</p>
+<p><strong>Why this provides more power per hypothesis than running separate A/B tests:</strong></p>
+<p>The key insight is about how the fixed participant budget is allocated. In a metastudy, all N participants are exposed to all K factors simultaneously. When estimating the effect of any one factor, the <em>entire</em> sample contributes to that estimate — N/2 participants in each “level” of that factor — regardless of how many other factors are also being tested. This is because the factors are orthogonally assigned, so each factor’s effect is estimated independently of the others using the full N.</p>
+<p>By contrast, if you run K separate A/B tests and divide your budget equally, each test gets only N/K participants. Power for each test depends on N/K, which shrinks as K grows.</p>
+<p><strong>The comparison with fixed total N:</strong> if you have N = 400 participants and want to test K hypotheses: - <strong>Metastudy:</strong> all 400 test all K factors. Each factor is estimated using all 400 participants → power stays constant. - <strong>Separate A/B tests:</strong> 400/K participants per factor → as K grows, per-test sample shrinks → power falls.</p>
+<p>At K = 1, the two designs are <em>identical</em>: a single A/B test with 400 participants. As K grows, they diverge sharply. As DeKay et al.&nbsp;(2022) put it, metastudies “intentionally and completely sacrifice power at the level of the individual microstudies to achieve greater power for testing the effects of interest at the aggregate level” — a counterintuitive but mathematically principled trade-off.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate: metastudy maintains power as K grows; separate A/B tests collapse</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>K_vec   <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>       <span class="co"># 1 to 7 factors (stop at K = 7)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>N_total <span class="ot">&lt;-</span> <span class="dv">400</span>       <span class="co"># fixed total budget (same for both designs)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>d       <span class="ot">&lt;-</span> <span class="fl">0.30</span>      <span class="co"># true effect size per factor</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>n_sim   <span class="ot">&lt;-</span> <span class="dv">1000</span>      <span class="co"># simulations per cell</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Metastudy: all N=400 test all K factors simultaneously (orthogonal OLS) ────</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Key: each factor is assigned orthogonally, so estimating Factor 1 uses all N</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># participants (N/2 per level), regardless of K. SE ≈ 2*sigma/sqrt(N) = constant.</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># At K=1 this is identical to a single A/B test with N participants.</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>sim_meta_power <span class="ot">&lt;-</span> <span class="cf">function</span>(N, K, d, <span class="at">n_sim =</span> <span class="dv">500</span>) {</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">replicate</span>(n_sim, {</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Random ±0.5 assignment to each of K orthogonal factors</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    X   <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>), N <span class="sc">*</span> K, <span class="at">replace =</span> <span class="cn">TRUE</span>), <span class="at">nrow =</span> N)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    Y   <span class="ot">&lt;-</span> X <span class="sc">%*%</span> <span class="fu">rep</span>(d, K) <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># p-value for Factor 1 (all factors symmetric by design)</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coef</span>(<span class="fu">summary</span>(fit))[<span class="dv">2</span>, <span class="dv">4</span>] <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Separate A/B tests: total N = 400 split EQUALLY among K tests ─────────────</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Each of the K factors gets its own study with N/K participants.</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co"># At K=1: N_per_test = 400 → identical to metastudy (K=1 case) → equal power.</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co"># As K grows: N_per_test = 400/K shrinks → power falls.</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>sim_ab_power <span class="ot">&lt;-</span> <span class="cf">function</span>(N_per_test, d, <span class="at">n_sim =</span> <span class="dv">500</span>) {</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  n_t <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(N_per_test <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  n_c <span class="ot">&lt;-</span> <span class="fu">floor</span>(N_per_test <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">replicate</span>(n_sim, {</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    obs <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">rnorm</span>(n_t,  d <span class="sc">/</span> <span class="dv">2</span>, <span class="dv">1</span>)) <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">rnorm</span>(n_c, <span class="sc">-</span>d <span class="sc">/</span> <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    se  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">/</span>n_t <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>n_c)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abs</span>(obs <span class="sc">/</span> se) <span class="sc">&gt;</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>meta_powers <span class="ot">&lt;-</span> <span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">sim_meta_power</span>(N_total, K, d, n_sim))</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>ab_powers   <span class="ot">&lt;-</span> <span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">sim_ab_power</span>(<span class="fu">floor</span>(N_total <span class="sc">/</span> K), d, n_sim))</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>power_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_factors =</span> <span class="fu">rep</span>(K_vec, <span class="dv">2</span>),</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">power     =</span> <span class="fu">c</span>(meta_powers, ab_powers),</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">design    =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Metastudy (total N = 400; all factors tested simultaneously)"</span>,</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Separate A/B tests (N = 400 / K per test)"</span>),</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>                 <span class="at">each =</span> <span class="fu">length</span>(K_vec))</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_df, <span class="fu">aes</span>(<span class="at">x =</span> n_factors, <span class="at">y =</span> power,</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> design, <span class="at">group =</span> design)) <span class="sc">+</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.80</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray40"</span>) <span class="sc">+</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">7.05</span>, <span class="at">y =</span> <span class="fl">0.815</span>, <span class="at">label =</span> <span class="st">"80% power"</span>,</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"gray40"</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Metastudy (total N = 400; all factors tested simultaneously)"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>,</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Separate A/B tests (N = 400 / K per test)"</span>                   <span class="ot">=</span> <span class="st">"#e63946"</span>),</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> K_vec) <span class="sc">+</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of factors tested (K)"</span>,</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Power per factor (d = 0.30)"</span>,</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Metastudy Maintains Power as K Grows; Separate A/B Tests Collapse"</span>,</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Both designs use the same total N = 400  \u00b7  d = 0.30  \u00b7  At K=1 both designs are identical (one A/B test, N=400)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Metastudy: all 400 contribute to each factor\u2019s estimate \u2192 power stays constant  \u00b7  "</span>,</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Separate A/B: 400/K per test \u2192 power falls"</span>)) <span class="sc">+</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>),</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">5</span>, <span class="dv">30</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/metastudy-power-1.svg" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Reading the plot:</strong> at K = 1, both designs are literally the same study — one A/B test with 400 participants — and achieve the same power (~85%). As K grows, the designs diverge. The metastudy <em>maintains</em> near-constant high power because all 400 participants contribute to each factor’s estimate; the orthogonal design means Factor 1’s SE is always ≈ 2/√N regardless of how many other factors are also being tested. Separate A/B tests collapse because the budget is divided: at K = 7, each test gets only 400/7 ≈ 57 participants, pushing power below 20%. The metastudy tests 7× as many hypotheses at the same power level using exactly the same resources.</p>
+<p><strong>The connection to Section 3:</strong> a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions <em>by construction</em> — transforming unobserved confounders into <em>measured experimental factors</em> and extracting their effects cleanly.</p>
+<hr>
+</section>
+<section id="within-participant-designs-same-observations-more-power" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="within-participant-designs-same-observations-more-power"><span class="header-section-number">14.5</span> Within-Participant Designs: Same Observations, More Power</h2>
+<section id="the-intuition" class="level3" data-number="14.5.1">
+<h3 data-number="14.5.1" class="anchored" data-anchor-id="the-intuition"><span class="header-section-number">14.5.1</span> The Intuition</h3>
+<p>In all the designs above, we compared <em>different people</em> in different conditions. A within-participant (repeated-measures) design instead exposes <em>the same person</em> to multiple conditions, measuring the outcome each time.</p>
+<p><strong>Why does this increase power?</strong> Consider the source of variance in your data:</p>
+<p><span class="math display">\[\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}\]</span></p>
+<p>In a between-participant design, your treatment effect estimate must be separated from <em>both</em> between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.</p>
+<p>In a within-participant design, between-person variance <strong>cancels out</strong> because each person serves as their own control. You are estimating the effect within each person and averaging those within-person effects. The only remaining noise is within-person variance and measurement error — which are much smaller.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate: between vs.&nbsp;within participant power comparison</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>true_effect <span class="ot">&lt;-</span> <span class="fl">0.40</span>   <span class="co"># true within-person effect (SD units)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>icc_range   <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.10</span>, <span class="fl">0.90</span>, <span class="at">by =</span> <span class="fl">0.10</span>)  <span class="co"># ICC = between / total variance</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>power_comparison <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">icc    =</span> icc_range,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> <span class="fu">c</span>(<span class="st">"Between-participant"</span>, <span class="st">"Within-participant"</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For fixed total N = 100, n_per_arm = 50 between, N = 50 for within</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">N        =</span> <span class="dv">100</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_arm    =</span> <span class="dv">50</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Between: variance includes between-person component (inflates denominator)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_eff_b =</span> <span class="fu">sqrt</span>(<span class="dv">1</span>),             <span class="co"># full SD</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Within: SD of the DIFFERENCE scores = sqrt(2*(1-icc)) * total_sd</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_eff_w =</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> icc)),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">power_val =</span> <span class="fu">mapply</span>(<span class="cf">function</span>(des, sd_e) {</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tryCatch</span>(</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">delta =</span> true_effect,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sd =</span> sd_e, <span class="at">sig.level =</span> <span class="fl">0.05</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                     <span class="at">type =</span> <span class="fu">ifelse</span>(des <span class="sc">==</span> <span class="st">"Between-participant"</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">"two.sample"</span>, <span class="st">"paired"</span>))<span class="sc">$</span>power,</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    }, design, <span class="fu">ifelse</span>(design <span class="sc">==</span> <span class="st">"Between-participant"</span>, sd_eff_b, sd_eff_w))</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_comparison, <span class="fu">aes</span>(<span class="at">x =</span> icc, <span class="at">y =</span> power_val,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                              <span class="at">color =</span> design, <span class="at">group =</span> design)) <span class="sc">+</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.4</span>) <span class="sc">+</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.80</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray40"</span>) <span class="sc">+</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.91</span>, <span class="at">y =</span> <span class="fl">0.82</span>, <span class="at">label =</span> <span class="st">"80% power"</span>,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"gray40"</span>, <span class="at">size =</span> <span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Between-participant"</span> <span class="ot">=</span> <span class="st">"#e63946"</span>,</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"Within-participant"</span>  <span class="ot">=</span> <span class="st">"#2d6a4f"</span>),</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">sprintf</span>(<span class="st">"ICC = %.2f</span><span class="sc">\n</span><span class="st">(%.0f%% between-person)"</span>, x, x<span class="sc">*</span><span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Intraclass correlation (ICC = proportion of variance between people)"</span>,</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Statistical power"</span>,</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Within-Participant Designs Have Greater Power — Especially When ICC Is High"</span>,</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Fixed N = 100 participants  \u00b7  True effect = d = "</span>, true_effect,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"</span><span class="sc">\n</span><span class="st">Within-participant design removes between-person variance from the error term"</span>)) <span class="sc">+</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/within-between-power-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why ICC determines how much you gain
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <strong>intraclass correlation (ICC)</strong> measures what fraction of total variance in Y is due to stable between-person differences. When ICC is high:</p>
+<ul>
+<li>People differ a lot from each other (but are consistent with themselves across conditions)</li>
+<li>Between-participant designs “waste” most of their variance budget on individual differences</li>
+<li>Within-participant designs remove all of this, leaving only the small within-person residual</li>
+</ul>
+<p>When ICC is low: - People are not very consistent — their responses vary randomly from occasion to occasion - Within-participant designs offer less of an advantage because the between-person variance that cancels out was small to begin with</p>
+<p><strong>Practical benchmark:</strong> for most psychological constructs (attitudes, preferences, perceptions), ICC values between 0.40 and 0.70 are common. In this range, within-participant designs typically require <strong>half to one-third</strong> the sample size of between-participant designs for equivalent power.</p>
+</div>
+</div>
+</section>
+<section id="the-connection-to-section-3-within-participant-designs-and-the-design-space" class="level3" data-number="14.5.2">
+<h3 data-number="14.5.2" class="anchored" data-anchor-id="the-connection-to-section-3-within-participant-designs-and-the-design-space"><span class="header-section-number">14.5.2</span> The connection to Section 3: within-participant designs and the design space</h3>
+<p>Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees <em>multiple</em> conditions, the entire design space for that person’s dimensions is held constant across conditions — <strong>by construction</strong>. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person’s data.</p>
+<p>The tradeoff is well known: <strong>carryover effects</strong> (condition A changes how the person responds to condition B), <strong>demand characteristics</strong> (participants figure out the hypothesis), and <strong>fatigue or practice effects</strong>. These are most severe when:</p>
+<ul>
+<li>The treatment induces lasting attitude change (hard to reverse)</li>
+<li>The conditions are highly transparent (easy to guess the hypothesis)</li>
+<li>The outcome requires learning or practice (performance tasks)</li>
+</ul>
+<p>For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.</p>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Module 2 — the complete thread
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every concept in this module is a direct extension of Module 1, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Module 1 (Measurement of Y)</th>
+<th>Module 2 (Manipulation of X and Randomization)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scale items are observables for a latent construct</td>
+<td>Treatment assignment is an observable for latent randomization</td>
+</tr>
+<tr class="even">
+<td>Discriminant validity: does Y measure <em>only</em> what it should?</td>
+<td>Exclusion restriction: does X activate <em>only</em> the intended pathway?</td>
+</tr>
+<tr class="odd">
+<td>Construct breadth determines how many items you need</td>
+<td>Construct breadth of Y determines how much N you need for orthogonality</td>
+</tr>
+<tr class="even">
+<td>Correlated subscales: efficient but can hide distinct pathways</td>
+<td>Correlated latent dimensions: can ease orthogonality OR cascade failures</td>
+</tr>
+<tr class="odd">
+<td>Open-ended text reveals the nomological net of Y</td>
+<td>Open-ended text identifies unmeasured confounders and latent dimensions</td>
+</tr>
+<tr class="even">
+<td>Stratified measurement (subscales by domain)</td>
+<td>Stratified randomization (block by measured covariates)</td>
+</tr>
+<tr class="odd">
+<td>Multi-level data (participants nested in groups)</td>
+<td>Clustered randomization (interventions at group level, ICC inflates required N)</td>
+</tr>
+<tr class="even">
+<td>Narrow constructs: few items, easy reliability</td>
+<td>Narrow Y: small D, easy orthogonality, A/B suffices</td>
+</tr>
+<tr class="odd">
+<td>Broad constructs: many items, hard to achieve discriminant validity</td>
+<td>Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The common lesson</strong> — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 2, Part 4) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.</p>
+</div>
+</div>
+<hr>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Ilxudmlld29mIGxzX2NvbmZpZyA9IElucHV0cy5mb3JtKHtcbiAgbl9mYWM6ICAgICAgSW5wdXRzLnJhbmdlKFsyLCA1XSwge3N0ZXA6IDEsIHZhbHVlOiAzLFxuICAgICAgICAgICAgICAgIGxhYmVsOiBcIk51bWJlciBvZiBmYWN0b3JzIHRvIHN0dWR5XCJ9KSxcbiAgYV9uYW1lOiAgICAgSW5wdXRzLnRleHQoe2xhYmVsOiBcIkZhY3RvciBBIOKAlCBuYW1lXCIsICAgdmFsdWU6IFwiRWNvIGJhZGdlXCIsICAgIHdpZHRoOiAxNjB9KSxcbiAgYV9sZXZlbHM6ICAgSW5wdXRzLnNlbGVjdChbMiwgMywgNF0sIHtsYWJlbDogXCJGYWN0b3IgQSDigJQgbGV2ZWxzXCIsIHZhbHVlOiAyfSksXG4gIGJfbmFtZTogICAgIElucHV0cy50ZXh0KHtsYWJlbDogXCJGYWN0b3IgQiDigJQgbmFtZVwiLCAgIHZhbHVlOiBcIlByaWNlIGxldmVsXCIsICB3aWR0aDogMTYwfSksXG4gIGJfbGV2ZWxzOiAgIElucHV0cy5zZWxlY3QoWzIsIDMsIDRdLCB7bGFiZWw6IFwiRmFjdG9yIEIg4oCUIGxldmVsc1wiLCB2YWx1ZTogM30pLFxuICBjX25hbWU6ICAgICBJbnB1dHMudGV4dCh7bGFiZWw6IFwiRmFjdG9yIEMg4oCUIG5hbWVcIiwgICB2YWx1ZTogXCJGcmFtaW5nXCIsICAgICAgd2lkdGg6IDE2MH0pLFxuICBjX2xldmVsczogICBJbnB1dHMuc2VsZWN0KFsyLCAzLCA0XSwge2xhYmVsOiBcIkZhY3RvciBDIOKAlCBsZXZlbHNcIiwgdmFsdWU6IDJ9KSxcbiAgZF9uYW1lOiAgICAgSW5wdXRzLnRleHQoe2xhYmVsOiBcIkZhY3RvciBEIOKAlCBuYW1lXCIsICAgdmFsdWU6IFwiU291cmNlIGNyZWQuXCIsIHdpZHRoOiAxNjB9KSxcbiAgZF9sZXZlbHM6ICAgSW5wdXRzLnNlbGVjdChbMiwgMywgNF0sIHtsYWJlbDogXCJGYWN0b3IgRCDigJQgbGV2ZWxzXCIsIHZhbHVlOiAyfSksXG4gIGVfbmFtZTogICAgIElucHV0cy50ZXh0KHtsYWJlbDogXCJGYWN0b3IgRSDigJQgbmFtZVwiLCAgIHZhbHVlOiBcIkFkIGNvcHlcIiwgICAgICB3aWR0aDogMTYwfSksXG4gIGVfbGV2ZWxzOiAgIElucHV0cy5zZWxlY3QoWzIsIDMsIDRdLCB7bGFiZWw6IFwiRmFjdG9yIEUg4oCUIGxldmVsc1wiLCB2YWx1ZTogMn0pLFxuICBuX3Blcl9jZWxsOiBJbnB1dHMucmFuZ2UoWzEsIDMwXSwge3N0ZXA6IDEsIHZhbHVlOiA1LFxuICAgICAgICAgICAgICAgIGxhYmVsOiBcIlBhcnRpY2lwYW50cyBwZXIgY2VsbFwifSksXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiXG5sc19zdGF0ZSA9IHtcbiAgY29uc3QgbmYgICA9IGxzX2NvbmZpZy5uX2ZhY1xuICBjb25zdCBkZWZzID0gW1xuICAgIHtuYW1lOiBsc19jb25maWcuYV9uYW1lIHx8IFwiRmFjdG9yIEFcIiwgbGV2ZWxzOiArbHNfY29uZmlnLmFfbGV2ZWxzfSxcbiAgICB7bmFtZTogbHNfY29uZmlnLmJfbmFtZSB8fCBcIkZhY3RvciBCXCIsIGxldmVsczogK2xzX2NvbmZpZy5iX2xldmVsc30sXG4gICAge25hbWU6IGxzX2NvbmZpZy5jX25hbWUgfHwgXCJGYWN0b3IgQ1wiLCBsZXZlbHM6ICtsc19jb25maWcuY19sZXZlbHN9LFxuICAgIHtuYW1lOiBsc19jb25maWcuZF9uYW1lIHx8IFwiRmFjdG9yIERcIiwgbGV2ZWxzOiArbHNfY29uZmlnLmRfbGV2ZWxzfSxcbiAgICB7bmFtZTogbHNfY29uZmlnLmVfbmFtZSB8fCBcIkZhY3RvciBFXCIsIGxldmVsczogK2xzX2NvbmZpZy5lX2xldmVsc30sXG4gIF1cbiAgY29uc3QgZmFjcyA9IGRlZnMuc2xpY2UoMCwgbmYpXG4gIGNvbnN0IG1heEwgPSBNYXRoLm1heCguLi5mYWNzLm1hcChmID0+IGYubGV2ZWxzKSlcblxuICBjb25zdCBjZWxscyA9IFtdXG4gIGZvciAobGV0IHIgPSAwOyByIDwgbWF4TDsgcisrKSB7XG4gICAgZm9yIChsZXQgYyA9IDA7IGMgPCBtYXhMOyBjKyspIHtcbiAgICAgIGNvbnN0IGNlbGwgPSB7cm93OiByICsgMSwgY29sOiBjICsgMX1cbiAgICAgIGZhY3MuZm9yRWFjaCgoZmFjLCBrKSA9PiB7XG4gICAgICAgIGNlbGxbXCJsdlwiICsga10gICAgPSAoKHIgKyBjICsgaykgJSBmYWMubGV2ZWxzKSArIDFcbiAgICAgICAgY2VsbFtcInNob3J0XCIgKyBrXSA9IChmYWMubmFtZSB8fCAoXCJGXCIgKyAoaysxKSkpLnN1YnN0cmluZygwLCA0KSArIFwiXFx1MjAyZlwiICtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKCgociArIGMgKyBrKSAlIGZhYy5sZXZlbHMpICsgMSlcbiAgICAgIH0pXG4gICAgICBjZWxsLmZhX2xhYmVsICAgICA9IFwiTGV2ZWxcXHUwMGEwXCIgKyAoKChyICsgYykgJSBmYWNzWzBdLmxldmVscykgKyAxKVxuICAgICAgY2VsbC5vdGhlcl9sYWJlbHMgPSBmYWNzLnNsaWNlKDEpXG4gICAgICAgIC5tYXAoKGYsIGkpID0+IChmLm5hbWUgfHwgKFwiRlwiICsgKGkrMikpKS5zdWJzdHJpbmcoMCwgNCkgKyBcIlxcdTIwMmZcIiArXG4gICAgICAgICAgICAgICAgICAgICAgICAoKChyICsgYyArIGkgKyAxKSAlIGYubGV2ZWxzKSArIDEpKVxuICAgICAgICAuam9pbihcIiAgXCIpXG4gICAgICBjZWxscy5wdXNoKGNlbGwpXG4gICAgfVxuICB9XG5cbiAgY29uc3QgZnVsbF9mYWN0b3JpYWwgPSBmYWNzLnJlZHVjZSgoYWNjLCBmKSA9PiBhY2MgKiBmLmxldmVscywgMSlcbiAgY29uc3QgbHNfY2VsbHMgICAgICAgPSBtYXhMICogbWF4TFxuICBjb25zdCBuX3Blcl9jZWxsICAgICA9ICtsc19jb25maWcubl9wZXJfY2VsbFxuXG4gIHJldHVybiB7ZmFjcywgY2VsbHMsIG1heEwsIGZ1bGxfZmFjdG9yaWFsLCBsc19jZWxscyxcbiAgICAgICAgICB0b3RhbF9uOiBsc19jZWxscyAqIG5fcGVyX2NlbGwsIG5fcGVyX2NlbGwsIG5mfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0zIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiXG57XG4gIGNvbnN0IHtmYWNzLCBjZWxscywgbWF4TH0gPSBsc19zdGF0ZVxuXG4gIGNvbnN0IHBhbGV0dGVzID0ge1xuICAgIDI6IFtcIiM0ZTc5YTdcIixcIiNmMjhlMmJcIl0sXG4gICAgMzogW1wiIzRlNzlhN1wiLFwiI2YyOGUyYlwiLFwiIzU5YTE0ZlwiXSxcbiAgICA0OiBbXCIjNGU3OWE3XCIsXCIjZjI4ZTJiXCIsXCIjNTlhMTRmXCIsXCIjZTE1NzU5XCJdXG4gIH1cbiAgY29uc3QgcGFsICAgID0gcGFsZXR0ZXNbTWF0aC5taW4oZmFjc1swXS5sZXZlbHMsIDQpXVxuICBjb25zdCBjZWxsUHggPSBNYXRoLm1heCg4MCwgTWF0aC5taW4oMTUwLCA1NDAgLyBtYXhMKSlcblxuICByZXR1cm4gUGxvdC5wbG90KHtcbiAgICB3aWR0aDogICAgICAgY2VsbFB4ICogbWF4TCArIDExMCxcbiAgICBoZWlnaHQ6ICAgICAgY2VsbFB4ICogbWF4TCArIDkwLFxuICAgIG1hcmdpbkxlZnQ6ICA4NSwgbWFyZ2luQm90dG9tOiA1MiwgbWFyZ2luVG9wOiAzNiwgbWFyZ2luUmlnaHQ6IDEwLFxuICAgIHg6IHsgZG9tYWluOiBBcnJheS5mcm9tKHtsZW5ndGg6IG1heEx9LCAoXywgaSkgPT4gaSArIDEpLFxuICAgICAgICAgdGlja0Zvcm1hdDogZCA9PiBcIlBvcy4gXCIgKyBkLCBsYWJlbDogXCJPcmRlciBwb3NpdGlvbiBcXHUyMTkyXCIgfSxcbiAgICB5OiB7IGRvbWFpbjogQXJyYXkuZnJvbSh7bGVuZ3RoOiBtYXhMfSwgKF8sIGkpID0+IGkgKyAxKSxcbiAgICAgICAgIHRpY2tGb3JtYXQ6IGQgPT4gXCJCbG9jayBcIiArIGQsIGxhYmVsOiBcIlxcdTIxOTAgUGFydGljaXBhbnQgYmxvY2tcIiB9LFxuICAgIGNvbG9yOiB7XG4gICAgICBkb21haW46IEFycmF5LmZyb20oe2xlbmd0aDogZmFjc1swXS5sZXZlbHN9LCAoXywgaSkgPT4gXCJMZXZlbFxcdTAwYTBcIiArIChpKzEpKSxcbiAgICAgIHJhbmdlOiAgcGFsLCBsZWdlbmQ6IHRydWUsXG4gICAgICBsYWJlbDogIChmYWNzWzBdLm5hbWUgfHwgXCJGYWN0b3IgQVwiKSArIFwiIChjZWxsIGNvbG9yKVwiXG4gICAgfSxcbiAgICBtYXJrczogW1xuICAgICAgUGxvdC5jZWxsKGNlbGxzLCB7XG4gICAgICAgIHg6IFwiY29sXCIsIHk6IFwicm93XCIsIGZpbGw6IFwiZmFfbGFiZWxcIixcbiAgICAgICAgc3Ryb2tlOiBcIndoaXRlXCIsIHN0cm9rZVdpZHRoOiAzLCByeDogNlxuICAgICAgfSksXG4gICAgICBQbG90LnRleHQoY2VsbHMsIHtcbiAgICAgICAgeDogXCJjb2xcIiwgeTogXCJyb3dcIixcbiAgICAgICAgdGV4dDogZCA9PiAoZmFjc1swXS5uYW1lIHx8IFwiQVwiKS5zdWJzdHJpbmcoMCwgNCkgKyBcIlxcdTIwMmZcIiArIGRbXCJsdjBcIl0sXG4gICAgICAgIGZpbGw6IFwid2hpdGVcIiwgZm9udFdlaWdodDogXCJib2xkXCIsIGZvbnRTaXplOiAxMyxcbiAgICAgICAgZHk6IGZhY3MubGVuZ3RoID4gMSA/IC05IDogMFxuICAgICAgfSksXG4gICAgICAuLi4oZmFjcy5sZW5ndGggPiAxID8gW1Bsb3QudGV4dChjZWxscywge1xuICAgICAgICB4OiBcImNvbFwiLCB5OiBcInJvd1wiLFxuICAgICAgICB0ZXh0OiBcIm90aGVyX2xhYmVsc1wiLFxuICAgICAgICBmaWxsOiBcIndoaXRlXCIsIGZvbnRTaXplOiA5LjUsIG9wYWNpdHk6IDAuOTIsIGR5OiA5XG4gICAgICB9KV0gOiBbXSlcbiAgICBdXG4gIH0pXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTQiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbntcbiAgY29uc3Qge2ZhY3MsIGNlbGxzLCBsc19jZWxscywgZnVsbF9mYWN0b3JpYWwsIHRvdGFsX24sIG5fcGVyX2NlbGwsIG1heEx9ID0gbHNfc3RhdGVcbiAgY29uc3QgcGN0ICAgPSBNYXRoLnJvdW5kKGxzX2NlbGxzIC8gZnVsbF9mYWN0b3JpYWwgKiAxMDApXG4gIGNvbnN0IHNhdmVkID0gZnVsbF9mYWN0b3JpYWwgLSBsc19jZWxsc1xuXG4gIGNvbnN0IGJhbGFuY2UgPSBmYWNzLm1hcCgoZmFjLCBrKSA9PiB7XG4gICAgY29uc3QgZXhwZWN0ZWQgPSBtYXhMIC8gZmFjLmxldmVsc1xuICAgIGxldCBvayA9IHRydWVcbiAgICBmb3IgKGxldCByID0gMTsgciA8PSBtYXhMOyByKyspIHtcbiAgICAgIGZvciAobGV0IGx2ID0gMTsgbHYgPD0gZmFjLmxldmVsczsgbHYrKykge1xuICAgICAgICBjb25zdCBuID0gY2VsbHMuZmlsdGVyKGMgPT4gYy5yb3cgPT09IHIgJiYgY1tcImx2XCIgKyBrXSA9PT0gbHYpLmxlbmd0aFxuICAgICAgICBpZiAoTWF0aC5hYnMobiAtIGV4cGVjdGVkKSA+IDAuNDkpIG9rID0gZmFsc2VcbiAgICAgIH1cbiAgICB9XG4gICAgcmV0dXJuIHtuYW1lOiBmYWMubmFtZSwgbGV2ZWxzOiBmYWMubGV2ZWxzLCBleHBlY3RlZDogZXhwZWN0ZWQudG9GaXhlZCgxKSwgYmFsYW5jZWQ6IG9rfVxuICB9KVxuXG4gIHJldHVybiBodG1sYFxuICA8ZGl2IHN0eWxlPVwiZGlzcGxheTpmbGV4O2dhcDoxNHB4O2ZsZXgtd3JhcDp3cmFwO21hcmdpbjoxNnB4IDAgMTBweFwiPlxuICAgIDxkaXYgc3R5bGU9XCJmbGV4OjE7bWluLXdpZHRoOjExMHB4O2JhY2tncm91bmQ6I2U4ZjRmODtib3JkZXItcmFkaXVzOjEwcHg7XG4gICAgICAgICAgICAgICAgcGFkZGluZzoxM3B4IDE2cHg7dGV4dC1hbGlnbjpjZW50ZXI7Ym9yZGVyLWxlZnQ6NHB4IHNvbGlkICM0NTdiOWRcIj5cbiAgICAgIDxkaXYgc3R5bGU9XCJmb250LXNpemU6MmVtO2ZvbnQtd2VpZ2h0OjcwMDtjb2xvcjojNDU3YjlkO2xpbmUtaGVpZ2h0OjFcIj4ke2xzX2NlbGxzfTwvZGl2PlxuICAgICAgPGRpdiBzdHlsZT1cImZvbnQtc2l6ZTowLjc4ZW07Y29sb3I6IzU1NTttYXJnaW4tdG9wOjRweFwiPkxhdGluIFNxdWFyZTxicj5jb25kaXRpb25zPC9kaXY+XG4gICAgPC9kaXY+XG4gICAgPGRpdiBzdHlsZT1cImZsZXg6MTttaW4td2lkdGg6MTEwcHg7YmFja2dyb3VuZDojZmZmOGUxO2JvcmRlci1yYWRpdXM6MTBweDtcbiAgICAgICAgICAgICAgICBwYWRkaW5nOjEzcHggMTZweDt0ZXh0LWFsaWduOmNlbnRlcjtib3JkZXItbGVmdDo0cHggc29saWQgI2Y5YTgyNVwiPlxuICAgICAgPGRpdiBzdHlsZT1cImZvbnQtc2l6ZToyZW07Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOiNmOWE4MjU7bGluZS1oZWlnaHQ6MVwiPiR7ZnVsbF9mYWN0b3JpYWx9PC9kaXY+XG4gICAgICA8ZGl2IHN0eWxlPVwiZm9udC1zaXplOjAuNzhlbTtjb2xvcjojNTU1O21hcmdpbi10b3A6NHB4XCI+RnVsbCBmYWN0b3JpYWw8YnI+Y29uZGl0aW9uczwvZGl2PlxuICAgIDwvZGl2PlxuICAgIDxkaXYgc3R5bGU9XCJmbGV4OjE7bWluLXdpZHRoOjExMHB4O2JhY2tncm91bmQ6I2U4ZjVlOTtib3JkZXItcmFkaXVzOjEwcHg7XG4gICAgICAgICAgICAgICAgcGFkZGluZzoxM3B4IDE2cHg7dGV4dC1hbGlnbjpjZW50ZXI7Ym9yZGVyLWxlZnQ6NHB4IHNvbGlkICMzODhlM2NcIj5cbiAgICAgIDxkaXYgc3R5bGU9XCJmb250LXNpemU6MmVtO2ZvbnQtd2VpZ2h0OjcwMDtjb2xvcjojMzg4ZTNjO2xpbmUtaGVpZ2h0OjFcIj4ke3BjdH0lPC9kaXY+XG4gICAgICA8ZGl2IHN0eWxlPVwiZm9udC1zaXplOjAuNzhlbTtjb2xvcjojNTU1O21hcmdpbi10b3A6NHB4XCI+RGVzaWduIGVmZmljaWVuY3k8YnI+KHZzLiBmdWxsIGZhY3RvcmlhbCk8L2Rpdj5cbiAgICA8L2Rpdj5cbiAgICA8ZGl2IHN0eWxlPVwiZmxleDoxO21pbi13aWR0aDoxMTBweDtiYWNrZ3JvdW5kOiNmY2U0ZWM7Ym9yZGVyLXJhZGl1czoxMHB4O1xuICAgICAgICAgICAgICAgIHBhZGRpbmc6MTNweCAxNnB4O3RleHQtYWxpZ246Y2VudGVyO2JvcmRlci1sZWZ0OjRweCBzb2xpZCAjYzYyODI4XCI+XG4gICAgICA8ZGl2IHN0eWxlPVwiZm9udC1zaXplOjJlbTtmb250LXdlaWdodDo3MDA7Y29sb3I6I2M2MjgyODtsaW5lLWhlaWdodDoxXCI+JHt0b3RhbF9ufTwvZGl2PlxuICAgICAgPGRpdiBzdHlsZT1cImZvbnQtc2l6ZTowLjc4ZW07Y29sb3I6IzU1NTttYXJnaW4tdG9wOjRweFwiPlRvdGFsIHBhcnRpY2lwYW50czxicj4oJHtuX3Blcl9jZWxsfS9jZWxsKTwvZGl2PlxuICAgIDwvZGl2PlxuICA8L2Rpdj5cbiAgJHtzYXZlZCA+IDBcbiAgICA/IGh0bWxgPHAgc3R5bGU9XCJjb2xvcjojMzg4ZTNjO2ZvbnQtc2l6ZTowLjg4ZW07bWFyZ2luOjZweCAwIDEwcHhcIj5cbiAgICAgICAgPHN0cm9uZz4mIzEwMDAzOyBTYXZpbmdzOjwvc3Ryb25nPiBUZXN0aW5nIGFsbCAke2ZhY3MubGVuZ3RofSBmYWN0b3JzIHdpdGggYSBMYXRpbiBTcXVhcmVcbiAgICAgICAgdXNlcyA8c3Ryb25nPiR7bHNfY2VsbHN9IGNvbmRpdGlvbnM8L3N0cm9uZz4gaW5zdGVhZCBvZiAke2Z1bGxfZmFjdG9yaWFsfSAmbWRhc2g7XG4gICAgICAgIHNhdmluZyAke3NhdmVkfSBjb25kaXRpb25zICgke01hdGgucm91bmQoc2F2ZWQvZnVsbF9mYWN0b3JpYWwqMTAwKX0lIGZld2VyIGNlbGxzKVxuICAgICAgICB3aXRob3V0IGxvc2luZyBhbnkgbWFpbi1lZmZlY3QgZXN0aW1hdGlvbiBwb3dlci5cbiAgICAgIDwvcD5gXG4gICAgOiBodG1sYDxwIHN0eWxlPVwiY29sb3I6IzY2Njtmb250LXNpemU6MC44OGVtO21hcmdpbjo2cHggMCAxMHB4XCI+XG4gICAgICAgIEFsbCBmYWN0b3JzIGhhdmUgdGhlIHNhbWUgbnVtYmVyIG9mIGxldmVscywgc28gdGhlIExhdGluIFNxdWFyZSBlcXVhbHNcbiAgICAgICAgdGhlIGZ1bGwgZmFjdG9yaWFsIGhlcmUuIFRyeSBtaXhpbmcgbGV2ZWxzIChlLmcuLCAyIGFuZCAzKSB0byBzZWUgdGhlIGVmZmljaWVuY3kgZ2Fpbi5cbiAgICAgIDwvcD5gXG4gIH1cbiAgPGRldGFpbHMgc3R5bGU9XCJtYXJnaW4tdG9wOjZweFwiPlxuICAgIDxzdW1tYXJ5IHN0eWxlPVwiY3Vyc29yOnBvaW50ZXI7Y29sb3I6IzQ1N2I5ZDtmb250LXdlaWdodDo2MDA7Zm9udC1zaXplOjAuODhlbVwiPlxuICAgICAgJiM5NjU0OyBCYWxhbmNlIGNoZWNrICZtZGFzaDsgaG93IG1hbnkgdGltZXMgZG9lcyBlYWNoIGZhY3RvciBsZXZlbCBhcHBlYXIgcGVyIHJvdz9cbiAgICA8L3N1bW1hcnk+XG4gICAgPHRhYmxlIHN0eWxlPVwiYm9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO2ZvbnQtc2l6ZTowLjgzZW07bWFyZ2luLXRvcDo4cHg7d2lkdGg6MTAwJVwiPlxuICAgICAgPHRoZWFkPlxuICAgICAgICA8dHIgc3R5bGU9XCJiYWNrZ3JvdW5kOiNmMGY0ZjhcIj5cbiAgICAgICAgICA8dGggc3R5bGU9XCJwYWRkaW5nOjVweCAxMHB4O3RleHQtYWxpZ246bGVmdDtib3JkZXI6MXB4IHNvbGlkICNkZGRcIj5GYWN0b3I8L3RoPlxuICAgICAgICAgIDx0aCBzdHlsZT1cInBhZGRpbmc6NXB4IDEwcHg7dGV4dC1hbGlnbjpjZW50ZXI7Ym9yZGVyOjFweCBzb2xpZCAjZGRkXCI+TGV2ZWxzPC90aD5cbiAgICAgICAgICA8dGggc3R5bGU9XCJwYWRkaW5nOjVweCAxMHB4O3RleHQtYWxpZ246Y2VudGVyO2JvcmRlcjoxcHggc29saWQgI2RkZFwiPkFwcGVhcmFuY2VzIHBlciByb3c8L3RoPlxuICAgICAgICAgIDx0aCBzdHlsZT1cInBhZGRpbmc6NXB4IDEwcHg7dGV4dC1hbGlnbjpjZW50ZXI7Ym9yZGVyOjFweCBzb2xpZCAjZGRkXCI+QmFsYW5jZWQ/PC90aD5cbiAgICAgICAgPC90cj5cbiAgICAgIDwvdGhlYWQ+XG4gICAgICA8dGJvZHk+XG4gICAgICAgICR7YmFsYW5jZS5tYXAoYiA9PiBodG1sYDx0cj5cbiAgICAgICAgICA8dGQgc3R5bGU9XCJwYWRkaW5nOjVweCAxMHB4O2JvcmRlcjoxcHggc29saWQgI2RkZFwiPjxzdHJvbmc+JHtiLm5hbWV9PC9zdHJvbmc+PC90ZD5cbiAgICAgICAgICA8dGQgc3R5bGU9XCJwYWRkaW5nOjVweCAxMHB4O3RleHQtYWxpZ246Y2VudGVyO2JvcmRlcjoxcHggc29saWQgI2RkZFwiPiR7Yi5sZXZlbHN9PC90ZD5cbiAgICAgICAgICA8dGQgc3R5bGU9XCJwYWRkaW5nOjVweCAxMHB4O3RleHQtYWxpZ246Y2VudGVyO2JvcmRlcjoxcHggc29saWQgI2RkZFwiPiR7Yi5leHBlY3RlZH08L3RkPlxuICAgICAgICAgIDx0ZCBzdHlsZT1cInBhZGRpbmc6NXB4IDEwcHg7dGV4dC1hbGlnbjpjZW50ZXI7Ym9yZGVyOjFweCBzb2xpZCAjZGRkXCI+XG4gICAgICAgICAgICAke2IuYmFsYW5jZWRcbiAgICAgICAgICAgICAgPyBodG1sYDxzcGFuIHN0eWxlPVwiY29sb3I6IzM4OGUzYztmb250LXdlaWdodDpib2xkXCI+JiMxMDAwMzsgUGVyZmVjdDwvc3Bhbj5gXG4gICAgICAgICAgICAgIDogaHRtbGA8c3BhbiBzdHlsZT1cImNvbG9yOiNmOWE4MjU7Zm9udC13ZWlnaHQ6Ym9sZFwiPiYjODc3NjsgQXBwcm94aW1hdGU8L3NwYW4+YH1cbiAgICAgICAgICA8L3RkPlxuICAgICAgICA8L3RyPmApfVxuICAgICAgPC90Ym9keT5cbiAgICA8L3RhYmxlPlxuICA8L2RldGFpbHM+YFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdsc19jb25maWcnKSJ9XX0=
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../module-2";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../module-2/part4.html" class="pagination-link" aria-label="Part 4: When Exchangeability Breaks Down">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: When Exchangeability Breaks Down</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../module-3/index.html" class="pagination-link" aria-label="Module 3: Causal Inference">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
