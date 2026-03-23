@@ -1,0 +1,199 @@
+---
+title: "Module 2: Hypothesis Testing"
+subtitle: "The Logic of Randomization and What P-Values Actually Tell You"
+---
+
+## Overview
+
+Null hypothesis significance testing is everywhere in management research, yet its logic is widely misunderstood. This module builds from the ground up: why does randomization justify causal claims? What does a p-value actually mean? And what are the hidden assumptions — about units, stimuli, and assignment mechanisms — that most researchers ignore?
+
+We cover the permutation logic of p-values, Type I and Type II error, power, the multiple comparisons problem, researcher degrees of freedom, and the design features (between vs. within, stimulus sampling, Latin squares) that change what you can conclude.
+
+---
+
+## Learning Goals
+
+By the end of this module you should be able to:
+
+- Derive the sampling distribution of a test statistic from the randomization distribution, not from asymptotic theory
+- Explain the difference between a two-sided p-value and a posterior probability
+- Calculate and interpret statistical power, and explain why most social science studies are underpowered
+- Identify researcher degrees of freedom and explain how they inflate false-positive rates
+- Explain the rationale for stimulus sampling and design studies that treat stimuli as random effects
+- Construct a Latin square design and explain when it is preferable to a fully crossed factorial
+
+---
+
+## Recommended Reading
+
+| Paper | Why it matters |
+|---|---|
+| Cohen (1994) — *The Earth is Round (p < .05)* | The classic critique of NHST, still the best starting point |
+| Simmons, Nelson & Simonsohn (2011) — *False-Positive Psychology* | Demonstrates how researcher degrees of freedom inflate false positives |
+| Simonsohn, Nelson & Simmons (2014) — *P-curve* | A tool for detecting publication bias and assessing evidential value |
+| Wells & Windschitl (1999) — *Stimulus Sampling* | Why treating stimuli as fixed effects is a validity threat |
+| Bahník & Vranka (2017) | A worked example of stimulus sampling in practice |
+| Andre (2022) — *How (Not) to Exclude Outliers* | Researcher degrees of freedom in outlier exclusion |
+| Smaldino (2016) — *Models are Stupid, and We Need More of Them* | Why formal models help you think clearly about hypothesis testing |
+
+All papers are available in the `Module 2 - Recommended Reading/` folder.
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  fig.width  = 9,
+  fig.height = 5,
+  fig.path   = "figs/",
+  dev        = "svg"
+)
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{=html}
+<style>
+/* ── Floating bottom control bar ──────────────────────────────────────────── */
+#global-output-toggle {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center;
+  padding: 11px 24px;
+  background: #1e3a5f; border-top: 3px solid #4a90d9;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
+}
+#global-output-toggle span {
+  color: #c8d8ed; font-size: 0.85em; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase; margin-right: 6px;
+}
+body { padding-bottom: 70px !important; }
+.gtbtn {
+  padding: 9px 24px; color: #ffffff; border-radius: 7px;
+  font-size: 1em; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.2px; transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap; border: 2px solid transparent;
+}
+/* Code button — blue */
+.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
+.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
+/* Output button — teal/green */
+.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
+.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
+/* ── Per-output collapsible wrappers ──────────────────────────────────────── */
+details.out-fold { margin: 6px 0 14px 0; }
+summary.out-fold-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 20px; background: #eef4fb;
+  border: 2px solid #4a90d9; border-radius: 7px; cursor: pointer;
+  font-size: 0.94em; font-weight: 700; color: #1a3a6b;
+  user-select: none; list-style: none; transition: background 0.12s;
+}
+summary.out-fold-btn::-webkit-details-marker { display: none; }
+summary.out-fold-btn:hover { background: #cfe2f7; }
+details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
+summary.out-fold-btn .fold-icon { font-size: 1em; }
+details[open] .fold-icon-closed { display: none; }
+details:not([open]) .fold-icon-open  { display: none; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var outputSels = ['.cell-output-stdout','.cell-output-stderr','.cell-output-display'];
+  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
+    if (el.closest('.callout') || el.closest('details.out-fold')) return;
+    var hasImg = !!el.querySelector('img, svg, canvas');
+    var hasTbl = !!el.querySelector('table');
+    var label  = hasImg ? '📊  Show plot' : hasTbl ? '📋  Show table' : '📄  Show output';
+    var det = document.createElement('details');
+    det.className = 'out-fold';
+    var sum = document.createElement('summary');
+    sum.className = 'out-fold-btn';
+    sum.innerHTML =
+      '<span class="fold-icon fold-icon-closed">▶</span>' +
+      '<span class="fold-icon fold-icon-open">▼</span>' + label;
+    el.parentNode.insertBefore(det, el);
+    det.appendChild(sum); det.appendChild(el);
+  });
+  var bar = document.createElement('div');
+  bar.id = 'global-output-toggle';
+  bar.innerHTML =
+    '<span>Quick controls:</span>' +
+    '<button id="code-toggle-btn"   class="gtbtn code-btn"   onclick="toggleCode()">\u25bc Expand All Code</button>' +
+    '<button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">\u25bc Expand All Output</button>';
+  document.body.appendChild(bar);
+});
+
+var codeOpen   = false;
+var outputOpen = false;
+
+function toggleCode() {
+  codeOpen = !codeOpen;
+  document.querySelectorAll('details').forEach(function (d) {
+    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) {
+      d.open = codeOpen;
+    }
+  });
+  var btn = document.getElementById('code-toggle-btn');
+  if (btn) btn.textContent = codeOpen ? '\u25b2 Collapse All Code' : '\u25bc Expand All Code';
+}
+
+function toggleOutput() {
+  outputOpen = !outputOpen;
+  document.querySelectorAll('details.out-fold').forEach(function (d) {
+    d.open = outputOpen;
+  });
+  var btn = document.getElementById('output-toggle-btn');
+  if (btn) btn.textContent = outputOpen ? '\u25b2 Collapse All Output' : '\u25bc Expand All Output';
+}
+</script>
+```
+
+## What This Tutorial Is About
+
+There is a single thread running through this tutorial and its predecessor:
+
+> **Your observable may not accurately reflect the latent construct you need.**
+
+In Module 1, that problem lived in your *outcome variable Y* — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in **two places at once**: in your *treatment variable X*, and in the act of *randomization* that is supposed to make X interpretable.
+
+This tutorial covers three ideas:
+
+- **Part 1 — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
+
+- **Part 2 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When this happens, your "experiment" is really a quasi-experiment — and the single coefficient on treatment conflates several distinct causal pathways.
+
+- **Part 3 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
+
+::: {.callout-note}
+## Learning Objectives
+
+By the end of this tutorial, you will be able to:
+
+- Explain what a p-value is — and is **not** — using simulation rather than formulas
+- Build a null distribution from scratch using label permutation
+- Identify the three ingredients that give a p-value inferential power
+- Explain why a treatment manipulation can violate discriminant validity in the same way a measurement scale can
+- Use open-ended text to map the constructs injected by an experimental manipulation and those driving an outcome
+- Articulate the difference between **observable randomization** and **latent randomization** using the construct-validity language from Module 1
+- Calculate the minimum observations needed for approximate orthogonality given the complexity of Y
+- Run diagnostic checks to assess whether your observed randomization achieved approximate orthogonality
+:::
+
+---
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+# install.packages(c("tidyverse","ggplot2","knitr","scales","patchwork"))
+
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(scales)
+library(patchwork)
+if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
+library(lavaan)
+
+set.seed(2025)
+```
+
+---

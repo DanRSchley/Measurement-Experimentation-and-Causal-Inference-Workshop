@@ -1,0 +1,405 @@
+---
+title: "Part 4: When Exchangeability Breaks Down"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  fig.width  = 9,
+  fig.height = 5,
+  fig.path   = "figs/",
+  dev        = "svg"
+)
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+library(tidyverse); library(ggplot2); library(knitr); library(scales); library(patchwork)
+if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
+library(lavaan)
+set.seed(2025)
+```
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={3765cd25-8a88-451e-974b-cde273d25cbc}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 4: Exchangeability"></iframe>
+
+# Part 4: When Exchangeability Breaks Down — Design and Statistical Solutions {#sec-exchangeability-fix}
+
+## Why Exchangeability Fails
+
+Part 3 showed that achieving latent randomization — the property we *actually* need — requires far more than clicking "Randomize." Exchangeability breaks down for two broad reasons:
+
+1. **Biased sampling mechanisms:** The people who end up in your study, or in each condition, are not a random draw from the target population. This includes:
+   - **Self-selection:** participants opt into studies, conditions, or platforms that attract systematically different people
+   - **Attrition:** differential dropout between conditions (the eco-label condition may lead environment-indifferent participants to give up early)
+   - **Exclusion bias:** screening criteria that remove participants who would look different from those retained
+   - **Platform effects:** recruiting on Prolific vs. MTurk vs. a university pool changes the effective population
+
+2. **Insufficient coverage of the factorial space:** Even with a clean sampling mechanism, if the design space has 1,024 cells (D = 10 binary dimensions) and you have N = 200, you are severely undersampling the space — and chance alone can produce treatment groups that are unrepresentative of the full distribution of participant types.
+
+Both problems ultimately violate **exchangeability**: the assumption that the labels "Control" and "Eco-label" could be re-shuffled across the observed data without changing the underlying distribution. When they fail, your p-value null distribution — built on exchangeability — is no longer valid.
+
+We now cover solutions at two stages: **before data collection** (experimental design) and **after data collection** (statistical correction).
+
+---
+
+## Experimental Design Solutions: Maximizing Orthogonality Before You Collect Data
+
+### Completely Random Assignment — The Baseline
+
+In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check "randomize" in Qualtrics.
+
+CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 3 showed, that chance is often disappointingly low when Y is complex.
+
+### Stratified (Blocked) Random Assignment
+
+**The idea:** divide participants into groups (strata or blocks) based on measured covariates that you expect to relate to Y, then randomize *within* each block.
+
+**Concrete example:** In the eco-coffee study, you know from Module 1's analysis that "environmental values" is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs. low environmental values strata. Then assign 50% to eco-label and 50% to control *within each stratum*.
+
+**Why it works:** By randomizing within strata, you guarantee that each condition contains equal proportions of high- and low-environmental-values participants. This eliminates one source of latent imbalance — the most important one — by design rather than by chance.
+
+```{r stratified-random, fig.height=5, fig.width=10}
+#| code-summary: "▶ Simulate: CRA vs. stratified assignment for 500 experiments"
+
+set.seed(2026)
+N_str  <- 200
+D_str  <- 3    # three binary covariates to stratify on
+
+n_sims <- 500
+
+# Helper: absolute SMD for a covariate
+abs_smd <- function(x, trt) {
+  m1 <- mean(x[trt == 1]); m0 <- mean(x[trt == 0])
+  s  <- sqrt((var(x[trt == 1]) + var(x[trt == 0])) / 2)
+  if (s == 0) return(0)
+  abs(m1 - m0) / s
+}
+
+# Simulate one run under CRA and one under stratified
+one_run <- function() {
+  # Participant covariates (binary)
+  X1 <- rbinom(N_str, 1, 0.45)  # environmental values
+  X2 <- rbinom(N_str, 1, 0.50)  # income
+  X3 <- rbinom(N_str, 1, 0.40)  # health focus
+
+  # CRA
+  trt_cra  <- sample(rep(0:1, N_str / 2))
+
+  # Stratified: randomize within each of 2^3 = 8 strata
+  strata   <- paste(X1, X2, X3, sep = "-")
+  trt_strat <- integer(N_str)
+  for (s in unique(strata)) {
+    idx <- which(strata == s)
+    n_s <- length(idx)
+    trt_strat[idx] <- sample(c(rep(0, ceiling(n_s / 2)),
+                                rep(1, floor(n_s / 2)))[seq_len(n_s)])
+  }
+
+  data.frame(
+    method = c(rep("CRA", 3L), rep("Stratified", 3L)),
+    cov    = rep(c("Env. Values", "Income", "Health Focus"), 2L),
+    smd    = c(abs_smd(X1, trt_cra),  abs_smd(X2, trt_cra),  abs_smd(X3, trt_cra),
+               abs_smd(X1, trt_strat), abs_smd(X2, trt_strat), abs_smd(X3, trt_strat))
+  )
+}
+
+set.seed(42)
+strat_sims <- bind_rows(replicate(n_sims, one_run(), simplify = FALSE))
+
+strat_summary <- strat_sims |>
+  group_by(method, cov) |>
+  summarise(mean_smd = mean(smd), p90_smd = quantile(smd, 0.90), .groups = "drop") |>
+  mutate(method = factor(method, levels = c("CRA", "Stratified")))
+
+ggplot(strat_summary, aes(x = cov, y = mean_smd, fill = method,
+                           ymin = 0, ymax = p90_smd)) +
+  geom_col(position = position_dodge(0.7), width = 0.6, alpha = 0.85) +
+  geom_errorbar(aes(ymin = mean_smd, ymax = p90_smd),
+                position = position_dodge(0.7), width = 0.25, linewidth = 0.8) +
+  geom_hline(yintercept = 0.10, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  annotate("text", x = 3.45, y = 0.105, label = "|SMD| = 0.10\nthreshold",
+           size = 3.0, color = "gray40", hjust = 0, lineheight = 0.85) +
+  scale_fill_manual(values = c("CRA" = "#e63946", "Stratified" = "#52b788"), name = NULL) +
+  labs(x = "Covariate", y = "Mean |SMD| (bar) + 90th percentile (error bar)",
+       title = "Stratified vs. Completely Random Assignment: Balance on Stratified Covariates",
+       subtitle = paste0("N = ", N_str, "  \u00b7  500 simulated experiments  \u00b7  ",
+                         "Bars = mean |SMD|  \u00b7  Error bars = 90th percentile worst case")) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+Stratification dramatically reduces both the mean and worst-case imbalance on the stratified covariates. The 90th-percentile bar for CRA often exceeds the 0.10 threshold; the stratified version almost never does.
+
+**The limitation** is the same as in Module 1's measurement section: you can only stratify on what you have *measured*. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.
+
+### Clustered Random Assignment
+
+**The idea:** sometimes participants come in natural groups (classrooms, teams, branches, households), and the intervention must be assigned at the group level. In this case, you assign entire clusters to conditions.
+
+**Concrete example:** You want to test whether providing eco-label information changes café purchasing behavior. You cannot assign individual customers within a café to different menu conditions simultaneously — contamination would occur. Instead, you assign *cafés* to conditions.
+
+**The tradeoff:** clustering increases statistical efficiency when you have to intervene at the group level, but it also introduces **intraclass correlation (ICC)**. If people within the same café are more similar to each other (they self-select into similar cafés), then your N cafés provide less independent information than N individuals would.
+
+```{r clustered-random, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Illustrate: effective N under clustered assignment for different ICCs"
+
+icc_vals     <- c(0.00, 0.05, 0.10, 0.20, 0.30, 0.50)
+cluster_sizes <- c(5, 10, 20, 40)
+
+deff_df <- expand.grid(icc = icc_vals, m = cluster_sizes) |>
+  mutate(
+    DEFF    = 1 + (m - 1) * icc,        # design effect
+    Neff_80 = ceiling(
+      power.t.test(delta = 0.40, sd = 1, sig.level = 0.05, power = 0.80,
+                   type = "two.sample")$n * DEFF
+    ),
+    m_label = paste0("Cluster size = ", m)
+  )
+
+ggplot(deff_df, aes(x = icc, y = Neff_80,
+                    color = factor(m), group = factor(m))) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.8) +
+  geom_hline(yintercept = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
+                                        power = 0.80, type = "two.sample")$n,
+             linetype = "dashed", color = "gray40", linewidth = 0.7) +
+  annotate("text", x = 0.51, y = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
+                                                power = 0.80, type = "two.sample")$n + 3,
+           label = "Required N\nif individual\nassignment",
+           size = 2.8, color = "gray40", hjust = 0, lineheight = 0.85) +
+  scale_color_manual(values = c("5" = "#4a90d9", "10" = "#52b788",
+                                 "20" = "#f4a261", "40" = "#e63946"),
+                     name = "Cluster size (m)") +
+  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f", x)) +
+  scale_y_continuous(labels = comma) +
+  labs(x = "Intraclass correlation (ICC)",
+       y = "Required total N (individuals)",
+       title = "Clustered Assignment: How ICC Inflates Required Sample Size",
+       subtitle = "DEFF = 1 + (m\u22121)\u00d7ICC  \u00b7  Design effect multiplies into required N  \u00b7  Target: d = 0.40, 80% power") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank())
+```
+
+::: {.callout-note}
+## Stratified vs. Clustered — the key contrast
+
+| Feature | Stratified | Clustered |
+|---|---|---|
+| Unit of randomization | Individual (within strata) | Group / cluster |
+| Effect on balance | **Improves** balance on stratified vars | No improvement (can worsen) |
+| Effect on required N | Reduces N slightly | **Increases** N via design effect |
+| When to use | When measured covariates predict Y strongly | When intervention must be applied at group level |
+| Analogy (Module 1) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
+
+The core message: stratification and clustering both depart from simple CRA, but in opposite directions for power. Use stratification proactively when you can; account for clustering carefully when you must.
+:::
+
+---
+
+## Statistical Solutions: Correcting for Broken Exchangeability After Data Collection
+
+Even with careful design, selection and attrition can still break exchangeability. Several statistical models attempt to recover causal estimates when this happens.
+
+### Heckman Selection Models
+
+::: {.callout-warning}
+## The critical caveat — read this before the example
+
+The Heckman model works **only** if you have a valid **instrument for selection** — a variable that (1) predicts whether someone participates, but (2) has **no direct effect** on the outcome Y. Finding such an instrument is the hardest part of applying a Heckman correction. When the instrument is weak or its exclusion restriction is implausible, the Heckman correction can produce estimates that are *more* biased than naive OLS.
+
+**What makes a good vs. bad instrument?**
+
+| | Good instrument | Bad instrument |
+|---|---|---|
+| **Example** | Random financial incentive to complete the survey ($0–$4 bonus) | Whether the participant's friend also signed up |
+| **Predicts participation?** | Yes — higher bonus → more likely to complete | Yes — social influence → more likely to participate |
+| **Affects WTP directly?** | No — the cash bonus is for *completing* the survey, not for the product | Yes — friends share consumption preferences, so friend's sign-up correlates with eco-mindedness, which affects WTP |
+| **Why it works / fails** | The incentive shifts *who bothers to participate* without changing how they evaluate the eco-label once in the study | The instrument correlates with the unobservable (eco-mindedness) you are trying to control for — it violates the exclusion restriction |
+
+**A further technical requirement:** the instrument should be **continuous** (or at least multi-valued). A binary instrument (e.g., reminder email yes/no) creates only a handful of unique covariate combinations in Stage 1, making the inverse Mills ratio (IMR) nearly a step-function of treatment — which causes severe collinearity in Stage 2 and destabilizes the coefficient estimates.
+
+Always report the first-stage F-statistic (or probit z-score) for the instrument as evidence of its relevance. **Notice the irony:** the statistical fix for a broken exclusion restriction (Heckman) itself requires an exclusion restriction. The problems multiply as Y becomes more complex.
+:::
+
+**The problem:** suppose eco-label study participants were recruited via an environmental blog (self-selection). People who click through are systematically more environmentally conscious. The treatment effect you estimate confounds "eco-label response" with "environmentally conscious person response."
+
+**The Heckman correction** (Heckman, 1979) models the selection process explicitly, using a variable called the **inverse Mills ratio (IMR)** to account for the selection into the study:
+
+1. **Stage 1 (Selection equation):** Regress participation (1 = participated, 0 = declined) on all variables that predict selection but do *not* directly affect Y. This requires an **exclusion restriction in the selection model** — a variable that predicts participation but not WTP. In the simulation below, we use a continuous financial incentive ($0–$4 bonus) randomly assigned to potential participants.
+
+2. **Stage 2 (Outcome equation):** Regress Y on X and the IMR from Stage 1. The IMR absorbs the selection-induced correlation between treatment assignment and unobserved factors.
+
+```{r heckman-demo}
+#| code-summary: "▶ Simulate Heckman correction for self-selection"
+
+set.seed(42)
+N_hk  <- 1000   # pool of potential participants (larger N → more stable Heckman)
+
+# ── Unobserved confounder ─────────────────────────────────────────────────────
+# theta = latent eco-mindedness: affects BOTH survey completion AND WTP.
+# It is NOT in the data (hence "unobserved"), so naive OLS cannot control for it.
+theta <- rnorm(N_hk)
+
+# ── Treatment assignment (random) ─────────────────────────────────────────────
+# Eco vs. control randomly assigned to all N_hk potential participants.
+eco   <- sample(rep(0:1, N_hk / 2))
+
+# ── Instrument ────────────────────────────────────────────────────────────────
+# incentive: a continuous financial incentive ($0–$4 bonus) randomly assigned
+# to potential participants.  Higher incentive → more likely to complete the
+# survey, but the incentive itself has NO direct effect on WTP for the product.
+# This is the EXCLUSION RESTRICTION — a continuous instrument is essential here
+# because a binary instrument (e.g., reminder email yes/no) would create only
+# 4 unique (eco × reminder) combinations in Stage 1, making the IMR nearly a
+# step-function of eco in Stage 2 and causing collinearity that destabilises
+# the coefficient estimates.
+incentive <- runif(N_hk, 0, 4)   # continuous $0–$4 bonus
+
+# ── Selection into completion ──────────────────────────────────────────────────
+# Key mechanism: the eco condition is intrinsically interesting to eco-minded
+# (high-theta) people BUT ALSO to some low-theta "curious" people — so the eco
+# arm selects in more low-theta completers than the control arm (where only
+# truly motivated people bother).  This creates DOWNWARD bias in naive OLS.
+# Keeping theta and eco effects moderate ensures the Heckman correction is
+# tractable and does not overshoot due to finite-sample IMR estimation error.
+sel_latent <- -0.30 +
+  0.55 * theta     +    # eco-minded people more likely to complete
+  0.65 * eco       +    # eco topic attracts notably more lower-theta completers → bigger OVB
+  0.55 * incentive +    # strong continuous instrument for identification
+  rnorm(N_hk, 0, 1)
+selected <- as.integer(sel_latent > 0)
+N_sel    <- sum(selected)
+
+# ── WTP (observed only for completers; theta is the unobserved driver) ─────────
+# theta effect on WTP = 0.85: large enough to create detectable downward bias
+# in naive OLS, small enough that Heckman correction is stable (doesn't overshoot).
+wtp_true <- 5.0 +
+  0.50 * eco[selected == 1] +      # TRUE eco-label effect = $0.50
+  0.85 * theta[selected == 1] +    # theta drives WTP but is UNOBSERVED in df_hk
+  rnorm(N_sel, 0, 1.0)
+wtp_true <- pmax(wtp_true, 0)      # floor at 0 (no negative WTP)
+
+# ── Analysis datasets ──────────────────────────────────────────────────────────
+# df_hk:   observed data for completers (theta NOT included — it's unobserved)
+# df_full: full pool used for Stage 1 probit (includes instrument)
+df_hk   <- data.frame(wtp       = wtp_true,
+                       eco       = eco[selected == 1],
+                       incentive = incentive[selected == 1])
+df_full <- data.frame(selected, eco, incentive)   # theta excluded — unobserved
+
+# Naive OLS: ignores selection → eco coefficient is DOWNWARD BIASED because
+# eco arm selects in more low-theta participants (lower average WTP)
+naive <- lm(wtp ~ eco, data = df_hk)
+
+# Heckman Stage 1: probit of completion on eco + incentive (instrument)
+# Note: theta is excluded (unobserved); incentive is the identifying instrument.
+# The continuous incentive creates a smooth IMR function → no collinearity.
+stage1 <- glm(selected ~ eco + incentive, data = df_full,
+              family = binomial(link = "probit"))
+
+# Inverse Mills ratio (IMR) for completers — absorbs the selection-on-theta
+xb  <- predict(stage1)[selected == 1]
+imr <- dnorm(xb) / pnorm(xb)
+
+# Heckman Stage 2: includes IMR to correct for selective attrition
+heckman <- lm(wtp ~ eco + imr, data = cbind(df_hk, imr = imr))
+
+cat(sprintf("Completion rate: %.1f%% overall  |  Eco: %.1f%%  |  Control: %.1f%%\n",
+            100 * mean(selected),
+            100 * mean(selected[eco == 1]),
+            100 * mean(selected[eco == 0])))
+cat(sprintf("Mean theta among completers — Eco: %.2f  |  Control: %.2f  (gap creates bias)\n",
+            mean(theta[selected == 1 & eco == 1]),
+            mean(theta[selected == 1 & eco == 0])))
+
+heck_tab <- data.frame(
+  Model = c("Naive OLS (ignores selection)", "Heckman 2-step (corrects attrition)"),
+  `Eco-label coefficient` = c(round(coef(naive)["eco"], 3),
+                               round(coef(heckman)["eco"], 3)),
+  `95% CI (low)` = c(round(confint(naive)["eco", 1], 3),
+                      round(confint(heckman)["eco", 1], 3)),
+  `95% CI (high)` = c(round(confint(naive)["eco", 2], 3),
+                       round(confint(heckman)["eco", 2], 3)),
+  `True value` = 0.50,
+  check.names = FALSE
+)
+
+kable(heck_tab,
+      caption = paste0("Heckman correction: differential attrition creates downward bias in naive OLS. ",
+                       "Eco arm attracts low-theta completers; control arm retains only high-theta ones. ",
+                       "True eco-label effect = $0.50."))
+```
+
+Notice how the naive OLS estimate is **downward biased**: the eco condition attracted some low-theta ("curious but not eco-minded") completers who would not have bothered with the control condition. These participants bring down the mean WTP in the eco arm, understating the true eco-label effect. The control arm retained only high-theta (genuinely motivated) completers with high baseline WTP regardless. The Heckman correction uses the IMR to account for this differential attrition and recovers an estimate closer to the true $0.50 value.
+
+### Censored Data Models (Tobit)
+
+In the eco-coffee WTP study, participants could not state WTP below $1 (floor) or above $10 (ceiling). In many studies, the outcome is **censored** — truncated at a boundary because the measurement instrument or the context prevents observing values beyond a threshold.
+
+**Consequence of ignoring censoring:** OLS on a censored outcome is biased and inconsistent. Observations piled at the ceiling (e.g., everyone stating exactly $10.00 WTP) look identical to OLS but represent unobserved heterogeneity (some would have stated $12 or $15 if allowed).
+
+The **Tobit model** explicitly models the censoring threshold and recovers the latent distribution:
+
+$$Y^* = X\beta + \varepsilon, \quad Y = \max(Y_{\text{lower}}, \min(Y^*, Y_{\text{upper}}))$$
+
+```{r tobit-demo}
+#| code-summary: "▶ Simulate: OLS vs. Tobit on censored WTP data"
+
+if (!requireNamespace("AER", quietly = TRUE)) install.packages("AER")
+library(AER)
+
+set.seed(2026)
+N_tb   <- 1200   # large N for stable Tobit estimates (Tobit MLE is less efficient than OLS)
+eco_tb <- rep(0:1, each = N_tb / 2)
+
+# ── Latent (true) WTP ─────────────────────────────────────────────────────────
+# True eco-label effect = $0.90 on the latent scale.
+# Mean = 1.2 (control arm) with sd = 1.8 places ~25% of latent WTPs below $0.
+# High censoring creates clear OLS attenuation; N = 1200 makes Tobit converge
+# reliably to 0.90 without overshoot.
+wtp_lat <- 1.2 + 0.90 * eco_tb + rnorm(N_tb, 0, 1.8)
+
+# Observed WTP: censored at $0 (participants state "I would not pay anything")
+wtp_obs      <- pmax(wtp_lat, 0)
+pct_censored <- mean(wtp_obs == 0)
+
+cat(sprintf("Floor-censored observations: %d / %d  (%.1f%%)\n",
+            sum(wtp_obs == 0), N_tb, 100 * pct_censored))
+
+# OLS on the censored observed values: attenuated toward zero
+ols_tb <- lm(wtp_obs ~ eco_tb)
+
+# Tobit: models the latent WTP as normal, recovering the true coefficient
+tobit_tb <- tobit(wtp_obs ~ eco_tb, left = 0)
+
+cens_tab <- data.frame(
+  Model    = c("OLS (ignores censoring)", "Tobit (corrects for censoring)"),
+  `Eco coefficient` = c(round(coef(ols_tb)["eco_tb"], 3),
+                         round(coef(tobit_tb)["eco_tb"], 3)),
+  `True value` = 0.90,
+  `% censored` = paste0(round(pct_censored * 100, 1), "%"),
+  check.names = FALSE
+)
+
+kable(cens_tab,
+      caption = paste0("OLS vs. Tobit on floor-censored WTP (true eco effect = $0.90). ",
+                       "~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."))
+```
+
+::: {.callout-note}
+## Looking ahead to Module 3
+
+The selection and censored-data models above are a first pass at a much richer literature. In Module 3 we will formalize the causal inference frameworks (potential outcomes / Rubin causal model, DAGs / Pearl's do-calculus) that make precise which assumptions each model requires, and introduce more general solutions:
+
+- **Covariate matching** — pairing treated and control units on observed characteristics to reduce confounding
+- **Propensity score methods** (propensity matching, inverse probability weighting, doubly-robust estimators) for observational settings where selection is driven by observed covariates
+- **Instrumental variables (IV)** for endogenous regressors — the general solution to the exclusion restriction problem in Part 2
+- **Difference-in-differences and panel methods** for settings with longitudinal structure
+- **Regression discontinuity** for settings where treatment is assigned by a threshold rule
+- **Mediation analysis** — formalizing the decomposition approach we introduced in this module, with careful attention to the causal assumptions required for valid mediation inference
+
+The language we have built here — exchangeability, exclusion restriction, discriminant validity of X, nomological net of Y — will carry through directly into that causal inference framework.
+:::
+
+---

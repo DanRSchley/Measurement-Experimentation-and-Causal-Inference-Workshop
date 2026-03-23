@@ -24,8 +24,12 @@ book:
         - module-1/case5.qmd
     - part: "Module 2: Hypothesis Testing"
       chapters:
-        - module-2/index.qmd
-        - module-2/tutorial.qmd
+        - module-2/intro.qmd
+        - module-2/part1.qmd
+        - module-2/part2.qmd
+        - module-2/part3.qmd
+        - module-2/part4.qmd
+        - module-2/part5.qmd
     - part: "Module 3: Causal Inference"
       chapters:
         - module-3/index.qmd

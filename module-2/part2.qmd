@@ -1,0 +1,1100 @@
+---
+title: "Part 2: The Exclusion Restriction"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  fig.width  = 9,
+  fig.height = 5,
+  fig.path   = "figs/",
+  dev        = "svg"
+)
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+# install.packages(c("tidyverse","ggplot2","knitr","scales","patchwork"))
+
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(scales)
+library(patchwork)
+if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
+library(lavaan)
+
+set.seed(2025)
+```
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={e76285ab-242d-4ae8-9861-fa2d25c86f2c}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 2: Exclusion Restriction"></iframe>
+
+# Part 2: The Exclusion Restriction — What Else Is in Your Treatment? {#sec-exclusion}
+
+## One Button, Many Signals
+
+In Part 1 we treated the eco-label manipulation as a clean, unidimensional intervention: it either increases WTP (H₁) or it does not (H₀). This framing is convenient, but it hides a problem that is exactly analogous to what Module 1 revealed about *measuring* Y.
+
+Recall the core lesson from Module 1:
+
+> A scale item labeled "Green Purchase Intention" often captures several distinct latent constructs simultaneously — environmental values, social signaling, perceived quality, price expectations, and more. The scale *appears* to measure one thing while actually measuring many. This is a violation of **discriminant validity**.
+
+Now ask the same question about your treatment variable:
+
+> When a participant sees an eco-certification badge on a coffee package, what does that label actually *do*?
+
+It does not inject a single, clean signal of "eco-friendliness." It activates — simultaneously and heterogeneously — a cluster of inferences, associations, and motivations that vary across people. This is a violation of **the exclusion restriction**: the assumption that the treatment variable affects the outcome *only* through the intended pathway.
+
+::: {.callout-important}
+## The Exclusion Restriction — the single-mechanism assumption
+
+The exclusion restriction is the assumption that X affects Y through **exactly one latent pathway** — the one the researcher intends. Every field has a name for what happens when this assumption breaks:
+
+| Field | Term for the violation |
+|---|---|
+| Psychology / Marketing | **Confound** — the manipulation activates an unintended construct alongside the intended one |
+| Econometrics | **Endogeneity** — the regressor correlates with the error term via unmodelled channels |
+| Epidemiology | **Confounding** — exposure and outcome share a common cause |
+| Statistics | **Omitted variable bias** — a variable that belongs in the model is left out |
+| Causal inference (DAGs) | **Backdoor path** — a non-causal association flows through an unmeasured variable |
+
+All of these are the same problem viewed through different disciplinary lenses: **there is more than one latent link between X and Y**.
+
+If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated "treatment effect" is a weighted mixture of several distinct causal effects, not a single clean estimate of any one of them.
+
+**This is the fundamental identification problem in causal inference**, and it is the experimental analogue of discriminant invalidity in measurement. In Module 1 you saw that **measured Y can measure too much**. Here you will see that **manipulated X can inject too much**.
+:::
+
+## Simulating a Heterogeneous Treatment
+
+We now simulate the coffee experiment with a realistic data-generating process. Each participant has nine binary latent characteristics that determine both *what signals they extract from the eco-label* and *how much they are willing to pay*.
+
+```{r part2-setup}
+#| code-summary: "▶ Simulate 120 participants with heterogeneous traits and WTP"
+
+set.seed(2026)
+N_p2  <- 120
+half2 <- N_p2 / 2
+
+# ── Participant-level binary traits ───────────────────────────────────────────
+ptrait <- function(p) rbinom(N_p2, 1, p)
+
+traits <- data.frame(
+  env_values      = ptrait(0.45),  # cares about environment
+  quality_seek    = ptrait(0.50),  # focuses on quality / taste
+  price_sensitive = ptrait(0.50),  # price-conscious
+  social_identity = ptrait(0.40),  # identity / values-driven purchasing
+  health_focus    = ptrait(0.45),  # health / natural-ingredient preference
+  brand_trust     = ptrait(0.55),  # responds to certification cues
+  guilt_prone     = ptrait(0.35),  # guilt-reducing / compensatory consumption
+  hedonic         = ptrait(0.50),  # pleasure-driven; taste is paramount
+  habitual        = ptrait(0.40),  # habitual buyer; resists stretching budget
+  demand_aware    = ptrait(0.40)   # susceptible to experimenter demand / social desirability cues
+)
+
+# ── Equal random assignment ───────────────────────────────────────────────────
+condition_p2 <- rep(c("Control", "Eco-label"), each = half2)
+
+# ── WTP simulation (in dollars, clamped to $1–$10) ────────────────────────────
+# Key feature: eco-label ACTIVATES traits 1, 2, 4, 5, 6, 7 differentially.
+# Traits 3 (price sensitivity), 8 (hedonic), 9 (habitual) operate in both conditions.
+WTP_p2 <- with(traits, {
+  eco <- as.integer(condition_p2 == "Eco-label")
+  v   <- 4.50 +
+    1.20 * env_values      * eco        +  # env concern → eco premium
+    0.80 * quality_seek    * (0.35 + 0.65 * eco)  +  # quality matters more in eco
+   -0.70 * price_sensitive            +  # price sensitivity suppresses WTP
+    0.90 * social_identity * eco        +  # identity-driven eco premium
+    0.60 * health_focus    * eco        +  # health focus eco premium
+    0.50 * brand_trust     * eco        +  # certification trust premium
+    0.35 * guilt_prone     * eco        +  # guilt-offset premium
+    0.30 * hedonic                      +  # hedonic adds WTP in both
+   -0.45 * habitual                    +  # habitual buyers resist stretching
+    0.55 * demand_aware    * eco        +  # demand-aware participants inflate WTP in eco context
+    rnorm(N_p2, 0, 0.75)
+  pmax(pmin(round(v, 2), 10), 1)
+})
+
+df_p2 <- data.frame(traits, condition = condition_p2, WTP = WTP_p2)
+
+# ── Summary by condition ──────────────────────────────────────────────────────
+df_p2 |>
+  group_by(condition) |>
+  summarise(n = n(), mean_WTP = round(mean(WTP), 2),
+            sd_WTP = round(sd(WTP), 2), .groups = "drop") |>
+  kable(col.names = c("Condition", "n", "Mean WTP", "SD WTP"),
+        align   = c("l", "c", "c", "c"),
+        caption = "WTP summary by condition")
+```
+
+The overall treatment effect looks straightforward. But the figure below reveals the heterogeneity hiding underneath it:
+
+```{r het-effects-plot, fig.height=5}
+#| code-summary: "▶ Plot: treatment effect varies by participant trait profile"
+
+# Compute individual-level treatment contrasts via matched simulation
+# For illustration: show eco-label premium by number of "activated" traits
+df_p2 <- df_p2 |>
+  mutate(
+    n_eco_traits = env_values + quality_seek + social_identity +
+                   health_focus + brand_trust + guilt_prone,
+    eco_group = cut(n_eco_traits, breaks = c(-1, 1, 3, 6),
+                    labels = c("0\u20131 eco-responsive traits",
+                               "2\u20133 eco-responsive traits",
+                               "4\u20136 eco-responsive traits"))
+  )
+
+ggplot(df_p2, aes(x = condition, y = WTP, fill = condition, color = condition)) +
+  geom_jitter(width = 0.14, alpha = 0.4, size = 2) +
+  geom_boxplot(alpha = 0.20, outlier.shape = NA, width = 0.45, linewidth = 0.7) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 4,
+               fill = "white", color = "black", stroke = 1.3) +
+  facet_wrap(~eco_group, nrow = 1) +
+  scale_fill_manual(values  = c("Control" = "#4a90d9", "Eco-label" = "#2d6a4f")) +
+  scale_color_manual(values = c("Control" = "#2b6cb0", "Eco-label" = "#1b4332")) +
+  scale_y_continuous(labels = function(x) paste0("$", x)) +
+  labs(x = NULL, y = "WTP ($)",
+       title = "The Same Treatment Has Very Different Effects on Different People",
+       subtitle = "Diamond = group mean  \u00b7  Eco-responsive traits: environmental values, quality-seeking, social identity, health, trust, guilt") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none", panel.grid.minor = element_blank(),
+        strip.text = element_text(size = 9, face = "bold"))
+```
+
+The eco-label produces a large positive effect for participants with several eco-responsive traits, a small effect for moderately responsive participants, and near-zero (or even negative) effects for participants whose WTP is driven primarily by price sensitivity, habit, or hedonic taste expectations.
+
+The average treatment effect you would report obscures all of this variation — and misses entirely *which* mechanism is driving WTP upward.
+
+## What Participants Say: Template-Based Open-Ended Responses
+
+To make the multi-signal nature of the treatment visible, we generate short open-ended responses from each simulated participant. These represent **(a)** what they infer about the product and **(b)** why they chose their WTP. We use template-based generation — each participant's active traits and condition determine which phrases they contribute.
+
+> **Note:** We are using template-based text here to keep everything reproducible without an LLM API. In a real study you would collect actual open-ended responses. The patterns illustrated below — differential concept activation by condition, and concept–WTP correlations — would be recovered from those real responses using the same analysis pipeline.
+
+```{r generate-text}
+#| code-summary: "▶ Generate template-based open-ended text for each participant"
+
+set.seed(2026)
+
+# ── Product perception text ───────────────────────────────────────────────────
+gen_product_text <- function(i) {
+  cond <- condition_p2[i]
+  ev   <- traits$env_values[i]
+  qs   <- traits$quality_seek[i]
+  ps   <- traits$price_sensitive[i]
+  si   <- traits$social_identity[i]
+  hf   <- traits$health_focus[i]
+  bt   <- traits$brand_trust[i]
+  gp   <- traits$guilt_prone[i]
+  hed  <- traits$hedonic[i]
+  da   <- traits$demand_aware[i]
+
+  parts <- character(0)
+
+  if (cond == "Control") {
+    parts <- c(parts, sample(c(
+      "This looks like a standard coffee blend.",
+      "A fairly typical coffee package — nothing unusual.",
+      "The packaging is clean and straightforward."
+    ), 1))
+    if (qs  == 1) parts <- c(parts, "The blend seems like decent, everyday quality.")
+    if (ps  == 1) parts <- c(parts, "The price point appears reasonable and fair.")
+    if (bt  == 1) parts <- c(parts, "The packaging gives a professional, trustworthy impression.")
+    if (hed == 1) parts <- c(parts, "I am curious how the flavor compares to my usual brand.")
+    if (length(parts) == 1)
+      parts <- c(parts, "Nothing in particular stands out about this product.")
+  } else {
+    parts <- c(parts, "The eco-certification badge is immediately noticeable.")
+    if (ev == 1) parts <- c(parts, "The sustainability label signals that this coffee is responsibly and environmentally sourced.")
+    if (qs == 1) parts <- c(parts, "Eco-certified products suggest a higher standard of care in production, which I associate with better quality and taste.")
+    if (ps == 1) parts <- c(parts, "Certifications usually carry a price premium, so I expect this to cost more than a standard option.")
+    if (si == 1) parts <- c(parts, "This brand's values align with mine — I actively look for and support products like this.")
+    if (hf == 1) parts <- c(parts, "Eco-certified means fewer pesticides and more natural farming practices, which I find very appealing.")
+    if (bt == 1) parts <- c(parts, "A third-party certification badge means independent accountability — that increases my trust in the product significantly.")
+    if (gp == 1) parts <- c(parts, "Buying a certified sustainable product lets me offset some of my everyday environmental footprint.")
+    if (da == 1) parts <- c(parts, "The research context makes it clear this study is about eco-labeling, which makes me more conscious of how much I should value green products.")
+    if (length(parts) == 1)
+      parts <- c(parts, "The label catches my eye, though I am not sure how much weight I give eco-certifications in practice.")
+  }
+
+  paste(sample(parts, min(2L, length(parts))), collapse = " ")
+}
+
+# ── WTP justification text ────────────────────────────────────────────────────
+gen_wtp_text <- function(i) {
+  cond <- condition_p2[i]
+  ev   <- traits$env_values[i]
+  qs   <- traits$quality_seek[i]
+  ps   <- traits$price_sensitive[i]
+  si   <- traits$social_identity[i]
+  hf   <- traits$health_focus[i]
+  hed  <- traits$hedonic[i]
+  hab  <- traits$habitual[i]
+  da   <- traits$demand_aware[i]
+
+  parts <- character(0)
+
+  if (hab == 1 & ps == 1)
+    parts <- c(parts, "I am fairly budget-conscious about coffee and set my limit based on what I can realistically afford each week.")
+  if (qs == 1)
+    parts <- c(parts, "I am willing to pay more when I believe the quality genuinely delivers on taste and enjoyment.")
+  if (ev == 1 & cond == "Eco-label")
+    parts <- c(parts, "I factored in the environmental benefits — supporting sustainable production is worth a modest premium to me.")
+  if (si == 1 & cond == "Eco-label")
+    parts <- c(parts, "I would pay more for a product that represents my values, even if cheaper alternatives are available.")
+  if (hf == 1 & cond == "Eco-label")
+    parts <- c(parts, "Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health.")
+  if (ps == 1)
+    parts <- c(parts, "Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks.")
+  if (hab == 1)
+    parts <- c(parts, "My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature.")
+  if (hed == 1)
+    parts <- c(parts, "If I expect genuinely exceptional taste, I am happy to stretch my usual budget.")
+  if (da == 1 & cond == "Eco-label")
+    parts <- c(parts, "Being in a study about eco products made me want to demonstrate my environmental awareness, which may have inflated my stated price slightly.")
+  if (length(parts) == 0)
+    parts <- "I set my price based on the overall value I expect — quality relative to cost."
+
+  paste(sample(parts, min(2L, length(parts))), collapse = " ")
+}
+
+product_text <- sapply(seq_len(N_p2), gen_product_text)
+wtp_text     <- sapply(seq_len(N_p2), gen_wtp_text)
+
+# Preview a few responses
+preview <- data.frame(
+  Condition        = condition_p2[c(1, half2 + 1)],
+  `Product text`   = product_text[c(1, half2 + 1)],
+  `WTP text`       = wtp_text[c(1, half2 + 1)],
+  check.names = FALSE
+)
+kable(preview, caption = "Example responses (one control, one eco-label participant)")
+```
+
+## Text Analysis: How Concept Composition Shifts Across Conditions
+
+We now run a simple concept-count analysis — no API, no black-box model. Each concept is defined by a set of keywords; a participant "mentions" a concept if any keyword appears in their text.
+
+```{r text-analysis}
+#| code-summary: "▶ Count concept mentions and compare across conditions"
+
+# ── Concept dictionary (regex patterns) ──────────────────────────────────────
+concept_dict <- c(
+  sustainability  = "sustainab|eco.certif|environmental|responsib",
+  quality_taste   = "quality|taste|flavor|blend",
+  price_cost      = "price|premium|afford|budget|overpay",
+  social_values   = "values|align|represent|support products",
+  health_natural  = "health|natural|pesticide|farming|cleaner",
+  trust_cert      = "certif|accountab|trustworth",
+  guilt_offset    = "footprint|guilt|offset",
+  demand_effect   = "research context|study.*eco|should value|demonstrate.*environ|inflated.*stated|awareness.*study",
+  hedonic         = "exceptional|happy to stretch|enjoyment",
+  habit_routine   = "habit|consistent|weekly"
+)
+
+# Concept presence (1/0) per participant
+prod_conc <- as.data.frame(
+  lapply(concept_dict, function(pat) as.integer(grepl(pat, tolower(product_text)))))
+
+wtp_conc <- as.data.frame(
+  lapply(concept_dict, function(pat) as.integer(grepl(pat, tolower(wtp_text)))))
+
+prod_conc$condition <- condition_p2
+wtp_conc$condition  <- condition_p2
+wtp_conc$WTP        <- WTP_p2
+
+# ── Log-odds: how much more often is each concept in eco-label vs control? ───
+log_odds <- function(x, cond, target = "Eco-label") {
+  p_t <- (sum(x[cond == target])       + 0.5) / (sum(cond == target)       + 1)
+  p_c <- (sum(x[cond != target])       + 0.5) / (sum(cond != target)       + 1)
+  log(p_t / (1 - p_t)) - log(p_c / (1 - p_c))
+}
+
+lo_prod <- sapply(names(concept_dict), function(v)
+  log_odds(prod_conc[[v]], prod_conc$condition))
+
+lo_wtp  <- sapply(names(concept_dict), function(v)
+  log_odds(wtp_conc[[v]],  wtp_conc$condition))
+
+# ── Correlation of concept mentions with WTP ──────────────────────────────────
+wtp_cor_prod <- sapply(names(concept_dict), function(v)
+  cor(prod_conc[[v]], WTP_p2, method = "spearman"))
+
+wtp_cor_wtp <- sapply(names(concept_dict), function(v) {
+  x <- wtp_conc[[v]]
+  # If concept never appears in WTP text, correlation is undefined → treat as 0
+  if (sd(x) < 1e-9) 0 else cor(x, WTP_p2, method = "spearman")
+})
+
+# ── Summary table ─────────────────────────────────────────────────────────────
+concept_summary <- data.frame(
+  Concept      = names(concept_dict),
+  pct_ctrl     = round(colMeans(prod_conc[prod_conc$condition == "Control",
+                                          names(concept_dict)]) * 100, 0),
+  pct_eco      = round(colMeans(prod_conc[prod_conc$condition == "Eco-label",
+                                          names(concept_dict)]) * 100, 0),
+  log_odds_col = round(lo_prod, 2),
+  r_prod       = round(wtp_cor_prod, 2),
+  r_wtp        = round(wtp_cor_wtp, 2)
+)
+
+kable(concept_summary,
+      col.names = c("Concept", "Control (%)", "Eco-label (%)",
+                    "Log-odds (product text)", "r with WTP (product)", "r with WTP (WTP text)"),
+      caption = "Concept prevalence and associations by condition (product perception text)")
+```
+
+```{r concept-plot, fig.height=5.5, fig.width=10}
+#| code-summary: "▶ Plot: log-odds ratios and WTP correlations"
+
+lo_df <- data.frame(
+  concept  = rep(names(concept_dict), 2),
+  log_odds = c(lo_prod, lo_wtp),
+  source   = rep(c("Product perception text", "WTP justification text"), each = length(concept_dict))
+) |>
+  mutate(concept = factor(concept, levels = names(concept_dict)[order(lo_prod)]))
+
+ggplot(lo_df, aes(x = log_odds, y = concept, fill = source)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6, alpha = 0.85) +
+  geom_vline(xintercept = 0, color = "gray30", linewidth = 0.8) +
+  scale_fill_manual(values = c("Product perception text" = "#4a90d9",
+                                "WTP justification text"  = "#2d6a4f"),
+                    name = NULL) +
+  labs(x = "Log-odds ratio (Eco-label vs. Control)",
+       y = NULL,
+       title = "How the Eco-Label Shifts the Concepts People Reach For",
+       subtitle = "Positive = concept mentioned more in eco-label condition") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top", panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+The eco-label dramatically increases mentions of sustainability, quality, social values, health, and trust in the *product perception* text. The effect bleeds through — though more weakly — into the *WTP justification* text. Note that `habit_routine` and `hedonic` show no shift at all: they are driven by participant characteristics, not by the experimental manipulation.
+
+## What's in X? What's in Y? {#sec-whats-in-xy}
+
+::: {.callout-important}
+## This is the most important figure in Section 2 — read it carefully
+
+The diagram below is *not* just a summary of our coffee simulation. It represents the fundamental challenge of experimental interpretation.
+
+**The left column (X)** shows every latent construct injected into the system by the eco-label manipulation. Only **one** of these — environmental responsibility — is the researcher's *account of interest* (the intended mechanism). Every other entry in the X column is a **confounder**: a pathway that the treatment activates alongside the intended one.
+
+**The right column (Y)** shows every latent construct that causally drives WTP. Some overlap with X (shared constructs = blue lines). Some do not (orange boxes).
+
+**The blue lines are the problem.** Each blue line is a latent pathway from X to Y that exists *in addition to* the one the researcher intends. When any of these additional pathways carry variance, the treatment coefficient in a regression is not "the effect of eco-labeling on environmental value". It is a conflation of all connected pathways, weighted by how strongly each latent construct in Y is activated by X.
+
+**The researcher's responsibility** is to:
+
+1. *Before* running the study: use the measurement tools from Module 1 (pilot text analysis, CFA, construct mapping) to enumerate the latent space of both X and Y. Every construct in that space that is common to both columns is a pathway you must account for — either by measuring it (so you can check balance) or by designing the manipulation to deactivate it.
+
+2. *After* data collection: check balance on every measured common construct. Acknowledge that unmeasured common constructs remain a threat.
+
+The question "What's in the X?" is the discriminant validity question asked about a *manipulation* rather than a *scale*. The tools are the same; the object of inquiry has shifted from the outcome variable to the treatment variable.
+:::
+
+The analysis above lets us ask the same question we posed in Module 1 about outcome measurement, but now about the treatment:
+
+> **"What's in the X?" and "What's in the Y?" — and where do they overlap?**
+
+The diagram below maps the constructs injected by the eco-label manipulation (left column) against the constructs that drive WTP (right column). **Blue lines are the confounds** — shared constructs that create additional latent pathways from X to Y beyond the intended one. Orange boxes mark constructs that are unique to one side.
+
+```{r whats-in-xy, fig.height=8.5, fig.width=10}
+#| code-summary: "▶ Plot: construct overlap diagram (What's in X? What's in Y?)"
+
+x_topics <- c(
+  "Environmental\nresponsibility\n[account of interest]",
+  "Premium quality\nperception",
+  "Price expectation\n(eco = premium)",
+  "Social identity\n& values alignment",
+  "Health &\nnaturalness",
+  "Certification\ntrust",
+  "Demand effects\n(context signals\n'eco is expected')",
+  "Guilt\nreduction"
+)
+
+y_topics <- c(
+  "Personal\nenvironmental values",
+  "Perceived product\nquality",
+  "Price sensitivity\n& budget",
+  "Social identity",
+  "Health concern",
+  "Brand trust",
+  "Social desirability\n& demand compliance",
+  "Hedonic taste\nexpectations",
+  "Habitual spending\npatterns"
+)
+
+# First 7 x-topics are shared with first 7 y-topics; last in each column are unique
+nx <- length(x_topics)
+ny <- length(y_topics)
+
+plot_x <- data.frame(
+  topic  = x_topics,
+  xpos   = 0.15,
+  ypos   = seq(nx, 1, by = -1L),
+  shared = c(rep(TRUE, 7L), FALSE),
+  stringsAsFactors = FALSE
+)
+
+plot_y <- data.frame(
+  topic  = y_topics,
+  xpos   = 0.85,
+  ypos   = seq(nx, nx / ny, length.out = ny),
+  shared = c(rep(TRUE, 7L), FALSE, FALSE),
+  stringsAsFactors = FALSE
+)
+
+conn_df <- data.frame(
+  x1 = 0.265, x2 = 0.735,
+  y1 = plot_x$ypos[plot_x$shared],
+  y2 = plot_y$ypos[plot_y$shared],
+  is_demand = c(rep(FALSE, 6L), TRUE)   # flag the demand-effect link
+)
+
+ggplot() +
+  # Non-demand links — standard blue
+  geom_segment(data = conn_df[!conn_df$is_demand, ],
+               aes(x = x1, xend = x2, y = y1, yend = y2),
+               color = "#4a90d9", linewidth = 1.4, alpha = 0.55) +
+  # Demand-effect link — highlighted red-orange
+  geom_segment(data = conn_df[conn_df$is_demand, ],
+               aes(x = x1, xend = x2, y = y1, yend = y2),
+               color = "#d7301f", linewidth = 2.0, alpha = 0.80,
+               arrow = arrow(ends = "both", length = unit(0.08, "inches"),
+                             type = "open")) +
+  geom_label(data = plot_x,
+             aes(x = xpos, y = ypos, label = topic, fill = shared),
+             size = 2.7, fontface = "bold", lineheight = 0.88,
+             label.padding = unit(0.38, "lines"),
+             label.r       = unit(0.15, "lines"), hjust = 0.5) +
+  geom_label(data = plot_y,
+             aes(x = xpos, y = ypos, label = topic, fill = shared),
+             size = 2.7, fontface = "bold", lineheight = 0.88,
+             label.padding = unit(0.38, "lines"),
+             label.r       = unit(0.15, "lines"), hjust = 0.5) +
+  # Column header boxes
+  annotate("rect", xmin = 0.02, xmax = 0.28, ymin = 8.55, ymax = 9.20,
+           fill = "#1e3a5f", color = NA) +
+  annotate("text", x = 0.15, y = 8.88,
+           label = "What's in X?\n(Eco-label Manipulation)",
+           color = "white", fontface = "bold", size = 3.5, lineheight = 0.9) +
+  annotate("rect", xmin = 0.72, xmax = 0.98, ymin = 8.55, ymax = 9.20,
+           fill = "#2d6a4f", color = NA) +
+  annotate("text", x = 0.85, y = 8.88,
+           label = "What's in Y?\n(Willingness to Pay)",
+           color = "white", fontface = "bold", size = 3.5, lineheight = 0.9) +
+  # Demand-effect annotation
+  annotate("label", x = 0.50, y = plot_x$ypos[7] + 0.30,
+           label = "Demand effect confounder",
+           fill = "#fff0ed", color = "#d7301f", fontface = "bold",
+           size = 2.6, label.padding = unit(0.25, "lines")) +
+  scale_fill_manual(
+    values = c("TRUE" = "#d6ecff", "FALSE" = "#ffe0b2"),
+    labels = c("Shared construct (confound)", "Unique to this variable"),
+    name   = NULL
+  ) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(0.4, 9.5)) +
+  labs(
+    title    = "Construct Overlap Between Treatment (X) and Outcome (Y)",
+    subtitle = paste0(
+      "Blue lines = shared constructs (confounds)  \u00b7  Red line = demand effect  \u00b7  Orange boxes = unique to one side\n",
+      "The account of interest is ONE pathway. Every other shared link is a confounder the researcher must account for."
+    )
+  ) +
+  theme_void(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold", hjust = 0.5, size = 14,
+                                 margin = margin(b = 6)),
+    plot.subtitle = element_text(hjust = 0.5, color = "#555555", size = 10,
+                                 lineheight = 1.3),
+    legend.position = "bottom",
+    plot.margin = margin(15, 15, 15, 15)
+  )
+```
+
+::: {.callout-important}
+## The parallel with Module 1: discriminant validity for manipulations
+
+In Module 1, we said that a *scale* violates discriminant validity when it correlates too strongly with constructs it is not supposed to measure. The scale "measures too much."
+
+Here, the *eco-label manipulation* violates an analogous principle: it injects multiple independent constructs simultaneously — not just "environmental responsibility" but also quality expectations, price priors, social identity signals, health inferences, certification trust, and guilt-offset motivation. The manipulation "does too much."
+
+**Constructs unique to X (not in Y):** Guilt reduction. This signal is activated by the eco-label but does not translate into WTP variance in this simulation.
+
+**Constructs unique to Y (not activated by X):** Hedonic taste expectations and habitual spending patterns. These explain variance in WTP in both conditions but are not triggered by the eco-label.
+
+**The demand effect:** This is a particularly insidious shared pathway. The eco-label condition signals to demand-aware participants that the study is *about* eco-labeling — and they respond by inflating their stated WTP to comply with what they perceive the researcher expects. This is a confound that lives entirely in the experimental context itself: it is not driven by any genuine product attribute, but by the act of conducting the experiment. Notice that this pathway appears in *both* the treatment (X injects the cue) *and* the outcome (Y picks up the compliance). In the real world, researchers cannot remove this pathway by controlling the manipulation — they must measure it explicitly and either partial it out or interpret the treatment effect as "eco-label + demand context" rather than "eco-label alone."
+
+**The practical implication:** Your treatment coefficient in a regression is a weighted average across all the shared constructs, confounded by whatever imbalance exists in the unshared ones. This is not a clean estimate of "the effect of eco-labeling" — it is the effect of a bundle of simultaneous signals, filtered through a population of heterogeneous responders.
+:::
+
+### How to Map the Construct Space in Practice: Nomological Net Scanning
+
+The diagram above gives the theoretical picture — the full overlap between X and Y. In practice, you rarely have complete knowledge of this overlap at the start of a study. **Open-ended text responses** from a small pilot give you an empirical window into both sides of the diagram.
+
+The approach: ask a small pilot sample (n ≈ 20–30) to write briefly about their response to the stimulus (for X) and about their reasoning for the outcome variable (for Y). Then use text analysis — either keyword-based or unsupervised — to extract which constructs are active.
+
+**This is the nomological net scan.** It serves three purposes simultaneously:
+
+1. **Enumeration:** it tells you *how many* latent pathways from X to Y exist — the practical answer to "What's in X? What's in Y?"
+2. **Measurement guidance:** every concept the text reveals is a mediator you should measure quantitatively in the main study (using the scale construction tools from Module 1)
+3. **Identification strategy:** once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in Part 3 and in detail in Module 3)
+
+::: {.callout-important}
+## The identification problem and its resolution
+
+In Module 1 we showed that a scale conflates multiple latent constructs (discriminant invalidity) — and the fix was to *measure* those constructs separately and check that they can be discriminated.
+
+Here, the treatment X activates multiple causal pathways to Y. The fix is identical: *measure* those pathways as mediators, then use a structural model to identify which channels carry the effect. Without measurement, you are left with an identification problem — no statistical model can tell you which pathway generated the observed X→Y association.
+
+**The nomological net scan gives you the list. Quantitative measurement gives you the data. Structural modeling gives you the decomposition.**
+:::
+
+```{r nomological-net-scan}
+#| code-summary: "▶ Use WTP text to scan for unmeasured Y dimensions (pilot)"
+
+# Recall: we already have wtp_text and wtp_conc from earlier in Part 2.
+# Simulate a "pre-study pilot" where only 30 participants write about their WTP.
+# The goal: identify which concepts are active and should become measured mediators.
+
+set.seed(999)
+pilot_idx  <- sample(seq_len(N_p2), 30)
+pilot_text <- wtp_text[pilot_idx]
+
+# Concept frequency in the pilot
+pilot_freq <- sapply(concept_dict, function(pat)
+  mean(grepl(pat, tolower(pilot_text))))
+
+pilot_freq_df <- data.frame(
+  Concept    = names(pilot_freq),
+  Prevalence = round(pilot_freq * 100, 0)
+) |>
+  arrange(desc(Prevalence)) |>
+  mutate(
+    include = ifelse(Prevalence >= 25, "\u2713 Yes (prevalent)",
+                     "\u2715 No (rare in this sample)"),
+    Concept = factor(Concept, levels = Concept)
+  )
+
+kable(pilot_freq_df,
+      col.names = c("Y-dimension concept", "% pilot participants mentioning it",
+                    "Recommendation"),
+      caption   = "Pilot text scan: which sub-dimensions of WTP are active in this sample?")
+```
+
+```{r nom-net-plot, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Plot: active Y-dimensions from pilot scan"
+
+ggplot(pilot_freq_df, aes(x = Prevalence, y = Concept, fill = include)) +
+  geom_col(alpha = 0.85, color = "white") +
+  geom_vline(xintercept = 25, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  annotate("text", x = 26, y = 1.0, label = "25% threshold",
+           color = "gray40", hjust = 0, size = 3.2) +
+  scale_fill_manual(values = c("\u2713 Yes (prevalent)" = "#2d6a4f",
+                               "\u2715 No (rare in this sample)" = "#b0c4de"),
+                    name = NULL) +
+  labs(x = "% of pilot participants mentioning this concept",
+       y = NULL,
+       title = "Scanning the Nomological Net of WTP via Open-Ended Text",
+       subtitle = "Prevalent concepts become measured mediators in the main study") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+### Alternative: LDA Topic Modeling (Unsupervised Discovery)
+
+The keyword approach above requires you to specify patterns in advance. **Latent Dirichlet Allocation (LDA)** flips this: it automatically discovers clusters of co-occurring words across responses, with no keywords required. Each cluster is a *topic* — a statistical summary of what participants tended to write about together.
+
+**The intuition:** Imagine sorting all WTP responses by word similarity. Responses mentioning "environment", "sustainable", "planet" cluster together naturally. Responses mentioning "organic", "healthy", "fresh" form a different cluster. LDA finds these clusters by asking: *what grouping of words best explains which responses sound similar?* The number of topics `k` is chosen by you — start with k ≈ number of expected sub-dimensions.
+
+```{r lda-topic-model, fig.height=5, fig.width=10}
+#| code-summary: "▶ LDA topic model: unsupervised discovery of Y-dimensions from text"
+
+if (!requireNamespace("topicmodels", quietly = TRUE)) install.packages("topicmodels")
+if (!requireNamespace("tidytext",    quietly = TRUE)) install.packages("tidytext")
+library(topicmodels)
+library(tidytext)
+
+# ── Tokenize pilot text → document-term matrix ────────────────────────────────
+pilot_tidy <- data.frame(
+  doc_id = seq_along(pilot_text),
+  text   = pilot_text
+) |>
+  unnest_tokens(word, text) |>
+  anti_join(stop_words, by = "word") |>        # remove "the", "and", etc.
+  filter(nchar(word) > 2) |>                   # drop 1-2 character tokens
+  count(doc_id, word, sort = TRUE)
+
+pilot_dtm <- pilot_tidy |>
+  cast_dtm(doc_id, word, n)                    # convert to document-term matrix
+
+# ── Fit LDA with k = 5 topics ─────────────────────────────────────────────────
+# k = 5 is a reasonable start; in a real pilot you might try k = 3 to 8 and
+# inspect coherence scores (e.g. via ldatuning package) to pick the best k.
+set.seed(42)
+lda_fit <- LDA(pilot_dtm, k = 5, control = list(seed = 42))
+
+# ── Extract top words per topic ────────────────────────────────────────────────
+top_words <- tidy(lda_fit, matrix = "beta") |>      # beta = P(word | topic)
+  group_by(topic) |>
+  slice_max(beta, n = 8, with_ties = FALSE) |>
+  ungroup() |>
+  mutate(topic_label = paste0("Topic ", topic))
+
+# ── Assign human-readable labels (inspect top words to name each topic) ───────
+# In a real analysis YOU read the top words and assign a substantive label.
+# Here we auto-label by the single highest-probability word for illustration.
+topic_labels <- top_words |>
+  group_by(topic) |>
+  slice_max(beta, n = 1) |>
+  mutate(label = paste0("Topic ", topic, "\n(e.g. '", term, "')")) |>
+  dplyr::select(topic, label)
+
+top_words <- top_words |>
+  left_join(topic_labels, by = "topic")
+
+ggplot(top_words, aes(x = reorder_within(term, beta, label),
+                       y = beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE, alpha = 0.85) +
+  scale_x_reordered() +
+  facet_wrap(~ label, nrow = 1, scales = "free_y") +
+  coord_flip() +
+  scale_fill_manual(values = c("#08519c","#2d6a4f","#d7301f","#f4a261","#6a0572")) +
+  labs(x = NULL, y = "P(word | topic)",
+       title = "LDA Topic Model: Automatically Discovered Themes in WTP Text",
+       subtitle = paste0("k = 5 topics  \u00b7  Each facet = one discovered theme  \u00b7  ",
+                         "Top 8 words ordered by probability")) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(size = 7),
+        strip.text = element_text(face = "bold", size = 8))
+```
+
+::: {.callout-note}
+## Keyword search vs. LDA: when to use each
+
+| | Keyword search | LDA topic model |
+|---|---|---|
+| **Prior knowledge needed?** | Yes — specify patterns | No — fully unsupervised |
+| **Best for** | Confirming expected concepts | Discovering unexpected ones |
+| **Output** | % of responses per concept | Probabilistic word clusters |
+| **Interpretability** | High (you chose the labels) | Requires human labeling |
+| **Use in practice** | When you have a theory | Early pilot, no prior theory |
+
+In practice, use **LDA first** to spot concepts you hadn't anticipated, then use **keyword patterns** to measure their prevalence precisely in the full sample.
+:::
+
+### From Text to Numbers: Measuring and Modeling the Nomological Net
+
+The text analysis above identifies *which* constructs are active in the causal chain from X to Y. The next step is to **measure** those constructs quantitatively and **model** their pathways structurally. Together, these three stages — text scan → quantitative measurement → structural modeling — form the complete pipeline for dealing with exclusion restriction violations.
+
+#### Step 2: Generate Quantitative Mediator Scores
+
+The text scan identified which mediator constructs are active. Now we simulate what it would look like if we had *measured* those constructs quantitatively — as short scales administered alongside the main WTP item. Each score is generated from the underlying participant traits plus noise, reflecting what a properly validated scale would produce.
+
+```{r quant-mediators}
+#| code-summary: "▶ Step 2: Simulate quantitative scores for each text-identified mediator"
+
+set.seed(999)
+
+# ── Treatment assignment first — eco_latent is CAUSED by the condition ────────
+# Seeing an eco-label activates eco-mindedness: it raises the salience of
+# sustainability, health/naturalness, social values, and certification trust.
+# The condition effect on all four eco indicators flows ENTIRELY through eco_latent;
+# eco_arm has NO direct path to any indicator. This makes the DGP's causal
+# structure exactly match the SEM's measurement model (eco_factor ~ condition).
+eco_arm <- as.integer(condition_p2 == "Eco-label")
+
+eco_latent    <- 0.80 * eco_arm + rnorm(N_p2, 0, 1.0)   # condition → eco-mindedness
+frugal_latent <- rnorm(N_p2)                               # frugality: stable trait, unaffected by condition
+social_latent <- rnorm(N_p2)                               # social proof: stable trait, unaffected by condition
+
+# ── Correlated mediators: high within-cluster loading on eco_latent ──────────
+# The 4 eco indicators share eco_latent as a common cause (loadings 0.84–0.90),
+# producing pairwise correlations of r ≈ 0.65–0.93 among indicators in this DGP.
+# This severe multicollinearity means parallel mediation's individual b-paths are
+# unstable and their attenuated sum underestimates the true latent-factor indirect effect.
+
+# ── Correlated ERRORS within indicator pairs ──────────────────────────────────
+# Beyond eco_latent, two pairs share a response-style method factor (loading 0.55):
+#   sustainability & health_natural: "natural/organic framing"
+#   social_values & trust_cert: "social legitimacy/institutional approval"
+# Both method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.
+# SEM models both pairs via ~~ constraints; parallel mediation ignores them entirely.
+method_sus_health <- rnorm(N_p2, 0, 1.0)   # natural/organic framing: sustainability ↔ health_natural
+method_soc_trust  <- rnorm(N_p2, 0, 1.0)   # social legitimacy:       social_values  ↔ trust_cert
+
+# ── Eco-cluster indicators: caused by eco_latent + method factors ONLY ────────
+# eco_arm has NO direct effect on any indicator — its influence flows entirely
+# through eco_latent. Consequences:
+#   (a) The CFA (eco_factor =~ indicators) is the correct measurement model for this DGP.
+#   (b) SEM's structural path (eco_factor ~ condition) recovers the true a-path
+#       (condition → eco_latent), correctly weighting all 4 indicators and correcting
+#       for measurement-error attenuation in each.
+#   (c) Parallel mediation treats 4 highly correlated indicators (r ≈ 0.65–0.93) as
+#       independent predictors → severe multicollinearity + attenuation → individual
+#       b-paths unstable; summed eco-cluster indirect effect underestimates the truth.
+#   (d) The method factors add within-pair residual correlations (loading 0.55) that
+#       parallel mediation ignores; the SEM models them via ~~ constraints.
+med_scores <- data.frame(
+  sustainability  = 0.90 * eco_latent + 0.55 * method_sus_health + rnorm(N_p2, 3.5, 0.25),
+  social_values   = 0.88 * eco_latent + 0.55 * method_soc_trust  + rnorm(N_p2, 3.0, 0.25),
+  health_natural  = 0.86 * eco_latent + 0.55 * method_sus_health + rnorm(N_p2, 3.2, 0.25),
+  trust_cert      = 0.84 * eco_latent + 0.55 * method_soc_trust  + rnorm(N_p2, 3.5, 0.25),
+  # Frugal cluster: moderately reflective of frugal_latent
+  price_cost      = 0.70 * frugal_latent - 0.15 * eco_arm + rnorm(N_p2, 3.0, 0.55),
+  habit_routine   = 0.68 * frugal_latent                  + rnorm(N_p2, 3.0, 0.55),
+  # Social/demand cluster: moderately reflective of social_latent
+  demand_effect   = 0.70 * social_latent + 0.45 * eco_arm + rnorm(N_p2, 2.0, 0.55),
+  guilt_offset    = 0.68 * social_latent + 0.30 * eco_arm + rnorm(N_p2, 2.5, 0.55),
+  # Standalone mediators
+  quality_taste   = 0.40 * eco_latent   + 0.35 * eco_arm + rnorm(N_p2, 3.5, 0.60),
+  hedonic         = 0.20 * eco_latent   + 0.15 * eco_arm + rnorm(N_p2, 3.8, 0.65)
+)
+
+# Standardize mediators to z-scores
+med_z <- as.data.frame(scale(med_scores))
+med_z$condition <- eco_arm
+
+# ── WTP: depends on LATENT FACTORS, not individual indicators ────────────────
+# This is the key DGP design: WTP reflects eco_latent (the shared construct
+# behind the 4 correlated eco items), NOT each indicator separately.
+# Parallel mediation is doubly misspecified: (1) treats 4 highly correlated
+# indicators (r ≈ 0.65–0.93) as independent predictors → multicollinearity;
+# (2) uses noisy proxies for eco_latent → attenuation bias in the b-paths.
+# SEM is correctly specified — it models eco_latent explicitly via CFA,
+# corrects for attenuation, and models the residual covariances via ~~.
+WTP_med <- 5.0 +
+  0.50 * eco_arm       +   # direct condition effect
+  1.20 * eco_latent    +   # main indirect path (eco-mindedness → WTP)
+ -0.55 * frugal_latent +   # frugality lowers WTP
+  0.50 * social_latent +   # social proof boosts WTP
+  0.40 * (med_scores$quality_taste - mean(med_scores$quality_taste)) /
+          sd(med_scores$quality_taste) +
+  0.15 * (med_scores$hedonic - mean(med_scores$hedonic)) /
+          sd(med_scores$hedonic) +
+  rnorm(N_p2, 0, 1.5)
+med_z$WTP <- scale(WTP_med)[, 1]
+
+cat("Mediator score means by condition (standardized; should differ for eco-activated dims):\n")
+med_scores |>
+  mutate(condition = condition_p2) |>
+  group_by(condition) |>
+  summarise(across(everything(), ~ round(mean(.), 2)), .groups = "drop") |>
+  kable(caption = "Mean mediator scores by condition (raw scale)")
+```
+
+#### Step 3: Parallel Mediation Model
+
+A parallel mediation model regresses each mediator on treatment (the *a* paths) and regresses WTP on treatment + all mediators simultaneously (the *b* paths + direct effect *c'*). The indirect effects (a × b) decompose the total X→Y effect into specific causal channels.
+
+This model assumes the mediators are **independent** of each other (no correlated residuals). This is the standard Hayes PROCESS approach. **We will address mediation models in much greater detail in Module 3**, where we formalize the causal assumptions required for valid mediation inference and introduce more flexible structural equation modeling approaches. Here, we use parallel mediation as a first-pass decomposition tool to illustrate the concept — and to show where it breaks down.
+
+```{r parallel-mediation}
+#| code-summary: "▶ Step 3: Parallel mediation via lavaan (fits model; no standalone plot)"
+
+med_names <- c("sustainability", "quality_taste", "price_cost", "social_values",
+               "health_natural", "trust_cert", "demand_effect", "guilt_offset",
+               "hedonic", "habit_routine")
+
+# Build lavaan model string dynamically
+a_paths <- paste0(med_names, " ~ a", seq_along(med_names), " * condition",
+                  collapse = "\n  ")
+b_paths <- paste0("WTP ~ ",
+                  paste0("b", seq_along(med_names), " * ", med_names, collapse = " + "),
+                  " + cp * condition")
+ind_defs <- paste0("ind", seq_along(med_names), " := a", seq_along(med_names),
+                   " * b", seq_along(med_names), collapse = "\n  ")
+total_ind <- paste0("total_indirect := ",
+                    paste0("ind", seq_along(med_names), collapse = " + "))
+
+parallel_model <- paste("# a paths\n ", a_paths,
+                        "\n# outcome\n ", b_paths,
+                        "\n# indirect effects\n ", ind_defs,
+                        "\n ", total_ind)
+
+fit_parallel <- sem(parallel_model, data = med_z, se = "bootstrap", bootstrap = 200)
+
+# Extract indirect effect estimates
+param_par <- parameterEstimates(fit_parallel, boot.ci.type = "bca.simple") |>
+  filter(op == ":=") |>
+  mutate(
+    label_clean = c(paste0("via ", gsub("_", " ", med_names)), "Total indirect"),
+    sig = ifelse(pvalue < 0.05, "*", "ns"),
+    model = "Parallel mediation"
+  )
+cat("Parallel mediation fitted. Total indirect:",
+    round(param_par$est[param_par$label_clean == "Total indirect"], 3), "\n")
+```
+
+#### Step 4: SEM with Latent Factors
+
+**Why parallel mediation underestimates the eco-cluster effect:** The eco-label activates a *cluster* of correlated constructs — sustainability, social values, health/natural, and trust in certification — all driven by the same underlying eco-mindedness latent factor. Regressing WTP on all 10 mediators simultaneously creates **multicollinearity** among those four; the regression splits their shared variance arbitrarily across four rows. Each individual eco-cluster pathway appears small and noisy.
+
+**The SEM solution:** instead of treating each indicator as an independent mediator, model the shared variance explicitly as a *latent factor* using a CFA measurement model. The latent `eco_factor` extracts the common variance from its four indicators, accounts for measurement error in each, and serves as a single, well-identified mediator in the structural part of the model. This is precisely the link to Module 1: the CFA measurement model IS a discriminant/convergent validity check applied directly to the mediator set.
+
+```{r sem-latent, fig.height=5.5, fig.width=9}
+#| code-summary: "▶ Step 4: SEM with latent eco-factor (CFA + structural mediation)"
+
+# ── Build cluster data: standardize cluster means so all effects are comparable ─
+# eco_cluster, frugal_cluster, social_cluster = means of z-scored items → already
+# near-zero mean, but SD ≈ 0.5–0.8 (smaller than individual items because averaging
+# reduces noise).  We scale them to SD = 1 so oracle, parallel, and SEM indirect
+# effects are all in standardised-WTP-per-unit-condition units.
+cl_names <- c("eco_cluster","frugal_cluster","social_cluster","quality_taste","hedonic")
+
+eco_raw    <- rowMeans(med_z[, c("sustainability","social_values","health_natural","trust_cert")])
+frugal_raw <- rowMeans(med_z[, c("price_cost","habit_routine")])
+social_raw <- rowMeans(med_z[, c("demand_effect","guilt_offset")])
+
+med_cl <- data.frame(
+  eco_cluster    = scale(eco_raw)[,1],      # standardised cluster means
+  frugal_cluster = scale(frugal_raw)[,1],
+  social_cluster = scale(social_raw)[,1],
+  quality_taste  = med_z$quality_taste,     # already z-scored
+  hedonic        = med_z$hedonic,
+  condition      = med_z$condition,
+  WTP            = med_z$WTP
+)
+
+# Extend with raw eco indicators for the CFA measurement model
+# (indicators are already z-scored from med_z)
+med_sem <- cbind(
+  med_cl,
+  sustainability = med_z$sustainability,
+  social_values  = med_z$social_values,
+  health_natural = med_z$health_natural,
+  trust_cert     = med_z$trust_cert
+)
+
+# ── Latent SEM model ──────────────────────────────────────────────────────────
+# Measurement model (CFA): eco_factor is a latent variable measured by 4 indicators.
+# std.lv = TRUE standardises the latent variable to variance = 1, putting the SEM's
+# eco_factor on the same scale as eco_latent_std in the oracle (both SD = 1).
+sem_model_txt <- '
+  # Measurement model: eco_factor = latent eco-mindedness from 4 z-scored indicators
+  eco_factor =~ sustainability + social_values + health_natural + trust_cert
+
+  # Residual covariances: pairs of indicators share method variance in the DGP
+  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert).
+  # These parameters are IN the DGP but completely ignored by parallel mediation.
+  sustainability ~~ health_natural
+  social_values  ~~ trust_cert
+
+  # a-paths: condition predicts each mediator / latent factor
+  eco_factor     ~ a1 * condition
+  frugal_cluster ~ a2 * condition
+  social_cluster ~ a3 * condition
+  quality_taste  ~ a4 * condition
+  hedonic        ~ a5 * condition
+
+  # b-paths + direct effect on standardised WTP
+  WTP ~ b1 * eco_factor + b2 * frugal_cluster + b3 * social_cluster +
+        b4 * quality_taste + b5 * hedonic + cp * condition
+
+  # Indirect effects (all in standardised WTP units)
+  ind_eco     := a1 * b1
+  ind_frugal  := a2 * b2
+  ind_social  := a3 * b3
+  ind_quality := a4 * b4
+  ind_hedonic := a5 * b5
+  total_ind   := ind_eco + ind_frugal + ind_social + ind_quality + ind_hedonic
+'
+
+# std.lv = TRUE: latent eco_factor standardised to variance 1 → comparable scale
+fit_sem <- sem(sem_model_txt, data = med_sem,
+               std.lv = TRUE, se = "bootstrap", bootstrap = 200)
+
+param_sem <- parameterEstimates(fit_sem, boot.ci.type = "bca.simple") |>
+  filter(op == ":=") |>
+  mutate(
+    label_clean = c("via eco cluster", "via frugal cluster", "via social cluster",
+                    "via quality taste", "via hedonic", "Total indirect"),
+    model = "SEM (latent eco-factor)"
+  )
+
+cat("SEM fitted. Total indirect:",
+    round(param_sem$est[param_sem$label_clean == "Total indirect"], 3), "\n")
+
+# ── Aggregate parallel mediation within clusters for comparison ───────────────
+# Sum individual a×b products within each theoretical cluster.
+# Also sum CI bounds (approximate: assumes within-cluster paths are independent).
+par_agg <- param_par |>
+  filter(label_clean != "Total indirect") |>
+  mutate(cluster = case_when(
+    label_clean %in% c("via sustainability","via social values",
+                       "via health natural","via trust cert") ~ "via eco cluster",
+    label_clean %in% c("via price cost","via habit routine")  ~ "via frugal cluster",
+    label_clean %in% c("via demand effect","via guilt offset") ~ "via social cluster",
+    TRUE ~ label_clean
+  )) |>
+  group_by(cluster) |>
+  summarise(
+    est      = sum(est),
+    ci.lower = sum(ci.lower),
+    ci.upper = sum(ci.upper),
+    .groups  = "drop"
+  ) |>
+  rename(label_clean = cluster) |>
+  mutate(model = "Parallel (summed within cluster)")
+
+cat("SEM and parallel mediation estimates computed. Proceeding to DGP recovery comparison.\n")
+```
+
+#### Step 5: How Well Does Each Approach Recover the True DGP?
+
+The simulation tells us exactly how WTP was generated (from the latent factors). We can compare what each modelling strategy estimates against that known ground truth.
+
+```{r dgp-recovery, fig.height=5.5, fig.width=12}
+#| code-summary: "▶ Step 5: Compare recovered effects to true DGP"
+
+# ── Oracle true indirect effects using the LATENT factors from the DGP ────────
+# The TRUE causal chain runs through eco_latent, frugal_latent, and social_latent —
+# not through their noisy observed composites.  Using the latent factors directly
+# (a) eliminates attenuation bias from measurement error and (b) reflects the actual
+# DGP coefficients.  A well-specified SEM should recover these values; parallel
+# mediation, which enters noisy observed indicators, cannot.
+
+wtp_std_vec <- scale(WTP_med)[, 1]   # standardised WTP from the DGP
+
+# Standardise latent factors to SD = 1 (matches SEM std.lv = TRUE scale)
+eco_latent_std    <- scale(eco_latent)[, 1]
+frugal_latent_std <- scale(frugal_latent)[, 1]
+social_latent_std <- scale(social_latent)[, 1]
+quality_std       <- med_z$quality_taste        # already z-scored
+hedonic_std_vec   <- med_z$hedonic              # already z-scored
+
+# True a-paths: OLS of each latent factor on condition
+true_a_eco     <- coef(lm(eco_latent_std ~ eco_arm))["eco_arm"]    # ≈ +0.74
+true_a_frugal  <- coef(lm(frugal_latent_std ~ eco_arm))["eco_arm"] # ≈  0
+true_a_social  <- coef(lm(social_latent_std ~ eco_arm))["eco_arm"] # ≈  0
+true_a_quality <- coef(lm(quality_std ~ eco_arm))["eco_arm"]
+true_a_hedonic <- coef(lm(hedonic_std_vec ~ eco_arm))["eco_arm"]
+
+# True b-paths: partial OLS of WTP_std on all latent factors simultaneously
+# (avoids attenuation bias from using noisy observed composites as proxies)
+oracle_true_lm <- lm(wtp_std_vec ~ eco_latent_std + frugal_latent_std +
+                       social_latent_std + quality_std + hedonic_std_vec)
+true_b_eco     <- coef(oracle_true_lm)["eco_latent_std"]
+true_b_frugal  <- coef(oracle_true_lm)["frugal_latent_std"]
+true_b_social  <- coef(oracle_true_lm)["social_latent_std"]
+true_b_quality <- coef(oracle_true_lm)["quality_std"]
+true_b_hedonic <- coef(oracle_true_lm)["hedonic_std_vec"]
+
+# True indirect effects (latent-factor oracle; no CIs — these ARE the DGP truth)
+true_ind_oracle <- setNames(
+  c(true_a_eco * true_b_eco,
+    true_a_frugal * true_b_frugal,
+    true_a_social * true_b_social,
+    true_a_quality * true_b_quality,
+    true_a_hedonic * true_b_hedonic),
+  cl_names
+)
+
+cat("Oracle (latent-factor) indirect effects:\n")
+print(round(true_ind_oracle, 3))
+
+# ── Build comparison data frame with 95% bootstrap CIs ───────────────────────
+# Oracle: point estimate only, no CI (it IS the DGP truth for this sample)
+# par_agg and param_sem carry ci.lower / ci.upper from the bootstrap runs in Step 3/4
+oracle_rows <- data.frame(
+  label_clean = paste0("via ", gsub("_", " ", cl_names)),
+  effect      = round(true_ind_oracle, 3),
+  ci_lo       = NA_real_,
+  ci_hi       = NA_real_,
+  source      = "True DGP (oracle)"
+)
+
+par_rows <- par_agg |>
+  filter(label_clean != "Total indirect") |>
+  transmute(label_clean,
+            effect = est, ci_lo = ci.lower, ci_hi = ci.upper,
+            source = "Parallel (summed within cluster)")
+
+sem_rows <- param_sem |>
+  filter(label_clean != "Total indirect") |>
+  transmute(label_clean,
+            effect = est, ci_lo = ci.lower, ci_hi = ci.upper,
+            source = "SEM (latent eco-factor)")
+
+recovery_df <- bind_rows(oracle_rows, par_rows, sem_rows) |>
+  mutate(source = factor(source,
+                          levels = c("True DGP (oracle)",
+                                     "Parallel (summed within cluster)",
+                                     "SEM (latent eco-factor)")))
+
+# Order y-axis by oracle effect size
+oracle_order <- oracle_rows |> arrange(effect) |> pull(label_clean)
+recovery_df  <- recovery_df |>
+  mutate(label_clean = factor(label_clean, levels = oracle_order))
+
+ggplot(recovery_df, aes(x = effect, y = label_clean,
+                         color = source, shape = source)) +
+  geom_vline(xintercept = 0, color = "gray40", linewidth = 0.7) +
+  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi),
+                 position = position_dodge(width = 0.65),
+                 height = 0.22, linewidth = 0.6, na.rm = TRUE) +
+  geom_point(position = position_dodge(width = 0.65), size = 3.5) +
+  scale_color_manual(values = c("True DGP (oracle)"                = "#d7301f",
+                                 "Parallel (summed within cluster)" = "#4a90d9",
+                                 "SEM (latent eco-factor)"          = "#2d6a4f"),
+                     name = NULL) +
+  scale_shape_manual(values = c("True DGP (oracle)"                = 18,
+                                 "Parallel (summed within cluster)" = 16,
+                                 "SEM (latent eco-factor)"          = 15),
+                     name = NULL) +
+  labs(x = "Indirect effect (standardized)",
+       y = NULL,
+       title = "Model Recovery vs. True DGP",
+       subtitle = paste0("Red diamonds = oracle (latent-factor truth, no CI)  \u00b7  ",
+                         "Error bars = 95% bootstrap CI\n",
+                         "SEM (green) corrects for attenuation + residual covariances; ",
+                         "parallel mediation (blue) attenuated by multicollinearity")) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+::: {.callout-note}
+## What the recovery plot shows
+
+**The SEM (green) closely tracks the true oracle values (red), while parallel mediation (blue) systematically underestimates the eco-cluster pathway.** The oracle is computed from the true latent factors (eco_latent, frugal_latent, social_latent) used to generate the data — the unattenuated causal quantities in the DGP. Parallel mediation deviates from this truth for two compounding reasons:
+
+1. **Attenuation bias.** Each eco indicator is a noisy proxy for eco_latent (loading ≈ 0.84–0.90 plus a method factor, plus idiosyncratic noise). Entering noisy proxies in a regression shrinks the b-path estimates toward zero — the classic errors-in-variables attenuation. Even when the four attenuated b-paths are summed across the eco cluster, the resulting indirect effect underestimates the true latent-factor effect.
+
+2. **Multicollinearity.** The four eco indicators are highly intercorrelated (r ≈ 0.65–0.93) because they share both eco_latent and a response-style method factor. Entering all four simultaneously in the WTP regression creates severe multicollinearity (VIF >> 5), making individual b-path estimates unstable and inflating their variance — compounding the attenuation problem.
+
+By contrast, the SEM explicitly defines a latent `eco_factor` via a CFA measurement model. The CFA correctly partitions eco_latent signal from measurement noise and method-factor variance, yielding an **unattenuated** b-path estimate from eco_factor to WTP. The residual covariance constraints (`sustainability ~~ health_natural`; `social_values ~~ trust_cert`) further correct for the within-pair shared method variance that parallel mediation ignores. The result is a structural path estimate that closely tracks the true latent-factor oracle.
+
+Neither model is perfect. The key insight is that **any structural model is only as good as the list of mediators you feed into it**. The text analysis gave us that list. Without the text analysis, you would have entered the study with an incomplete nomological map — and the "treatment effect" coefficient would have remained an uninterpretable mixture of all active pathways.
+
+This is the direct parallel to Module 1's discriminant validity problem: just as measuring only some sub-dimensions of Y produces a biased estimate of your latent construct, measuring only some mediators of the X→Y relationship produces a biased estimate of the causal effect. In both cases, the solution is the same: map the latent space carefully, measure what you can, and report the gap transparently.
+:::
+
+**5. Two Further Threats to Mediation Inference — and Their Remedies**
+
+The parallel mediation and SEM above address *which* mediators to include and *how* to model them. Two additional threats remain regardless of model specification: **non-normal residuals / influential outliers** (which can corrupt OLS *b*-path estimates) and **unmeasured M–Y confounders** which we will disucss in Module 3.
+
+---
+
+::: {.callout-note}
+## Tying it all together: the Module 1–2 thread
+
+Every concept in this tutorial maps directly onto a concept from Module 1:
+
+| Module 1 (Measurement) | Module 2 (Experimentation and Identification) |
+|---|---|
+| Measured Observables | Treatment conditions |
+| Latent construct (e.g., Green Purchase Intention) | Latent property of randomness / independence |
+| Discriminant validity: does your scale measure *only* what it should? | Exclusion restriction: does your manipulation activate *only* the pathway it should? |
+| Convergent validity: do items for the same construct correlate? | Randomization check: do characteristics correlate with treatment assignment? |
+| Measurement invariance: does the scale work the same across groups? | Heterogeneous treatment effects: does the manipulation work the same across participant types? |
+| Latent classes: are there sub-populations with different response patterns? | Effect heterogeneity: are there sub-populations for whom the treatment operates through different mechanisms? |
+| Low signal-to-noise → poor reliability | Broad, complex Y → high N required for true independence |
+
+**The common lesson:** observables (scale scores, group assignments, p-values) are imperfect proxies for latent quantities (true constructs, true independence, true effect sizes). Researchers who confuse the observable with the latent — who treat "my scale is published" as "my measurement is valid," or "Qualtrics randomized" as "my groups are balanced" — are making the same type of error, just in different places in the research pipeline. The path forward in both cases is the same: map the latent space carefully, measure what you can, acknowledge what you cannot, and report the gap transparently.
+:::
+
+---

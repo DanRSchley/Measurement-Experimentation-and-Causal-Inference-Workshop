@@ -1,0 +1,422 @@
+---
+title: "Part 1: What Does a P-value Mean?"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  fig.width  = 9,
+  fig.height = 5,
+  fig.path   = "figs/",
+  dev        = "svg"
+)
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+# install.packages(c("tidyverse","ggplot2","knitr","scales","patchwork"))
+
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(scales)
+library(patchwork)
+if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
+library(lavaan)
+
+set.seed(2025)
+```
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={52c817bc-fffc-4e8a-a015-0ea37d1f2619}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 1: P-values"></iframe>
+
+# Part 1: What Does a P-value Actually Mean? {#sec-pvalues}
+
+## The Core Idea
+
+A p-value answers one very specific question:
+
+> **"How surprising is my observed result, *if the null hypothesis were true*?"**
+
+That's it. The answer is a probability: *the proportion of results at least as extreme as mine that would occur if I repeated the experiment infinitely many times under the null hypothesis.*
+
+Before we compute a single number, we need three things:
+
+1. A **null hypothesis** — a concrete statement about what the world would look like if there were no effect
+2. A **null distribution** — the distribution of our test statistic under that null world
+3. A way to locate **our observed result** within that distribution
+
+We will build all three by simulation.
+
+## The Study: Does Eco-Labeling Change Willingness to Pay?
+
+A researcher studies whether eco-certification labels on coffee packages increase consumers' willingness to pay (WTP). Sixty participants were recruited and randomly assigned to one of two conditions:
+
+| Condition | n | Stimulus |
+|---|---|---|
+| Control | 30 | Standard coffee package |
+| Eco-label | 30 | Same package with eco-certification badge |
+
+After viewing the package, each participant stated their maximum WTP in dollars (on a continuous $1–$10 scale). The researcher observed that the **eco-label group was willing to pay $0.80 more** than the control group, on average.
+
+*Is this difference real — or could it be explained by chance?*
+
+## The Null World: What "No Effect" Actually Means
+
+The null hypothesis states:
+
+> **H₀:** Eco-labeling has no effect on WTP. Any observed difference between groups is due to sampling variability alone.
+
+If H₀ is true, then all 60 participants are draws from the **same underlying population** — and the group labels ("Control" vs. "Eco-label") are arbitrary. We could have assigned those labels any other way without changing anything meaningful about the data.
+
+This is the crucial insight:
+
+> **Under H₀, the treatment labels are *exchangeable*.**
+
+We can exploit this directly: shuffle the labels thousands of times, recompute the group difference each time, and build up the full distribution of differences that arise *purely from chance*. This is the **null distribution**.
+
+```{r sim-data}
+#| code-summary: "▶ Simulate WTP data and compute observed difference"
+
+set.seed(2025)
+
+N    <- 60
+mu   <- 5.50    # True population mean WTP ($)
+sig  <- 1.50    # True population SD ($)
+
+# All 60 participants drawn from the same population (null is true).
+# In our specific sample the eco-label group happened to score higher — by chance.
+wtp_all <- rnorm(N, mean = mu, sd = sig) |> round(2) |> pmax(1) |> pmin(10)
+group   <- factor(rep(c("Control", "Eco-label"), each = N / 2))
+df_coffee <- data.frame(wtp = wtp_all, group = group)
+
+obs_diff <- mean(df_coffee$wtp[df_coffee$group == "Eco-label"]) -
+            mean(df_coffee$wtp[df_coffee$group == "Control"])
+
+cat(sprintf("Observed mean difference: $%.2f\n", obs_diff))
+```
+
+```{r raw-data-plot, fig.height=5}
+#| code-summary: "▶ Plot: raw WTP by condition"
+
+ggplot(df_coffee, aes(x = group, y = wtp, fill = group, color = group)) +
+  geom_jitter(width = 0.15, alpha = 0.45, size = 2.5, shape = 16) +
+  geom_boxplot(alpha = 0.20, outlier.shape = NA, width = 0.45, linewidth = 0.7) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 5,
+               fill = "white", color = "black", stroke = 1.5) +
+  annotate("segment", x = 1, xend = 2, y = 10.4, yend = 10.4,
+           color = "gray30", linewidth = 0.8) +
+  annotate("text", x = 1.5, y = 10.7,
+           label = sprintf("Observed \u0394 = $%.2f", obs_diff),
+           size = 4, color = "gray20", fontface = "bold") +
+  scale_fill_manual(values  = c("Control" = "#4a90d9", "Eco-label" = "#2d6a4f")) +
+  scale_color_manual(values = c("Control" = "#2b6cb0", "Eco-label" = "#1b4332")) +
+  scale_y_continuous(limits = c(1, 11), breaks = 1:10,
+                     labels = function(x) paste0("$", x)) +
+  labs(x = NULL, y = "Willingness to Pay ($)",
+       title = "Eco-Coffee WTP by Condition",
+       subtitle = "Diamonds show group means  \u00b7  Points are individual participants") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", panel.grid.minor = element_blank())
+```
+
+**What this plot is telling you — before we touch a single formula.**
+
+Each dot is one participant's stated WTP. The box spans the middle 50% of values within each condition; the diamond marks the group mean. The bracket at the top labels the observed mean difference: Δ = $`r sprintf("%.2f", abs(obs_diff))`$.
+
+A few things worth noticing right now:
+
+- **The distributions heavily overlap.** The vast majority of the WTP values in both conditions occupy the same range. There is no clean separation — only a slight shift in the center of one distribution relative to the other.
+- **Individual variation swamps the group difference.** The spread *within* each group (roughly $1–$10) is many times larger than the $`r sprintf("%.2f", abs(obs_diff))`$ gap *between* them. This is almost always true in behavioral experiments: people differ from one another far more than any treatment moves them.
+- **This is precisely why "significant" requires more than a single number.** The gap of $`r sprintf("%.2f", abs(obs_diff))`$ could be real — or it could have appeared by chance simply because of which 30 people happened to land in each condition. The p-value we compute next turns that intuition into a probability.
+
+## Building the Null Distribution by Shuffling Labels
+
+To ask "how often would chance alone produce a difference this large?", we:
+
+1. Pool all 60 WTP values
+2. Randomly re-assign 30 to "Eco-label" and 30 to "Control" (shuffle the labels)
+3. Record the new group difference
+4. Repeat 10,000 times
+
+Each iteration is a *parallel universe* in which the null is true and the labels are assigned differently. The collection of differences across all these universes **is** the null distribution.
+
+```{r permutation-test}
+#| code-summary: "▶ Run permutation test (10,000 label shuffles)"
+
+set.seed(42)
+n_perm      <- 10000
+n_per_group <- N / 2
+
+null_dist <- replicate(n_perm, {
+  shuffled <- sample(df_coffee$wtp)
+  mean(shuffled[1:n_per_group]) - mean(shuffled[(n_per_group + 1):N])
+})
+
+p_val <- mean(abs(null_dist) >= abs(obs_diff))
+
+cat(sprintf("Two-sided permutation p-value: %.3f\n", p_val))
+cat(sprintf("95%% CI of null distribution: [$%.2f, $%.2f]\n",
+            quantile(null_dist, 0.025), quantile(null_dist, 0.975)))
+```
+
+### Watching the Shuffle in Action
+
+Before looking at the summary of 10,000 shuffles, it helps to watch what a *single* shuffle actually does. The nine panels below show the original data plus eight individual shuffles. In each panel the **WTP values are exactly the same** — only the group labels (the colors) are reassigned. Notice how the group means (crossbars) bounce around at random, sometimes positive, sometimes negative, sometimes almost zero.
+
+```{r shuffle-panels, fig.height=7.5, fig.width=10}
+#| code-summary: "▶ Plot: 9 panels — observed data + 8 individual shuffles"
+
+set.seed(77)
+n_show <- 8
+
+# Build the observed panel
+obs_pnl <- data.frame(
+  wtp       = df_coffee$wtp,
+  group     = df_coffee$group,
+  panel_id  = 0L,
+  diff_k    = obs_diff
+)
+
+# Build 8 shuffle panels
+shuf_list <- lapply(seq_len(n_show), function(k) {
+  lbl  <- sample(df_coffee$group)
+  dk   <- mean(df_coffee$wtp[lbl == "Eco-label"]) -
+          mean(df_coffee$wtp[lbl == "Control"])
+  data.frame(wtp = df_coffee$wtp, group = lbl,
+             panel_id = k, diff_k = dk)
+})
+
+all_pnls <- bind_rows(obs_pnl, shuf_list)
+
+# Build ordered panel labels
+panel_meta <- all_pnls |>
+  distinct(panel_id, diff_k) |>
+  arrange(panel_id) |>
+  mutate(panel_label = c(
+    sprintf("\u2605 Observed  \u0394 = $%+.2f", diff_k[1]),
+    sprintf("Shuffle %d  \u0394 = $%+.2f", seq_len(n_show), diff_k[-1])
+  ))
+
+all_pnls <- left_join(all_pnls, panel_meta |> dplyr::select(panel_id, panel_label),
+                      by = "panel_id") |>
+  mutate(panel_label = factor(panel_label, levels = panel_meta$panel_label))
+
+ggplot(all_pnls, aes(x = group, y = wtp, color = group)) +
+  geom_jitter(width = 0.14, alpha = 0.45, size = 1.6) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45,
+               fatten = 2.5, linewidth = 0.7, color = "black") +
+  facet_wrap(~panel_label, nrow = 3, ncol = 3) +
+  scale_color_manual(values = c("Control" = "#4a90d9", "Eco-label" = "#2d6a4f")) +
+  scale_y_continuous(limits = c(1, 10), breaks = c(2, 5, 8),
+                     labels = function(x) paste0("$", x)) +
+  labs(x = NULL, y = "WTP ($)",
+       title = "The Labels Change — the Data Do Not",
+       subtitle = "Each panel re-assigns the same 60 WTP values to groups  \u00b7  Crossbar = group mean") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none",
+        strip.text = element_text(size = 8.5, face = "bold"),
+        axis.text.x = element_text(size = 8),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0.8, "lines"))
+```
+
+The starred panel (★ Observed) is the only one that reflects the actual group assignment. All other panels show what chance alone could have produced. The null distribution is nothing more than the collection of Δ values across all possible such panels.
+
+### The Full Null Distribution
+
+```{r null-dist-plot, fig.height=5}
+#| code-summary: "▶ Plot: null distribution with observed difference highlighted"
+
+null_df <- data.frame(
+  diff    = null_dist,
+  extreme = abs(null_dist) >= abs(obs_diff)
+)
+
+q025 <- quantile(null_dist, 0.025)
+q975 <- quantile(null_dist, 0.975)
+
+# Shared break-points so both histogram layers align perfectly
+null_breaks <- seq(
+  floor(min(null_dist) * 20) / 20 - 0.025,
+  ceiling(max(null_dist) * 20) / 20 + 0.025,
+  by = 0.05
+)
+
+ggplot(null_df, aes(x = diff, fill = extreme)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 breaks = null_breaks, color = "white", linewidth = 0.15) +
+  geom_density(aes(x = diff), data = null_df, inherit.aes = FALSE,
+               color = "#08519c", linewidth = 1.0) +
+  geom_vline(xintercept =  obs_diff, color = "#d7301f", linewidth = 1.6) +
+  geom_vline(xintercept = -obs_diff, color = "#d7301f", linewidth = 1.0,
+             linetype = "dashed") +
+  geom_vline(xintercept = q025, color = "#525252", linewidth = 0.7,
+             linetype = "dotted") +
+  geom_vline(xintercept = q975, color = "#525252", linewidth = 0.7,
+             linetype = "dotted") +
+  annotate("label", x = 0, y = max(density(null_dist)$y) * 0.82,
+           label = sprintf("p = %.3f", p_val),
+           fill = "#deebf7", color = "#08306b", fontface = "bold", size = 5.5,
+           label.size = 0.4, label.padding = unit(0.35, "lines")) +
+  annotate("text",
+           x = obs_diff + sign(obs_diff) * 0.08,
+           y = max(density(null_dist)$y) * 0.52,
+           label = sprintf("Observed\n\u0394 = $%.2f", obs_diff),
+           color = "#d7301f", fontface = "bold", size = 3.5,
+           hjust = ifelse(obs_diff >= 0, 0, 1)) +
+  annotate("text", x = q025 - 0.03, y = 0.16,
+           label = "2.5th\npercentile", color = "#525252", size = 2.9, hjust = 1) +
+  annotate("text", x = q975 + 0.03, y = 0.16,
+           label = "97.5th\npercentile", color = "#525252", size = 2.9, hjust = 0) +
+  scale_fill_manual(
+    values = c("FALSE" = "#9ecae1", "TRUE" = "#de2d26"),
+    labels = c(expression(paste("Consistent with ", H[0])),
+               "As or more extreme than observed"),
+    name   = NULL
+  ) +
+  scale_x_continuous(breaks = seq(-1.5, 1.5, 0.5),
+                     labels = function(x) sprintf("$%.1f", x)) +
+  labs(
+    x = "Mean difference (Eco-label \u2212 Control) across 10,000 shuffles",
+    y = "Density",
+    title = "Null Distribution: What Chance Alone Produces",
+    subtitle = sprintf(
+      "Blue = consistent with H0  \u00b7  Red = as or more extreme (p = %.3f)  \u00b7  Dotted = 95%% CI of null",
+      p_val)
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.minor  = element_blank(),
+    panel.grid.major  = element_line(color = "#eeeeee"),
+    legend.position   = "bottom",
+    plot.title        = element_text(face = "bold"),
+    plot.subtitle     = element_text(color = "#555555", size = 10.5)
+  )
+```
+
+The p-value of **`r sprintf("%.3f", p_val)`** tells us: `r sprintf("%.1f", p_val * 100)`% of shuffled datasets produced a difference as large as $`r sprintf("%.2f", abs(obs_diff))` or larger. This difference is *not* unusual under the null — chance produces it regularly.
+
+::: {.callout-note}
+## What the p-value is and is NOT
+
+**It IS:** The probability of a result at least this extreme, given that H₀ is true.
+
+**It is NOT:**
+- The probability that H₀ is true
+- The probability that the effect is real
+- A measure of the size or importance of the effect
+- A guarantee that you have not made an error
+
+The p-value is a statement about a hypothetical distribution — the null world — not a statement about reality.
+:::
+
+## Where Does a P-value Get Its Power?
+
+A p-value becomes small (informative) only when the observed result falls far into the tail of the null distribution. Three things push results into the tail:
+
+1. **A large true effect (δ)** — the signal is genuinely far from zero
+2. **A large sample size (N)** — random variability shrinks, so even moderate signals stand out
+3. **A low-noise outcome** — tight distributions make small differences more visible
+
+### How big an effect can N = 60 actually detect?
+
+Before running a study, it is worth asking: if the eco-label truly has effect δ, how many participants do I need to detect it 80% of the time?
+
+```{r power-table}
+#| code-summary: "▶ Compute minimum N for different true effect sizes"
+
+true_deltas <- c(0.20, 0.40, 0.60, 0.80, 1.00, 1.50)
+
+power_tab <- data.frame(
+  true_eff  = sprintf("$%.2f", true_deltas),
+  cohens_d  = round(true_deltas / sig, 2),
+  n_per_grp = sapply(true_deltas, function(d) {
+    ceiling(power.t.test(delta = d, sd = sig, sig.level = 0.05,
+                         power = 0.80, type = "two.sample")$n)
+  }),
+  check.names = FALSE
+) |>
+  mutate(total_n    = n_per_grp * 2,
+         detectable = ifelse(total_n <= 60, "\u2713 Yes", "\u2717 No"))
+
+names(power_tab) <- c("True effect (\u03b4)", "Cohen\u2019s d",
+                       "N per group (80% power)", "Total N", "Detectable at N = 60?")
+
+kable(power_tab,
+      caption = sprintf(
+        "Minimum N for 80%% power at \u03b1 = .05 (SD = $%.2f, two-sided t-test)", sig))
+```
+
+```{r pval-distribution, fig.height=5}
+#| code-summary: "▶ Plot: p-value distributions for different true effect sizes"
+
+sim_pval <- function(effect, N = 60, mu = 5.5, sig = 1.5) {
+  y_c <- rnorm(N / 2, mu,          sig)
+  y_t <- rnorm(N / 2, mu + effect, sig)
+  t.test(y_t, y_c)$p.value
+}
+
+effects <- c(0, 0.30, 0.60, 1.20)
+labels  <- c("No effect (\u03b4 = 0)",
+             "Small (\u03b4 = $0.30)",
+             "Medium (\u03b4 = $0.60)",
+             "Large (\u03b4 = $1.20)")
+
+set.seed(42)
+pval_df <- map2_dfr(effects, labels, function(eff, lbl) {
+  data.frame(effect = lbl, p = replicate(5000, sim_pval(eff)))
+}) |>
+  mutate(effect = factor(effect, levels = labels),
+         sig    = p < 0.05)
+
+pval_df |>
+  group_by(effect) |>
+  summarise(power = mean(sig), .groups = "drop") |>
+  mutate(power = percent(power, accuracy = 0.1)) |>
+  kable(col.names = c("True Effect", "% experiments with p < .05"),
+        caption = "Statistical power at \u03b1 = .05 (N = 60 per group, SD = $1.50)")
+```
+
+```{r pval-hist, fig.height=4.5}
+#| code-summary: "▶ Plot: p-value histograms by effect size"
+
+ggplot(pval_df, aes(x = p, fill = sig)) +
+  geom_histogram(breaks = seq(0, 1, by = 0.025), color = "white", alpha = 0.9) +
+  geom_vline(xintercept = 0.05, linetype = "dashed", color = "black", linewidth = 0.9) +
+  scale_fill_manual(values = c("FALSE" = "#9ecae1", "TRUE" = "#de2d26"),
+                    labels = c("p \u2265 .05", "p < .05"), name = NULL) +
+  facet_wrap(~effect, nrow = 1, scales = "free_y") +
+  labs(x = "p-value", y = "Count (5,000 simulated experiments)",
+       title = "Distribution of P-values Across Effect Sizes",
+       subtitle = "Under H\u2080 (\u03b4 = 0): uniform  \u00b7  As \u03b4 grows: pile-up near zero") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank(),
+        strip.text = element_text(size = 9.5))
+```
+
+::: {.callout-important}
+## The uniform distribution under H₀ is not a coincidence
+
+When the null is exactly true, p-values are **uniformly distributed** between 0 and 1. This means that 5% of null experiments will produce p < .05, 1% will produce p < .01, and so on.
+
+**This is the false positive rate, not a coincidence.** α is not a threshold for truth — it is the rate at which you agree to be wrong when nothing is actually going on.
+
+A practical implication: across a literature of 100 experiments where H₀ is true in all of them, you would still expect ~5 published papers with p < .05.
+:::
+
+## The Assumptions Behind Every P-value
+
+The permutation logic above works because of one foundational assumption:
+
+> **Exchangeability:** Under H₀, the labels are arbitrary — any assignment of observations to groups is equally likely.
+
+This assumption is satisfied when:
+- Participants are a random sample from the population
+- Treatment was assigned randomly and independently
+
+If either fails, the null distribution we construct by shuffling labels does not correspond to the distribution under the true null. The p-value becomes meaningless — or worse, systematically biased.
+
+**The act of randomization is what makes exchangeability plausible.** Which brings us to Parts 2 and 3.
+
+---
