@@ -1,0 +1,515 @@
+---
+title: "Part 4: Difference-in-Differences"
+---
+
+```{r setup, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+if (!requireNamespace("remotes",  quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("synthdid", quietly = TRUE))
+  remotes::install_github("synth-did/synthdid")
+
+pkgs <- c(
+  "tidyverse", "broom", "knitr", "patchwork",
+  "conflicted",
+  "MatchIt", "WeightIt", "cobalt",
+  "rdrobust", "rddensity",
+  "did",
+  "mediation", "robmed",
+  "estimatr", "sandwich", "lmtest"
+)
+for (p in pkgs) {
+  if (!requireNamespace(p, quietly = TRUE)) install.packages(p, dependencies = TRUE)
+  library(p, character.only = TRUE)
+}
+library(synthdid)
+
+library(conflicted)
+conflicts_prefer(dplyr::select, dplyr::filter, dplyr::rename, dplyr::mutate,
+                 dplyr::summarise, dplyr::arrange, dplyr::lag)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 9, fig.height = 5,
+  fig.path = "figs/", dev = "svg"
+)
+
+clr_eco     <- "#2d6a4f"
+clr_ctrl    <- "#4a90d9"
+clr_treated <- clr_eco
+
+theme_mod3 <- function() {
+  theme_minimal(base_size = 12) +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#f0f4f8", colour = NA),
+          legend.position  = "bottom")
+}
+
+# ── Lightweight DAG helper ─────────────────────────────────────────────────────
+.dag <- function(nodes, solid = NULL, dashed = NULL,
+                 unobserved = character(0), title = "") {
+  nd <- do.call(rbind, lapply(names(nodes), function(nm)
+    data.frame(id=nm, x=nodes[[nm]][1], y=nodes[[nm]][2], stringsAsFactors=FALSE)))
+  nd$type <- ifelse(nd$id %in% unobserved, "unobs", "obs")
+  segs <- function(pairs, lt) {
+    if (is.null(pairs) || length(pairs)==0) return(NULL)
+    do.call(rbind, lapply(pairs, function(ab) {
+      fr <- nd[nd$id==ab[1],]; to <- nd[nd$id==ab[2],]
+      dx <- to$x-fr$x; dy <- to$y-fr$y
+      len <- sqrt(dx^2+dy^2)+1e-9; pad <- 0.12
+      data.frame(x=fr$x+pad*dx/len, y=fr$y+pad*dy/len,
+                 xend=to$x-pad*dx/len, yend=to$y-pad*dy/len,
+                 lt=lt, stringsAsFactors=FALSE)
+    }))
+  }
+  edf <- rbind(segs(solid,"solid"), segs(dashed,"dashed"))
+  xs <- range(nd$x); ys <- range(nd$y)
+  p <- ggplot() + theme_void() + ggtitle(title) +
+    coord_cartesian(xlim=c(xs[1]-.3,xs[2]+.3), ylim=c(ys[1]-.3,ys[2]+.3), expand=FALSE) +
+    theme(plot.title=element_text(size=10,face="bold",hjust=.5,margin=margin(b=6)),
+          plot.background=element_rect(fill="grey98",colour="grey80",linewidth=.4),
+          plot.margin=margin(10,16,10,16), legend.position="none")
+  if (!is.null(edf) && nrow(edf)>0)
+    p <- p +
+      geom_segment(data=edf, aes(x=x,y=y,xend=xend,yend=yend,colour=lt,linetype=lt),
+                   arrow=arrow(length=unit(.20,"cm"),type="closed"), linewidth=.85) +
+      scale_colour_manual(values=c(solid="grey20",dashed="firebrick")) +
+      scale_linetype_manual(values=c(solid="solid",dashed="dashed"))
+  if (any(nd$type=="obs"))
+    p <- p + geom_label(data=nd[nd$type=="obs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold", fill="white", colour="black",
+                        label.size=.9, label.padding=unit(.4,"lines"))
+  if (any(nd$type=="unobs"))
+    p <- p + geom_label(data=nd[nd$type=="unobs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold.italic", fill="#fff3e0", colour="#b45309",
+                        label.size=1.1, label.padding=unit(.4,"lines"),
+                        label.r=unit(.5,"lines"))
+  p
+}
+
+# ── Mediation extraction helper (handles robmed version differences) ───────────
+rob_extract <- function(fit) {
+  # point estimate: try $ab, then $indirect, then coef()["ab"]
+  ab <- tryCatch(fit$ab,
+    error = function(e) tryCatch(fit$indirect,
+      error = function(e2) tryCatch(coef(fit)["ab"],
+        error = function(e3) NA_real_)))
+  # CI: try $ci (matrix or vector), then confint()
+  ci <- tryCatch({
+    r <- fit$ci
+    if (is.matrix(r)) r[1,] else r
+  }, error = function(e) tryCatch(confint(fit)["ab",],
+    error = function(e2) c(NA_real_, NA_real_)))
+  list(est=unname(ab), lo=unname(ci[1]), hi=unname(ci[2]))
+}
+```
+
+# Part 4: Difference-in-Differences {#sec-m3-part4}
+
+## The Setup {#sec-did-setup}
+
+The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
+
+## Simulating Panel Data {#sec-did-sim}
+
+```{r did-dgp, fig.height=4.5, fig.width=9}
+set.seed(2024)
+n_dutch <- 15; n_belgian <- 20; n_stores_did <- n_dutch+n_belgian
+years <- 2018:2024; T_treat <- 2022
+
+panel_did <- expand.grid(store=1:n_stores_did, year=years) |>
+  as_tibble() |>
+  mutate(
+    country      = ifelse(store<=n_dutch,"Netherlands","Belgium"),
+    treated      = (country=="Netherlands"),
+    post         = (year>=T_treat),
+    did_indicator= treated & post,
+    store_fe     = rnorm(n_stores_did, 0, 0.5)[store],
+    time_trend   = 0.10*(year-2018),
+    country_fe   = ifelse(country=="Netherlands", 0.30, 0),
+    treat_effect = did_indicator * 0.70,
+    WTP_did      = 5.20 + store_fe + time_trend + country_fe + treat_effect + rnorm(n(), 0, 0.35)
+  )
+
+panel_did |>
+  group_by(country, year) |>
+  summarise(mean_WTP=mean(WTP_did), .groups="drop") |>
+  ggplot(aes(x=year, y=mean_WTP, colour=country, group=country)) +
+  geom_vline(xintercept=T_treat-0.5, linetype="dashed", colour="grey50") +
+  geom_line(linewidth=1.2) + geom_point(size=2.5) +
+  annotate("text", x=T_treat+0.1, y=5.1,
+           label="Dutch eco-label\nlaw takes effect", hjust=0, size=3.2) +
+  scale_colour_manual(values=c("Netherlands"=clr_eco,"Belgium"=clr_ctrl)) +
+  labs(x="Year", y="Mean WTP ($)", colour=NULL,
+       title="DiD: parallel pre-trends are the key identifying assumption",
+       subtitle="Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## What "parallel trends" actually means — and why Belgium is the key
+
+DiD hinges on one unanswerable question: *what would Dutch stores have done after 2022 if the eco-label law had never passed?* We can't observe this counterfactual. **The parallel trends assumption supplies the answer**: Belgian stores tell us.
+
+More precisely, the assumption states that **absent treatment, the Dutch–Belgian WTP gap would have remained constant** — both series drifting up or down by identical amounts each year. Under this assumption:
+
+$$\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_{\text{Belgian}}}_{\text{counterfactual proxy}} = \delta_{\text{DiD}}$$
+
+**Reading the plot above:** The two lines run nearly parallel from 2018–2021 (same slope, constant gap). After 2022 the Dutch line separates from the Belgian. DiD attributes that separation — roughly \$0.70 — to the eco-label law, *after* subtracting whatever movement Belgium showed over the same period (which would have happened anyway).
+
+**What makes this assumption fail?** Anything that makes Dutch and Belgian stores diverge *for reasons unrelated to the law* — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.
+:::
+
+## Two-Way Fixed Effects (TWFE) {#sec-did-twfe}
+
+$$Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}$$
+
+```{r did-twfe}
+did_twfe <- lm_robust(WTP_did ~ did_indicator + factor(store) + factor(year),
+                      data=panel_did, clusters=store)
+did_coef <- tidy(did_twfe) |> filter(term=="did_indicatorTRUE")
+cat(sprintf(
+  "True DiD effect  = 0.70\nEstimated DiD    = %.3f  (SE = %.3f, p = %.4f)\n95%% CI: [%.3f, %.3f]\n",
+  did_coef$estimate, did_coef$std.error, did_coef$p.value,
+  did_coef$conf.low, did_coef$conf.high
+))
+```
+
+::: {.callout-note}
+## What the two sets of fixed effects absorb
+
+$$Y_{it} = \underbrace{\alpha_i}_{\text{store FE}} + \underbrace{\lambda_t}_{\text{year FE}} + \delta \cdot D_{it} + \varepsilon_{it}$$
+
+Each type of fixed effect removes a specific source of confounding:
+
+| Term | What it controls for | Example here |
+|---|---|---|
+| $\alpha_i$ — store fixed effects | Time-invariant differences between stores | Store size, neighbourhood demographics, pre-existing customer base |
+| $\lambda_t$ — year fixed effects | Year-level shocks that hit *all* stores equally | Euro-area inflation, global supply chain costs, macro consumer sentiment |
+| $\delta$ — the DiD estimator | How much *more* the treated group changed *after* treatment vs. the control group | Causal effect of the Dutch eco-label law |
+
+**The critical residual $\varepsilon_{it}$**: whatever the fixed effects can't absorb — differential trends (treated and control groups moving at different rates), time-varying store-specific shocks — ends up here. This is exactly where parallel-trends violations hide. Adding pre-treatment event-study coefficients is a way to interrogate whether $\varepsilon_{it}$ contains systematic pre-treatment divergence.
+:::
+
+## Testing Parallel Trends: Event Study {#sec-did-event}
+
+```{r did-event-study, fig.height=4.5, fig.width=9}
+panel_did <- panel_did |>
+  mutate(year_rel=year-T_treat,
+         year_rel_fac=relevel(factor(year_rel), ref="-1"))
+
+event_formula <- as.formula("WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)")
+did_event     <- lm_robust(event_formula, data=panel_did, clusters=store)
+
+event_tbl <- tidy(did_event) |>
+  filter(str_detect(term,"year_rel_fac")) |>
+  mutate(yr=as.integer(str_extract(term,"-?\\d+$")),
+         period=if_else(yr<0,"Pre-treatment","Post-treatment")) |>
+  add_row(yr=-1L, estimate=0, conf.low=0, conf.high=0, period="Reference (−1)")
+
+event_tbl |>
+  ggplot(aes(x=yr, y=estimate, ymin=conf.low, ymax=conf.high, colour=period)) +
+  geom_hline(yintercept=0, linetype="dashed", colour="grey50") +
+  geom_vline(xintercept=-0.5, linetype="dotted", colour="grey60") +
+  geom_pointrange(size=0.7) +
+  scale_colour_manual(values=c("Pre-treatment"=clr_ctrl,"Post-treatment"=clr_eco,
+                               "Reference (−1)"="grey40")) +
+  labs(x="Years relative to Dutch eco-label law (0 = 2022)", y="DiD coefficient ($)",
+       colour=NULL,
+       title="Event study: pre-treatment coefficients near zero — parallel trends supported",
+       subtitle="Post-treatment estimates rise consistently — evidence of a sustained law effect") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## How to read an event study plot
+
+Each point is the DiD coefficient for that relative year — how much the Dutch–Belgian gap in that year differed from the gap in the reference year (here: year $-1$, the year just before treatment).
+
+**Pre-treatment years (left of the dotted line)**: If parallel trends holds, these should be near zero with overlapping CIs. A systematic upward or downward trend here is evidence of a *pre-existing differential trend* — the most direct threat to identification.
+
+**Post-treatment years (right of the dotted line)**: These estimate the treatment effect over time. A sustained positive trajectory (as here) suggests a genuine, growing effect of the law rather than a one-off jump.
+
+**What to worry about**: (1) Any pre-period estimate far from zero and statistically significant; (2) CIs so wide they can't rule out large violations — this happens when you have very few pre-periods (see the next section).
+:::
+
+## Synthetic Difference-in-Differences {#sec-synthdid}
+
+```{r synthdid, fig.height=4, fig.width=8}
+sdid_wide <- panel_did |>
+  dplyr::select(store, year, WTP_did, treated) |>
+  pivot_wider(names_from=year, values_from=WTP_did) |>
+  arrange(treated)
+
+N0 <- sum(!sdid_wide$treated); T0 <- sum(years < T_treat)
+Y_matrix <- sdid_wide |> dplyr::select(-store,-treated) |> as.matrix()
+
+sdid_est <- synthdid_estimate(Y_matrix, N0, T0)
+sc_est   <- sc_estimate(Y_matrix, N0, T0)
+did_est  <- did_estimate(Y_matrix, N0, T0)
+
+tibble(
+  Method       = c("Standard DiD","Synthetic Control","Synthetic DiD"),
+  Estimate     = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est)), 3),
+  `True effect`= 0.70,
+  Bias         = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est))-0.70, 3)
+) |> knitr::kable(caption="All three estimators vs. the true effect of 0.70")
+```
+
+```{r synthdid-plot, fig.height=5, fig.width=8}
+plot(sdid_est, se.method="placebo")
+```
+
+## When Parallel Trends Fails — and Pre-Testing Cannot Always Save You {#sec-pt-failure}
+
+Parallel trends is **not directly testable** — you never observe what Dutch stores would have done without the eco-label law. What you *can* test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:
+
+1. **Too few pre-treatment periods.** Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.
+2. **You collect whatever data exists.** Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.
+
+::: {.callout-important}
+## What the pre-trend test does — and does not — establish
+
+The event study tests whether *observed pre-treatment outcomes* moved in parallel. It does **not** test:
+
+- Whether unmeasured confounders were evolving differently for treated and control units
+- Whether the differential dynamic would have continued into the post-period absent treatment
+- Whether a violation is simply too small to detect given the available pre-periods
+
+Passing the pre-trend test is necessary but far from sufficient for causal identification.
+:::
+
+### A Realistic Parallel Trends Violation {#sec-pt-violation-viz}
+
+Suppose Dutch stores were *already* attracting more environmentally conscious shoppers whose WTP grew \$0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there (selection). **The true treatment effect is zero.** The eco-label law is irrelevant. But this ongoing differential growth will trick DiD into finding one.
+
+```{r pt-violation-dgp, fig.height=6.5, fig.width=10}
+#| code-summary: "▶ Same violation: unmistakeable with 8 pre-periods, invisible with 2"
+set.seed(2025)
+n_dutch_v  <- 15; n_belgian_v <- 20; n_stores_v <- n_dutch_v + n_belgian_v
+T_treat_v  <- 2022; n_post_v <- 3
+diff_slope_v <- 0.15   # Dutch stores grow $0.15/yr faster throughout (selection, not treatment)
+store_fes_v  <- rnorm(n_stores_v, 0, 0.6)
+
+make_violation_panel <- function(yrs, true_eff = 0) {
+  expand.grid(store = 1:n_stores_v, year = yrs) |> as_tibble() |>
+    mutate(
+      treated       = as.numeric(store <= n_dutch_v),
+      country       = ifelse(treated == 1, "Netherlands", "Belgium"),
+      post          = as.numeric(year >= T_treat_v),
+      did_indicator = treated * post,
+      store_fe      = store_fes_v[store],
+      diff_trend    = treated * diff_slope_v * (year - T_treat_v),
+      WTP           = 5.20 + store_fe + 0.08 * (year - T_treat_v) +
+                      diff_trend + true_eff * did_indicator + rnorm(n(), 0, 0.40)
+    )
+}
+
+panel_many_v <- make_violation_panel(2014:2024)   # 8 pre-periods
+panel_few_v  <- make_violation_panel(2020:2024)   # 2 pre-periods
+
+plot_pt_panel <- function(panel, subtitle) {
+  panel |> group_by(country, year) |>
+    summarise(WTP = mean(WTP), .groups = "drop") |>
+    ggplot(aes(x = year, y = WTP, colour = country, group = country)) +
+    geom_vline(xintercept = T_treat_v - 0.5, linetype = "dashed",
+               colour = "grey50", linewidth = 0.9) +
+    geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+    scale_colour_manual(values = c("Netherlands" = clr_eco, "Belgium" = clr_ctrl)) +
+    scale_x_continuous(breaks = unique(panel$year)) +
+    labs(x = NULL, y = "Mean WTP ($)", colour = NULL, subtitle = subtitle) +
+    theme_mod3()
+}
+
+p_many_v <- plot_pt_panel(panel_many_v,
+  "8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here")
+p_few_v  <- plot_pt_panel(panel_few_v,
+  "2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged")
+
+(p_many_v / p_few_v) +
+  plot_annotation(
+    title    = "Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)",
+    subtitle = "How many pre-periods you happen to collect determines whether you can even see the problem",
+    theme    = theme(plot.title    = element_text(size = 13, face = "bold"),
+                     plot.subtitle = element_text(size = 11))
+  )
+```
+
+With 8 pre-periods the violation is glaringly obvious — you would never run DiD here. With 2 pre-periods the same violation is invisible. Yet the DiD estimate is equally spurious in both cases:
+
+```{r pt-violation-did}
+#| code-summary: "▶ DiD on 2-pre-period data: statistically significant, entirely spurious"
+did_viol <- lm_robust(WTP ~ did_indicator + factor(store) + factor(year),
+                      data = panel_few_v, clusters = store)
+dv <- tidy(did_viol) |> dplyr::filter(term == "did_indicator")
+cat(sprintf(
+  "True treatment effect  = $0.000\n
+DiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)\n95%% CI: [$%.3f, $%.3f]\n\nThis looks like a meaningful, significant eco-label effect.\nIt is entirely spurious. The violation was undetectable with 2 pre-periods.\n",
+  dv$estimate, dv$std.error, dv$p.value, dv$conf.low, dv$conf.high
+))
+```
+
+### Monte Carlo: Pre-Test Power and Type I Error {#sec-pt-mc}
+
+We now formalise this with 300 simulations per condition. **True effect = \$0 throughout.** We vary the number of pre-treatment periods from 1 to 6 and track three quantities:
+
+| Quantity | What it means |
+|---|---|
+| **Pre-test power** | How often does the pre-trend test detect the violation? (p < .05) |
+| **Overall Type I error** | How often does DiD falsely reject H₀? |
+| **Conditional Type I error** | Given the pre-test *passes* (p ≥ .05), how often does DiD still falsely reject? |
+
+The conditional rate is what matters most: it is the false-positive rate faced by researchers who *did their due diligence* with an event study and got a clean-looking pre-trend.
+
+```{r pt-simulation}
+#| code-summary: "▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)"
+set.seed(2025)
+N_SIM_PT <- 300
+
+pt_sim_one <- function(n_pre) {
+  years_s <- c(seq(T_treat_v - n_pre, T_treat_v - 1),
+               T_treat_v:(T_treat_v + n_post_v - 1))
+  n_yrs <- length(years_s)
+
+  mat <- replicate(N_SIM_PT, {
+    n_obs     <- n_stores_v * n_yrs
+    store_s   <- rep(1:n_stores_v, each = n_yrs)
+    year_s    <- rep(years_s, times = n_stores_v)
+    treated_s <- as.numeric(store_s <= n_dutch_v)
+    post_s    <- as.numeric(year_s >= T_treat_v)
+    did_s     <- treated_s * post_s
+    diff_s    <- treated_s * diff_slope_v * (year_s - T_treat_v)
+    fe_s      <- rnorm(n_stores_v, 0, 0.6)[store_s]
+    WTP_s     <- 5.20 + fe_s + 0.08 * (year_s - T_treat_v) + diff_s + rnorm(n_obs, 0, 0.40)
+
+    df_s <- data.frame(
+      WTP     = WTP_s,
+      did     = did_s,
+      store   = factor(store_s),
+      year    = factor(year_s),
+      treated = treated_s,
+      post    = post_s,
+      year_num= year_s
+    )
+
+    # DiD p-value with clustered SEs
+    fit_d  <- lm(WTP ~ did + store + year, data = df_s)
+    pval_d <- coeftest(fit_d, vcovCL(fit_d, cluster = ~store))["did", 4]
+
+    # Pre-trend test: treated x linear year interaction in pre-period only
+    if (n_pre >= 2) {
+      pre_s      <- df_s[df_s$post == 0, ]
+      pre_s$yr_c <- pre_s$year_num - mean(pre_s$year_num)
+      fit_p  <- lm(WTP ~ treated * yr_c + store, data = pre_s)
+      ct_p   <- coeftest(fit_p, vcovCL(fit_p, cluster = ~store))
+      pval_p <- tryCatch(ct_p["treated:yr_c", 4], error = function(e) 1.0)
+    } else {
+      pval_p <- 1.0   # Cannot test with only 1 pre-period — always "passes"
+    }
+
+    c(pval_d, pval_p)
+  })  # 2 × N_SIM_PT matrix
+
+  data.frame(n_pre    = n_pre,
+             did_pval = mat[1, ],
+             pre_pval = mat[2, ])
+}
+
+sim_all_pt <- map_dfr(1:6, pt_sim_one)
+cat(sprintf("Simulation complete: %d total runs across 6 pre-period conditions.\n",
+            nrow(sim_all_pt)))
+```
+
+```{r pt-type1-plot, fig.height=5, fig.width=10, echo=FALSE}
+type1_pt <- sim_all_pt |>
+  group_by(n_pre) |>
+  summarise(
+    pwr_pretest = mean(pre_pval < 0.05, na.rm = TRUE),
+    t1_overall  = mean(did_pval < 0.05, na.rm = TRUE),
+    t1_cond     = {
+      pass_idx <- pre_pval >= 0.05 | is.na(pre_pval)
+      if (!any(pass_idx)) NA_real_ else mean(did_pval[pass_idx] < 0.05, na.rm = TRUE)
+    },
+    n_pass = sum(pre_pval >= 0.05 | is.na(pre_pval), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+type1_pt |>
+  transmute(
+    n_pre,
+    `Pre-test power\n(detects violation)`          = pwr_pretest,
+    `Overall DiD\nType I error`                    = t1_overall,
+    `Conditional Type I\n(given pre-test passes)`  = t1_cond
+  ) |>
+  pivot_longer(-n_pre, names_to = "Metric", values_to = "Rate") |>
+  mutate(Metric = factor(Metric, levels = c(
+    "Pre-test power\n(detects violation)",
+    "Overall DiD\nType I error",
+    "Conditional Type I\n(given pre-test passes)"
+  ))) |>
+  ggplot(aes(x = n_pre, y = Rate, colour = Metric, shape = Metric)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 1.15, y = 0.07, label = "Nominal 5%", size = 3.2,
+           colour = "grey40", hjust = 0) +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "Pre-test power\n(detects violation)"         = "#2563a8",
+    "Overall DiD\nType I error"                   = "#e67e22",
+    "Conditional Type I\n(given pre-test passes)" = "firebrick"
+  )) +
+  scale_shape_manual(values = c(
+    "Pre-test power\n(detects violation)"         = 16,
+    "Overall DiD\nType I error"                   = 17,
+    "Conditional Type I\n(given pre-test passes)" = 18
+  )) +
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(
+    x = "Number of pre-treatment periods collected",
+    y = "Rate",
+    colour = NULL, shape = NULL,
+    title = "Type I error inflation under parallel trends violation (true treatment effect = $0)",
+    subtitle = sprintf(
+      "Dutch stores grow $0.15/yr faster than Belgian — entirely spurious; %d sims per condition",
+      N_SIM_PT)
+  ) +
+  theme_mod3() +
+  theme(legend.key.width = unit(2, "cm"))
+```
+
+```{r pt-summary-table, echo=FALSE}
+type1_pt |>
+  transmute(
+    `Pre-periods`         = n_pre,
+    `Pre-test power`      = sprintf("%.0f%%", 100 * pwr_pretest),
+    `Sims passing`        = sprintf("%d / %d", n_pass, N_SIM_PT),
+    `Overall Type I`      = sprintf("%.0f%%", 100 * t1_overall),
+    `Conditional Type I`  = sprintf("%.0f%%", 100 * t1_cond)
+  ) |>
+  knitr::kable(
+    caption = sprintf(
+      "Monte Carlo summary (%d sims per condition, true effect = $0, differential trend = $0.15/yr). 'Conditional' = false positive rate among studies where the pre-trend test passed.",
+      N_SIM_PT)
+  )
+```
+
+::: {.callout-warning}
+## What this means for practice
+
+**The key pattern:**
+
+- With **1 pre-period**: The test is impossible. The false-positive rate can be 40–70% — a researcher following standard practice would be nearly flipping a coin.
+- With **2–3 pre-periods**: Pre-test power is low. Most violations slip through. Conditional Type I error is still far above the nominal 5%.
+- With **5–6 pre-periods**: Power improves substantially. But violations that slip through the test still produce inflated Type I error.
+
+**The fundamental problem is not the test — it is the data.** Researchers often have no choice but to use available archives, which may span only 1–3 pre-treatment periods. This is structurally similar to mediation: just as researchers rarely measure all possible confounders of the M→Y path, they rarely collect enough pre-treatment history to reliably test parallel trends.
+
+**What to do:**
+
+- Report the number of pre-treatment periods and be honest about the test's power
+- Run placebo DiDs — apply the treatment label to earlier years or non-treated units and check that "effects" are near zero
+- Use **Rambachan & Roth's (2023) `HonestDiD`** sensitivity analysis, which asks: *how large a pre-trend violation would be required to explain away your result?* This reframes the question from "is there a violation?" (often unknowable) to "how large a violation would matter?" (estimable and reportable)
+- Treat a passing event study as weak evidence, not proof, of parallel trends
+:::
+
+---

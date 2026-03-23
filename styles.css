@@ -45,6 +45,12 @@ table {
   color: #1e3a5f;
 }
 
+/* ── Per-chunk code fold buttons: hidden — only the global toggle remains ── */
+/* Readers use the single "Show/Hide All Code" button at the top of each page */
+.code-fold-btn {
+  display: none !important;
+}
+
 /* ── Scrollable sidebars ─────────────────────────────────────────────────── */
 /* Left nav sidebar: scroll on hover without requiring a click first */
 #quarto-sidebar {

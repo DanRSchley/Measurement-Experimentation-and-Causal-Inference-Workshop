@@ -32,8 +32,12 @@ book:
         - module-2/part5.qmd
     - part: "Module 3: Causal Inference"
       chapters:
-        - module-3/index.qmd
-        - module-3/tutorial.qmd
+        - module-3/intro.qmd
+        - module-3/part1.qmd
+        - module-3/part2.qmd
+        - module-3/part3.qmd
+        - module-3/part4.qmd
+        - module-3/part5.qmd
 
 format:
   html:
@@ -47,7 +51,6 @@ format:
       source: false
       toggle: true
       caption: "Show/Hide All Code"
-    code-summary: "▶ Show R code"
     highlight-style: github
     df-print: kable
 

@@ -1,0 +1,225 @@
+---
+title: "Part 3: Regression Discontinuity"
+---
+
+```{r setup, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+if (!requireNamespace("remotes",  quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("synthdid", quietly = TRUE))
+  remotes::install_github("synth-did/synthdid")
+
+pkgs <- c(
+  "tidyverse", "broom", "knitr", "patchwork",
+  "conflicted",
+  "MatchIt", "WeightIt", "cobalt",
+  "rdrobust", "rddensity",
+  "did",
+  "mediation", "robmed",
+  "estimatr", "sandwich", "lmtest"
+)
+for (p in pkgs) {
+  if (!requireNamespace(p, quietly = TRUE)) install.packages(p, dependencies = TRUE)
+  library(p, character.only = TRUE)
+}
+library(synthdid)
+
+library(conflicted)
+conflicts_prefer(dplyr::select, dplyr::filter, dplyr::rename, dplyr::mutate,
+                 dplyr::summarise, dplyr::arrange, dplyr::lag)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 9, fig.height = 5,
+  fig.path = "figs/", dev = "svg"
+)
+
+clr_eco     <- "#2d6a4f"
+clr_ctrl    <- "#4a90d9"
+clr_treated <- clr_eco
+
+theme_mod3 <- function() {
+  theme_minimal(base_size = 12) +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#f0f4f8", colour = NA),
+          legend.position  = "bottom")
+}
+
+# ── Lightweight DAG helper ─────────────────────────────────────────────────────
+.dag <- function(nodes, solid = NULL, dashed = NULL,
+                 unobserved = character(0), title = "") {
+  nd <- do.call(rbind, lapply(names(nodes), function(nm)
+    data.frame(id=nm, x=nodes[[nm]][1], y=nodes[[nm]][2], stringsAsFactors=FALSE)))
+  nd$type <- ifelse(nd$id %in% unobserved, "unobs", "obs")
+  segs <- function(pairs, lt) {
+    if (is.null(pairs) || length(pairs)==0) return(NULL)
+    do.call(rbind, lapply(pairs, function(ab) {
+      fr <- nd[nd$id==ab[1],]; to <- nd[nd$id==ab[2],]
+      dx <- to$x-fr$x; dy <- to$y-fr$y
+      len <- sqrt(dx^2+dy^2)+1e-9; pad <- 0.12
+      data.frame(x=fr$x+pad*dx/len, y=fr$y+pad*dy/len,
+                 xend=to$x-pad*dx/len, yend=to$y-pad*dy/len,
+                 lt=lt, stringsAsFactors=FALSE)
+    }))
+  }
+  edf <- rbind(segs(solid,"solid"), segs(dashed,"dashed"))
+  xs <- range(nd$x); ys <- range(nd$y)
+  p <- ggplot() + theme_void() + ggtitle(title) +
+    coord_cartesian(xlim=c(xs[1]-.3,xs[2]+.3), ylim=c(ys[1]-.3,ys[2]+.3), expand=FALSE) +
+    theme(plot.title=element_text(size=10,face="bold",hjust=.5,margin=margin(b=6)),
+          plot.background=element_rect(fill="grey98",colour="grey80",linewidth=.4),
+          plot.margin=margin(10,16,10,16), legend.position="none")
+  if (!is.null(edf) && nrow(edf)>0)
+    p <- p +
+      geom_segment(data=edf, aes(x=x,y=y,xend=xend,yend=yend,colour=lt,linetype=lt),
+                   arrow=arrow(length=unit(.20,"cm"),type="closed"), linewidth=.85) +
+      scale_colour_manual(values=c(solid="grey20",dashed="firebrick")) +
+      scale_linetype_manual(values=c(solid="solid",dashed="dashed"))
+  if (any(nd$type=="obs"))
+    p <- p + geom_label(data=nd[nd$type=="obs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold", fill="white", colour="black",
+                        label.size=.9, label.padding=unit(.4,"lines"))
+  if (any(nd$type=="unobs"))
+    p <- p + geom_label(data=nd[nd$type=="unobs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold.italic", fill="#fff3e0", colour="#b45309",
+                        label.size=1.1, label.padding=unit(.4,"lines"),
+                        label.r=unit(.5,"lines"))
+  p
+}
+
+# ── Mediation extraction helper (handles robmed version differences) ───────────
+rob_extract <- function(fit) {
+  # point estimate: try $ab, then $indirect, then coef()["ab"]
+  ab <- tryCatch(fit$ab,
+    error = function(e) tryCatch(fit$indirect,
+      error = function(e2) tryCatch(coef(fit)["ab"],
+        error = function(e3) NA_real_)))
+  # CI: try $ci (matrix or vector), then confint()
+  ci <- tryCatch({
+    r <- fit$ci
+    if (is.matrix(r)) r[1,] else r
+  }, error = function(e) tryCatch(confint(fit)["ab",],
+    error = function(e2) c(NA_real_, NA_real_)))
+  list(est=unname(ab), lo=unname(ci[1]), hi=unname(ci[2]))
+}
+```
+
+# Part 3: Regression Discontinuity Design {#sec-m3-part3}
+
+## The Core Idea {#sec-rdd-idea}
+
+AlterEco's retailer awards a **"Certified Sustainable"** badge to any coffee product scoring **70 or above** on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is *nearly random* near 70. We exploit this near-randomness.
+
+::: {.callout-note}
+## Why the jump at 70 is causal — the "as-good-as-random" intuition
+
+Imagine two products with audit scores of 69 and 71. They have almost identical green credentials — similar supply chains, similar materials — but the auditor's ruler is imprecise. Those two points of difference are largely measurement noise. Yet one gets the badge and the other doesn't. **Near the cutoff, badge assignment is as good as a coin flip.**
+
+This local near-randomness is what makes the jump causal. It is equivalent to a mini natural experiment: products just above and just below 70 are exchangeable in every way except for badge receipt. The jump in WTP at that threshold is therefore attributable *entirely* to the badge.
+
+**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently.
+
+**A practical check to run first**: If brands can game the audit score to land just above 70, the "as-good-as-random" assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.
+:::
+
+## Simulating an RDD {#sec-rdd-sim}
+
+```{r rdd-dgp, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Simulate 1,200 products near the 70-point certification threshold"
+set.seed(2024)
+N_rdd <- 1200; cutoff <- 70; true_jump <- 0.80
+audit_score <- runif(N_rdd, 30, 100)
+treat_rdd   <- as.integer(audit_score >= cutoff)
+
+WTP_rdd <- 4.0 + 0.02*(audit_score-cutoff) - 0.0003*(audit_score-cutoff)^2 +
+           true_jump*treat_rdd + rnorm(N_rdd, 0, 0.60)
+WTP_rdd <- pmax(1, pmin(10, WTP_rdd))
+df_rdd  <- tibble(audit_score, treat_rdd, WTP_rdd, running=audit_score-cutoff)
+
+df_rdd |>
+  ggplot(aes(x=audit_score, y=WTP_rdd, colour=factor(treat_rdd))) +
+  geom_point(alpha=0.30, size=0.9) +
+  geom_vline(xintercept=cutoff, linewidth=1, colour="grey30") +
+  geom_smooth(method="lm", formula=y~poly(x,2), se=TRUE, alpha=0.2) +
+  scale_colour_manual(values=c("0"=clr_ctrl,"1"=clr_eco),
+                      labels=c("Below 70 (no badge)","Above 70 (badge)")) +
+  annotate("text", x=71, y=9.2, label="Cutoff = 70", hjust=0, size=3.5, fontface="bold") +
+  annotate("segment", x=70, xend=70, y=3.85, yend=4.85, colour="firebrick",
+           arrow=arrow(ends="both", length=unit(.2,"cm")), linewidth=0.8) +
+  annotate("text", x=71, y=4.35,
+           label=sprintf("~$%.2f jump\n(badge effect)", true_jump),
+           hjust=0, size=3, colour="firebrick") +
+  labs(x="Audit Score (running variable)", y="Consumer WTP ($)", colour=NULL,
+       title="Regression Discontinuity: the jump at 70 estimates the badge's causal effect") +
+  theme_mod3()
+```
+
+## Key Assumptions and How to Test Them {#sec-rdd-assumptions}
+
+### Assumption 1: No Manipulation
+
+```{r rdd-density-test, fig.height=4, fig.width=7}
+dens_test <- rddensity(X=df_rdd$audit_score, c=cutoff)
+summary(dens_test)
+rdplotdensity(dens_test, X=df_rdd$audit_score,
+              title="Density test: checking for bunching at the 70-point cutoff",
+              xlabel="Audit score", ylabel="Density")
+```
+
+A significant p-value signals that brands are gaming audit scores to land just above 70. With our simulated uniform running variable, the density is continuous.
+
+### Assumption 2: Covariate Continuity
+
+```{r rdd-covariate-balance}
+env_rdd <- rnorm(N_rdd, 0 + 0.01*(audit_score-cutoff)/10, 1)
+rdd_env <- rdrobust(y=env_rdd, x=df_rdd$audit_score, c=cutoff)
+cat("Covariate balance — env. concern should NOT jump at the threshold:\n")
+summary(rdd_env)
+```
+
+## Estimating the RDD Effect {#sec-rdd-estimate}
+
+```{r rdd-estimate, fig.height=4.5, fig.width=8}
+rdd_est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff)
+summary(rdd_est)
+rdplot(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff,
+       title="RDD estimate: causal effect of sustainability badge on WTP",
+       x.label="Audit Score", y.label="WTP ($)")
+```
+
+```{r rdd-bandwidth-sensitivity, fig.height=4, fig.width=8}
+bw_results <- map_dfr(c(5,8,10,15,20,25,30), function(bw) {
+  est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff, h=bw)
+  tibble(bandwidth=bw, estimate=est$coef["Conventional",1], se=est$se["Robust",1])
+})
+
+bw_results |>
+  mutate(lo=estimate-1.96*se, hi=estimate+1.96*se) |>
+  ggplot(aes(x=bandwidth, y=estimate, ymin=lo, ymax=hi)) +
+  geom_hline(yintercept=true_jump, linetype="dashed", colour="grey40", linewidth=1) +
+  geom_ribbon(alpha=0.15, fill=clr_eco) +
+  geom_line(colour=clr_eco, linewidth=1) + geom_point(colour=clr_eco, size=2.5) +
+  annotate("text", x=5.5, y=true_jump+0.05, label=sprintf("True = $%.2f", true_jump),
+           hjust=0, size=3.5) +
+  labs(x="Bandwidth (audit score units)", y="Estimated badge effect ($)",
+       title="RDD estimates stable across bandwidths h = 5 to 30",
+       subtitle="Instability would indicate sensitivity to bandwidth — a red flag") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## The bandwidth trade-off: bias vs. variance
+
+The bandwidth $h$ controls which products are included in the RDD comparison — only those with audit scores in $[70-h,\ 70+h]$. This creates a fundamental tension:
+
+| Narrow $h$ | Wide $h$ |
+|---|---|
+| Products are very similar to each other near the cutoff ✔ | More observations → tighter CI ✔ |
+| Few observations → wide CI ✖ | Products far from 70 differ systematically from each other ✖ |
+
+**`rdrobust` selects the bandwidth automatically** using a mean-squared-error optimal rule — it finds the $h$ that best balances bias and variance. The bandwidth-sensitivity plot above is a sanity check: stable estimates across a wide range of $h$ suggest the result is not an artefact of a specific choice.
+
+When estimates collapse or swing wildly as $h$ changes, it usually means the polynomial fit on one side of the cutoff is extrapolating too aggressively. That's a red flag that warrants narrowing $h$ or using a local linear fit.
+:::
+
+---

@@ -41,8 +41,8 @@ What does a p-value actually tell you? How does randomization create valid infer
 - [Part 1: What Does a P-value Mean?](module-2/part1.qmd)
 - [Part 2: The Exclusion Restriction](module-2/part2.qmd)
 - [Part 3: What Does Random Assignment Require?](module-2/part3.qmd)
-- [Part 4: When Exchangeability Breaks Down](module-2/part4.qmd)
-- [Part 5: Experimental Design Strategies](module-2/part5.qmd)
+- [Part 4: Experimental Design Strategies](module-2/part4.qmd)
+- [Part 5: Design Solutions and Assignment Strategies](module-2/part5.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}
@@ -50,15 +50,15 @@ What does a p-value actually tell you? How does randomization create valid infer
 
 When can we say that X *caused* Y? What methods go beyond randomized experiments, and what do they assume?
 
-[Module 3 →](module-3/index.qmd){.btn .btn-primary}
+[Module 3 →](module-3/intro.qmd){.btn .btn-primary}
 
 **Sections**
 
-- [Part 1: What Is a Causal Effect?](module-3/tutorial.qmd#sec-m3-part1)
-- [Part 2: Selection on Observables](module-3/tutorial.qmd#sec-m3-part2)
-- [Part 3: Regression Discontinuity](module-3/tutorial.qmd#sec-m3-part3)
-- [Part 4: Difference-in-Differences](module-3/tutorial.qmd#sec-m3-part4)
-- [Part 5: Mediation](module-3/tutorial.qmd#sec-m3-part5)
+- [Part 1: What Is a Causal Effect?](module-3/part1.qmd)
+- [Part 2: Selection on Observables](module-3/part2.qmd)
+- [Part 3: Regression Discontinuity](module-3/part3.qmd)
+- [Part 4: Difference-in-Differences](module-3/part4.qmd)
+- [Part 5: Mediation](module-3/part5.qmd)
 :::
 
 :::

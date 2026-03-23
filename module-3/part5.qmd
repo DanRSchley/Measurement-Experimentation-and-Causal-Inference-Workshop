@@ -1,0 +1,786 @@
+---
+title: "Part 5: Mediation"
+---
+
+```{r setup, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+if (!requireNamespace("remotes",  quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("synthdid", quietly = TRUE))
+  remotes::install_github("synth-did/synthdid")
+
+pkgs <- c(
+  "tidyverse", "broom", "knitr", "patchwork",
+  "conflicted",
+  "MatchIt", "WeightIt", "cobalt",
+  "rdrobust", "rddensity",
+  "did",
+  "mediation", "robmed",
+  "estimatr", "sandwich", "lmtest"
+)
+for (p in pkgs) {
+  if (!requireNamespace(p, quietly = TRUE)) install.packages(p, dependencies = TRUE)
+  library(p, character.only = TRUE)
+}
+library(synthdid)
+
+library(conflicted)
+conflicts_prefer(dplyr::select, dplyr::filter, dplyr::rename, dplyr::mutate,
+                 dplyr::summarise, dplyr::arrange, dplyr::lag)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 9, fig.height = 5,
+  fig.path = "figs/", dev = "svg"
+)
+
+clr_eco     <- "#2d6a4f"
+clr_ctrl    <- "#4a90d9"
+clr_treated <- clr_eco
+
+theme_mod3 <- function() {
+  theme_minimal(base_size = 12) +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#f0f4f8", colour = NA),
+          legend.position  = "bottom")
+}
+
+# ── Lightweight DAG helper ─────────────────────────────────────────────────────
+.dag <- function(nodes, solid = NULL, dashed = NULL,
+                 unobserved = character(0), title = "") {
+  nd <- do.call(rbind, lapply(names(nodes), function(nm)
+    data.frame(id=nm, x=nodes[[nm]][1], y=nodes[[nm]][2], stringsAsFactors=FALSE)))
+  nd$type <- ifelse(nd$id %in% unobserved, "unobs", "obs")
+  segs <- function(pairs, lt) {
+    if (is.null(pairs) || length(pairs)==0) return(NULL)
+    do.call(rbind, lapply(pairs, function(ab) {
+      fr <- nd[nd$id==ab[1],]; to <- nd[nd$id==ab[2],]
+      dx <- to$x-fr$x; dy <- to$y-fr$y
+      len <- sqrt(dx^2+dy^2)+1e-9; pad <- 0.12
+      data.frame(x=fr$x+pad*dx/len, y=fr$y+pad*dy/len,
+                 xend=to$x-pad*dx/len, yend=to$y-pad*dy/len,
+                 lt=lt, stringsAsFactors=FALSE)
+    }))
+  }
+  edf <- rbind(segs(solid,"solid"), segs(dashed,"dashed"))
+  xs <- range(nd$x); ys <- range(nd$y)
+  p <- ggplot() + theme_void() + ggtitle(title) +
+    coord_cartesian(xlim=c(xs[1]-.3,xs[2]+.3), ylim=c(ys[1]-.3,ys[2]+.3), expand=FALSE) +
+    theme(plot.title=element_text(size=10,face="bold",hjust=.5,margin=margin(b=6)),
+          plot.background=element_rect(fill="grey98",colour="grey80",linewidth=.4),
+          plot.margin=margin(10,16,10,16), legend.position="none")
+  if (!is.null(edf) && nrow(edf)>0)
+    p <- p +
+      geom_segment(data=edf, aes(x=x,y=y,xend=xend,yend=yend,colour=lt,linetype=lt),
+                   arrow=arrow(length=unit(.20,"cm"),type="closed"), linewidth=.85) +
+      scale_colour_manual(values=c(solid="grey20",dashed="firebrick")) +
+      scale_linetype_manual(values=c(solid="solid",dashed="dashed"))
+  if (any(nd$type=="obs"))
+    p <- p + geom_label(data=nd[nd$type=="obs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold", fill="white", colour="black",
+                        label.size=.9, label.padding=unit(.4,"lines"))
+  if (any(nd$type=="unobs"))
+    p <- p + geom_label(data=nd[nd$type=="unobs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold.italic", fill="#fff3e0", colour="#b45309",
+                        label.size=1.1, label.padding=unit(.4,"lines"),
+                        label.r=unit(.5,"lines"))
+  p
+}
+
+# ── Mediation extraction helper (handles robmed version differences) ───────────
+rob_extract <- function(fit) {
+  # point estimate: try $ab, then $indirect, then coef()["ab"]
+  ab <- tryCatch(fit$ab,
+    error = function(e) tryCatch(fit$indirect,
+      error = function(e2) tryCatch(coef(fit)["ab"],
+        error = function(e3) NA_real_)))
+  # CI: try $ci (matrix or vector), then confint()
+  ci <- tryCatch({
+    r <- fit$ci
+    if (is.matrix(r)) r[1,] else r
+  }, error = function(e) tryCatch(confint(fit)["ab",],
+    error = function(e2) c(NA_real_, NA_real_)))
+  list(est=unname(ab), lo=unname(ci[1]), hi=unname(ci[2]))
+}
+```
+
+# Part 5: Mediation — Does the Eco-Label Work *Through* Perceived Sustainability? {#sec-m3-part5}
+
+Mediation analysis asks whether the eco-label affects WTP **directly** or **through a mechanism** — here, *perceived sustainability* (M). Three estimators are compared across three scenarios that each challenge a different method.
+
+| Scenario | Key feature | Who wins |
+|---|---|---|
+| **1: Clean normal data** | No violations — a baseline | All methods perform well |
+| **2: Large outliers** | Correlated high-leverage points inflate OLS b-path | **ROBMED** wins |
+| **3: M–Y confounded** | Unobserved U causes both M and Y; true ACME = 0 | **Imai sensitivity** catches it |
+
+::: {.callout-note}
+## The mediation arithmetic — and where it can break
+
+Baron–Kenny mediation decomposes X's total effect on Y into two paths:
+
+$$\underbrace{X \xrightarrow{\;a\;} M \xrightarrow{\;b\;} Y}_{\text{indirect (ACME) = } a \times b} \quad + \quad \underbrace{X \xrightarrow{\;c'\;} Y}_{\text{direct (ADE)}}$$
+
+The **ACME** (Average Causal Mediation Effect) is the product $a \times b$. It has two failure modes that the three scenarios below are specifically designed to reveal:
+
+1. **The *b*-path can be estimated on the wrong data** — if outliers inflate the apparent slope between M and Y, $\hat{b}$ is too large, and so is $\hat{a} \times \hat{b}$. ROBMED addresses this.
+2. **The *b*-path can be estimated on the wrong model** — if an unobserved variable $U^*$ drives both M and Y, the OLS $\hat{b}$ picks up the $U^*$ signal as if it were causal M→Y. No regression method alone can fix this; Imai's sensitivity analysis quantifies how severe the problem would need to be to explain away the result.
+:::
+
+## Causal Structures {#sec-med-dags}
+
+```{r med-dag-scenarios, fig.height=3.2, fig.width=10, echo=FALSE}
+#| code-summary: "▶ DAGs: true mediation (Scenarios 1 & 2) vs. confounded (Scenario 3)"
+dA <- .dag(nodes = list(X=c(0,.5), M=c(.5,.9), Y=c(1,.5)),
+           solid  = list(c("X","M"), c("M","Y"), c("X","Y")),
+           title  = "Scenarios 1 & 2: True mediation\nX → M → Y  (+ direct path X → Y)")
+dB <- .dag(nodes     = list(X=c(0,.5), M=c(.5,.9), Y=c(1,.5), U=c(.5,.1)),
+           solid     = list(c("X","M"), c("X","Y"), c("U","M"), c("U","Y")),
+           dashed    = list(c("M","Y")),
+           unobserved= "U",
+           title     = "Scenario 3: No causal M→Y\nU* confounds M and Y  (M→Y is spurious)")
+dA | dB
+```
+
+## Setup: Three DGPs {#sec-med-dgp}
+
+```{r med-dgp-setup}
+#| code-summary: "▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded"
+set.seed(2025)
+N_med <- 350
+X     <- rbinom(N_med, 1, 0.5)   # eco-label (1 = exposed to label)
+
+# True parameters (Scenarios 1 & 2)
+a_true    <- 0.50   # eco_label → perc_sust
+b_true    <- 0.55   # perc_sust → WTP
+c_prime   <- 0.30   # eco_label → WTP (direct path)
+ACME_true <- a_true * b_true   # 0.275
+
+# ── Scenario 1: Clean normal data ────────────────────────────────────────────
+# No violations; both OLS and ROBMED should recover ACME ≈ 0.275
+M_s1   <- a_true * X + rnorm(N_med, 0, 0.60)
+Y_s1   <- c_prime * X + b_true * M_s1 + rnorm(N_med, 0, 0.60)
+df_s1  <- data.frame(eco_label = X, perc_sust = M_s1, WTP = Y_s1)
+
+# ── Scenario 2: Large correlated outliers (12% contamination) ───────────────
+# Correlated shocks to M and Y residuals in the same direction: outlier obs
+# suggest a much steeper M→Y slope → OLS b-path inflated → OLS ACME >> 0.275
+# ROBMED MM-estimator downweights these high-leverage points → stays near truth
+out_n   <- ceiling(N_med * 0.12)
+out_idx <- sample(N_med, out_n)
+out_sgn <- rep(1, out_n)
+out_mag <- runif(out_n, 6, 10)   # 10–17× the baseline SD: strong leverage
+eps_M2  <- rnorm(N_med, 0, 0.60)
+eps_Y2  <- rnorm(N_med, 0, 0.60)
+eps_M2[out_idx] <- eps_M2[out_idx] + out_sgn * out_mag          # M outlier
+eps_Y2[out_idx] <- eps_Y2[out_idx] + out_sgn * out_mag * 0.90   # correlated Y outlier
+M_s2   <- a_true * X + eps_M2
+Y_s2   <- c_prime * X + b_true * M_s2 + eps_Y2
+df_s2  <- data.frame(eco_label = X, perc_sust = M_s2, WTP = Y_s2)
+
+# ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────
+# U* drives both perc_sust and WTP; there is NO causal M → Y path
+# OLS and ROBMED both find spurious ACME (Type I error) because they cannot
+# separate causal M→Y from U-induced M–Y correlation
+# Imai's medsens() reveals the finding's fragility via a small critical ρ*
+U      <- rnorm(N_med, 0, 1)
+M_s3   <- a_true * X + 0.60 * U + rnorm(N_med, 0, 0.55)
+Y_s3   <- c_prime * X + 0.65 * U + rnorm(N_med, 0, 0.55)   # no M_s3 term!
+df_s3  <- data.frame(eco_label = X, perc_sust = M_s3, WTP = Y_s3)
+ACME_true_s3 <- 0   # no causal M → Y
+
+cat(sprintf("N = %d  |  Treatment rate = %.0f%%\n", N_med, 100 * mean(X)))
+cat(sprintf("Scenarios 1 & 2: true ACME = %.3f  (a=%.2f, b=%.2f, c'=%.2f)\n",
+            ACME_true, a_true, b_true, c_prime))
+cat(sprintf("Scenario 3:      true ACME = %.3f  (U* confounds both M and Y)\n",
+            ACME_true_s3))
+```
+
+## Estimating All Three Methods {#sec-med-run}
+
+```{r run-all-mediation, cache=FALSE}
+#| code-summary: "▶ Run OLS delta method, ROBMED, and Imai on all three scenarios"
+run_mediation_triple <- function(df, R = 500) {
+  m_m <- lm(perc_sust ~ eco_label, data = df)
+  m_y <- lm(WTP ~ eco_label + perc_sust, data = df)
+
+  # 1. OLS: a × b with delta-method CI
+  a_hat   <- coef(m_m)["eco_label"]
+  b_hat   <- coef(m_y)["perc_sust"]
+  ols_est <- a_hat * b_hat
+  se_ab   <- sqrt(b_hat^2 * vcov(m_m)["eco_label","eco_label"] +
+                  a_hat^2 * vcov(m_y)["perc_sust","perc_sust"])
+  ols_lo  <- ols_est - 1.96 * se_ab
+  ols_hi  <- ols_est + 1.96 * se_ab
+
+  # 2. ROBMED: MM-robust regression (downweights high-leverage outliers)
+  set.seed(99)
+  med_rob  <- test_mediation(WTP ~ m(perc_sust) + eco_label,
+                             data = df, method = "regression", robust = TRUE, R = R)
+  rob      <- rob_extract(med_rob)
+
+  # 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)
+  set.seed(99)
+  med_imai <- mediate(m_m, m_y, treat = "eco_label", mediator = "perc_sust",
+                      boot = FALSE, sims = R)
+
+  list(a_hat    = a_hat,          b_hat    = b_hat,
+       ols_est  = ols_est,        ols_lo   = ols_lo,       ols_hi  = ols_hi,
+       rob_est  = rob$est,        rob_lo   = rob$lo,       rob_hi  = rob$hi,
+       imai_est = med_imai$d0,    imai_lo  = med_imai$d0.ci[1],
+       imai_hi  = med_imai$d0.ci[2],
+       med_imai = med_imai,       med_rob  = med_rob)
+}
+
+cat("Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...\n")
+res_s1 <- run_mediation_triple(df_s1)
+res_s2 <- run_mediation_triple(df_s2)
+res_s3 <- run_mediation_triple(df_s3)
+cat(sprintf("Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
+            res_s1$ols_est, res_s1$rob_est, ACME_true))
+cat(sprintf("Scenario 2 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
+            res_s2$ols_est, res_s2$rob_est, ACME_true))
+cat(sprintf("Scenario 3 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f [no M→Y path])\n",
+            res_s3$ols_est, res_s3$rob_est, ACME_true_s3))
+```
+
+## Scenario 1: Clean Normal Data — All Methods Should Work {#sec-med-clean}
+
+With textbook normal errors and no confounding, OLS, ROBMED, and Imai all estimate ACME accurately. This is the baseline case each method was designed for.
+
+```{r med-scenario1, echo=FALSE}
+#| code-summary: "▶ Scenario 1 results: clean normal data"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  Paths    = c(sprintf("a=%.3f, b=%.3f", res_s1$a_hat, res_s1$b_hat),
+               "-- (robust MM)",
+               "-- (uses OLS)"),
+  Estimate = round(c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est), 3),
+  CI95     = sprintf("[%.3f, %.3f]",
+                     c(res_s1$ols_lo, res_s1$rob_lo, res_s1$imai_lo),
+                     c(res_s1$ols_hi, res_s1$rob_hi, res_s1$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est) - ACME_true),
+  Verdict  = c("On target", "On target", "On target")
+) |>
+  knitr::kable(
+    col.names = c("Method", "a & b paths", "Estimate", "95% CI", "Bias", "Verdict"),
+    caption   = paste0("Scenario 1 \u2014 Clean normal data | true ACME = ",
+                       round(ACME_true, 3), " | N = ", N_med),
+    align     = c("l","l","r","c","r","c")
+  )
+```
+
+## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
+
+Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55 to OLS — inflating the b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
+
+::: {.callout-note}
+## Why correlated outliers inflate the *b*-path specifically
+
+The key is *direction*: when participants who score unusually high on M also score unusually high on Y (same-sign shocks), they create data points that pull the OLS regression line steeply upward. To OLS, these are just informative extreme observations — it can't distinguish "genuinely high M causes genuinely high Y" from "an external shock hit both M and Y simultaneously."
+
+**ROBMED's MM-estimator** assigns lower weight to observations whose residuals are large relative to the bulk of the data. The outlier participants — who are far from the M–Y regression cloud — receive close to zero weight, leaving the slope estimate dominated by the non-contaminated 88%.
+
+**Why Imai doesn't help here**: `mediate()` calls the same `lm()` models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. ROBMED is the right tool; Imai is not.
+:::
+
+
+```{r med-scenario2, echo=FALSE}
+#| code-summary: "▶ Scenario 2 results: large outliers inflate OLS but not ROBMED"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  `b-path` = sprintf("%.3f (true = %.2f)",
+                     c(res_s2$b_hat, res_s2$rob_est / res_s2$a_hat, res_s2$b_hat),
+                     rep(b_true, 3)),
+  Estimate = round(c(res_s2$ols_est, res_s2$rob_est, res_s2$imai_est), 3),
+  `95% CI` = sprintf("[%.3f, %.3f]",
+                     c(res_s2$ols_lo, res_s2$rob_lo, res_s2$imai_lo),
+                     c(res_s2$ols_hi, res_s2$rob_hi, res_s2$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s2$ols_est, res_s2$rob_est, res_s2$imai_est) - ACME_true),
+  Verdict  = c("\u2716 Inflated \u2014 outliers pull b-path up",
+               "\u2713 Robust \u2014 outliers down-weighted",
+               "\u2716 Inflated \u2014 uses OLS internally")
+) |>
+  knitr::kable(
+    caption = sprintf(
+      "Scenario 2 \u2014 12%% correlated outlier contamination | true ACME = %.3f | N = %d",
+      ACME_true, N_med),
+    align = c("l","l","r","c","r","l")
+  )
+```
+
+```{r med-outlier-scatter, fig.height=3.5, fig.width=10, echo=FALSE}
+#| code-summary: "▶ Scatter: clean vs contaminated data showing outlier leverage on OLS slope"
+p_s1_sc <- ggplot(df_s1, aes(x = perc_sust, y = WTP)) +
+  geom_point(alpha = 0.35, size = 1.5, colour = clr_ctrl) +
+  geom_smooth(method = "lm", se = TRUE, colour = "firebrick", linewidth = 1.2) +
+  labs(x = "Perceived sustainability (M)", y = "WTP ($)",
+       title = "Scenario 1: Clean data",
+       subtitle = sprintf("OLS b = %.3f  (true = %.2f)", res_s1$b_hat, b_true)) +
+  theme_mod3()
+
+df_s2_vis <- df_s2 |> mutate(outlier = seq_len(n()) %in% out_idx)
+p_s2_sc <- ggplot(df_s2_vis, aes(x = perc_sust, y = WTP, colour = outlier)) +
+  geom_point(alpha = 0.45, size = 1.5) +
+  geom_smooth(method = "lm", se = TRUE, colour = "firebrick", linewidth = 1.2) +
+  scale_colour_manual(values = c("FALSE" = "grey55", "TRUE" = "#e74c3c"),
+                      labels = c("FALSE" = "Clean obs", "TRUE" = "Outlier (12%)"),
+                      name = NULL) +
+  labs(x = "Perceived sustainability (M)", y = "WTP ($)",
+       title = "Scenario 2: Outliers (red) inflate the OLS slope",
+       subtitle = sprintf("OLS b = %.3f  ROBMED b ≈ %.3f  (true = %.2f)",
+                          res_s2$b_hat, res_s2$rob_est / res_s2$a_hat, b_true)) +
+  theme_mod3()
+
+p_s1_sc | p_s2_sc
+```
+
+## Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses {#sec-med-confounded}
+
+U* drives both perceived sustainability and WTP. **There is no causal M→Y path.** The true ACME = 0. Yet both OLS and ROBMED find a large, significant "mediation effect" because they cannot distinguish causal M→Y from U-induced M–Y correlation. This is a structural identification failure, not an estimation problem — no regression method alone can fix it. But Imai's sensitivity analysis reveals that the result is fragile.
+
+```{r med-scenario3, echo=FALSE}
+#| code-summary: "▶ Scenario 3: both OLS and ROBMED produce a Type I error"
+tibble(
+  Method   = c("OLS delta method", "ROBMED (MM-estimator)", "Imai (quasi-Bayes)"),
+  `b-path (spurious)` = sprintf("%.3f (true = 0.00)", c(res_s3$b_hat, NA_real_, res_s3$b_hat)) |>
+                        (\(x) { x[2] <- sprintf("%.3f (true = 0.00)", res_s3$rob_est / res_s3$a_hat); x })(),
+  Estimate = round(c(res_s3$ols_est, res_s3$rob_est, res_s3$imai_est), 3),
+  `95% CI` = sprintf("[%.3f, %.3f]",
+                     c(res_s3$ols_lo, res_s3$rob_lo, res_s3$imai_lo),
+                     c(res_s3$ols_hi, res_s3$rob_hi, res_s3$imai_hi)),
+  Bias     = sprintf("%+.3f",
+                     c(res_s3$ols_est, res_s3$rob_est, res_s3$imai_est) - ACME_true_s3),
+  Verdict  = c("\u2716 Type I error \u2014 spurious mediation",
+               "\u2716 Type I error \u2014 U* not outlier-based",
+               "\u2716 Type I error \u2014 see \u03c1* below")
+) |>
+  knitr::kable(
+    caption = sprintf(
+      "Scenario 3 \u2014 M\u2013Y confounded via U* | true ACME = %.3f (no M\u2192Y path) | N = %d",
+      ACME_true_s3, N_med),
+    align = c("l","l","r","c","r","l")
+  )
+```
+
+## Where Imai's Framework Shines: Sensitivity Analysis {#sec-med-sensitivity}
+
+Imai et al.'s `medsens()` asks: *how large would the correlation between M-equation and Y-equation residuals (ρ) need to be to drive ACME to zero?* This **critical ρ\*** measures fragility:
+
+- **Large ρ***: only substantial unmeasured confounding could explain away the result → **robust**
+- **Small ρ***: even modest unmeasured confounding suffices → **fragile**
+
+```{r med-sensitivity-compare, fig.height=4.5, fig.width=10}
+#| code-summary: "▶ Sensitivity analysis: clean DGP (robust) vs. confounded DGP (fragile)"
+set.seed(99)
+sens_s1 <- medsens(res_s1$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
+set.seed(99)
+sens_s3 <- medsens(res_s3$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
+
+safe_crit_rho <- function(s) {
+  tryCatch({
+    idx_neg <- which(s$d0 <= 0)
+    if (length(idx_neg) == 0) NA_real_
+    else round(min(abs(s$rho[idx_neg]), na.rm = TRUE), 2)
+  }, error = function(e) NA_real_)
+}
+crit_rho_s1 <- safe_crit_rho(sens_s1)
+crit_rho_s3 <- safe_crit_rho(sens_s3)
+
+fmt_rho <- function(x) if (is.na(x)) "> 1.0" else sprintf("%.2f", x)
+cat(sprintf("Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding\n",
+            fmt_rho(crit_rho_s1)))
+cat(sprintf("Scenario 3 (true ACME = 0):     critical ρ* ≈ %s  → FRAGILE finding\n",
+            fmt_rho(crit_rho_s3)))
+cat("\nSmaller ρ* = less confounding is needed to explain away the result.\n")
+
+# Build tidy sensitivity curves using only the guaranteed $rho and $d0 fields
+sens_df <- bind_rows(
+  data.frame(rho      = sens_s1$rho,
+             ACME     = sens_s1$d0,
+             Scenario = "Scenario 1: Clean data (true ACME = 0.275)",
+             stringsAsFactors = FALSE),
+  data.frame(rho      = sens_s3$rho,
+             ACME     = sens_s3$d0,
+             Scenario = "Scenario 3: M\u2013Y confounded (true ACME = 0)",
+             stringsAsFactors = FALSE)
+)
+
+ggplot(sens_df, aes(x = rho, y = ACME, colour = Scenario)) +
+  geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.9) +
+  geom_line(linewidth = 1.4) +
+  { if (!is.na(crit_rho_s1))
+      list(
+        geom_vline(xintercept =  crit_rho_s1, linetype = "dashed",
+                   colour = clr_eco, linewidth = 0.9),
+        geom_vline(xintercept = -crit_rho_s1, linetype = "dashed",
+                   colour = clr_eco, linewidth = 0.9),
+        annotate("text", x = crit_rho_s1 + 0.03, y = 0.18,
+                 label = sprintf("\u03c1*\u2248%s\n(ROBUST)", fmt_rho(crit_rho_s1)),
+                 hjust = 0, size = 3.0, colour = clr_eco, fontface = "bold")
+      ) } +
+  { if (!is.na(crit_rho_s3))
+      list(
+        geom_vline(xintercept =  crit_rho_s3, linetype = "dashed",
+                   colour = clr_ctrl, linewidth = 0.9),
+        geom_vline(xintercept = -crit_rho_s3, linetype = "dashed",
+                   colour = clr_ctrl, linewidth = 0.9),
+        annotate("text", x = crit_rho_s3 + 0.03, y = -0.22,
+                 label = sprintf("\u03c1*\u2248%s\n(FRAGILE)", fmt_rho(crit_rho_s3)),
+                 hjust = 0, size = 3.0, colour = clr_ctrl, fontface = "bold")
+      ) } +
+  scale_colour_manual(
+    values = c("Scenario 1: Clean data (true ACME = 0.275)" = clr_eco,
+               "Scenario 3: M\u2013Y confounded (true ACME = 0)"  = clr_ctrl)) +
+  labs(x       = expression(paste("Sensitivity parameter ", rho,
+                                  "  (correlation between M- and Y-equation residuals)")),
+       y       = "ACME (indirect effect)",
+       colour  = NULL,
+       title   = "Imai sensitivity: how much confounding would nullify the ACME?",
+       subtitle = paste0("\u03c1* = critical value at which ACME crosses zero",
+                         "  \u2014  smaller \u03c1* = more fragile result")) +
+  theme_mod3() +
+  theme(legend.position = "top")
+```
+
+::: {.callout-tip}
+## Reading the sensitivity plot
+
+Both Scenario 1 and Scenario 3 produce a *statistically significant* ACME from OLS — they look equally convincing at face value. The sensitivity analysis reveals very different levels of trust:
+
+- **Scenario 1 (clean)**: ACME reaches zero only at $\rho^* \approx$ `r fmt_rho(crit_rho_s1)`. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is **robust**.
+- **Scenario 3 (confounded)**: ACME crosses zero at $\rho^* \approx$ `r fmt_rho(crit_rho_s3)`. Only modest confounding is enough to nullify the result. The "significant" ACME is **fragile** — correctly so, since the true ACME is 0.
+
+**The Imai advantage is not a better point estimate** (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the *sensitivity analysis itself* — an honest diagnostic that Baron–Kenny completely omits. A finding that reports both the ROBMED estimate and a large ρ* from `medsens()` is far more credible than one that does neither.
+:::
+
+## Comprehensive Bias Comparison Across All Scenarios {#sec-med-comparison}
+
+```{r mediation-bias-comparison, fig.height=6.5, fig.width=9, echo=FALSE}
+#| code-summary: "▶ Forest plot: OLS vs ROBMED vs Imai across all three scenarios"
+comp_df <- tibble(
+  Scenario = rep(c(
+    sprintf("Scenario 1: Clean normal data\n(true ACME = %.3f)", ACME_true),
+    sprintf("Scenario 2: Large outliers\n(true ACME = %.3f)", ACME_true),
+    sprintf("Scenario 3: M\u2013Y confounded\n(true ACME = %.3f)", ACME_true_s3)
+  ), each = 3),
+  Method   = rep(c("OLS delta method", "ROBMED", "Imai (quasi-Bayes)"), 3),
+  Truth    = rep(c(ACME_true, ACME_true, ACME_true_s3), each = 3),
+  Estimate = c(res_s1$ols_est, res_s1$rob_est, res_s1$imai_est,
+               res_s2$ols_est, res_s2$rob_est, res_s2$imai_est,
+               res_s3$ols_est, res_s3$rob_est, res_s3$imai_est),
+  CI_lo    = c(res_s1$ols_lo,  res_s1$rob_lo,  res_s1$imai_lo,
+               res_s2$ols_lo,  res_s2$rob_lo,  res_s2$imai_lo,
+               res_s3$ols_lo,  res_s3$rob_lo,  res_s3$imai_lo),
+  CI_hi    = c(res_s1$ols_hi,  res_s1$rob_hi,  res_s1$imai_hi,
+               res_s2$ols_hi,  res_s2$rob_hi,  res_s2$imai_hi,
+               res_s3$ols_hi,  res_s3$rob_hi,  res_s3$imai_hi)
+) |>
+  mutate(
+    Bias         = Estimate - Truth,
+    Scenario     = fct_inorder(Scenario),
+    Method       = factor(Method, levels = c("Imai (quasi-Bayes)", "ROBMED", "OLS delta method")),
+    covers_truth = (CI_lo <= Truth & CI_hi >= Truth)
+  )
+
+method_colours <- c(
+  "OLS delta method"  = clr_ctrl,
+  "ROBMED"            = clr_eco,
+  "Imai (quasi-Bayes)" = "#8e44ad"
+)
+
+ggplot(comp_df, aes(y = Method, x = Estimate, xmin = CI_lo, xmax = CI_hi,
+                    colour = Method, shape = covers_truth)) +
+  geom_vline(aes(xintercept = Truth), linetype = "dashed",
+             colour = "grey30", linewidth = 1) +
+  geom_pointrange(size = 0.7, linewidth = 1) +
+  geom_text(aes(label = sprintf("bias=%+.3f", Bias), x = CI_hi + 0.012),
+            hjust = 0, size = 2.8, colour = "grey20") +
+  facet_wrap(~Scenario, ncol = 1, scales = "free_x") +
+  scale_colour_manual(values = method_colours) +
+  scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 4),
+                     labels = c("TRUE" = "CI covers truth", "FALSE" = "CI misses truth"),
+                     name   = NULL) +
+  labs(x = "Estimated ACME (indirect effect)", y = NULL,
+       colour = "Estimator",
+       title  = "Bias comparison: OLS vs. ROBMED vs. Imai across three mediation scenarios",
+       subtitle = paste0("Dashed line = true ACME  |  \u00d7 = CI misses truth  |  labels show signed bias\n",
+                         "Scenario 3 note: all point estimates are spurious \u2014 ",
+                         "Imai adds value via sensitivity analysis, not point estimates")) +
+  theme_mod3() +
+  theme(legend.position = "top",
+        legend.box = "horizontal",
+        strip.text = element_text(face = "bold", size = 9),
+        legend.key.size = unit(0.7, "cm"))
+```
+
+::: {.callout-warning}
+## Method × scenario decision guide
+
+| Scenario | OLS | ROBMED | Imai `medsens()` |
+|---|---|---|---|
+| **Clean normal data** | ✔ Unbiased | ✔ Unbiased | ✔ Large ρ* confirms robustness |
+| **Large outliers** | ✖ Biased upward | ✔ Downweights outliers | ✖ Inherits OLS bias |
+| **M–Y confounded** | ✖ Type I error | ✖ Type I error | ✔ Small ρ* flags fragility |
+
+**Key lesson**: ROBMED addresses *estimation* failures (non-normality, outliers). Imai's sensitivity analysis addresses *identification* failures (unmeasured confounding). They solve different problems and should be used together.
+
+**In practice**: report ROBMED as your primary ACME estimate (robustness to outliers) *and* `medsens()` to quantify fragility to unmeasured confounding. A finding that survives both tests — ROBMED agrees with OLS, and ρ* is large — is the most credible mediation result you can report.
+:::
+
+## Why Confounding Causes Type I Errors: The 2×2 Design {#sec-med-2x2}
+
+The three-scenario analysis above treats confounding as a special case. The 2×2 design below makes the mechanism explicit by crossing two independent dimensions:
+
+- **Rows**: true mediation exists vs. does not exist (b = 0)
+- **Columns**: M–Y confounded vs. unconfounded
+
+The critical cell is **top-right** — no true mediation, but confounding is active. Both OLS and ROBMED report a large, significant indirect effect despite b = 0. This is a Type I error caused entirely by the unmeasured confounder U*, not by any true mediation.
+
+```{r med-2x2-setup, echo=FALSE}
+#| code-summary: "▶ 2×2 simulation setup"
+
+# ── 2×2 parameters ────────────────────────────────────────────────────────────
+p2_mx   <- 0.50   # X → M  (a path)
+p2_my   <- 0.55   # M → Y  (b path, used in "true mediation" rows)
+p2_xy   <- 0.30   # X → Y  (direct c' path)
+p2_um   <- 0.55   # U → M  (confounding into mediator)
+p2_uy   <- 0.60   # U → Y  (confounding into outcome)
+p2_xu   <- 0.30   # X → U
+N2      <- 350
+R2      <- 300
+
+set.seed(2024)
+
+run_2x2 <- function(label, confound_m, confound_y, b_val) {
+  p_um_act <- if (confound_m) p2_um else 0
+  p_uy_act <- if (confound_y) p2_uy else 0
+  w_a <- c(p2_mx, p_um_act, 0.30); w_a <- w_a / sum(w_a)
+  w_c <- c(p2_xy, b_val,  p_uy_act, 0.30); w_c <- w_c / sum(w_c)
+  w_u <- c(p2_xu, 0.30);  w_u <- w_u / sum(w_u)
+  x   <- rbinom(N2, 1, 0.5)
+  u   <- w_u[1]*x + w_u[2]*rnorm(N2)
+  m   <- w_a[1]*x + w_a[2]*u + w_a[3]*rnorm(N2)
+  y   <- w_c[1]*x + w_c[2]*m + w_c[3]*u + w_c[4]*rnorm(N2)
+  df  <- data.frame(x = x, m = m, y = y)
+  mm  <- lm(m ~ x, data = df)
+  my  <- lm(y ~ x + m, data = df)
+  med <- mediate(mm, my, treat = "x", mediator = "m",
+                 boot = TRUE, sims = R2)
+  true_indirect <- w_a[1] * w_c[2]
+  data.frame(
+    label    = label,
+    confound = confound_m | confound_y,
+    b_true   = b_val,
+    true_ind = true_indirect,
+    est      = med$d0,
+    lo       = med$d0.ci[1],
+    hi       = med$d0.ci[2],
+    covers   = (med$d0.ci[1] <= true_indirect & med$d0.ci[2] >= true_indirect),
+    stringsAsFactors = FALSE
+  )
+}
+
+scenarios_2x2 <- list(
+  list(label = "No true mediation\nUnconfounded",   cm = FALSE, co = FALSE, b = 0),
+  list(label = "No true mediation\nConfounded (U*)", cm = TRUE,  co = TRUE,  b = 0),
+  list(label = "True mediation\nUnconfounded",       cm = FALSE, co = FALSE, b = p2_my),
+  list(label = "True mediation\nConfounded (U*)",    cm = TRUE,  co = TRUE,  b = p2_my)
+)
+
+res_2x2 <- do.call(rbind, lapply(scenarios_2x2, function(s) {
+  run_2x2(s$label, s$cm, s$co, s$b)
+}))
+```
+
+```{r med-2x2-dags, fig.height=5, fig.width=11, echo=FALSE}
+#| code-summary: "▶ DAGs: the four 2×2 scenarios"
+
+# ── DAG drawing helper (adapted from Mediation-Simulation.Rmd) ────────────────
+draw_med_dag <- function(confound_m, confound_y, title = "", show_b = TRUE) {
+  nodes <- data.frame(
+    label = c("X", "M", "Y", "U*"),
+    x     = c(0,   2,   4,   2),
+    y     = c(0,   0,   0,   2)
+  )
+  b_etype <- if (show_b) "path" else "null_b"
+  b_col   <- if (show_b) "grey30" else "grey70"
+  b_lbl   <- if (show_b) "b" else "b\u00a0=\u00a00"
+
+  edges <- rbind(
+    data.frame(x=0, y=0, xend=2, yend=0, etype="path"),
+    data.frame(x=2, y=0, xend=4, yend=0, etype=b_etype),
+    data.frame(x=0, y=0, xend=2, yend=2, etype="neutral"),
+    if (confound_m) data.frame(x=2, y=2, xend=2, yend=0.1, etype="confound") else NULL,
+    if (confound_y) data.frame(x=2, y=2, xend=4, yend=0.1, etype="confound") else NULL
+  )
+  direct <- data.frame(x=0, y=0, xend=4, yend=0)
+
+  ggplot() +
+    geom_curve(data = direct, aes(x=x, y=y, xend=xend, yend=yend),
+               curvature = -0.35, colour = "#2166ac", linewidth = 0.75,
+               arrow = arrow(length = unit(0.16, "cm"), type = "open")) +
+    annotate("text", x = 2, y = -0.85, colour = "#2166ac", size = 2.8,
+             label = "c\u2019 (direct)", fontface = "italic") +
+    geom_segment(data = edges,
+                 aes(x=x, y=y, xend=xend, yend=yend,
+                     colour=etype, linetype=etype),
+                 linewidth = 0.85,
+                 arrow = arrow(length = unit(0.16, "cm"), type = "open")) +
+    annotate("text", x = 1,   y = 0.25, label = "a", size = 3.1,
+             colour = "grey30", fontface = "italic") +
+    annotate("text", x = 3,   y = 0.25, label = b_lbl, size = 3.1,
+             colour = b_col, fontface = "italic") +
+    geom_point(data = nodes, aes(x=x, y=y),
+               shape = 21, size = 18, fill = "white", colour = "grey25", stroke = 1.3) +
+    geom_text(data = nodes, aes(x=x, y=y, label=label), size = 4, fontface = "bold") +
+    scale_colour_manual(guide = "none",
+      values = c("path"="grey25", "null_b"="grey75",
+                 "neutral"="grey60", "confound"="#d6604d")) +
+    scale_linetype_manual(guide = "none",
+      values = c("path"="solid", "null_b"="dotted",
+                 "neutral"="solid", "confound"="dashed")) +
+    coord_cartesian(xlim = c(-0.6, 4.6), ylim = c(-1.1, 2.5)) +
+    labs(title = title) +
+    theme_void(base_size = 11) +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 9.5,
+                                    margin = margin(b = 5)))
+}
+
+dag_list_2x2 <- list(
+  draw_med_dag(FALSE, FALSE, "No true mediation \u00b7 Unconfounded\n\u2705 Correct null",  show_b = FALSE),
+  draw_med_dag(TRUE,  TRUE,  "No true mediation \u00b7 Confounded\n\U0001F6A8 FALSE POSITIVE", show_b = FALSE),
+  draw_med_dag(FALSE, FALSE, "True mediation \u00b7 Unconfounded\n\u2705 Unbiased",          show_b = TRUE),
+  draw_med_dag(TRUE,  TRUE,  "True mediation \u00b7 Confounded\n\u26a0\ufe0f Biased upward",  show_b = TRUE)
+)
+
+(dag_list_2x2[[1]] | dag_list_2x2[[2]]) / (dag_list_2x2[[3]] | dag_list_2x2[[4]])
+```
+
+```{r med-2x2-plot, fig.height=5.5, fig.width=9, echo=FALSE}
+#| code-summary: "▶ True vs. estimated ACME across all four cells"
+
+cell_colours <- c(
+  "No true mediation\nUnconfounded"    = "#4dac26",
+  "No true mediation\nConfounded (U*)" = "#ca0020",
+  "True mediation\nUnconfounded"       = "#0571b0",
+  "True mediation\nConfounded (U*)"    = "#f4a582"
+)
+
+res_2x2$label <- factor(res_2x2$label, levels = names(cell_colours))
+
+ggplot(res_2x2, aes(x = est, xmin = lo, xmax = hi,
+                    y = "Indirect effect",
+                    colour = label, shape = covers)) +
+  geom_vline(aes(xintercept = true_ind), linetype = "dashed",
+             colour = "grey30", linewidth = 0.9) +
+  geom_pointrange(size = 0.9, linewidth = 1.2, position = position_dodge(width = 0.5)) +
+  geom_point(aes(x = true_ind), shape = 17, size = 3.5,
+             colour = "#333", position = position_dodge(width = 0.5)) +
+  facet_wrap(~ label, ncol = 2, scales = "free_x") +
+  scale_colour_manual(values = cell_colours, guide = "none") +
+  scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 4),
+                     labels = c("TRUE" = "CI covers truth", "FALSE" = "CI misses truth"),
+                     name = NULL) +
+  labs(x = "Estimated ACME (indirect effect)",
+       y = NULL,
+       title = "True vs. Estimated ACME \u2014 2\u00d72 Design",
+       subtitle = paste0(
+         "\u25b2 Black triangle = true DGP value  |  \u25cf Circle + bar = estimate \u00b1 95% CI\n",
+         "\U0001F6A8 Top-right panel: b = 0 in truth, yet the model reports significant mediation \u2014 ",
+         "a Type I error driven entirely by U*"
+       )) +
+  theme_mod3() +
+  theme(
+    strip.text         = element_text(face = "bold", size = 10, colour = "white",
+                                      margin = margin(4, 4, 4, 4)),
+    strip.background   = element_rect(fill = "grey30", colour = NA),
+    panel.spacing      = unit(1.2, "lines"),
+    legend.position    = "top",
+    panel.grid.major.y = element_blank()
+  )
+```
+
+::: {.callout-important}
+## The Type I error mechanism in one sentence
+
+When both U→M and U→Y are active, M and Y share a hidden common cause. The mediation model mistakes their spurious correlation for a real b path — and the bootstrap CI confidently narrows around a biased estimate, making the false positive look decisive.
+
+**The fix is not a better estimator.** Imai's `medsens()` reveals how fragile the finding is; ROBMED guards against estimation errors from outliers. But neither can eliminate the Type I error if U* is real and unmeasured. The only solutions are design-based: measure U*, block the back-door path by design, or use an instrument for M.
+:::
+
+---
+
+## Summary of Methods {#sec-summary-table}
+
+```{r summary-table, echo=FALSE}
+tibble(
+  Method = c(
+    "Randomised Experiment",
+    "Linear Regression Adjustment",
+    "Flexible Regression Adjustment",
+    "IPW (stabilised)",
+    "Entropy Balancing (WeightIt)",
+    "Covariate Matching (Mahalanobis)",
+    "Propensity Score Matching",
+    "Doubly Robust (AIPW)",
+    "Synthetic Control",
+    "Regression Discontinuity",
+    "Difference-in-Differences (TWFE)",
+    "Synthetic DiD",
+    "Mediation (Baron–Kenny OLS)",
+    "Mediation (Imai et al.)",
+    "ROBMED"
+  ),
+  `Key identifying assumption` = c(
+    "Random assignment; SUTVA",
+    "All confounders measured; linear functional form",
+    "All confounders measured; correct non-linear specification",
+    "All confounders measured; positivity (overlap)",
+    "All confounders measured; moment balance sufficient",
+    "All confounders measured; sufficient overlap",
+    "All confounders measured; PS model correctly specified",
+    "Either PS model OR outcome model is correctly specified",
+    "Good pre-treatment fit; no interference",
+    "Continuity at cutoff; no manipulation; no other discontinuities",
+    "Parallel trends (in absence of treatment)",
+    "Parallel trends after reweighting control units",
+    "Sequential ignorability; no M–Y confounders",
+    "Sequential ignorability; sensitivity analysis quantifies fragility",
+    "Sequential ignorability; robust to outliers and non-normality"
+  ),
+  `Target estimand` = c(
+    "ATE","ATE","ATE","ATE","ATE","ATT","ATT","ATE",
+    "ATT (one treated unit)","LATE (near threshold)","ATT","ATT",
+    "ACME","ACME","ACME"
+  ),
+  `When to use` = c(
+    "Can randomise",
+    "Observational; confounders measured; linear DGP",
+    "Observational; confounders measured; non-linear DGP",
+    "Observational; want ATE; good PS overlap",
+    "Observational; want ATE; many covariates to balance",
+    "Observational; want ATT; sufficient control units",
+    "Observational; many covariates; report PS model sensitivity",
+    "Observational; insurance against one misspecified model",
+    "Few treated units; many pre-treatment periods",
+    "Sharp threshold in a running variable",
+    "Panel data; policy change in subset of units",
+    "Panel data; parallel trends may not hold exactly",
+    "Mediation hypothesis; well-controlled experiment",
+    "Mediation with explicit assumptions + sensitivity analysis",
+    "Mediation; non-normal WTP data or suspected outliers"
+  )
+) |>
+  knitr::kable(caption="All methods in Module 3: assumptions, estimands, and use cases")
+```
+
+---
+
+## Session Info {.unnumbered}
+
+```{r session-info}
+sessionInfo()
+```

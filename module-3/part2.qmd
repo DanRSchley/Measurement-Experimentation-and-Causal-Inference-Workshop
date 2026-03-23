@@ -1,0 +1,724 @@
+---
+title: "Part 2: Selection on Observables"
+---
+
+```{r setup, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+if (!requireNamespace("remotes",  quietly = TRUE)) install.packages("remotes")
+if (!requireNamespace("synthdid", quietly = TRUE))
+  remotes::install_github("synth-did/synthdid")
+
+pkgs <- c(
+  "tidyverse", "broom", "knitr", "patchwork",
+  "conflicted",
+  "MatchIt", "WeightIt", "cobalt",
+  "rdrobust", "rddensity",
+  "did",
+  "mediation", "robmed",
+  "estimatr", "sandwich", "lmtest"
+)
+for (p in pkgs) {
+  if (!requireNamespace(p, quietly = TRUE)) install.packages(p, dependencies = TRUE)
+  library(p, character.only = TRUE)
+}
+library(synthdid)
+
+library(conflicted)
+conflicts_prefer(dplyr::select, dplyr::filter, dplyr::rename, dplyr::mutate,
+                 dplyr::summarise, dplyr::arrange, dplyr::lag)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 9, fig.height = 5,
+  fig.path = "figs/", dev = "svg"
+)
+
+clr_eco     <- "#2d6a4f"
+clr_ctrl    <- "#4a90d9"
+clr_treated <- clr_eco
+
+theme_mod3 <- function() {
+  theme_minimal(base_size = 12) +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#f0f4f8", colour = NA),
+          legend.position  = "bottom")
+}
+
+# ── Lightweight DAG helper ─────────────────────────────────────────────────────
+.dag <- function(nodes, solid = NULL, dashed = NULL,
+                 unobserved = character(0), title = "") {
+  nd <- do.call(rbind, lapply(names(nodes), function(nm)
+    data.frame(id=nm, x=nodes[[nm]][1], y=nodes[[nm]][2], stringsAsFactors=FALSE)))
+  nd$type <- ifelse(nd$id %in% unobserved, "unobs", "obs")
+  segs <- function(pairs, lt) {
+    if (is.null(pairs) || length(pairs)==0) return(NULL)
+    do.call(rbind, lapply(pairs, function(ab) {
+      fr <- nd[nd$id==ab[1],]; to <- nd[nd$id==ab[2],]
+      dx <- to$x-fr$x; dy <- to$y-fr$y
+      len <- sqrt(dx^2+dy^2)+1e-9; pad <- 0.12
+      data.frame(x=fr$x+pad*dx/len, y=fr$y+pad*dy/len,
+                 xend=to$x-pad*dx/len, yend=to$y-pad*dy/len,
+                 lt=lt, stringsAsFactors=FALSE)
+    }))
+  }
+  edf <- rbind(segs(solid,"solid"), segs(dashed,"dashed"))
+  xs <- range(nd$x); ys <- range(nd$y)
+  p <- ggplot() + theme_void() + ggtitle(title) +
+    coord_cartesian(xlim=c(xs[1]-.3,xs[2]+.3), ylim=c(ys[1]-.3,ys[2]+.3), expand=FALSE) +
+    theme(plot.title=element_text(size=10,face="bold",hjust=.5,margin=margin(b=6)),
+          plot.background=element_rect(fill="grey98",colour="grey80",linewidth=.4),
+          plot.margin=margin(10,16,10,16), legend.position="none")
+  if (!is.null(edf) && nrow(edf)>0)
+    p <- p +
+      geom_segment(data=edf, aes(x=x,y=y,xend=xend,yend=yend,colour=lt,linetype=lt),
+                   arrow=arrow(length=unit(.20,"cm"),type="closed"), linewidth=.85) +
+      scale_colour_manual(values=c(solid="grey20",dashed="firebrick")) +
+      scale_linetype_manual(values=c(solid="solid",dashed="dashed"))
+  if (any(nd$type=="obs"))
+    p <- p + geom_label(data=nd[nd$type=="obs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold", fill="white", colour="black",
+                        label.size=.9, label.padding=unit(.4,"lines"))
+  if (any(nd$type=="unobs"))
+    p <- p + geom_label(data=nd[nd$type=="unobs",], aes(x=x,y=y,label=id),
+                        size=4, fontface="bold.italic", fill="#fff3e0", colour="#b45309",
+                        label.size=1.1, label.padding=unit(.4,"lines"),
+                        label.r=unit(.5,"lines"))
+  p
+}
+
+# ── Mediation extraction helper (handles robmed version differences) ───────────
+rob_extract <- function(fit) {
+  # point estimate: try $ab, then $indirect, then coef()["ab"]
+  ab <- tryCatch(fit$ab,
+    error = function(e) tryCatch(fit$indirect,
+      error = function(e2) tryCatch(coef(fit)["ab"],
+        error = function(e3) NA_real_)))
+  # CI: try $ci (matrix or vector), then confint()
+  ci <- tryCatch({
+    r <- fit$ci
+    if (is.matrix(r)) r[1,] else r
+  }, error = function(e) tryCatch(confint(fit)["ab",],
+    error = function(e2) c(NA_real_, NA_real_)))
+  list(est=unname(ab), lo=unname(ci[1]), hi=unname(ci[2]))
+}
+```
+
+::: {.callout-note}
+## From Module 2: Statistical Fixes When Assignment Breaks Down
+
+The following section was introduced in Module 2's discussion of exchangeability. It is reproduced here because these methods — Heckman's selection model and the Tobit model — are observational correction strategies that belong conceptually with the material in this part.
+:::
+
+## Statistical Solutions: Correcting for Broken Exchangeability After Data Collection
+
+Even with careful design, selection and attrition can still break exchangeability. Several statistical models attempt to recover causal estimates when this happens.
+
+### Heckman Selection Models
+
+::: {.callout-warning}
+## The critical caveat — read this before the example
+
+The Heckman model works **only** if you have a valid **instrument for selection** — a variable that (1) predicts whether someone participates, but (2) has **no direct effect** on the outcome Y. Finding such an instrument is the hardest part of applying a Heckman correction. When the instrument is weak or its exclusion restriction is implausible, the Heckman correction can produce estimates that are *more* biased than naive OLS.
+
+**What makes a good vs. bad instrument?**
+
+| | Good instrument | Bad instrument |
+|---|---|---|
+| **Example** | Random financial incentive to complete the survey ($0–$4 bonus) | Whether the participant's friend also signed up |
+| **Predicts participation?** | Yes — higher bonus → more likely to complete | Yes — social influence → more likely to participate |
+| **Affects WTP directly?** | No — the cash bonus is for *completing* the survey, not for the product | Yes — friends share consumption preferences, so friend's sign-up correlates with eco-mindedness, which affects WTP |
+| **Why it works / fails** | The incentive shifts *who bothers to participate* without changing how they evaluate the eco-label once in the study | The instrument correlates with the unobservable (eco-mindedness) you are trying to control for — it violates the exclusion restriction |
+
+**A further technical requirement:** the instrument should be **continuous** (or at least multi-valued). A binary instrument (e.g., reminder email yes/no) creates only a handful of unique covariate combinations in Stage 1, making the inverse Mills ratio (IMR) nearly a step-function of treatment — which causes severe collinearity in Stage 2 and destabilizes the coefficient estimates.
+
+Always report the first-stage F-statistic (or probit z-score) for the instrument as evidence of its relevance. **Notice the irony:** the statistical fix for a broken exclusion restriction (Heckman) itself requires an exclusion restriction. The problems multiply as Y becomes more complex.
+:::
+
+**The problem:** suppose eco-label study participants were recruited via an environmental blog (self-selection). People who click through are systematically more environmentally conscious. The treatment effect you estimate confounds "eco-label response" with "environmentally conscious person response."
+
+**The Heckman correction** (Heckman, 1979) models the selection process explicitly, using a variable called the **inverse Mills ratio (IMR)** to account for the selection into the study:
+
+1. **Stage 1 (Selection equation):** Regress participation (1 = participated, 0 = declined) on all variables that predict selection but do *not* directly affect Y. This requires an **exclusion restriction in the selection model** — a variable that predicts participation but not WTP. In the simulation below, we use a continuous financial incentive ($0–$4 bonus) randomly assigned to potential participants.
+
+2. **Stage 2 (Outcome equation):** Regress Y on X and the IMR from Stage 1. The IMR absorbs the selection-induced correlation between treatment assignment and unobserved factors.
+
+```{r heckman-demo}
+#| code-summary: "▶ Simulate Heckman correction for self-selection"
+
+set.seed(42)
+N_hk  <- 1000   # pool of potential participants (larger N → more stable Heckman)
+
+# ── Unobserved confounder ─────────────────────────────────────────────────────
+# theta = latent eco-mindedness: affects BOTH survey completion AND WTP.
+# It is NOT in the data (hence "unobserved"), so naive OLS cannot control for it.
+theta <- rnorm(N_hk)
+
+# ── Treatment assignment (random) ─────────────────────────────────────────────
+# Eco vs. control randomly assigned to all N_hk potential participants.
+eco   <- sample(rep(0:1, N_hk / 2))
+
+# ── Instrument ────────────────────────────────────────────────────────────────
+# incentive: a continuous financial incentive ($0–$4 bonus) randomly assigned
+# to potential participants.  Higher incentive → more likely to complete the
+# survey, but the incentive itself has NO direct effect on WTP for the product.
+# This is the EXCLUSION RESTRICTION — a continuous instrument is essential here
+# because a binary instrument (e.g., reminder email yes/no) would create only
+# 4 unique (eco × reminder) combinations in Stage 1, making the IMR nearly a
+# step-function of eco in Stage 2 and causing collinearity that destabilises
+# the coefficient estimates.
+incentive <- runif(N_hk, 0, 4)   # continuous $0–$4 bonus
+
+# ── Selection into completion ──────────────────────────────────────────────────
+# Key mechanism: the eco condition is intrinsically interesting to eco-minded
+# (high-theta) people BUT ALSO to some low-theta "curious" people — so the eco
+# arm selects in more low-theta completers than the control arm (where only
+# truly motivated people bother).  This creates DOWNWARD bias in naive OLS.
+# Keeping theta and eco effects moderate ensures the Heckman correction is
+# tractable and does not overshoot due to finite-sample IMR estimation error.
+sel_latent <- -0.30 +
+  0.55 * theta     +    # eco-minded people more likely to complete
+  0.65 * eco       +    # eco topic attracts notably more lower-theta completers → bigger OVB
+  0.55 * incentive +    # strong continuous instrument for identification
+  rnorm(N_hk, 0, 1)
+selected <- as.integer(sel_latent > 0)
+N_sel    <- sum(selected)
+
+# ── WTP (observed only for completers; theta is the unobserved driver) ─────────
+# theta effect on WTP = 0.85: large enough to create detectable downward bias
+# in naive OLS, small enough that Heckman correction is stable (doesn't overshoot).
+wtp_true <- 5.0 +
+  0.50 * eco[selected == 1] +      # TRUE eco-label effect = $0.50
+  0.85 * theta[selected == 1] +    # theta drives WTP but is UNOBSERVED in df_hk
+  rnorm(N_sel, 0, 1.0)
+wtp_true <- pmax(wtp_true, 0)      # floor at 0 (no negative WTP)
+
+# ── Analysis datasets ──────────────────────────────────────────────────────────
+# df_hk:   observed data for completers (theta NOT included — it's unobserved)
+# df_full: full pool used for Stage 1 probit (includes instrument)
+df_hk   <- data.frame(wtp       = wtp_true,
+                       eco       = eco[selected == 1],
+                       incentive = incentive[selected == 1])
+df_full <- data.frame(selected, eco, incentive)   # theta excluded — unobserved
+
+# Naive OLS: ignores selection → eco coefficient is DOWNWARD BIASED because
+# eco arm selects in more low-theta participants (lower average WTP)
+naive <- lm(wtp ~ eco, data = df_hk)
+
+# Heckman Stage 1: probit of completion on eco + incentive (instrument)
+# Note: theta is excluded (unobserved); incentive is the identifying instrument.
+# The continuous incentive creates a smooth IMR function → no collinearity.
+stage1 <- glm(selected ~ eco + incentive, data = df_full,
+              family = binomial(link = "probit"))
+
+# Inverse Mills ratio (IMR) for completers — absorbs the selection-on-theta
+xb  <- predict(stage1)[selected == 1]
+imr <- dnorm(xb) / pnorm(xb)
+
+# Heckman Stage 2: includes IMR to correct for selective attrition
+heckman <- lm(wtp ~ eco + imr, data = cbind(df_hk, imr = imr))
+
+cat(sprintf("Completion rate: %.1f%% overall  |  Eco: %.1f%%  |  Control: %.1f%%\n",
+            100 * mean(selected),
+            100 * mean(selected[eco == 1]),
+            100 * mean(selected[eco == 0])))
+cat(sprintf("Mean theta among completers — Eco: %.2f  |  Control: %.2f  (gap creates bias)\n",
+            mean(theta[selected == 1 & eco == 1]),
+            mean(theta[selected == 1 & eco == 0])))
+
+heck_tab <- data.frame(
+  Model = c("Naive OLS (ignores selection)", "Heckman 2-step (corrects attrition)"),
+  `Eco-label coefficient` = c(round(coef(naive)["eco"], 3),
+                               round(coef(heckman)["eco"], 3)),
+  `95% CI (low)` = c(round(confint(naive)["eco", 1], 3),
+                      round(confint(heckman)["eco", 1], 3)),
+  `95% CI (high)` = c(round(confint(naive)["eco", 2], 3),
+                       round(confint(heckman)["eco", 2], 3)),
+  `True value` = 0.50,
+  check.names = FALSE
+)
+
+kable(heck_tab,
+      caption = paste0("Heckman correction: differential attrition creates downward bias in naive OLS. ",
+                       "Eco arm attracts low-theta completers; control arm retains only high-theta ones. ",
+                       "True eco-label effect = $0.50."))
+```
+
+Notice how the naive OLS estimate is **downward biased**: the eco condition attracted some low-theta ("curious but not eco-minded") completers who would not have bothered with the control condition. These participants bring down the mean WTP in the eco arm, understating the true eco-label effect. The control arm retained only high-theta (genuinely motivated) completers with high baseline WTP regardless. The Heckman correction uses the IMR to account for this differential attrition and recovers an estimate closer to the true $0.50 value.
+
+### Censored Data Models (Tobit)
+
+In the eco-coffee WTP study, participants could not state WTP below $1 (floor) or above $10 (ceiling). In many studies, the outcome is **censored** — truncated at a boundary because the measurement instrument or the context prevents observing values beyond a threshold.
+
+**Consequence of ignoring censoring:** OLS on a censored outcome is biased and inconsistent. Observations piled at the ceiling (e.g., everyone stating exactly $10.00 WTP) look identical to OLS but represent unobserved heterogeneity (some would have stated $12 or $15 if allowed).
+
+The **Tobit model** explicitly models the censoring threshold and recovers the latent distribution:
+
+$$Y^* = X\beta + \varepsilon, \quad Y = \max(Y_{\text{lower}}, \min(Y^*, Y_{\text{upper}}))$$
+
+```{r tobit-demo}
+#| code-summary: "▶ Simulate: OLS vs. Tobit on censored WTP data"
+
+if (!requireNamespace("AER", quietly = TRUE)) install.packages("AER")
+library(AER)
+
+set.seed(2026)
+N_tb   <- 1200   # large N for stable Tobit estimates (Tobit MLE is less efficient than OLS)
+eco_tb <- rep(0:1, each = N_tb / 2)
+
+# ── Latent (true) WTP ─────────────────────────────────────────────────────────
+# True eco-label effect = $0.90 on the latent scale.
+# Mean = 1.2 (control arm) with sd = 1.8 places ~25% of latent WTPs below $0.
+# High censoring creates clear OLS attenuation; N = 1200 makes Tobit converge
+# reliably to 0.90 without overshoot.
+wtp_lat <- 1.2 + 0.90 * eco_tb + rnorm(N_tb, 0, 1.8)
+
+# Observed WTP: censored at $0 (participants state "I would not pay anything")
+wtp_obs      <- pmax(wtp_lat, 0)
+pct_censored <- mean(wtp_obs == 0)
+
+cat(sprintf("Floor-censored observations: %d / %d  (%.1f%%)\n",
+            sum(wtp_obs == 0), N_tb, 100 * pct_censored))
+
+# OLS on the censored observed values: attenuated toward zero
+ols_tb <- lm(wtp_obs ~ eco_tb)
+
+# Tobit: models the latent WTP as normal, recovering the true coefficient
+tobit_tb <- tobit(wtp_obs ~ eco_tb, left = 0)
+
+cens_tab <- data.frame(
+  Model    = c("OLS (ignores censoring)", "Tobit (corrects for censoring)"),
+  `Eco coefficient` = c(round(coef(ols_tb)["eco_tb"], 3),
+                         round(coef(tobit_tb)["eco_tb"], 3)),
+  `True value` = 0.90,
+  `% censored` = paste0(round(pct_censored * 100, 1), "%"),
+  check.names = FALSE
+)
+
+kable(cens_tab,
+      caption = paste0("OLS vs. Tobit on floor-censored WTP (true eco effect = $0.90). ",
+                       "~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."))
+```
+
+::: {.callout-note}
+## Looking ahead in Module 3
+
+The selection and censored-data models above are a first pass at a much richer literature. The remainder of this module will formalize the causal inference frameworks (potential outcomes / Rubin causal model, DAGs / Pearl's do-calculus) that make precise which assumptions each model requires, and introduce more general solutions:
+
+- **Covariate matching** — pairing treated and control units on observed characteristics to reduce confounding
+- **Propensity score methods** (propensity matching, inverse probability weighting, doubly-robust estimators) for observational settings where selection is driven by observed covariates
+- **Instrumental variables (IV)** for endogenous regressors — the general solution to the exclusion restriction problem in Part 2
+- **Difference-in-differences and panel methods** for settings with longitudinal structure
+- **Regression discontinuity** for settings where treatment is assigned by a threshold rule
+- **Mediation analysis** — formalizing the decomposition approach we introduced in this module, with careful attention to the causal assumptions required for valid mediation inference
+
+The language we have built here — exchangeability, exclusion restriction, discriminant validity of X, nomological net of Y — will carry through directly into that causal inference framework.
+:::
+
+---
+
+# Part 2: Selection on Observables {#sec-m3-part2}
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={c4e4767b-beb7-4702-82bf-5717967f663e}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 3 Part 2: Selection on Observables"></iframe>
+
+## The Problem: Consumers Choose to Buy Eco-Labelled Products {#sec-obs-problem}
+
+Outside the lab, consumers freely *choose* whether to pick up the eco-labelled bag of coffee. This creates **selection bias**. The DGP below adds two realistic complications beyond Part 1:
+
+1. **Non-linear confounding**: environmental concern has a *quadratic* effect on baseline WTP and *interacts* with income. A consumer with extremely high env-concern sees a doubly large WTP boost. Simple linear regression will miss this.
+2. **Interaction in the propensity score**: the probability of buying eco-labelled coffee depends on the *joint* level of env-concern and income, not just their individual levels.
+
+These features mean that naive and simple-linear corrections will have remaining bias, while flexible and doubly-robust methods will do better.
+
+```{r obs-dgs}
+#| code-summary: "▶ Simulate observational data with non-linear confounding"
+set.seed(2024)
+N <- 2000
+
+env        <- rnorm(N, 0, 1)
+price_sens <- rnorm(N, 0, 1)
+income     <- rnorm(N, 0, 1)
+age        <- round(rnorm(N, 38, 12))
+
+# Non-linear outcome model: env has quadratic effect + env:income interaction
+# Linear regression misses these → remaining bias after covariate adjustment
+Y0 <- pmax(1, pmin(10,
+  5.20 + 0.80*env - 0.50*price_sens + 0.30*income +
+  0.25*env^2 + 0.18*env*income +
+  rnorm(N, 0, 0.85)
+))
+
+ITE <- 0.55 + 0.65*env - 0.38*price_sens + rnorm(N, 0, 0.35)
+Y1  <- pmax(1, pmin(10, Y0 + ITE))
+
+# True PS includes env:income interaction
+# Standard logit (no interaction) will slightly misspecify the PS
+ps_true   <- plogis(-0.40 + 0.95*env + 0.42*income - 0.32*price_sens + 0.14*env*income)
+treat_obs <- rbinom(N, 1, ps_true)
+Y_obs     <- ifelse(treat_obs==1, Y1, Y0)
+
+# Pre-compute nonlinear features for use in flexible models
+env_sq      <- env^2
+env_income  <- env * income
+
+df_obs <- tibble(id=1:N, treat=treat_obs, Y_obs, Y0, Y1, ITE,
+                 env, price_sens, income, age, env_sq, env_income, ps_true)
+
+ATE_true_obs <- mean(Y1 - Y0)
+ATT_true_obs <- mean(ITE[treat_obs==1])
+cat(sprintf("True ATE = %.3f  |  True ATT = %.3f  |  Treatment rate = %.1f%%\n",
+            ATE_true_obs, ATT_true_obs, 100*mean(treat_obs)))
+```
+
+```{r naive-bias, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Show why naive comparison overestimates the eco-label effect"
+naive_diff <- mean(Y_obs[treat_obs==1]) - mean(Y_obs[treat_obs==0])
+cat(sprintf("True ATE             = %.3f\nNaive diff-in-means  = %.3f\nBias                 = +%.3f\n",
+            ATE_true_obs, naive_diff, naive_diff - ATE_true_obs))
+
+bind_rows(
+  tibble(group="Eco-label buyers",     env=env[treat_obs==1]),
+  tibble(group="Non-eco-label buyers", env=env[treat_obs==0])
+) |>
+  ggplot(aes(x=env, fill=group)) +
+  geom_density(alpha=0.55) +
+  scale_fill_manual(values=c("Eco-label buyers"=clr_eco,"Non-eco-label buyers"=clr_ctrl)) +
+  labs(x="Environmental Concern (standardised)", y="Density",
+       title="Eco-label buyers have higher environmental concern AND higher baseline WTP",
+       subtitle="Positive selection on a cause of the outcome inflates the naive comparison",
+       fill=NULL) +
+  theme_mod3()
+```
+
+## Regression Adjustment {#sec-reg-adj}
+
+**What it does:** Controls for confounders in the outcome regression, comparing eco-label buyers and non-buyers who are *similar on measured covariates*.
+
+**Intuition:** Among consumers with the same env-concern, income, and price-sensitivity, any remaining WTP difference is more plausibly causal. But if the true relationship between covariates and WTP is *non-linear*, a linear regression will not fully remove the confounding.
+
+```{r regression-adjustment}
+#| code-summary: "▶ Linear vs. flexible regression adjustment"
+m_naive   <- lm(Y_obs ~ treat, data=df_obs)
+m_linear  <- lm(Y_obs ~ treat + env + price_sens + income, data=df_obs)
+m_flex    <- lm(Y_obs ~ treat + env + price_sens + income + env_sq + env_income, data=df_obs)
+
+bind_rows(
+  tidy(m_naive)  |> mutate(model="1. Unadjusted"),
+  tidy(m_linear) |> mutate(model="2. Linear adjustment"),
+  tidy(m_flex)   |> mutate(model="3. Flexible adjustment\n(+ env² + env×income)")
+) |>
+  filter(term=="treat") |>
+  transmute(Model=model, Estimate=round(estimate,3), SE=round(std.error,3),
+            `95% CI`=sprintf("[%.3f, %.3f]",estimate-1.96*std.error,estimate+1.96*std.error)) |>
+  add_row(Model="True ATE", Estimate=round(ATE_true_obs,3), SE=NA, `95% CI`="—") |>
+  knitr::kable(caption="Flexible regression (with non-linear terms) gets closer to the true ATE than linear")
+```
+
+::: {.callout-tip}
+The flexible model including `env²` and `env × income` tracks the true ATE noticeably better than the linear adjustment. The lesson: **the form of your covariate adjustment matters**. If you don't know the true functional form (you never do in practice), doubly robust estimation provides insurance.
+:::
+
+## Inverse Probability Weighting (IPW) {#sec-ipw}
+
+**What it does:** Reweights each observation by the inverse of its probability of being in its actual group, creating a pseudo-population where eco-label buyers and non-buyers look like random draws from the same population.
+
+**Concrete weights:**
+- An eco-conscious, high-income consumer (PS = 0.85) who buys eco-labelled coffee: weight = $1/0.85 = 1.18$ — not surprising, downweighted.
+- A price-sensitive, low-income consumer (PS = 0.08) who buys eco-labelled coffee: weight = $1/0.08 = 12.5$ — very surprising, heavily upweighted.
+
+**Entropy balancing** (via `WeightIt`) takes this further: instead of estimating a parametric PS model, it directly finds weights that exactly balance the *moments* (means, variances, and cross-products) of the covariate distribution between groups. No model to misspecify.
+
+```{r ipw}
+#| code-summary: "▶ Standard IPW vs. entropy-balanced IPW"
+# Standard IPW: logistic regression on linear terms (misses interaction)
+ps_logit <- glm(treat ~ env + price_sens + income, data=df_obs, family=binomial)
+ps_hat   <- fitted(ps_logit)
+
+df_obs <- df_obs |>
+  mutate(ps_hat  = ps_hat,
+         ipw_wt  = ifelse(treat==1, 1/ps_hat, 1/(1-ps_hat)),
+         # Stabilised weights (reduces variance from extreme PS values)
+         ipw_stab= ifelse(treat==1, mean(treat)/ps_hat, mean(1-treat)/(1-ps_hat)))
+
+ATE_ipw_raw   <- with(df_obs,
+  weighted.mean(Y_obs[treat==1], ipw_wt[treat==1]) -
+  weighted.mean(Y_obs[treat==0], ipw_wt[treat==0]))
+ATE_ipw_stab  <- lm(Y_obs ~ treat, data=df_obs, weights=ipw_stab) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+# Entropy balancing: directly balance means + variances + covariances
+# Includes quadratic and interaction terms for thorough moment matching
+wb_ebal <- weightit(treat ~ env + price_sens + income + env_sq + env_income,
+                    data=df_obs, method="ebal", estimand="ATE")
+ATE_ebal <- lm(Y_obs ~ treat, data=df_obs, weights=wb_ebal$weights) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+cat(sprintf(
+  "True ATE              = %.3f\nIPW (standard logit)  = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\n",
+  ATE_true_obs, ATE_ipw_raw, ATE_ipw_stab, ATE_ebal
+))
+```
+
+```{r ps-overlap, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Propensity score overlap and entropy-balanced weight distribution"
+p_overlap <- df_obs |>
+  mutate(group=ifelse(treat==1,"Eco-label buyers","Non-buyers")) |>
+  ggplot(aes(x=ps_hat, fill=group)) +
+  geom_histogram(bins=40, alpha=0.65, position="identity") +
+  geom_vline(xintercept=c(0.05,0.95), linetype="dashed", colour="firebrick") +
+  scale_fill_manual(values=c("Eco-label buyers"=clr_eco,"Non-buyers"=clr_ctrl)) +
+  labs(x="Estimated PS", y="Count", title="PS overlap", fill=NULL,
+       subtitle="Red lines = extreme weights zone") +
+  theme_mod3()
+
+p_wts <- tibble(wt=wb_ebal$weights, group=ifelse(treat_obs==1,"Treated","Control")) |>
+  ggplot(aes(x=wt, fill=group)) +
+  geom_histogram(bins=40, alpha=0.7, position="identity") +
+  scale_fill_manual(values=c("Treated"=clr_eco,"Control"=clr_ctrl)) +
+  labs(x="Entropy-balanced weight", y="Count",
+       title="Entropy-balanced weights",
+       subtitle="Well-behaved: no extreme spikes", fill=NULL) +
+  theme_mod3()
+
+p_overlap + p_wts
+```
+
+::: {.callout-warning}
+## IPW can be unstable with extreme propensity scores
+
+Unstabilised IPW weights become enormous near PS = 0 or 1. Entropy balancing avoids this by finding the *minimum-variance* weights that achieve balance — it never requires extreme weights to correct for outlier PS values.
+:::
+
+## Covariate Matching (Mahalanobis) {#sec-matching}
+
+**What it does:** For each eco-label buyer, finds the most similar non-buyer based on raw covariate values (Mahalanobis distance accounts for covariate correlations). The matched sample mimics a randomised experiment — but only for the *treated* group (estimates ATT, not ATE).
+
+```{r covariate-matching}
+#| code-summary: "▶ 1:1 Mahalanobis nearest-neighbour matching"
+m_match_maha <- matchit(treat ~ env + price_sens + income, data=df_obs,
+                        method="nearest", distance="mahalanobis", ratio=1)
+df_matched_maha <- match.data(m_match_maha)
+ATT_match_maha  <- lm(Y_obs ~ treat, data=df_matched_maha, weights=weights) |>
+  tidy() |> filter(term=="treat") |> pull(estimate)
+
+cat(sprintf("True ATT (treated group)              = %.3f\nMatching (Mahalanobis, 1:1 NN) est.   = %.3f\n",
+            ATT_true_obs, ATT_match_maha))
+```
+
+## Propensity Score Matching (PSM) {#sec-psm}
+
+**What it does:** Condenses all covariates into a single scalar — the propensity score — and matches on that. The catch: **the PS model must be specified correctly**. Different models give different matched samples and often quite different estimates.
+
+```{r psm-comparison, fig.height=5.5, fig.width=10}
+#| code-summary: "▶ Compare five PS model specifications"
+# Misspecified models (common practice — miss the env:income interaction)
+m_ps1 <- matchit(treat ~ env + price_sens + income,
+                 data=df_obs, method="nearest", distance="logit")
+m_ps2 <- matchit(treat ~ env * price_sens + income,
+                 data=df_obs, method="nearest", distance="probit")
+m_ps3 <- matchit(treat ~ poly(env,2) + poly(price_sens,2) + income,
+                 data=df_obs, method="nearest", distance="logit")
+m_ps4 <- matchit(treat ~ env + price_sens + income,
+                 data=df_obs, method="nearest", distance="logit",
+                 caliper=0.1, std.caliper=TRUE)
+# Correctly specified: matches the true DGP (includes env^2 and env:income)
+m_ps5 <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+                 data=df_obs, method="nearest", distance="logit",
+                 caliper=0.15, std.caliper=TRUE)
+
+results_psm <- map_dfr(
+  list("1. Logit (linear)"              = m_ps1,
+       "2. Probit + env×price"          = m_ps2,
+       "3. Logit + poly(env,2)"         = m_ps3,
+       "4. Logit + caliper (0.1 SD)"    = m_ps4,
+       "5. Logit + env²+env×income\n+ caliper (correct PS)" = m_ps5),
+  function(m) {
+    d   <- match.data(m)
+    est <- lm(Y_obs ~ treat, data=d, weights=weights) |>
+      tidy() |> filter(term=="treat")
+    tibble(estimate=est$estimate, se=est$std.error,
+           n_matched=nrow(d[d$treat==1,]))
+  }, .id="PS model"
+)
+
+results_psm |>
+  mutate(lo=estimate-1.96*se, hi=estimate+1.96*se,
+         `N retained`=n_matched,
+         correct = str_detect(`PS model`, "correct")) |>
+  ggplot(aes(y=`PS model`, x=estimate, xmin=lo, xmax=hi,
+             colour=correct, shape=correct)) +
+  geom_vline(xintercept=ATT_true_obs, linetype="dashed", colour=clr_eco, linewidth=1) +
+  geom_vline(xintercept=ATE_true_obs, linetype="dotted", colour=clr_ctrl, linewidth=1) +
+  geom_pointrange(size=0.8) +
+  geom_text(aes(label=sprintf("N=%d", `N retained`), x=hi+0.03), hjust=0, size=3) +
+  annotate("text", x=ATT_true_obs+0.01, y=5.45,
+           label="True ATT", hjust=0, size=3.2, colour=clr_eco) +
+  annotate("text", x=ATE_true_obs+0.01, y=5.1,
+           label="True ATE", hjust=0, size=3.2, colour=clr_ctrl) +
+  scale_colour_manual(values=c("FALSE"="grey50","TRUE"="#b45309"),
+                      labels=c("Misspecified PS","Correctly specified PS")) +
+  scale_shape_manual(values=c("FALSE"=16,"TRUE"=18),
+                     labels=c("Misspecified PS","Correctly specified PS")) +
+  labs(x="ATT estimate — eco-label effect ($)", y=NULL, colour=NULL, shape=NULL,
+       title="PSM estimates converge on the true ATT only when the PS model is correctly specified",
+       subtitle="The correctly specified model (orange) recovers the true ATT most accurately") +
+  theme_mod3()
+```
+
+```{r covariate-balance, fig.height=5, fig.width=8}
+#| code-summary: "▶ Love plot: balance before and after correctly-specified PSM"
+love.plot(m_ps5, thresholds=c(m=0.1), stars="std",
+          title="Covariate balance: correctly specified PSM (env² + env×income + caliper)",
+          colors=c(clr_ctrl, clr_eco))
+```
+
+## Doubly Robust Estimation {#sec-doubly-robust}
+
+**What it does:** Combines an outcome model *and* a propensity score model. The estimate is consistent if **either** model is correctly specified — it only needs one to be right.
+
+Here both the outcome model and PS model include the non-linear terms (`env²`, `env × income`), so both are correctly specified. The DR estimate should perform best.
+
+```{r doubly-robust}
+#| code-summary: "▶ AIPW with correctly-specified outcome and PS models"
+# Outcome models (correctly specified: include env^2 and env:income)
+mu1_model <- lm(Y_obs ~ env + price_sens + income + env_sq + env_income,
+                data=df_obs[df_obs$treat==1,])
+mu0_model <- lm(Y_obs ~ env + price_sens + income + env_sq + env_income,
+                data=df_obs[df_obs$treat==0,])
+mu1_hat   <- predict(mu1_model, newdata=df_obs)
+mu0_hat   <- predict(mu0_model, newdata=df_obs)
+
+# PS model (correctly specified)
+ps_hat_dr <- fitted(glm(treat ~ env + price_sens + income + env_sq + env_income,
+                        data=df_obs, family=binomial))
+
+# AIPW estimator
+Y_v <- df_obs$Y_obs; D_v <- df_obs$treat
+tau_dr <- (mu1_hat - mu0_hat) +
+          D_v*(Y_v - mu1_hat)/ps_hat_dr -
+          (1-D_v)*(Y_v - mu0_hat)/(1-ps_hat_dr)
+
+ATE_dr <- mean(tau_dr)
+SE_dr  <- sd(tau_dr)/sqrt(N)
+
+cat(sprintf(
+  "True ATE              = %.3f\nNaive estimate        = %.3f\nLinear reg. adj.      = %.3f\nFlexible reg. adj.    = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\nDR/AIPW (correct)     = %.3f  (SE = %.3f)\n",
+  ATE_true_obs, naive_diff,
+  coef(m_linear)["treat"], coef(m_flex)["treat"],
+  ATE_ipw_stab, ATE_ebal,
+  ATE_dr, SE_dr
+))
+```
+
+## How Well Do All Section 2 Methods Recover the True ATE? {#sec-sec2-comparison}
+
+```{r section2-summary-plot, fig.height=5.5, fig.width=10, echo=FALSE}
+#| code-summary: "▶ Comprehensive comparison of all observational estimators"
+tibble(
+  Method   = c(
+    "Naive (no adjustment)",
+    "Linear regression\nadjustment",
+    "Flexible regression\n(env² + env×income)",
+    "IPW — stabilised\n(logit, linear PS)",
+    "Entropy balancing\n(moment-matching IPW)",
+    "Matching — Mahalanobis\n1:1 NN",
+    "PSM — misspecified\n(logit linear)",
+    "PSM — correctly\nspecified + caliper",
+    "Doubly Robust\nAIPW (correct models)"
+  ),
+  Estimate = c(
+    naive_diff,
+    coef(m_linear)["treat"],
+    coef(m_flex)["treat"],
+    ATE_ipw_stab,
+    ATE_ebal,
+    ATT_match_maha,
+    results_psm$estimate[1],
+    results_psm$estimate[5],
+    ATE_dr
+  ),
+  Target  = c("ATE","ATE","ATE","ATE","ATE","ATT","ATT","ATT","ATE"),
+  Quality = c("Naive","Basic","Flexible","IPW","Advanced","Matching","PSM","PSM","Advanced")
+) |>
+  mutate(Method  = fct_inorder(Method),
+         Bias    = Estimate - ATE_true_obs) |>
+  ggplot(aes(y=Method, x=Estimate, colour=Quality, shape=Target)) +
+  geom_vline(xintercept=ATE_true_obs, linetype="dashed", colour=clr_eco,  linewidth=1.1) +
+  geom_vline(xintercept=ATT_true_obs, linetype="dotted", colour=clr_ctrl, linewidth=1.1) +
+  geom_point(size=4) +
+  annotate("text", x=ATE_true_obs+0.01, y=9.45,
+           label="True ATE", hjust=0, size=3.3, colour=clr_eco, fontface="bold") +
+  annotate("text", x=ATT_true_obs+0.01, y=9.0,
+           label="True ATT", hjust=0, size=3.3, colour=clr_ctrl) +
+  scale_colour_manual(
+    values=c(Naive="#c0392b", Basic="#e67e22", Flexible="#f1c40f",
+             IPW="#3498db", Matching="#9b59b6", PSM="#16a085", Advanced="#2d6a4f")) +
+  scale_shape_manual(values=c(ATE=16, ATT=18)) +
+  labs(x="Estimate ($)", y=NULL, colour="Method class", shape="Target estimand",
+       title="Nine estimators compared against the known true ATE and ATT",
+       subtitle="Non-linear DGP: methods that model non-linearity or balance moments perform best") +
+  theme_mod3()
+```
+
+::: {.callout-tip}
+## What the gradient shows
+
+| Method class | Why it performs that way |
+|---|---|
+| **Naive** | No correction — pure selection bias |
+| **Linear regression** | Removes linear confounding; missing `env²` and `env×income` leaves residual bias |
+| **Flexible regression** | Includes non-linear terms → less bias |
+| **IPW (stabilised)** | PS model also misspecified (linear logit) → some remaining bias |
+| **Entropy balancing** | Directly balances covariate *moments* — robust to PS misspecification |
+| **Matching/PSM** | Targets ATT (higher than ATE because treated have stronger responses) |
+| **Doubly Robust** | Both outcome model AND PS model correctly specified → lowest bias |
+
+The **doubly robust** and **entropy balancing** approaches consistently outperform simpler methods when the true confounding is non-linear. The correctly specified PSM recovers the ATT accurately; the misspecified PSM does less well.
+:::
+
+## Synthetic Controls {#sec-synth}
+
+What if you only have **one treated unit** — say, AlterEco's flagship Rotterdam store introduced eco-labels?
+
+```{r synthetic-control, fig.height=5, fig.width=9}
+#| code-summary: "▶ Synthetic control for Rotterdam flagship store"
+set.seed(2024)
+n_stores <- 21; n_pre <- 20; n_post <- 10; treat_store <- 1
+store_fe <- rnorm(n_stores, 0, 0.8)
+
+panel_df <- expand.grid(store=1:n_stores, period=1:(n_pre+n_post)) |>
+  as_tibble() |>
+  mutate(treated=(store==treat_store & period>n_pre),
+         WTP=5.5 + store_fe[store] + 0.02*(period-n_pre) +
+             treated*0.80 + rnorm(n(), 0, 0.40))
+
+pre_means <- panel_df |> filter(period<=n_pre) |>
+  group_by(store) |> summarise(pre_mean=mean(WTP), .groups="drop")
+treated_pre_mean <- pre_means$pre_mean[pre_means$store==treat_store]
+
+control_stores <- pre_means |> filter(store!=treat_store) |>
+  mutate(dist=abs(pre_mean-treated_pre_mean), w_raw=1/(dist+0.01), w=w_raw/sum(w_raw))
+
+synth_ts <- panel_df |> filter(store!=treat_store) |>
+  left_join(control_stores[,c("store","w")], by="store") |>
+  group_by(period) |> summarise(WTP_synth=weighted.mean(WTP,w), .groups="drop") |>
+  mutate(series="Synthetic Rotterdam")
+
+treated_ts <- panel_df |> filter(store==treat_store) |>
+  dplyr::select(period, WTP) |> rename(WTP_synth=WTP) |>
+  mutate(series="Rotterdam (actual)")
+
+bind_rows(synth_ts, treated_ts) |>
+  ggplot(aes(x=period, y=WTP_synth, colour=series, linetype=series)) +
+  geom_line(linewidth=1) +
+  geom_vline(xintercept=n_pre+0.5, linetype="dashed", colour="grey50") +
+  annotate("text", x=n_pre+1, y=5.0, label="Eco-label\nintroduced", hjust=0, size=3.5, colour="grey40") +
+  scale_colour_manual(values=c("Rotterdam (actual)"=clr_eco,"Synthetic Rotterdam"=clr_ctrl)) +
+  scale_linetype_manual(values=c("Rotterdam (actual)"="solid","Synthetic Rotterdam"="dashed")) +
+  labs(x="Period", y="Mean WTP ($)", colour=NULL, linetype=NULL,
+       title="Synthetic Control: Rotterdam vs. its synthetic twin built from control stores",
+       subtitle="Good pre-period fit validates the synthetic match; gap after dashed line = causal effect") +
+  theme_mod3()
+```
+
+---
