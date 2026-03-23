@@ -372,94 +372,121 @@ The Latin Square is efficient because it uses design structure to study multiple
 
 A metastudy is a single, pre-registered study that simultaneously tests many experimental factors — what DeKay et al. call *facets* — by crossing them in a balanced factorial design. Each participant sees one randomly sampled combination of facet levels (a *microstudy*); the researcher estimates each facet's main effect by contrasting all participants who received the high level of that facet against all who received the low level, averaged across all other facets.
 
-**Why this provides more power per hypothesis than running separate A/B tests:**
+**Why power INCREASES as more scenarios are crossed:**
 
-The key insight is about how the fixed participant budget is allocated. In a metastudy, all N participants are exposed to all K factors simultaneously. When estimating the effect of any one factor, the *entire* sample contributes to that estimate — N/2 participants in each "level" of that factor — regardless of how many other factors are also being tested. This is because the factors are orthogonally assigned, so each factor's effect is estimated independently of the others using the full N.
+In a metastudy, each participant sees **one** randomly sampled combination of scenario levels — one *microstudy*. You have K microstudies total, each with n₁ = N/K participants. The researcher estimates the average main effect across all K microstudies using a meta-analytic average.
 
-By contrast, if you run K separate A/B tests and divide your budget equally, each test gets only N/K participants. Power for each test depends on N/K, which shrinks as K grows.
+DeKay et al. (2022, Eq. 2) derive the standard error of that meta-analytic estimate:
 
-**The comparison with fixed total N:** if you have N = 400 participants and want to test K hypotheses:
-- **Metastudy:** all 400 test all K factors. Each factor is estimated using all 400 participants → power stays constant.
-- **Separate A/B tests:** 400/K participants per factor → as K grows, per-test sample shrinks → power falls.
+$$\text{SE} = \sqrt{\frac{\tau^2}{K} + \frac{\sigma^2}{N}}$$
 
-At K = 1, the two designs are *identical*: a single A/B test with 400 participants. As K grows, they diverge sharply. As DeKay et al. (2022) put it, metastudies "intentionally and completely sacrifice power at the level of the individual microstudies to achieve greater power for testing the effects of interest at the aggregate level" — a counterintuitive but mathematically principled trade-off.
+where $\tau^2$ is the variance of the true effect *across scenarios* (effect heterogeneity — some contexts produce a stronger effect than others), $\sigma^2$ is the within-person response variance, and $N$ is the total sample. Two terms, and they behave very differently as $K$ grows:
+
+- **$\sigma^2/N$ is fixed.** It is set entirely by your total budget. Adding more microstudies does not change it.
+- **$\tau^2/K$ shrinks** as K grows. Each new microstudy samples another region of the scenario space, averaging out more of the between-scenario heterogeneity.
+
+This means that **for any fixed total N, power increases as you add more microstudies** — even though each individual microstudy gets fewer participants. The gain comes from sampling the method space more densely, not from adding people.
+
+Contrast this with running K separate, independent A/B tests using the same total budget. Each separate test gets only N/K participants, so its standard error grows as K increases. The metastudy and the separate-tests approach start from the same place at K = 1 and then diverge sharply in opposite directions.
 
 ```{r metastudy-power, fig.height=5.5, fig.width=12}
-#| code-summary: "▶ Simulate: metastudy maintains power as K grows; separate A/B tests collapse"
+#| code-summary: "▶ Plot: metastudy power rises with K; separate A/B tests collapse"
 
-set.seed(2026)
-K_vec   <- 1:7       # 1 to 7 factors (stop at K = 7)
-N_total <- 400       # fixed total budget (same for both designs)
-d       <- 0.30      # true effect size per factor
-n_sim   <- 1000      # simulations per cell
+# ── Parameters (inspired by DeKay et al., 2022, Experiment 2) ────────────────
+# d   = average true effect size (Cohen's d) across all scenarios
+# tau = SD of true effects across scenarios (heterogeneity); tau/d ≈ 0.63
+#       mirrors the paper's reported ratio of ~0.71 for the framing effect
+# N   = fixed total participant budget
+N_total <- 400
+d       <- 0.40
+tau     <- 0.25
+sigma   <- 1.0
+alpha   <- 0.05
+K_vec   <- c(1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30)
 
-# ── Metastudy: all N=400 test all K factors simultaneously (orthogonal OLS) ────
-# Key: each factor is assigned orthogonally, so estimating Factor 1 uses all N
-# participants (N/2 per level), regardless of K. SE ≈ 2*sigma/sqrt(N) = constant.
-# At K=1 this is identical to a single A/B test with N participants.
-sim_meta_power <- function(N, K, d, n_sim = 500) {
-  mean(replicate(n_sim, {
-    # Random ±0.5 assignment to each of K orthogonal factors
-    X   <- matrix(sample(c(-0.5, 0.5), N * K, replace = TRUE), nrow = N)
-    Y   <- X %*% rep(d, K) + rnorm(N, 0, 1)
-    fit <- lm(Y ~ X)
-    # p-value for Factor 1 (all factors symmetric by design)
-    coef(summary(fit))[2, 4] < 0.05
-  }))
+# ── Analytical power (no simulation needed — formula is exact) ───────────────
+#
+# Metastudy: K microstudies, each n1 = N/K participants (between-person design)
+#   SE_meta = sqrt(tau^2 / K  +  sigma^2 / N)
+#   Note: sigma^2 / (n1 * K) = sigma^2 / ((N/K) * K) = sigma^2 / N — fixed!
+#   Only the tau^2/K term shrinks as K grows → SE shrinks → power rises.
+#
+# Separate A/B tests: K independent studies, each with N/K participants
+#   SE_AB = sigma * sqrt(4 / floor(N/K))   [two arms of N/2K each]
+#   As K grows: floor(N/K) shrinks → SE_AB grows → power falls.
+
+power_fn <- function(d, se, alpha = 0.05) {
+  z <- qnorm(1 - alpha / 2)
+  pnorm(d / se - z) + pnorm(-d / se - z)  # two-sided normal approximation
 }
 
-# ── Separate A/B tests: total N = 400 split EQUALLY among K tests ─────────────
-# Each of the K factors gets its own study with N/K participants.
-# At K=1: N_per_test = 400 → identical to metastudy (K=1 case) → equal power.
-# As K grows: N_per_test = 400/K shrinks → power falls.
-sim_ab_power <- function(N_per_test, d, n_sim = 500) {
-  n_t <- ceiling(N_per_test / 2)
-  n_c <- floor(N_per_test / 2)
-  mean(replicate(n_sim, {
-    obs <- mean(rnorm(n_t,  d / 2, 1)) - mean(rnorm(n_c, -d / 2, 1))
-    se  <- sqrt(1/n_t + 1/n_c)
-    abs(obs / se) > qnorm(0.975)
-  }))
-}
+meta_se_fn <- function(K) sqrt(tau^2 / K + sigma^2 / N_total)
+ab_se_fn   <- function(K) sigma * sqrt(4 / pmax(4, floor(N_total / K)))
 
-meta_powers <- sapply(K_vec, function(K) sim_meta_power(N_total, K, d, n_sim))
-ab_powers   <- sapply(K_vec, function(K) sim_ab_power(floor(N_total / K), d, n_sim))
+meta_label <- paste0("Metastudy: K microstudies, N = ", N_total, " total")
+ab_label   <- paste0("Separate A/B tests: N = ", N_total, " / K per test")
 
 power_df <- data.frame(
-  n_factors = rep(K_vec, 2),
-  power     = c(meta_powers, ab_powers),
-  design    = rep(c("Metastudy (total N = 400; all factors tested simultaneously)",
-                    "Separate A/B tests (N = 400 / K per test)"),
-                 each = length(K_vec))
+  K      = rep(K_vec, 2),
+  power  = c(sapply(K_vec, function(K) power_fn(d, meta_se_fn(K))),
+             sapply(K_vec, function(K) power_fn(d, ab_se_fn(K)))),
+  design = rep(c(meta_label, ab_label), each = length(K_vec))
 )
 
-ggplot(power_df, aes(x = n_factors, y = power,
-                     color = design, group = design)) +
+# ── SE-component annotation data ─────────────────────────────────────────────
+se_df <- data.frame(K = K_vec) |>
+  mutate(
+    se_total    = meta_se_fn(K),
+    se_floor    = sqrt(sigma^2 / N_total),   # lower bound: tau^2/K → 0
+    se_tau_only = sqrt(tau^2 / K)            # heterogeneity component alone
+  )
+
+color_vals <- c("#2d6a4f", "#e63946")
+names(color_vals) <- c(meta_label, ab_label)
+
+ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
+  annotate("text", x = 30.5, y = 0.83, label = "80% power",
+           color = "gray40", size = 3.2, hjust = 1) +
+  # shaded region showing heterogeneity reduction benefit
+  geom_ribbon(
+    data = se_df,
+    aes(x = K,
+        ymin = power_fn(d, se_total),
+        ymax = power_fn(d, se_floor)),
+    inherit.aes = FALSE,
+    fill = "#2d6a4f", alpha = 0.10
+  ) +
   geom_line(linewidth = 1.3) +
   geom_point(size = 3.5) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
-  annotate("text", x = 7.05, y = 0.815, label = "80% power",
-           color = "gray40", size = 3.2, hjust = 0) +
-  scale_color_manual(
-    values = c("Metastudy (total N = 400; all factors tested simultaneously)" = "#2d6a4f",
-               "Separate A/B tests (N = 400 / K per test)"                   = "#e63946"),
-    name = NULL) +
+  annotate("text", x = 16, y = 0.90,
+           label = "Shaded area = power gain\nfrom reducing \u03c4\u00b2/K",
+           color = "#2d6a4f", size = 3.0, hjust = 0, fontface = "italic") +
+  scale_color_manual(values = color_vals, name = NULL) +
   scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  scale_x_continuous(breaks = K_vec) +
-  labs(x = "Number of factors tested (K)",
-       y = "Power per factor (d = 0.30)",
-       title = "Metastudy Maintains Power as K Grows; Separate A/B Tests Collapse",
-       subtitle = paste0(
-         "Both designs use the same total N = 400  \u00b7  d = 0.30  \u00b7  At K=1 both designs are identical (one A/B test, N=400)\n",
-         "Metastudy: all 400 contribute to each factor\u2019s estimate \u2192 power stays constant  \u00b7  ",
-         "Separate A/B: 400/K per test \u2192 power falls")) +
+  scale_x_continuous(breaks = c(1, 5, 10, 15, 20, 25, 30)) +
+  labs(
+    x        = "Number of microstudies / scenarios (K)",
+    y        = paste0("Power to detect average effect  (d = ", d, ")"),
+    title    = "Metastudy Power RISES with K; Separate A/B Tests Collapse",
+    subtitle = paste0(
+      "Both designs use N = ", N_total, " total  \u00b7  ",
+      "d = ", d, "  \u00b7  \u03c4 = ", tau,
+      " (SD of true effect across scenarios)\n",
+      "Metastudy SE = \u221a(\u03c4\u00b2/K + \u03c3\u00b2/N): ",
+      "the \u03c4\u00b2/K term shrinks as K grows, so SE falls and power rises  \u00b7  ",
+      "A/B SE \u221d 1/\u221a(N/K): shrinking budget per test collapses power"
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), legend.position = "top",
         legend.text = element_text(size = 9),
         plot.margin = margin(5, 30, 5, 5))
 ```
 
-**Reading the plot:** at K = 1, both designs are literally the same study — one A/B test with 400 participants — and achieve the same power (~85%). As K grows, the designs diverge. The metastudy *maintains* near-constant high power because all 400 participants contribute to each factor's estimate; the orthogonal design means Factor 1's SE is always ≈ 2/√N regardless of how many other factors are also being tested. Separate A/B tests collapse because the budget is divided: at K = 7, each test gets only 400/7 ≈ 57 participants, pushing power below 20%. The metastudy tests 7× as many hypotheses at the same power level using exactly the same resources.
+**Reading the plot:** at K = 1, the separate A/B test has higher power (~98%) because it runs one large, clean study with all 400 participants. The metastudy starts lower (~35%) because with only one microstudy you have no way to know whether your single chosen scenario is representative — the effect heterogeneity τ adds substantial uncertainty to the meta-analytic estimate. As K grows, those roles reverse. Each new microstudy samples a different corner of the scenario space, and the τ²/K term in the metastudy's SE formula shrinks rapidly. By K ≈ 5, the metastudy already matches and then exceeds the A/B test's power; by K = 15, the metastudy reaches near-ceiling power while the separate A/B tests have collapsed below 30%. The shaded region shows precisely how much of the metastudy's power gain comes from reducing the heterogeneity component — and it is substantial.
+
+The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
 
 **The connection to Section 3:** a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
 

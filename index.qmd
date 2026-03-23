@@ -1,6 +1,7 @@
 ---
 title: "Measurement, Experimentation & Causal Inference"
 subtitle: "Advanced Methods Workshop"
+toc: false
 ---
 
 This workshop is a three-module sequence designed for researchers in management and social science. Each module combines conceptual foundations with hands-on R tutorials and interactive simulations.
