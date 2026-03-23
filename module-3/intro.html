@@ -33,7 +33,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../module-3/tutorial.html" rel="next">
+<link href="../module-3/part1.html" rel="next">
 <link href="../module-2/part5.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -86,7 +86,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/index.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/index.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/intro.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -203,13 +203,13 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: When Exchangeability Breaks Down</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Design Solutions and Assignment Strategies</span></span></a>
   </div>
 </li>
       </ul>
@@ -225,14 +225,38 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/tutorial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
   </div>
 </li>
       </ul>
@@ -249,19 +273,18 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">14.1</span> Overview</a></li>
   <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link" data-scroll-target="#learning-goals"><span class="header-section-number">14.2</span> Learning Goals</a></li>
-  <li><a href="#slides" id="toc-slides" class="nav-link" data-scroll-target="#slides"><span class="header-section-number">14.3</span> Slides</a></li>
-  <li><a href="#code-tutorial" id="toc-code-tutorial" class="nav-link" data-scroll-target="#code-tutorial"><span class="header-section-number">14.4</span> Code Tutorial</a></li>
-  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">14.5</span> Recommended Reading</a></li>
+  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">14.3</span> Recommended Reading</a></li>
+  <li><a href="#what-this-tutorial-is-about" id="toc-what-this-tutorial-is-about" class="nav-link" data-scroll-target="#what-this-tutorial-is-about">What This Tutorial Is About</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/index.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/index.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/intro.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></h1>
-<p class="subtitle lead">Did the Eco-Label Actually Cause Higher WTP?</p>
+<p class="subtitle lead">Causal Effects, Observational Methods, Natural Experiments, and Mediation</p>
 </div>
 
 
@@ -298,18 +321,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <hr>
 </section>
-<section id="slides" class="level2" data-number="14.3">
-<h2 data-number="14.3" class="anchored" data-anchor-id="slides"><span class="header-section-number">14.3</span> Slides</h2>
-<p><a href="../slides/Module-3-Causal-Inference.pptx" class="btn btn-outline-primary">Download Slides (.pptx)</a></p>
-<hr>
-</section>
-<section id="code-tutorial" class="level2" data-number="14.4">
-<h2 data-number="14.4" class="anchored" data-anchor-id="code-tutorial"><span class="header-section-number">14.4</span> Code Tutorial</h2>
-<p><a href="../module-3/tutorial.html" class="btn btn-primary">Go to Tutorial →</a></p>
-<hr>
-</section>
-<section id="recommended-reading" class="level2" data-number="14.5">
-<h2 data-number="14.5" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">14.5</span> Recommended Reading</h2>
+<section id="recommended-reading" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">14.3</span> Recommended Reading</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -341,6 +354,146 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p>All papers are available in the <code>Module 3 - Recommended Reading/</code> folder.</p>
+<hr>
+<style>
+#global-output-toggle {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center;
+  padding: 11px 24px;
+  background: #1e3a5f; border-top: 3px solid #4a90d9;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
+}
+#global-output-toggle span {
+  color: #c8d8ed; font-size: 0.85em; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase; margin-right: 6px;
+}
+body { padding-bottom: 70px !important; }
+.gtbtn {
+  padding: 9px 24px; color: #ffffff; border-radius: 7px;
+  font-size: 1em; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.2px; transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap; border: 2px solid transparent;
+}
+.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
+.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
+.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
+.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
+details.out-fold { margin: 6px 0 14px 0; }
+summary.out-fold-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 20px; background: #eef4fb;
+  border: 2px solid #4a90d9; border-radius: 7px; cursor: pointer;
+  font-size: 0.94em; font-weight: 700; color: #1a3a6b;
+  user-select: none; list-style: none; transition: background 0.12s;
+}
+summary.out-fold-btn::-webkit-details-marker { display: none; }
+summary.out-fold-btn:hover { background: #cfe2f7; }
+details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
+summary.out-fold-btn .fold-icon { font-size: 1em; }
+details[open] .fold-icon-closed { display: none; }
+details:not([open]) .fold-icon-open  { display: none; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var outputSels = ['.cell-output-stdout','.cell-output-stderr','.cell-output-display'];
+  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
+    if (el.closest('.callout') || el.closest('details.out-fold')) return;
+    var hasImg = !!el.querySelector('img, svg, canvas');
+    var hasTbl = !!el.querySelector('table');
+    var label  = hasImg ? '📊  Show plot' : hasTbl ? '📋  Show table' : '📄  Show output';
+    var det = document.createElement('details'); det.className = 'out-fold';
+    var sum = document.createElement('summary'); sum.className = 'out-fold-btn';
+    sum.innerHTML = '<span class="fold-icon fold-icon-closed">▶</span><span class="fold-icon fold-icon-open">▼</span>' + label;
+    el.parentNode.insertBefore(det, el); det.appendChild(sum); det.appendChild(el);
+  });
+  var bar = document.createElement('div'); bar.id = 'global-output-toggle';
+  bar.innerHTML = '<span>Quick controls:</span><button id="code-toggle-btn" class="gtbtn code-btn" onclick="toggleCode()">\u25bc Expand All Code</button><button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">\u25bc Expand All Output</button>';
+  document.body.appendChild(bar);
+});
+var codeOpen = false, outputOpen = false;
+function toggleCode() {
+  codeOpen = !codeOpen;
+  document.querySelectorAll('details').forEach(function(d) {
+    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) d.open = codeOpen;
+  });
+  var btn = document.getElementById('code-toggle-btn');
+  if (btn) btn.textContent = codeOpen ? '\u25b2 Collapse All Code' : '\u25bc Expand All Code';
+}
+function toggleOutput() {
+  outputOpen = !outputOpen;
+  document.querySelectorAll('details.out-fold').forEach(function(d) { d.open = outputOpen; });
+  var btn = document.getElementById('output-toggle-btn');
+  if (btn) btn.textContent = outputOpen ? '\u25b2 Collapse All Output' : '\u25bc Expand All Output';
+}
+</script>
+</section>
+<section id="what-this-tutorial-is-about" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="what-this-tutorial-is-about">What This Tutorial Is About</h2>
+<p>There is a single thread running through all three modules:</p>
+<blockquote class="blockquote">
+<p><strong>Your observable may not accurately reflect the latent quantity you want to study.</strong></p>
+</blockquote>
+<p>In <strong>Module 1</strong> that problem lived in your outcome variable — your scale picked up variance from constructs you never intended to measure. In <strong>Module 2</strong> it appeared in your treatment variable and your significance test — a manipulated treatment can inject multiple signals simultaneously, and a p-value only means what it means when randomisation is actually achieved.</p>
+<p>Both modules used the same running example: <strong>AlterEco Coffee’s eco-label experiment</strong>, where participants were randomly assigned to see (or not see) an eco-label and reported their willingness to pay (WTP, $1–$10).</p>
+<p>This module asks a harder set of questions — what if we cannot run that clean experiment?</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>What does “the effect” mean for an individual?</em></td>
+<td>Potential outcomes / treatment effect taxonomy</td>
+</tr>
+<tr class="even">
+<td><em>What if consumers freely choose eco-labelled products?</em></td>
+<td>Selection on observables</td>
+</tr>
+<tr class="odd">
+<td><em>What if a certification rule creates a natural threshold?</em></td>
+<td>Regression discontinuity</td>
+</tr>
+<tr class="even">
+<td><em>What if eco-labelling was rolled out by policy over time?</em></td>
+<td>Difference-in-differences</td>
+</tr>
+<tr class="odd">
+<td><em>Does the eco-label work <strong>because</strong> of perceived sustainability?</em></td>
+<td>Causal mediation analysis</td>
+</tr>
+</tbody>
+</table>
+<p>Every section uses simulated data with <strong>known true effects</strong> so you can see exactly when each method recovers the truth — and when it does not.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Learning Objectives
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Distinguish ATE, ATT, ATC, LATE, ITT, and CATE — and know which one answers your question</li>
+<li>Apply regression adjustment, IPW, covariate matching, propensity-score matching, entropy balancing, and doubly-robust estimation</li>
+<li>Conduct an RDD analysis and test its assumptions</li>
+<li>Implement DiD, an event study, and synthetic DiD</li>
+<li>Diagnose when standard mediation gives wrong answers (three structural failure modes)</li>
+<li>Use <code>robmed</code> and <code>mediation</code> packages; interpret sensitivity analyses</li>
+<li>Compare bias across methods using a known data-generating system</li>
+</ul>
+</div>
+</div>
+<hr>
 
 
 </section>
@@ -799,13 +952,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-2/part5.html" class="pagination-link" aria-label="Part 5: Experimental Design Strategies">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies</span></span>
+      <a href="../module-2/part5.html" class="pagination-link" aria-label="Part 5: Design Solutions and Assignment Strategies">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Design Solutions and Assignment Strategies</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-3/tutorial.html" class="pagination-link" aria-label="Module 3 Code Tutorial">
-        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Module 3 Code Tutorial</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-3/part1.html" class="pagination-link" aria-label="Part 1: What Is a Causal Effect?">
+        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

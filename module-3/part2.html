@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>16&nbsp; Part 2: Selection on Observables – Measurement, Experimentation &amp; Causal Inference</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../module-3/part3.html" rel="next">
+<link href="../module-3/part1.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Measurement, Experimentation &amp; Causal Inference</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 1: Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cases 5 &amp; 6: Outliers and Systematic Error</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 2: Hypothesis Testing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Part 1: What Does a P-value Mean?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Part 2: The Exclusion Restriction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Part 3: What Does Random Assignment Require?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Design Solutions and Assignment Strategies</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Module 3: Causal Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#statistical-solutions-correcting-for-broken-exchangeability-after-data-collection" id="toc-statistical-solutions-correcting-for-broken-exchangeability-after-data-collection" class="nav-link active" data-scroll-target="#statistical-solutions-correcting-for-broken-exchangeability-after-data-collection"><span class="header-section-number">16.1</span> Statistical Solutions: Correcting for Broken Exchangeability After Data Collection</a>
+  <ul class="collapse">
+  <li><a href="#heckman-selection-models" id="toc-heckman-selection-models" class="nav-link" data-scroll-target="#heckman-selection-models"><span class="header-section-number">16.1.1</span> Heckman Selection Models</a></li>
+  <li><a href="#censored-data-models-tobit" id="toc-censored-data-models-tobit" class="nav-link" data-scroll-target="#censored-data-models-tobit"><span class="header-section-number">16.1.2</span> Censored Data Models (Tobit)</a></li>
+  </ul></li>
+  <li><a href="#sec-m3-part2" id="toc-sec-m3-part2" class="nav-link" data-scroll-target="#sec-m3-part2"><span class="header-section-number">17</span> Part 2: Selection on Observables</a>
+  <ul class="collapse">
+  <li><a href="#sec-obs-problem" id="toc-sec-obs-problem" class="nav-link" data-scroll-target="#sec-obs-problem"><span class="header-section-number">17.1</span> The Problem: Consumers Choose to Buy Eco-Labelled Products</a></li>
+  <li><a href="#sec-reg-adj" id="toc-sec-reg-adj" class="nav-link" data-scroll-target="#sec-reg-adj"><span class="header-section-number">17.2</span> Regression Adjustment</a></li>
+  <li><a href="#sec-ipw" id="toc-sec-ipw" class="nav-link" data-scroll-target="#sec-ipw"><span class="header-section-number">17.3</span> Inverse Probability Weighting (IPW)</a></li>
+  <li><a href="#sec-matching" id="toc-sec-matching" class="nav-link" data-scroll-target="#sec-matching"><span class="header-section-number">17.4</span> Covariate Matching (Mahalanobis)</a></li>
+  <li><a href="#sec-psm" id="toc-sec-psm" class="nav-link" data-scroll-target="#sec-psm"><span class="header-section-number">17.5</span> Propensity Score Matching (PSM)</a></li>
+  <li><a href="#sec-doubly-robust" id="toc-sec-doubly-robust" class="nav-link" data-scroll-target="#sec-doubly-robust"><span class="header-section-number">17.6</span> Doubly Robust Estimation</a></li>
+  <li><a href="#sec-sec2-comparison" id="toc-sec-sec2-comparison" class="nav-link" data-scroll-target="#sec-sec2-comparison"><span class="header-section-number">17.7</span> How Well Do All Section 2 Methods Recover the True ATE?</a></li>
+  <li><a href="#sec-synth" id="toc-sec-synth" class="nav-link" data-scroll-target="#sec-synth"><span class="header-section-number">17.8</span> Synthetic Controls</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>From Module 2: Statistical Fixes When Assignment Breaks Down
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The following section was introduced in Module 2’s discussion of exchangeability. It is reproduced here because these methods — Heckman’s selection model and the Tobit model — are observational correction strategies that belong conceptually with the material in this part.</p>
+</div>
+</div>
+<section id="statistical-solutions-correcting-for-broken-exchangeability-after-data-collection" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="statistical-solutions-correcting-for-broken-exchangeability-after-data-collection"><span class="header-section-number">16.1</span> Statistical Solutions: Correcting for Broken Exchangeability After Data Collection</h2>
+<p>Even with careful design, selection and attrition can still break exchangeability. Several statistical models attempt to recover causal estimates when this happens.</p>
+<section id="heckman-selection-models" class="level3" data-number="16.1.1">
+<h3 data-number="16.1.1" class="anchored" data-anchor-id="heckman-selection-models"><span class="header-section-number">16.1.1</span> Heckman Selection Models</h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The critical caveat — read this before the example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Heckman model works <strong>only</strong> if you have a valid <strong>instrument for selection</strong> — a variable that (1) predicts whether someone participates, but (2) has <strong>no direct effect</strong> on the outcome Y. Finding such an instrument is the hardest part of applying a Heckman correction. When the instrument is weak or its exclusion restriction is implausible, the Heckman correction can produce estimates that are <em>more</em> biased than naive OLS.</p>
+<p><strong>What makes a good vs.&nbsp;bad instrument?</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Good instrument</th>
+<th>Bad instrument</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Example</strong></td>
+<td>Random financial incentive to complete the survey ($0–$4 bonus)</td>
+<td>Whether the participant’s friend also signed up</td>
+</tr>
+<tr class="even">
+<td><strong>Predicts participation?</strong></td>
+<td>Yes — higher bonus → more likely to complete</td>
+<td>Yes — social influence → more likely to participate</td>
+</tr>
+<tr class="odd">
+<td><strong>Affects WTP directly?</strong></td>
+<td>No — the cash bonus is for <em>completing</em> the survey, not for the product</td>
+<td>Yes — friends share consumption preferences, so friend’s sign-up correlates with eco-mindedness, which affects WTP</td>
+</tr>
+<tr class="even">
+<td><strong>Why it works / fails</strong></td>
+<td>The incentive shifts <em>who bothers to participate</em> without changing how they evaluate the eco-label once in the study</td>
+<td>The instrument correlates with the unobservable (eco-mindedness) you are trying to control for — it violates the exclusion restriction</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A further technical requirement:</strong> the instrument should be <strong>continuous</strong> (or at least multi-valued). A binary instrument (e.g., reminder email yes/no) creates only a handful of unique covariate combinations in Stage 1, making the inverse Mills ratio (IMR) nearly a step-function of treatment — which causes severe collinearity in Stage 2 and destabilizes the coefficient estimates.</p>
+<p>Always report the first-stage F-statistic (or probit z-score) for the instrument as evidence of its relevance. <strong>Notice the irony:</strong> the statistical fix for a broken exclusion restriction (Heckman) itself requires an exclusion restriction. The problems multiply as Y becomes more complex.</p>
+</div>
+</div>
+<p><strong>The problem:</strong> suppose eco-label study participants were recruited via an environmental blog (self-selection). People who click through are systematically more environmentally conscious. The treatment effect you estimate confounds “eco-label response” with “environmentally conscious person response.”</p>
+<p><strong>The Heckman correction</strong> (Heckman, 1979) models the selection process explicitly, using a variable called the <strong>inverse Mills ratio (IMR)</strong> to account for the selection into the study:</p>
+<ol type="1">
+<li><p><strong>Stage 1 (Selection equation):</strong> Regress participation (1 = participated, 0 = declined) on all variables that predict selection but do <em>not</em> directly affect Y. This requires an <strong>exclusion restriction in the selection model</strong> — a variable that predicts participation but not WTP. In the simulation below, we use a continuous financial incentive ($0–$4 bonus) randomly assigned to potential participants.</p></li>
+<li><p><strong>Stage 2 (Outcome equation):</strong> Regress Y on X and the IMR from Stage 1. The IMR absorbs the selection-induced correlation between treatment assignment and unobserved factors.</p></li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate Heckman correction for self-selection</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>N_hk  <span class="ot">&lt;-</span> <span class="dv">1000</span>   <span class="co"># pool of potential participants (larger N → more stable Heckman)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Unobserved confounder ─────────────────────────────────────────────────────</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># theta = latent eco-mindedness: affects BOTH survey completion AND WTP.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># It is NOT in the data (hence "unobserved"), so naive OLS cannot control for it.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_hk)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Treatment assignment (random) ─────────────────────────────────────────────</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Eco vs. control randomly assigned to all N_hk potential participants.</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>eco   <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, N_hk <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Instrument ────────────────────────────────────────────────────────────────</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># incentive: a continuous financial incentive ($0–$4 bonus) randomly assigned</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># to potential participants.  Higher incentive → more likely to complete the</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># survey, but the incentive itself has NO direct effect on WTP for the product.</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the EXCLUSION RESTRICTION — a continuous instrument is essential here</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># because a binary instrument (e.g., reminder email yes/no) would create only</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 unique (eco × reminder) combinations in Stage 1, making the IMR nearly a</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># step-function of eco in Stage 2 and causing collinearity that destabilises</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># the coefficient estimates.</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>incentive <span class="ot">&lt;-</span> <span class="fu">runif</span>(N_hk, <span class="dv">0</span>, <span class="dv">4</span>)   <span class="co"># continuous $0–$4 bonus</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Selection into completion ──────────────────────────────────────────────────</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Key mechanism: the eco condition is intrinsically interesting to eco-minded</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># (high-theta) people BUT ALSO to some low-theta "curious" people — so the eco</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># arm selects in more low-theta completers than the control arm (where only</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># truly motivated people bother).  This creates DOWNWARD bias in naive OLS.</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Keeping theta and eco effects moderate ensures the Heckman correction is</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># tractable and does not overshoot due to finite-sample IMR estimation error.</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>sel_latent <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.30</span> <span class="sc">+</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.55</span> <span class="sc">*</span> theta     <span class="sc">+</span>    <span class="co"># eco-minded people more likely to complete</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.65</span> <span class="sc">*</span> eco       <span class="sc">+</span>    <span class="co"># eco topic attracts notably more lower-theta completers → bigger OVB</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.55</span> <span class="sc">*</span> incentive <span class="sc">+</span>    <span class="co"># strong continuous instrument for identification</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(N_hk, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>selected <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(sel_latent <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>N_sel    <span class="ot">&lt;-</span> <span class="fu">sum</span>(selected)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ── WTP (observed only for completers; theta is the unobserved driver) ─────────</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># theta effect on WTP = 0.85: large enough to create detectable downward bias</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># in naive OLS, small enough that Heckman correction is stable (doesn't overshoot).</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>wtp_true <span class="ot">&lt;-</span> <span class="fl">5.0</span> <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.50</span> <span class="sc">*</span> eco[selected <span class="sc">==</span> <span class="dv">1</span>] <span class="sc">+</span>      <span class="co"># TRUE eco-label effect = $0.50</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.85</span> <span class="sc">*</span> theta[selected <span class="sc">==</span> <span class="dv">1</span>] <span class="sc">+</span>    <span class="co"># theta drives WTP but is UNOBSERVED in df_hk</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(N_sel, <span class="dv">0</span>, <span class="fl">1.0</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>wtp_true <span class="ot">&lt;-</span> <span class="fu">pmax</span>(wtp_true, <span class="dv">0</span>)      <span class="co"># floor at 0 (no negative WTP)</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Analysis datasets ──────────────────────────────────────────────────────────</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># df_hk:   observed data for completers (theta NOT included — it's unobserved)</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co"># df_full: full pool used for Stage 1 probit (includes instrument)</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>df_hk   <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">wtp       =</span> wtp_true,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>                       <span class="at">eco       =</span> eco[selected <span class="sc">==</span> <span class="dv">1</span>],</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                       <span class="at">incentive =</span> incentive[selected <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>df_full <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(selected, eco, incentive)   <span class="co"># theta excluded — unobserved</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive OLS: ignores selection → eco coefficient is DOWNWARD BIASED because</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co"># eco arm selects in more low-theta participants (lower average WTP)</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(wtp <span class="sc">~</span> eco, <span class="at">data =</span> df_hk)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Heckman Stage 1: probit of completion on eco + incentive (instrument)</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: theta is excluded (unobserved); incentive is the identifying instrument.</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="co"># The continuous incentive creates a smooth IMR function → no collinearity.</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>stage1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(selected <span class="sc">~</span> eco <span class="sc">+</span> incentive, <span class="at">data =</span> df_full,</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>))</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Inverse Mills ratio (IMR) for completers — absorbs the selection-on-theta</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>xb  <span class="ot">&lt;-</span> <span class="fu">predict</span>(stage1)[selected <span class="sc">==</span> <span class="dv">1</span>]</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>imr <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(xb) <span class="sc">/</span> <span class="fu">pnorm</span>(xb)</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Heckman Stage 2: includes IMR to correct for selective attrition</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>heckman <span class="ot">&lt;-</span> <span class="fu">lm</span>(wtp <span class="sc">~</span> eco <span class="sc">+</span> imr, <span class="at">data =</span> <span class="fu">cbind</span>(df_hk, <span class="at">imr =</span> imr))</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Completion rate: %.1f%% overall  |  Eco: %.1f%%  |  Control: %.1f%%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>            <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(selected),</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>            <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(selected[eco <span class="sc">==</span> <span class="dv">1</span>]),</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>            <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(selected[eco <span class="sc">==</span> <span class="dv">0</span>])))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Completion rate: 81.2% overall  |  Eco: 86.4%  |  Control: 76.0%</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Simulate Heckman correction for self-selection</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Mean theta among completers — Eco: %.2f  |  Control: %.2f  (gap creates bias)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mean</span>(theta[selected <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> eco <span class="sc">==</span> <span class="dv">1</span>]),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mean</span>(theta[selected <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> eco <span class="sc">==</span> <span class="dv">0</span>])))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean theta among completers — Eco: 0.07  |  Control: 0.16  (gap creates bias)</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Simulate Heckman correction for self-selection</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>heck_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Naive OLS (ignores selection)"</span>, <span class="st">"Heckman 2-step (corrects attrition)"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Eco-label coefficient</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">round</span>(<span class="fu">coef</span>(naive)[<span class="st">"eco"</span>], <span class="dv">3</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">round</span>(<span class="fu">coef</span>(heckman)[<span class="st">"eco"</span>], <span class="dv">3</span>)),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">95% CI (low)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">round</span>(<span class="fu">confint</span>(naive)[<span class="st">"eco"</span>, <span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">round</span>(<span class="fu">confint</span>(heckman)[<span class="st">"eco"</span>, <span class="dv">1</span>], <span class="dv">3</span>)),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">95% CI (high)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">round</span>(<span class="fu">confint</span>(naive)[<span class="st">"eco"</span>, <span class="dv">2</span>], <span class="dv">3</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">round</span>(<span class="fu">confint</span>(heckman)[<span class="st">"eco"</span>, <span class="dv">2</span>], <span class="dv">3</span>)),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True value</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.50</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(heck_tab,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="fu">paste0</span>(<span class="st">"Heckman correction: differential attrition creates downward bias in naive OLS. "</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"Eco arm attracts low-theta completers; control arm retains only high-theta ones. "</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"True eco-label effect = $0.50."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Heckman correction: differential attrition creates downward bias in naive OLS. Eco arm attracts low-theta completers; control arm retains only high-theta ones. True eco-label effect = $0.50.</caption>
+<colgroup>
+<col style="width: 37%">
+<col style="width: 22%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Eco-label coefficient</th>
+<th style="text-align: right;">95% CI (low)</th>
+<th style="text-align: right;">95% CI (high)</th>
+<th style="text-align: right;">True value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Naive OLS (ignores selection)</td>
+<td style="text-align: right;">0.452</td>
+<td style="text-align: right;">0.270</td>
+<td style="text-align: right;">0.634</td>
+<td style="text-align: right;">0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Heckman 2-step (corrects attrition)</td>
+<td style="text-align: right;">0.474</td>
+<td style="text-align: right;">0.285</td>
+<td style="text-align: right;">0.663</td>
+<td style="text-align: right;">0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Notice how the naive OLS estimate is <strong>downward biased</strong>: the eco condition attracted some low-theta (“curious but not eco-minded”) completers who would not have bothered with the control condition. These participants bring down the mean WTP in the eco arm, understating the true eco-label effect. The control arm retained only high-theta (genuinely motivated) completers with high baseline WTP regardless. The Heckman correction uses the IMR to account for this differential attrition and recovers an estimate closer to the true $0.50 value.</p>
+</section>
+<section id="censored-data-models-tobit" class="level3" data-number="16.1.2">
+<h3 data-number="16.1.2" class="anchored" data-anchor-id="censored-data-models-tobit"><span class="header-section-number">16.1.2</span> Censored Data Models (Tobit)</h3>
+<p>In the eco-coffee WTP study, participants could not state WTP below $1 (floor) or above $10 (ceiling). In many studies, the outcome is <strong>censored</strong> — truncated at a boundary because the measurement instrument or the context prevents observing values beyond a threshold.</p>
+<p><strong>Consequence of ignoring censoring:</strong> OLS on a censored outcome is biased and inconsistent. Observations piled at the ceiling (e.g., everyone stating exactly $10.00 WTP) look identical to OLS but represent unobserved heterogeneity (some would have stated $12 or $15 if allowed).</p>
+<p>The <strong>Tobit model</strong> explicitly models the censoring threshold and recovers the latent distribution:</p>
+<p><span class="math display">\[Y^* = X\beta + \varepsilon, \quad Y = \max(Y_{\text{lower}}, \min(Y^*, Y_{\text{upper}}))\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate: OLS vs.&nbsp;Tobit on censored WTP data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">"AER"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">"AER"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AER)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>N_tb   <span class="ot">&lt;-</span> <span class="dv">1200</span>   <span class="co"># large N for stable Tobit estimates (Tobit MLE is less efficient than OLS)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>eco_tb <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> N_tb <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Latent (true) WTP ─────────────────────────────────────────────────────────</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True eco-label effect = $0.90 on the latent scale.</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean = 1.2 (control arm) with sd = 1.8 places ~25% of latent WTPs below $0.</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># High censoring creates clear OLS attenuation; N = 1200 makes Tobit converge</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># reliably to 0.90 without overshoot.</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>wtp_lat <span class="ot">&lt;-</span> <span class="fl">1.2</span> <span class="sc">+</span> <span class="fl">0.90</span> <span class="sc">*</span> eco_tb <span class="sc">+</span> <span class="fu">rnorm</span>(N_tb, <span class="dv">0</span>, <span class="fl">1.8</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed WTP: censored at $0 (participants state "I would not pay anything")</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>wtp_obs      <span class="ot">&lt;-</span> <span class="fu">pmax</span>(wtp_lat, <span class="dv">0</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>pct_censored <span class="ot">&lt;-</span> <span class="fu">mean</span>(wtp_obs <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Floor-censored observations: %d / %d  (%.1f%%)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">sum</span>(wtp_obs <span class="sc">==</span> <span class="dv">0</span>), N_tb, <span class="dv">100</span> <span class="sc">*</span> pct_censored))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Floor-censored observations: 221 / 1200  (18.4%)</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Simulate: OLS vs.&nbsp;Tobit on censored WTP data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS on the censored observed values: attenuated toward zero</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ols_tb <span class="ot">&lt;-</span> <span class="fu">lm</span>(wtp_obs <span class="sc">~</span> eco_tb)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Tobit: models the latent WTP as normal, recovering the true coefficient</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>tobit_tb <span class="ot">&lt;-</span> <span class="fu">tobit</span>(wtp_obs <span class="sc">~</span> eco_tb, <span class="at">left =</span> <span class="dv">0</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>cens_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model    =</span> <span class="fu">c</span>(<span class="st">"OLS (ignores censoring)"</span>, <span class="st">"Tobit (corrects for censoring)"</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Eco coefficient</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">round</span>(<span class="fu">coef</span>(ols_tb)[<span class="st">"eco_tb"</span>], <span class="dv">3</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">round</span>(<span class="fu">coef</span>(tobit_tb)[<span class="st">"eco_tb"</span>], <span class="dv">3</span>)),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True value</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.90</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">% censored</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">round</span>(pct_censored <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%"</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(cens_tab,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="fu">paste0</span>(<span class="st">"OLS vs. Tobit on floor-censored WTP (true eco effect = $0.90). "</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>OLS vs.&nbsp;Tobit on floor-censored WTP (true eco effect = $0.90). ~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient.</caption>
+<colgroup>
+<col style="width: 44%">
+<col style="width: 23%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Eco coefficient</th>
+<th style="text-align: right;">True value</th>
+<th style="text-align: left;">% censored</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OLS (ignores censoring)</td>
+<td style="text-align: right;">0.619</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: left;">18.4%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tobit (corrects for censoring)</td>
+<td style="text-align: right;">0.781</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: left;">18.4%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Looking ahead in Module 3
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The selection and censored-data models above are a first pass at a much richer literature. The remainder of this module will formalize the causal inference frameworks (potential outcomes / Rubin causal model, DAGs / Pearl’s do-calculus) that make precise which assumptions each model requires, and introduce more general solutions:</p>
+<ul>
+<li><strong>Covariate matching</strong> — pairing treated and control units on observed characteristics to reduce confounding</li>
+<li><strong>Propensity score methods</strong> (propensity matching, inverse probability weighting, doubly-robust estimators) for observational settings where selection is driven by observed covariates</li>
+<li><strong>Instrumental variables (IV)</strong> for endogenous regressors — the general solution to the exclusion restriction problem in Part 2</li>
+<li><strong>Difference-in-differences and panel methods</strong> for settings with longitudinal structure</li>
+<li><strong>Regression discontinuity</strong> for settings where treatment is assigned by a threshold rule</li>
+<li><strong>Mediation analysis</strong> — formalizing the decomposition approach we introduced in this module, with careful attention to the causal assumptions required for valid mediation inference</li>
+</ul>
+<p>The language we have built here — exchangeability, exclusion restriction, discriminant validity of X, nomological net of Y — will carry through directly into that causal inference framework.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-m3-part2" class="level1" data-number="17">
+<h1 data-number="17"><span class="header-section-number">17</span> Part 2: Selection on Observables</h1>
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={c4e4767b-beb7-4702-82bf-5717967f663e}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen="" title="Module 3 Part 2: Selection on Observables">
+</iframe>
+<section id="sec-obs-problem" class="level2" data-number="17.1">
+<h2 data-number="17.1" class="anchored" data-anchor-id="sec-obs-problem"><span class="header-section-number">17.1</span> The Problem: Consumers Choose to Buy Eco-Labelled Products</h2>
+<p>Outside the lab, consumers freely <em>choose</em> whether to pick up the eco-labelled bag of coffee. This creates <strong>selection bias</strong>. The DGP below adds two realistic complications beyond Part 1:</p>
+<ol type="1">
+<li><strong>Non-linear confounding</strong>: environmental concern has a <em>quadratic</em> effect on baseline WTP and <em>interacts</em> with income. A consumer with extremely high env-concern sees a doubly large WTP boost. Simple linear regression will miss this.</li>
+<li><strong>Interaction in the propensity score</strong>: the probability of buying eco-labelled coffee depends on the <em>joint</em> level of env-concern and income, not just their individual levels.</li>
+</ol>
+<p>These features mean that naive and simple-linear corrections will have remaining bias, while flexible and doubly-robust methods will do better.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate observational data with non-linear confounding</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>env        <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>price_sens <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>income     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>age        <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(N, <span class="dv">38</span>, <span class="dv">12</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Non-linear outcome model: env has quadratic effect + env:income interaction</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear regression misses these → remaining bias after covariate adjustment</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>Y0 <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">1</span>, <span class="fu">pmin</span>(<span class="dv">10</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fl">5.20</span> <span class="sc">+</span> <span class="fl">0.80</span><span class="sc">*</span>env <span class="sc">-</span> <span class="fl">0.50</span><span class="sc">*</span>price_sens <span class="sc">+</span> <span class="fl">0.30</span><span class="sc">*</span>income <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.25</span><span class="sc">*</span>env<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.18</span><span class="sc">*</span>env<span class="sc">*</span>income <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.85</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>ITE <span class="ot">&lt;-</span> <span class="fl">0.55</span> <span class="sc">+</span> <span class="fl">0.65</span><span class="sc">*</span>env <span class="sc">-</span> <span class="fl">0.38</span><span class="sc">*</span>price_sens <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.35</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>Y1  <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">1</span>, <span class="fu">pmin</span>(<span class="dv">10</span>, Y0 <span class="sc">+</span> ITE))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co"># True PS includes env:income interaction</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard logit (no interaction) will slightly misspecify the PS</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>ps_true   <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.40</span> <span class="sc">+</span> <span class="fl">0.95</span><span class="sc">*</span>env <span class="sc">+</span> <span class="fl">0.42</span><span class="sc">*</span>income <span class="sc">-</span> <span class="fl">0.32</span><span class="sc">*</span>price_sens <span class="sc">+</span> <span class="fl">0.14</span><span class="sc">*</span>env<span class="sc">*</span>income)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>treat_obs <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, ps_true)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>Y_obs     <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(treat_obs<span class="sc">==</span><span class="dv">1</span>, Y1, Y0)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Pre-compute nonlinear features for use in flexible models</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>env_sq      <span class="ot">&lt;-</span> env<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>env_income  <span class="ot">&lt;-</span> env <span class="sc">*</span> income</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>df_obs <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id=</span><span class="dv">1</span><span class="sc">:</span>N, <span class="at">treat=</span>treat_obs, Y_obs, Y0, Y1, ITE,</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                 env, price_sens, income, age, env_sq, env_income, ps_true)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>ATE_true_obs <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y1 <span class="sc">-</span> Y0)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>ATT_true_obs <span class="ot">&lt;-</span> <span class="fu">mean</span>(ITE[treat_obs<span class="sc">==</span><span class="dv">1</span>])</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"True ATE = %.3f  |  True ATT = %.3f  |  Treatment rate = %.1f%%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>            ATE_true_obs, ATT_true_obs, <span class="dv">100</span><span class="sc">*</span><span class="fu">mean</span>(treat_obs)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True ATE = 0.530  |  True ATT = 0.914  |  Treatment rate = 41.8%</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Show why naive comparison overestimates the eco-label effect</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>naive_diff <span class="ot">&lt;-</span> <span class="fu">mean</span>(Y_obs[treat_obs<span class="sc">==</span><span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(Y_obs[treat_obs<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"True ATE             = %.3f</span><span class="sc">\n</span><span class="st">Naive diff-in-means  = %.3f</span><span class="sc">\n</span><span class="st">Bias                 = +%.3f</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>            ATE_true_obs, naive_diff, naive_diff <span class="sc">-</span> ATE_true_obs))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True ATE             = 0.530
+Naive diff-in-means  = 1.703
+Bias                 = +1.174</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Show why naive comparison overestimates the eco-label effect</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">group=</span><span class="st">"Eco-label buyers"</span>,     <span class="at">env=</span>env[treat_obs<span class="sc">==</span><span class="dv">1</span>]),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">group=</span><span class="st">"Non-eco-label buyers"</span>, <span class="at">env=</span>env[treat_obs<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>env, <span class="at">fill=</span>group)) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha=</span><span class="fl">0.55</span>) <span class="sc">+</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Eco-label buyers"</span><span class="ot">=</span>clr_eco,<span class="st">"Non-eco-label buyers"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Environmental Concern (standardised)"</span>, <span class="at">y=</span><span class="st">"Density"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Eco-label buyers have higher environmental concern AND higher baseline WTP"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Positive selection on a cause of the outcome inflates the naive comparison"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/naive-bias-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-reg-adj" class="level2" data-number="17.2">
+<h2 data-number="17.2" class="anchored" data-anchor-id="sec-reg-adj"><span class="header-section-number">17.2</span> Regression Adjustment</h2>
+<p><strong>What it does:</strong> Controls for confounders in the outcome regression, comparing eco-label buyers and non-buyers who are <em>similar on measured covariates</em>.</p>
+<p><strong>Intuition:</strong> Among consumers with the same env-concern, income, and price-sensitivity, any remaining WTP difference is more plausibly causal. But if the true relationship between covariates and WTP is <em>non-linear</em>, a linear regression will not fully remove the confounding.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Linear vs.&nbsp;flexible regression adjustment</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>m_naive   <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>df_obs)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>m_linear  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat <span class="sc">+</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income, <span class="at">data=</span>df_obs)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>m_flex    <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat <span class="sc">+</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income, <span class="at">data=</span>df_obs)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_naive)  <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model=</span><span class="st">"1. Unadjusted"</span>),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_linear) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model=</span><span class="st">"2. Linear adjustment"</span>),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_flex)   <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model=</span><span class="st">"3. Flexible adjustment</span><span class="sc">\n</span><span class="st">(+ env² + env×income)"</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">Model=</span>model, <span class="at">Estimate=</span><span class="fu">round</span>(estimate,<span class="dv">3</span>), <span class="at">SE=</span><span class="fu">round</span>(std.error,<span class="dv">3</span>),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">95% CI</span><span class="st">`</span><span class="ot">=</span><span class="fu">sprintf</span>(<span class="st">"[%.3f, %.3f]"</span>,estimate<span class="fl">-1.96</span><span class="sc">*</span>std.error,estimate<span class="fl">+1.96</span><span class="sc">*</span>std.error)) <span class="sc">|&gt;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_row</span>(<span class="at">Model=</span><span class="st">"True ATE"</span>, <span class="at">Estimate=</span><span class="fu">round</span>(ATE_true_obs,<span class="dv">3</span>), <span class="at">SE=</span><span class="cn">NA</span>, <span class="st">`</span><span class="at">95% CI</span><span class="st">`</span><span class="ot">=</span><span class="st">"—"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">"Flexible regression (with non-linear terms) gets closer to the true ATE than linear"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Flexible regression (with non-linear terms) gets closer to the true ATE than linear</caption>
+<colgroup>
+<col style="width: 59%">
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: left;">95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1. Unadjusted</td>
+<td style="text-align: right;">1.703</td>
+<td style="text-align: right;">0.069</td>
+<td style="text-align: left;">[1.568, 1.839]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2. Linear adjustment</td>
+<td style="text-align: right;">0.614</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: left;">[0.512, 0.715]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3. Flexible adjustment</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(+ env² + env×income)</td>
+<td style="text-align: right;">0.555</td>
+<td style="text-align: right;">0.048</td>
+<td style="text-align: left;">[0.462, 0.649]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">True ATE</td>
+<td style="text-align: right;">0.530</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The flexible model including <code>env²</code> and <code>env × income</code> tracks the true ATE noticeably better than the linear adjustment. The lesson: <strong>the form of your covariate adjustment matters</strong>. If you don’t know the true functional form (you never do in practice), doubly robust estimation provides insurance.</p>
+</div>
+</div>
+</section>
+<section id="sec-ipw" class="level2" data-number="17.3">
+<h2 data-number="17.3" class="anchored" data-anchor-id="sec-ipw"><span class="header-section-number">17.3</span> Inverse Probability Weighting (IPW)</h2>
+<p><strong>What it does:</strong> Reweights each observation by the inverse of its probability of being in its actual group, creating a pseudo-population where eco-label buyers and non-buyers look like random draws from the same population.</p>
+<p><strong>Concrete weights:</strong> - An eco-conscious, high-income consumer (PS = 0.85) who buys eco-labelled coffee: weight = <span class="math inline">\(1/0.85 = 1.18\)</span> — not surprising, downweighted. - A price-sensitive, low-income consumer (PS = 0.08) who buys eco-labelled coffee: weight = <span class="math inline">\(1/0.08 = 12.5\)</span> — very surprising, heavily upweighted.</p>
+<p><strong>Entropy balancing</strong> (via <code>WeightIt</code>) takes this further: instead of estimating a parametric PS model, it directly finds weights that exactly balance the <em>moments</em> (means, variances, and cross-products) of the covariate distribution between groups. No model to misspecify.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Standard IPW vs.&nbsp;entropy-balanced IPW</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard IPW: logistic regression on linear terms (misses interaction)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ps_logit <span class="ot">&lt;-</span> <span class="fu">glm</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income, <span class="at">data=</span>df_obs, <span class="at">family=</span>binomial)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>ps_hat   <span class="ot">&lt;-</span> <span class="fu">fitted</span>(ps_logit)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>df_obs <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ps_hat  =</span> ps_hat,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">ipw_wt  =</span> <span class="fu">ifelse</span>(treat<span class="sc">==</span><span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span>ps_hat, <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>ps_hat)),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>         <span class="co"># Stabilised weights (reduces variance from extreme PS values)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">ipw_stab=</span> <span class="fu">ifelse</span>(treat<span class="sc">==</span><span class="dv">1</span>, <span class="fu">mean</span>(treat)<span class="sc">/</span>ps_hat, <span class="fu">mean</span>(<span class="dv">1</span><span class="sc">-</span>treat)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>ps_hat)))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>ATE_ipw_raw   <span class="ot">&lt;-</span> <span class="fu">with</span>(df_obs,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weighted.mean</span>(Y_obs[treat<span class="sc">==</span><span class="dv">1</span>], ipw_wt[treat<span class="sc">==</span><span class="dv">1</span>]) <span class="sc">-</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weighted.mean</span>(Y_obs[treat<span class="sc">==</span><span class="dv">0</span>], ipw_wt[treat<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>ATE_ipw_stab  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>df_obs, <span class="at">weights=</span>ipw_stab) <span class="sc">|&gt;</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(estimate)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Entropy balancing: directly balance means + variances + covariances</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Includes quadratic and interaction terms for thorough moment matching</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>wb_ebal <span class="ot">&lt;-</span> <span class="fu">weightit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"ebal"</span>, <span class="at">estimand=</span><span class="st">"ATE"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>ATE_ebal <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>df_obs, <span class="at">weights=</span>wb_ebal<span class="sc">$</span>weights) <span class="sc">|&gt;</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(estimate)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True ATE              = %.3f</span><span class="sc">\n</span><span class="st">IPW (standard logit)  = %.3f</span><span class="sc">\n</span><span class="st">IPW (stabilised)      = %.3f</span><span class="sc">\n</span><span class="st">Entropy balancing     = %.3f</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  ATE_true_obs, ATE_ipw_raw, ATE_ipw_stab, ATE_ebal</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True ATE              = 0.530
+IPW (standard logit)  = 0.414
+IPW (stabilised)      = 0.414
+Entropy balancing     = 0.444</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Propensity score overlap and entropy-balanced weight distribution</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>p_overlap <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group=</span><span class="fu">ifelse</span>(treat<span class="sc">==</span><span class="dv">1</span>,<span class="st">"Eco-label buyers"</span>,<span class="st">"Non-buyers"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>ps_hat, <span class="at">fill=</span>group)) <span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">40</span>, <span class="at">alpha=</span><span class="fl">0.65</span>, <span class="at">position=</span><span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="fu">c</span>(<span class="fl">0.05</span>,<span class="fl">0.95</span>), <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"firebrick"</span>) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Eco-label buyers"</span><span class="ot">=</span>clr_eco,<span class="st">"Non-buyers"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Estimated PS"</span>, <span class="at">y=</span><span class="st">"Count"</span>, <span class="at">title=</span><span class="st">"PS overlap"</span>, <span class="at">fill=</span><span class="cn">NULL</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Red lines = extreme weights zone"</span>) <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>p_wts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">wt=</span>wb_ebal<span class="sc">$</span>weights, <span class="at">group=</span><span class="fu">ifelse</span>(treat_obs<span class="sc">==</span><span class="dv">1</span>,<span class="st">"Treated"</span>,<span class="st">"Control"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>wt, <span class="at">fill=</span>group)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">40</span>, <span class="at">alpha=</span><span class="fl">0.7</span>, <span class="at">position=</span><span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Treated"</span><span class="ot">=</span>clr_eco,<span class="st">"Control"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Entropy-balanced weight"</span>, <span class="at">y=</span><span class="st">"Count"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Entropy-balanced weights"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Well-behaved: no extreme spikes"</span>, <span class="at">fill=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>p_overlap <span class="sc">+</span> p_wts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/ps-overlap-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>IPW can be unstable with extreme propensity scores
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Unstabilised IPW weights become enormous near PS = 0 or 1. Entropy balancing avoids this by finding the <em>minimum-variance</em> weights that achieve balance — it never requires extreme weights to correct for outlier PS values.</p>
+</div>
+</div>
+</section>
+<section id="sec-matching" class="level2" data-number="17.4">
+<h2 data-number="17.4" class="anchored" data-anchor-id="sec-matching"><span class="header-section-number">17.4</span> Covariate Matching (Mahalanobis)</h2>
+<p><strong>What it does:</strong> For each eco-label buyer, finds the most similar non-buyer based on raw covariate values (Mahalanobis distance accounts for covariate correlations). The matched sample mimics a randomised experiment — but only for the <em>treated</em> group (estimates ATT, not ATE).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ 1:1 Mahalanobis nearest-neighbour matching</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>m_match_maha <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income, <span class="at">data=</span>df_obs,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"mahalanobis"</span>, <span class="at">ratio=</span><span class="dv">1</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_matched_maha <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m_match_maha)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>ATT_match_maha  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>df_matched_maha, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(estimate)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"True ATT (treated group)              = %.3f</span><span class="sc">\n</span><span class="st">Matching (Mahalanobis, 1:1 NN) est.   = %.3f</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            ATT_true_obs, ATT_match_maha))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True ATT (treated group)              = 0.914
+Matching (Mahalanobis, 1:1 NN) est.   = 1.445</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-psm" class="level2" data-number="17.5">
+<h2 data-number="17.5" class="anchored" data-anchor-id="sec-psm"><span class="header-section-number">17.5</span> Propensity Score Matching (PSM)</h2>
+<p><strong>What it does:</strong> Condenses all covariates into a single scalar — the propensity score — and matches on that. The catch: <strong>the PS model must be specified correctly</strong>. Different models give different matched samples and often quite different estimates.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Compare five PS model specifications</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Misspecified models (common practice — miss the env:income interaction)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>m_ps1 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>m_ps2 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">*</span> price_sens <span class="sc">+</span> income,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"probit"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>m_ps3 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> <span class="fu">poly</span>(env,<span class="dv">2</span>) <span class="sc">+</span> <span class="fu">poly</span>(price_sens,<span class="dv">2</span>) <span class="sc">+</span> income,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>m_ps4 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">caliper=</span><span class="fl">0.1</span>, <span class="at">std.caliper=</span><span class="cn">TRUE</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Correctly specified: matches the true DGP (includes env^2 and env:income)</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>m_ps5 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>,</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>                 <span class="at">caliper=</span><span class="fl">0.15</span>, <span class="at">std.caliper=</span><span class="cn">TRUE</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>results_psm <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"1. Logit (linear)"</span>              <span class="ot">=</span> m_ps1,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>       <span class="st">"2. Probit + env×price"</span>          <span class="ot">=</span> m_ps2,</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>       <span class="st">"3. Logit + poly(env,2)"</span>         <span class="ot">=</span> m_ps3,</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>       <span class="st">"4. Logit + caliper (0.1 SD)"</span>    <span class="ot">=</span> m_ps4,</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>       <span class="st">"5. Logit + env²+env×income</span><span class="sc">\n</span><span class="st">+ caliper (correct PS)"</span> <span class="ot">=</span> m_ps5),</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) {</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    d   <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    est <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>d, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">estimate=</span>est<span class="sc">$</span>estimate, <span class="at">se=</span>est<span class="sc">$</span>std.error,</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_matched=</span><span class="fu">nrow</span>(d[d<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>,]))</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">.id=</span><span class="st">"PS model"</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>results_psm <span class="sc">|&gt;</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se,</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N retained</span><span class="st">`</span><span class="ot">=</span>n_matched,</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>         <span class="at">correct =</span> <span class="fu">str_detect</span>(<span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="st">"correct"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span><span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="at">x=</span>estimate, <span class="at">xmin=</span>lo, <span class="at">xmax=</span>hi,</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour=</span>correct, <span class="at">shape=</span>correct)) <span class="sc">+</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATT_true_obs, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span>clr_eco, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATE_true_obs, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span>clr_ctrl, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"N=%d"</span>, <span class="st">`</span><span class="at">N retained</span><span class="st">`</span>), <span class="at">x=</span>hi<span class="fl">+0.03</span>), <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATT_true_obs<span class="fl">+0.01</span>, <span class="at">y=</span><span class="fl">5.45</span>,</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATT"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_eco) <span class="sc">+</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATE_true_obs<span class="fl">+0.01</span>, <span class="at">y=</span><span class="fl">5.1</span>,</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATE"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_ctrl) <span class="sc">+</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="st">"grey50"</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="st">"#b45309"</span>),</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="dv">16</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="dv">18</span>),</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"ATT estimate — eco-label effect ($)"</span>, <span class="at">y=</span><span class="cn">NULL</span>, <span class="at">colour=</span><span class="cn">NULL</span>, <span class="at">shape=</span><span class="cn">NULL</span>,</span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"PSM estimates converge on the true ATT only when the PS model is correctly specified"</span>,</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"The correctly specified model (orange) recovers the true ATT most accurately"</span>) <span class="sc">+</span></span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/psm-comparison-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Love plot: balance before and after correctly-specified PSM</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">love.plot</span>(m_ps5, <span class="at">thresholds=</span><span class="fu">c</span>(<span class="at">m=</span><span class="fl">0.1</span>), <span class="at">stars=</span><span class="st">"std"</span>,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">title=</span><span class="st">"Covariate balance: correctly specified PSM (env² + env×income + caliper)"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">colors=</span><span class="fu">c</span>(clr_ctrl, clr_eco))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/covariate-balance-1.svg" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-doubly-robust" class="level2" data-number="17.6">
+<h2 data-number="17.6" class="anchored" data-anchor-id="sec-doubly-robust"><span class="header-section-number">17.6</span> Doubly Robust Estimation</h2>
+<p><strong>What it does:</strong> Combines an outcome model <em>and</em> a propensity score model. The estimate is consistent if <strong>either</strong> model is correctly specified — it only needs one to be right.</p>
+<p>Here both the outcome model and PS model include the non-linear terms (<code>env²</code>, <code>env × income</code>), so both are correctly specified. The DR estimate should perform best.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ AIPW with correctly-specified outcome and PS models</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome models (correctly specified: include env^2 and env:income)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>mu1_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">data=</span>df_obs[df_obs<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>,])</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>mu0_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">data=</span>df_obs[df_obs<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">0</span>,])</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>mu1_hat   <span class="ot">&lt;-</span> <span class="fu">predict</span>(mu1_model, <span class="at">newdata=</span>df_obs)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>mu0_hat   <span class="ot">&lt;-</span> <span class="fu">predict</span>(mu0_model, <span class="at">newdata=</span>df_obs)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># PS model (correctly specified)</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>ps_hat_dr <span class="ot">&lt;-</span> <span class="fu">fitted</span>(<span class="fu">glm</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data=</span>df_obs, <span class="at">family=</span>binomial))</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co"># AIPW estimator</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>Y_v <span class="ot">&lt;-</span> df_obs<span class="sc">$</span>Y_obs; D_v <span class="ot">&lt;-</span> df_obs<span class="sc">$</span>treat</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>tau_dr <span class="ot">&lt;-</span> (mu1_hat <span class="sc">-</span> mu0_hat) <span class="sc">+</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>          D_v<span class="sc">*</span>(Y_v <span class="sc">-</span> mu1_hat)<span class="sc">/</span>ps_hat_dr <span class="sc">-</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>          (<span class="dv">1</span><span class="sc">-</span>D_v)<span class="sc">*</span>(Y_v <span class="sc">-</span> mu0_hat)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>ps_hat_dr)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>ATE_dr <span class="ot">&lt;-</span> <span class="fu">mean</span>(tau_dr)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>SE_dr  <span class="ot">&lt;-</span> <span class="fu">sd</span>(tau_dr)<span class="sc">/</span><span class="fu">sqrt</span>(N)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True ATE              = %.3f</span><span class="sc">\n</span><span class="st">Naive estimate        = %.3f</span><span class="sc">\n</span><span class="st">Linear reg. adj.      = %.3f</span><span class="sc">\n</span><span class="st">Flexible reg. adj.    = %.3f</span><span class="sc">\n</span><span class="st">IPW (stabilised)      = %.3f</span><span class="sc">\n</span><span class="st">Entropy balancing     = %.3f</span><span class="sc">\n</span><span class="st">DR/AIPW (correct)     = %.3f  (SE = %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  ATE_true_obs, naive_diff,</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(m_linear)[<span class="st">"treat"</span>], <span class="fu">coef</span>(m_flex)[<span class="st">"treat"</span>],</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>  ATE_ipw_stab, ATE_ebal,</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>  ATE_dr, SE_dr</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True ATE              = 0.530
+Naive estimate        = 1.703
+Linear reg. adj.      = 0.614
+Flexible reg. adj.    = 0.555
+IPW (stabilised)      = 0.414
+Entropy balancing     = 0.444
+DR/AIPW (correct)     = 0.441  (SE = 0.055)</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-sec2-comparison" class="level2" data-number="17.7">
+<h2 data-number="17.7" class="anchored" data-anchor-id="sec-sec2-comparison"><span class="header-section-number">17.7</span> How Well Do All Section 2 Methods Recover the True ATE?</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/section2-summary-plot-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What the gradient shows
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method class</th>
+<th>Why it performs that way</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Naive</strong></td>
+<td>No correction — pure selection bias</td>
+</tr>
+<tr class="even">
+<td><strong>Linear regression</strong></td>
+<td>Removes linear confounding; missing <code>env²</code> and <code>env×income</code> leaves residual bias</td>
+</tr>
+<tr class="odd">
+<td><strong>Flexible regression</strong></td>
+<td>Includes non-linear terms → less bias</td>
+</tr>
+<tr class="even">
+<td><strong>IPW (stabilised)</strong></td>
+<td>PS model also misspecified (linear logit) → some remaining bias</td>
+</tr>
+<tr class="odd">
+<td><strong>Entropy balancing</strong></td>
+<td>Directly balances covariate <em>moments</em> — robust to PS misspecification</td>
+</tr>
+<tr class="even">
+<td><strong>Matching/PSM</strong></td>
+<td>Targets ATT (higher than ATE because treated have stronger responses)</td>
+</tr>
+<tr class="odd">
+<td><strong>Doubly Robust</strong></td>
+<td>Both outcome model AND PS model correctly specified → lowest bias</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>doubly robust</strong> and <strong>entropy balancing</strong> approaches consistently outperform simpler methods when the true confounding is non-linear. The correctly specified PSM recovers the ATT accurately; the misspecified PSM does less well.</p>
+</div>
+</div>
+</section>
+<section id="sec-synth" class="level2" data-number="17.8">
+<h2 data-number="17.8" class="anchored" data-anchor-id="sec-synth"><span class="header-section-number">17.8</span> Synthetic Controls</h2>
+<p>What if you only have <strong>one treated unit</strong> — say, AlterEco’s flagship Rotterdam store introduced eco-labels?</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Synthetic control for Rotterdam flagship store</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>n_stores <span class="ot">&lt;-</span> <span class="dv">21</span>; n_pre <span class="ot">&lt;-</span> <span class="dv">20</span>; n_post <span class="ot">&lt;-</span> <span class="dv">10</span>; treat_store <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>store_fe <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores, <span class="dv">0</span>, <span class="fl">0.8</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>panel_df <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store=</span><span class="dv">1</span><span class="sc">:</span>n_stores, <span class="at">period=</span><span class="dv">1</span><span class="sc">:</span>(n_pre<span class="sc">+</span>n_post)) <span class="sc">|&gt;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treated=</span>(store<span class="sc">==</span>treat_store <span class="sc">&amp;</span> period<span class="sc">&gt;</span>n_pre),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">WTP=</span><span class="fl">5.5</span> <span class="sc">+</span> store_fe[store] <span class="sc">+</span> <span class="fl">0.02</span><span class="sc">*</span>(period<span class="sc">-</span>n_pre) <span class="sc">+</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>             treated<span class="sc">*</span><span class="fl">0.80</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>))</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>pre_means <span class="ot">&lt;-</span> panel_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(period<span class="sc">&lt;=</span>n_pre) <span class="sc">|&gt;</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(store) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">pre_mean=</span><span class="fu">mean</span>(WTP), <span class="at">.groups=</span><span class="st">"drop"</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>treated_pre_mean <span class="ot">&lt;-</span> pre_means<span class="sc">$</span>pre_mean[pre_means<span class="sc">$</span>store<span class="sc">==</span>treat_store]</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>control_stores <span class="ot">&lt;-</span> pre_means <span class="sc">|&gt;</span> <span class="fu">filter</span>(store<span class="sc">!=</span>treat_store) <span class="sc">|&gt;</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dist=</span><span class="fu">abs</span>(pre_mean<span class="sc">-</span>treated_pre_mean), <span class="at">w_raw=</span><span class="dv">1</span><span class="sc">/</span>(dist<span class="fl">+0.01</span>), <span class="at">w=</span>w_raw<span class="sc">/</span><span class="fu">sum</span>(w_raw))</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>synth_ts <span class="ot">&lt;-</span> panel_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(store<span class="sc">!=</span>treat_store) <span class="sc">|&gt;</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(control_stores[,<span class="fu">c</span>(<span class="st">"store"</span>,<span class="st">"w"</span>)], <span class="at">by=</span><span class="st">"store"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(period) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">WTP_synth=</span><span class="fu">weighted.mean</span>(WTP,w), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">series=</span><span class="st">"Synthetic Rotterdam"</span>)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>treated_ts <span class="ot">&lt;-</span> panel_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(store<span class="sc">==</span>treat_store) <span class="sc">|&gt;</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(period, WTP) <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">WTP_synth=</span>WTP) <span class="sc">|&gt;</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">series=</span><span class="st">"Rotterdam (actual)"</span>)</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(synth_ts, treated_ts) <span class="sc">|&gt;</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>period, <span class="at">y=</span>WTP_synth, <span class="at">colour=</span>series, <span class="at">linetype=</span>series)) <span class="sc">+</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>n_pre<span class="fl">+0.5</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>n_pre<span class="sc">+</span><span class="dv">1</span>, <span class="at">y=</span><span class="fl">5.0</span>, <span class="at">label=</span><span class="st">"Eco-label</span><span class="sc">\n</span><span class="st">introduced"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.5</span>, <span class="at">colour=</span><span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Rotterdam (actual)"</span><span class="ot">=</span>clr_eco,<span class="st">"Synthetic Rotterdam"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Rotterdam (actual)"</span><span class="ot">=</span><span class="st">"solid"</span>,<span class="st">"Synthetic Rotterdam"</span><span class="ot">=</span><span class="st">"dashed"</span>)) <span class="sc">+</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Period"</span>, <span class="at">y=</span><span class="st">"Mean WTP ($)"</span>, <span class="at">colour=</span><span class="cn">NULL</span>, <span class="at">linetype=</span><span class="cn">NULL</span>,</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Synthetic Control: Rotterdam vs. its synthetic twin built from control stores"</span>,</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Good pre-period fit validates the synthetic match; gap after dashed line = causal effect"</span>) <span class="sc">+</span></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/synthetic-control-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../module-3/part1.html" class="pagination-link" aria-label="Part 1: What Is a Causal Effect?">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Regression Discontinuity">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
