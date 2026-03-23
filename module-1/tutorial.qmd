@@ -973,6 +973,141 @@ The HTMT and DVI approaches covered here are the current best practice for multi
 
 ---
 
+# Interlude: Reliability Is Not Validity {#sec-reliability-validity}
+
+## The Core Distinction
+
+Case 1 showed how to detect discriminant validity failures using HTMT and DVI. But there is a related, subtler failure mode that trips up researchers constantly: **a scale can be highly reliable and still be invalid**.
+
+**Reliability** measures *consistency* — do the items within a scale hang together? Cronbach's alpha is the most common index. A high alpha (typically > 0.70) means the items are consistently measuring *something*, but says nothing about *what* that something is, or whether it can be distinguished from other constructs.
+
+**Discriminant validity** asks a different question: is what you are measuring *distinct from other constructs*? A scale can achieve a Cronbach's alpha of 0.95 and simultaneously have an HTMT of 1.20 — perfectly reliable at measuring something indistinguishable from an entirely different construct.
+
+This distinction matters because most researchers check reliability and stop there. But:
+
+- A scale with high alpha and poor discriminant validity will produce inflated correlations between constructs — those correlations are partially measuring the *same thing* twice.
+- Mediation models and regression coefficients become uninterpretable: which construct is actually driving the effect?
+- Results replicate reliably — but are meaningless because the constructs were never distinct.
+
+## Why Cronbach's Alpha Cannot Detect Discriminant Validity Failures
+
+The reason is structural. Cronbach's alpha is computed entirely *within* a scale:
+
+$$\alpha = \frac{k\,\bar{\rho}}{1 + (k-1)\,\bar{\rho}}$$
+
+where $k$ is the number of items and $\bar{\rho}$ is the average inter-item correlation *within* the scale. Notice what is absent: any reference to other constructs or between-scale correlations. Alpha is mathematically blind to discriminant validity by design.
+
+## The Item-Addition Problem (Spearman–Brown)
+
+A compounding issue: **adding more items always increases Cronbach's alpha**, regardless of whether those items tap your intended construct or something adjacent to it. This is the Spearman–Brown prophecy. Researchers often respond to low alpha by writing more items. Each new item pushes alpha higher. But if the new items bleed into an adjacent construct, discriminant validity erodes at exactly the same time that alpha improves.
+
+The result: a scale that looks excellent by reliability standards (α = 0.92) while simultaneously failing every discriminant validity check.
+
+## Interactive Simulator: Reliability vs. Discriminant Validity
+
+Use the controls below to explore how Cronbach's alpha and HTMT respond — independently — to changes in scale properties. The key insight: you can set alpha as high as you like without changing HTMT at all, and vice versa.
+
+::: {.callout-tip}
+## What to try
+
+1. **Add items and watch alpha climb while HTMT stays flat.** Increase items from 4 to 12. Alpha rises from moderate to excellent. HTMT does not move. Reliability and discriminant validity are measuring completely different things.
+2. **The "looks great, is broken" scenario.** Set: 8 items, within-correlation = 0.55, between-correlation = 0.50. Alpha = 0.91 (Excellent!). HTMT = 0.91 (Discriminant validity violated). This is not a contrived edge case — it is common in sustainability, well-being, and attitude research where adjacent constructs are inherently correlated.
+3. **Set within-correlation = between-correlation.** Alpha remains unchanged. HTMT reaches 1.0 — the two scales are statistically identical. High reliability, zero discriminant validity.
+:::
+
+```{ojs}
+//| echo: false
+viewof sim_k = Inputs.range([2, 15], {
+  step: 1, value: 4,
+  label: "Number of items per scale (k)"
+})
+viewof sim_within_r = Inputs.range([0.10, 0.95], {
+  step: 0.01, value: 0.50,
+  label: "Within-scale inter-item correlation (ρ̄)"
+})
+viewof sim_between_r = Inputs.range([0.00, 0.95], {
+  step: 0.01, value: 0.30,
+  label: "Between-scale correlation (discriminant validity threat)"
+})
+```
+
+```{ojs}
+//| echo: false
+rel_alpha = (sim_k * sim_within_r) / (1 + (sim_k - 1) * sim_within_r)
+rel_htmt  = sim_between_r / sim_within_r
+
+alpha_col = rel_alpha >= 0.70 ? "#2a9d8f" : "#e63946"
+htmt_col  = rel_htmt  <  0.85 ? "#2a9d8f"
+           : rel_htmt  <  0.90 ? "#e9c46a"
+           : "#e63946"
+
+alpha_label = rel_alpha >= 0.90 ? "Excellent"
+            : rel_alpha >= 0.80 ? "Good"
+            : rel_alpha >= 0.70 ? "Acceptable"
+            : "Too low"
+
+htmt_label = rel_htmt < 0.85 ? "✓ Discriminant validity supported"
+           : rel_htmt < 0.90 ? "⚠ Borderline — approaching threshold"
+           : "✗ Discriminant validity VIOLATED"
+
+html`<div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;">
+  <div style="flex:1;min-width:200px;border:2px solid ${alpha_col};border-radius:8px;padding:16px;text-align:center;background:${alpha_col}18;">
+    <div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;">Cronbach's Alpha</div>
+    <div style="font-size:2.4em;font-weight:700;color:${alpha_col};">${rel_alpha.toFixed(3)}</div>
+    <div style="font-size:.9em;color:${alpha_col};font-weight:600;">${alpha_label}</div>
+    <div style="font-size:.75em;color:#888;margin-top:4px;">Threshold ≥ 0.70</div>
+  </div>
+  <div style="flex:1;min-width:200px;border:2px solid ${htmt_col};border-radius:8px;padding:16px;text-align:center;background:${htmt_col}18;">
+    <div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;">HTMT</div>
+    <div style="font-size:2.4em;font-weight:700;color:${htmt_col};">${rel_htmt.toFixed(3)}</div>
+    <div style="font-size:.9em;color:${htmt_col};font-weight:600;">${htmt_label}</div>
+    <div style="font-size:.75em;color:#888;margin-top:4px;">Threshold < 0.85</div>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+//| fig-cap: "Cronbach's alpha climbs with each additional item (blue). HTMT is completely unaffected (red). Dashed lines show common decision thresholds. The two metrics are measuring entirely different things."
+
+k_vals = Array.from({length: 14}, (_, i) => i + 2)
+
+alpha_long = k_vals.flatMap(k => [
+  {k, metric: "Cronbach's α", value: (k * sim_within_r) / (1 + (k - 1) * sim_within_r)},
+  {k, metric: "HTMT",         value: sim_between_r / sim_within_r}
+])
+
+Plot.plot({
+  width: 640, height: 280,
+  marginLeft: 55, marginRight: 20, marginTop: 20, marginBottom: 40,
+  color: {
+    legend: true,
+    domain: ["Cronbach's α", "HTMT"],
+    range:  ["#457b9d",      "#e63946"]
+  },
+  x: {label: "Items per scale (k)", tickValues: [2,4,6,8,10,12,14,15]},
+  y: {
+    label: "Value",
+    domain: [0, Math.min(1.3, Math.max(1.1, rel_htmt + 0.15))]
+  },
+  marks: [
+    Plot.ruleY([0.70], {stroke: "#f4a261", strokeDasharray: "5,3", strokeWidth: 1.4}),
+    Plot.ruleY([0.85], {stroke: "#e63946", strokeDasharray: "5,3", strokeWidth: 1.4}),
+    Plot.line(alpha_long, {x: "k", y: "value", stroke: "metric", strokeWidth: 2.5}),
+    Plot.dot(alpha_long.filter(d => d.k === sim_k),
+             {x: "k", y: "value", fill: "metric", r: 7})
+  ]
+})
+```
+
+::: {.callout-warning}
+## The bottom line
+
+A high Cronbach's alpha confirms your items are consistently measuring *something*. It does not confirm that the *something* is your intended construct, or that it can be distinguished from adjacent constructs. Discriminant validity testing is not optional — it is a prerequisite for interpreting any correlation, regression, or mediation involving Likert-scale constructs.
+:::
+
+---
+
 
 # Case 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-case2}
 
@@ -1908,6 +2043,155 @@ ggplot(bic_df, aes(x = factor(Classes), y = BIC, fill = factor(Classes == which.
 In mclust, **higher BIC is better** (mclust uses a flipped convention from textbook BIC). Look for the number of classes where BIC peaks — that is the model the data support. A clear peak at G=2 with lower values at G=1 and G=3 confirms a two-class solution. If BIC keeps rising to G=3 or G=4, you may need more classes — but always check that additional classes are substantively interpretable, not just statistical noise.
 :::
 
+## Simpson's Paradox: When Aggregation Reverses the Story
+
+The latent subgroup problem is a close cousin of a classical statistical phenomenon called **Simpson's Paradox**: a relationship that exists or appears significant in pooled data can reverse direction — or disappear entirely — when you look within groups.
+
+### In Secondary (Observational) Data
+
+In the Case 4 data you have already computed, you can see this directly. The pooled correlation between EC and GPI is very high — but not because EC drives GPI within each class. It is high because Green Champions score high on *both*, and Price Skeptics score lower on *both*. Pooling creates a spurious between-group correlation that looks like a meaningful within-group relationship.
+
+This is Simpson's Paradox in observational data: the aggregate pattern (high EC → high GPI) is real in the pooled sample, but it is a *group-composition artifact*, not an individual-level causal relationship. Within Green Champions, EC and GPI may be only weakly related. Within Price Skeptics, the same. The strong pooled correlation is driven entirely by the groups sitting at different locations on both variables.
+
+### In Experimental Designs: A Subtler Version
+
+Simpson's Paradox appears in a subtler but more dangerous form in experiments. Consider a study with two conditions — Low and High — that manipulates a focal construct (the manipulation check, MC). The between-group t-test is significant: the treatment effect appears. But what if, within each condition, MC scores have no relationship to the outcome DV at all?
+
+This is not a hypothetical. It happens when:
+
+1. **The manipulation successfully shifts mean MC** across conditions (groups differ in mean MC).
+2. **But MC variability within each condition is unrelated to DV** — individual differences in MC don't predict individual differences in DV.
+3. **A pooled regression of DV on MC** shows a positive slope — because it is picking up the *group-level offset*, not a within-person construct-outcome relationship.
+
+This structure is critical: the treatment effect is real (DV is higher in the High condition), but the construct of interest (MC as a latent variable) has zero within-group relationship to the DV. If you report a mediation through MC, that mediation coefficient is spurious — it is capturing the group-level offset, not a construct-level relationship.
+
+The code below simulates exactly this situation. The `beta_within` slider lets you control whether there is any within-group relationship between MC and DV. At zero, all apparent relationship is purely between-group — a Simpson's Paradox induced by experimental assignment.
+
+```{ojs}
+//| echo: false
+viewof beta_within_val = Inputs.range([0, 0.8], {
+  step: 0.05, value: 0,
+  label: "Within-group slope β (0 = flat, purely between-group effect)"
+})
+```
+
+```{ojs}
+//| echo: false
+
+// Fixed random structure — only DV changes with beta_within_val
+simp_base = {
+  const n = 100;
+  const specs = [
+    {group: "Condition Low",  mu: 3, int: 10, color: "#457b9d"},
+    {group: "Condition High", mu: 6, int: 15, color: "#e63946"}
+  ];
+  let seed = 31415927;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 0x100000000;
+  };
+  const randn = () => {
+    const u1 = rand() || 1e-10, u2 = rand();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  };
+  return specs.flatMap(s =>
+    Array.from({length: n}, () => {
+      const mc    = s.mu + randn();
+      const noise = randn();
+      return {group: s.group, mu: s.mu, int: s.int, mc, noise};
+    })
+  );
+}
+
+simp_data = simp_base.map(d => ({
+  ...d,
+  dv: d.int + beta_within_val * (d.mc - d.mu) + d.noise
+}))
+
+// OLS helper
+function ols(pts) {
+  const n  = pts.length;
+  const xm = pts.reduce((s, d) => s + d.mc, 0) / n;
+  const ym = pts.reduce((s, d) => s + d.dv, 0) / n;
+  const sxy = pts.reduce((s, d) => s + (d.mc - xm) * (d.dv - ym), 0);
+  const sxx = pts.reduce((s, d) => s + (d.mc - xm) ** 2, 0);
+  const b = sxy / sxx;
+  const a = ym - b * xm;
+  return {a, b};
+}
+
+// Regression lines
+groups_lines = {
+  const grps = ["Condition Low", "Condition High"];
+  const colors = {"Condition Low": "#457b9d", "Condition High": "#e63946"};
+  const xrange = [1.5, 8.5];
+  const lines = [];
+  for (const g of grps) {
+    const pts = simp_data.filter(d => d.group === g);
+    const {a, b} = ols(pts);
+    lines.push({group: g, x: xrange[0], y: a + b * xrange[0], color: colors[g]});
+    lines.push({group: g, x: xrange[1], y: a + b * xrange[1], color: colors[g]});
+  }
+  return lines;
+}
+
+pooled_line = {
+  const {a, b} = ols(simp_data);
+  return [{x: 1.5, y: a + b * 1.5}, {x: 8.5, y: a + b * 8.5}];
+}
+
+pooled_reg = ols(simp_data)
+low_reg    = ols(simp_data.filter(d => d.group === "Condition Low"))
+high_reg   = ols(simp_data.filter(d => d.group === "Condition High"))
+
+html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.9em;">
+  <div style="border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;">
+    <strong>Pooled slope:</strong> ${pooled_reg.b.toFixed(3)} &nbsp;
+    <span style="color:${Math.abs(pooled_reg.b) > 0.3 ? '#e63946' : '#2a9d8f'}">
+      (${Math.abs(pooled_reg.b) > 0.3 ? 'appears significant' : 'near zero'})
+    </span>
+  </div>
+  <div style="border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;">
+    <strong>Within-group slope (Low):</strong> ${low_reg.b.toFixed(3)}
+  </div>
+  <div style="border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;">
+    <strong>Within-group slope (High):</strong> ${high_reg.b.toFixed(3)}
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+//| fig-cap: "Scatter plot of manipulation check vs. DV. Solid lines = within-condition regression. Dashed black = pooled regression. At β = 0, the pooled slope is entirely a between-group artifact — Simpson's Paradox."
+
+Plot.plot({
+  width: 650, height: 380,
+  marginLeft: 55, marginBottom: 45, marginTop: 20, marginRight: 20,
+  x: {label: "Manipulation Check (MC)"},
+  y: {label: "Outcome (DV)"},
+  color: {
+    legend: true,
+    domain: ["Condition Low", "Condition High"],
+    range:  ["#457b9d",      "#e63946"]
+  },
+  marks: [
+    Plot.dot(simp_data, {x: "mc", y: "dv", stroke: "group", fill: "group", fillOpacity: 0.35, r: 4}),
+    Plot.line(groups_lines, {x: "x", y: "y", stroke: "group", strokeWidth: 2.5}),
+    Plot.line(pooled_line,  {x: "x", y: "y", stroke: "#222", strokeDasharray: "6,4", strokeWidth: 2.2}),
+    Plot.text([{x: 7.8, y: pooled_line[1].y + 0.4, label: "Pooled OLS"}],
+              {x: "x", y: "y", text: "label", fill: "#222", fontSize: 11})
+  ]
+})
+```
+
+::: {.callout-important}
+## Why this matters for mediation
+
+When β_within = 0, a mediation analysis through MC would still produce a significant indirect effect — because the pooled path from condition → MC and from MC → DV are both non-zero. But that indirect effect is entirely a *group-level compositional artifact*, not evidence that MC mediates any psychological process. The groups differ on DV for reasons that have nothing to do with where individual participants fall on the MC within their group.
+
+This is a version of the ecological fallacy: group-level patterns do not necessarily reflect individual-level relationships. Before reporting mediation, always check whether the construct-to-DV relationship holds *within* conditions, not just in the pooled sample.
+:::
+
 ## Other Methods for Detecting Latent Subgroups
 
 Gaussian mixture models (mclust) are the continuous-variable analogue of latent class analysis. Related methods:
@@ -2322,6 +2606,184 @@ LOF + DBSCAN and robust regression are practical entry points. The broader toolk
 - **Quantile regression (quantreg package):** Instead of modeling the mean, model multiple quantiles of Y. Outliers that pull the mean line don't affect quantile regression as severely. Useful when you care about the full distribution, not just the central tendency.
 - **Sandwich standard errors (sandwich package):** If heteroskedasticity (the fan pattern from Case 2) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.
 
+
+---
+
+# A Quiet Bias: Asymmetric Measurement Error on Bounded Scales {#sec-bounded-error}
+
+## The Problem in Plain Language
+
+Almost every scale used in behavioral research has bounds — rating scales run from 1 to 7, percentages from 0 to 100, frequency measures from "never" to "always." These bounds are usually treated as a minor formatting detail. In practice, they introduce a systematic bias that most researchers never think about.
+
+Here is the mechanism. Suppose a participant's true level of some construct is 85 on a 0–100 scale, and they have a genuine tendency to vary ±15 points around that true value due to measurement noise (mood, attention, question framing). On the low side, they can express that variation freely — they might score 70, 75, 80. On the high side, they hit a ceiling. Scores of 95, 100, 105 are impossible — those attempts to go higher just pile up at 100. The result: the *observed* distribution of scores is not centered at 85. It is pulled toward the center of the scale. The ceiling cuts off the upper tail, making the observed mean *lower* than the true mean.
+
+The same thing happens at the lower bound: if the true value is close to the floor, the floor cuts off the lower tail and pulls the observed mean *upward*. Both effects push observations toward the middle of the scale.
+
+Three factors make this worse:
+
+1. **Proximity to a bound** — the closer the true value to a ceiling or floor, the more severe the truncation and the greater the bias.
+2. **More variability** — the more spread there is in true scores (or measurement noise), the more the tails get cut off and the stronger the pull toward the center.
+3. **Tighter scale** — a 7-point scale truncates more than a 100-point scale for the same true variability.
+
+::: {.callout-note}
+## One-sided vs. two-sided bounds
+
+Scales bounded on *both* ends (1–7 Likert, 0–100 slider) produce *symmetric* pull toward the center: ceiling effects at the top and floor effects at the bottom, each biasing estimates toward the midpoint.
+
+Scales bounded on *one end only* — like response time (lower bound at 0, no upper bound), log-transformed variables, or count data — produce *asymmetric* pull toward the *bounded* end only. The unbounded tail is free; the bounded tail is clipped. This asymmetry means the direction of bias depends on which bound participants approach.
+
+For right-skewed distributions common in bounded-at-zero measures (reaction time, income, sales), the floor effect is usually the active constraint, and the bias pushes mean estimates upward.
+:::
+
+## Interactive Simulator: See the Bias in Real Time
+
+The simulator below draws from a truncated normal distribution — what you would observe when participants have a normally distributed true score but the scale imposes hard limits. Adjust the sliders to see how the gap between the true mean (dashed black line) and the observed mean (solid blue) and median (solid red) changes with boundary proximity and variability.
+
+```{ojs}
+//| echo: false
+viewof bound_mu  = Inputs.range([5, 95], {step: 1, value: 50, label: "True mean (population)"})
+viewof bound_sd  = Inputs.range([2, 40], {step: 1, value: 15, label: "True SD (variability / noise)"})
+viewof bound_lo  = Inputs.select(["Bounded at 0", "No lower bound"], {value: "Bounded at 0", label: "Lower bound"})
+viewof bound_hi  = Inputs.select(["Bounded at 100", "No upper bound"], {value: "Bounded at 100", label: "Upper bound"})
+```
+
+```{ojs}
+//| echo: false
+
+// Normal PDF and CDF utilities
+function phi_fn(x) {
+  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+function erf_fn(x) {
+  const s = x >= 0 ? 1 : -1, ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t * Math.exp(-ax*ax));
+  return s * y;
+}
+function Phi_fn(x) { return 0.5 * (1 + erf_fn(x / Math.sqrt(2))); }
+
+// Inverse normal CDF (Acklam approximation)
+function qnorm(p) {
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.383577518672690e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const pL = 0.02425;
+  let q;
+  if (p < pL) {
+    q = Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else if (p <= 1-pL) {
+    q = p - 0.5; const r = q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  } else {
+    q = Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+}
+
+loB = bound_lo === "Bounded at 0"   ?   0 : -Infinity
+hiB = bound_hi === "Bounded at 100" ? 100 :  Infinity
+
+// Truncated normal moments (analytical)
+trunc_moments = {
+  const mu = bound_mu, sigma = bound_sd;
+  const lo = loB, hi = hiB;
+  const alpha = lo === -Infinity ? -Infinity : (lo - mu) / sigma;
+  const beta  = hi ===  Infinity ?  Infinity : (hi - mu) / sigma;
+  const pA = alpha === -Infinity ? 0 : Phi_fn(alpha);
+  const pB = beta  ===  Infinity ? 1 : Phi_fn(beta);
+  const Z  = pB - pA;
+  const fA = alpha === -Infinity ? 0 : phi_fn(alpha);
+  const fB = beta  ===  Infinity ? 0 : phi_fn(beta);
+  const obs_mean = mu + sigma * (fA - fB) / Z;
+  const obs_med  = mu + sigma * qnorm((pA + pB) / 2);
+  const obs_var  = sigma*sigma * (1 + (alpha*fA - beta*fB)/Z - ((fA-fB)/Z)**2);
+  return {obs_mean, obs_med, obs_sd: Math.sqrt(Math.max(0, obs_var)), Z};
+}
+
+// Truncated normal PDF grid for density plot
+{
+  const lo = Math.max(loB === -Infinity ? bound_mu - 4*bound_sd : loB, bound_mu - 5*bound_sd);
+  const hi = Math.min(hiB ===  Infinity ? bound_mu + 4*bound_sd : hiB, bound_mu + 5*bound_sd);
+}
+
+density_data = {
+  const mu = bound_mu, sigma = bound_sd;
+  const lo = loB, hi = hiB;
+  const pA = lo === -Infinity ? 0 : Phi_fn((lo - mu)/sigma);
+  const pB = hi ===  Infinity ? 1 : Phi_fn((hi - mu)/sigma);
+  const Z  = pB - pA;
+
+  const xlo = Math.max(lo === -Infinity ? mu - 4.5*sigma : lo, -5);
+  const xhi = Math.min(hi ===  Infinity ? mu + 4.5*sigma : hi, 105);
+  const n   = 300;
+  return Array.from({length: n}, (_, i) => {
+    const x = xlo + (i / (n-1)) * (xhi - xlo);
+    const pdf = (x < lo || x > hi) ? 0 : phi_fn((x-mu)/sigma) / (sigma * Z);
+    return {x, pdf};
+  });
+}
+
+bias_mean   = trunc_moments.obs_mean - bound_mu
+bias_med    = trunc_moments.obs_med  - bound_mu
+bias_dir    = Math.abs(bias_mean) < 0.5 ? "negligible" : bias_mean > 0 ? "upward" : "downward"
+
+html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.88em;">
+  <div style="flex:1;min-width:160px;border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;">
+    <strong>True mean:</strong> ${bound_mu.toFixed(1)}
+  </div>
+  <div style="flex:1;min-width:160px;border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;">
+    <strong>Observed mean:</strong> ${trunc_moments.obs_mean.toFixed(2)}
+    <span style="color:${Math.abs(bias_mean)>1?'#e63946':'#888'}"> (bias: ${bias_mean > 0 ? '+' : ''}${bias_mean.toFixed(2)})</span>
+  </div>
+  <div style="flex:1;min-width:160px;border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;">
+    <strong>Observed median:</strong> ${trunc_moments.obs_med.toFixed(2)}
+    <span style="color:${Math.abs(bias_med)>1?'#e63946':'#888'}"> (bias: ${bias_med > 0 ? '+' : ''}${bias_med.toFixed(2)})</span>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+//| fig-cap: "Density of observed scores on the bounded scale. Dashed black = true mean; blue = observed mean; red = observed median. The gap between true and observed mean shows the truncation bias. Drag the sliders to see how proximity to a bound and variability increase the bias."
+
+Plot.plot({
+  width: 650, height: 300,
+  marginLeft: 55, marginBottom: 45, marginTop: 20, marginRight: 20,
+  x: {label: "Scale value", domain: [Math.min(loB === -Infinity ? bound_mu - 4.5*bound_sd : loB - 2, -5),
+                                       Math.max(hiB === Infinity ? bound_mu + 4.5*bound_sd : hiB + 2, 105)]},
+  y: {label: "Density", domain: [0, null]},
+  marks: [
+    Plot.areaY(density_data, {x: "x", y: "pdf", fill: "#457b9d", fillOpacity: 0.25, curve: "natural"}),
+    Plot.lineY(density_data, {x: "x", y: "pdf", stroke: "#457b9d", strokeWidth: 2, curve: "natural"}),
+    // True mean
+    Plot.ruleX([bound_mu], {stroke: "#222", strokeDasharray: "6,3", strokeWidth: 2}),
+    // Observed mean
+    Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d", strokeWidth: 2.5}),
+    // Observed median
+    Plot.ruleX([trunc_moments.obs_med],  {stroke: "#e63946", strokeWidth: 2.5, strokeDasharray: "4,3"}),
+    // Boundary markers
+    ...(loB > -Infinity ? [Plot.ruleX([loB], {stroke: "#888", strokeWidth: 1.5})] : []),
+    ...(hiB <  Infinity ? [Plot.ruleX([hiB], {stroke: "#888", strokeWidth: 1.5})] : []),
+    // Legend text
+    Plot.text([{x: bound_mu, label: "True mean", y: 0}],
+      {x: "x", y: d => Math.max(...density_data.map(p=>p.pdf)) * 1.05, text: "label",
+       fill: "#222", fontSize: 10, textAnchor: "start", dx: 4}),
+  ]
+})
+```
+
+::: {.callout-warning}
+## What this means for your research
+
+**Means are biased toward the scale midpoint.** When comparing groups or conditions, if one group has a true mean closer to a bound than the other, the truncation bias is different for each group — the apparent treatment effect is distorted by the scale itself, not just the construct.
+
+**The problem gets worse as variability increases.** High within-person variability (which researchers often interpret as low reliability) amplifies truncation bias. Ironically, a noisy measure produces *more* bias, not just more noise.
+
+**Transformations can help, but not eliminate.** Logit-transforming proportions (e.g., `log(p/(1-p)`) or arcsine-transforming bounded scores can partially stabilize the bias. Tobit regression models the truncated distribution explicitly. For most applications, being *aware* of the direction of bias — and considering whether groups with different true means are differentially affected — is the first step.
+:::
 
 ## References
 
