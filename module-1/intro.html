@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; Module 1: Measurement – Measurement, Experimentation &amp; Causal Inference</title>
+<title>2&nbsp; Module 1: Measurement – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -136,7 +136,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Measurement, Experimentation &amp; Causal Inference</a> 
+      <a href="../">Measurement, Experimentation, &amp; Causal Inference</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation, &amp; Causal Inference</span></span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -392,150 +392,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>All papers are available in the <code>Module 1 - Recommended Reading/</code> folder.</p>
 <hr>
-<style>
-/* ── Floating bottom control bar ──────────────────────────────────────────── */
-#global-output-toggle {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  padding: 11px 24px;
-  background: #1e3a5f;
-  border-top: 3px solid #4a90d9;
-  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
-}
-#global-output-toggle span {
-  color: #c8d8ed;
-  font-size: 0.85em;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  margin-right: 6px;
-}
-/* Reserve space at page bottom so content never hides behind the bar */
-body { padding-bottom: 70px !important; }
-
-.gtbtn {
-  padding: 9px 24px;
-  color: #ffffff;
-  border-radius: 7px;
-  font-size: 1em;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 0.2px;
-  transition: background 0.15s, border-color 0.15s;
-  white-space: nowrap;
-  border: 2px solid transparent;
-}
-/* Code button — blue */
-.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
-.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
-/* Output button — teal/green */
-.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
-.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
-
-/* ── Per-output collapsible wrappers ──────────────────────────────────────── */
-details.out-fold { margin: 6px 0 14px 0; }
-summary.out-fold-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 20px;
-  background: #eef4fb;
-  border: 2px solid #4a90d9;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 0.94em;
-  font-weight: 700;
-  color: #1a3a6b;
-  user-select: none;
-  list-style: none;
-  transition: background 0.12s;
-}
-summary.out-fold-btn::-webkit-details-marker { display: none; }
-summary.out-fold-btn:hover { background: #cfe2f7; }
-details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
-summary.out-fold-btn .fold-icon { font-size: 1em; }
-details[open] .fold-icon-closed { display: none; }
-details:not([open]) .fold-icon-open { display: none; }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  /* ── 1. Wrap every cell output in a collapsible <details> ──────────────── */
-  var outputSels = [
-    '.cell-output-stdout',
-    '.cell-output-stderr',
-    '.cell-output-display'
-  ];
-
-  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
-    if (el.closest('.callout') || el.closest('details.out-fold')) return;
-
-    var hasImg = !!el.querySelector('img, svg, canvas');
-    var hasTbl = !!el.querySelector('table');
-    var label  = hasImg ? '📊  Show plot'
-               : hasTbl ? '📋  Show table'
-               :           '📄  Show output';
-
-    var det = document.createElement('details');
-    det.className = 'out-fold';
-
-    var sum = document.createElement('summary');
-    sum.className = 'out-fold-btn';
-    sum.innerHTML =
-      '<span class="fold-icon fold-icon-closed">▶</span>' +
-      '<span class="fold-icon fold-icon-open">▼</span>' +
-      label;
-
-    el.parentNode.insertBefore(det, el);
-    det.appendChild(sum);
-    det.appendChild(el);
-  });
-
-  /* ── 2. Append the floating control bar to <body> ──────────────────────── */
-  var bar = document.createElement('div');
-  bar.id = 'global-output-toggle';
-  bar.innerHTML =
-    '<span>Quick controls:</span>' +
-    '<button id="code-toggle-btn"   class="gtbtn code-btn"   onclick="toggleCode()">▼ Expand All Code</button>' +
-    '<button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">▼ Expand All Output</button>';
-
-  document.body.appendChild(bar);
-});
-
-/* Track open/collapsed state separately for code and output */
-var codeOpen   = false;
-var outputOpen = false;
-
-function toggleCode() {
-  codeOpen = !codeOpen;
-  document.querySelectorAll('details').forEach(function (d) {
-    /* Code details contain a .sourceCode descendant; output folds carry class out-fold */
-    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) {
-      d.open = codeOpen;
-    }
-  });
-  var btn = document.getElementById('code-toggle-btn');
-  if (btn) btn.textContent = codeOpen ? '▲ Collapse All Code' : '▼ Expand All Code';
-}
-
-function toggleOutput() {
-  outputOpen = !outputOpen;
-  document.querySelectorAll('details.out-fold').forEach(function (d) {
-    d.open = outputOpen;
-  });
-  var btn = document.getElementById('output-toggle-btn');
-  if (btn) btn.textContent = outputOpen ? '▲ Collapse All Output' : '▼ Expand All Output';
-}
-</script>
 </section>
 <section id="what-this-tutorial-is-about" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="what-this-tutorial-is-about"><span class="header-section-number">2.4</span> What This Tutorial Is About</h2>
@@ -1060,8 +916,8 @@ function toggleOutput() {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../index.html" class="pagination-link" aria-label="Measurement, Experimentation &amp; Causal Inference">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="Measurement, Experimentation, &amp; Causal Inference">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation, &amp; Causal Inference</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

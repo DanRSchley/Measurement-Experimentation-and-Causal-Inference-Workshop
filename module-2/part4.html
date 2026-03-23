@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>12&nbsp; Part 4: Experimental Design Strategies – Measurement, Experimentation &amp; Causal Inference</title>
+<title>12&nbsp; Part 4: Experimental Design Strategies – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -167,7 +167,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Measurement, Experimentation &amp; Causal Inference</a> 
+      <a href="../">Measurement, Experimentation, &amp; Causal Inference</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
@@ -183,7 +183,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation &amp; Causal Inference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation, &amp; Causal Inference</span></span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -922,7 +922,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Reading the plot:</strong> at K = 1, the separate A/B test has higher power (~98%) because it runs one large, clean study with all 400 participants. The metastudy starts lower (~35%) because with only one microstudy you have no way to know whether your single chosen scenario is representative — the effect heterogeneity τ adds substantial uncertainty to the meta-analytic estimate. As K grows, those roles reverse. Each new microstudy samples a different corner of the scenario space, and the τ²/K term in the metastudy’s SE formula shrinks rapidly. By K ≈ 5, the metastudy already matches and then exceeds the A/B test’s power; by K = 15, the metastudy reaches near-ceiling power while the separate A/B tests have collapsed below 30%. The shaded region shows precisely how much of the metastudy’s power gain comes from reducing the heterogeneity component — and it is substantial.</p>
+<p><strong>Reading the plot:</strong> at K = 1, the separate A/B test has higher power (~98%) because it runs one large, clean study with all 400 participants. The metastudy starts lower (~35%) because with only one microstudy you have no way to know whether your single chosen scenario is representative — the effect heterogeneity τ adds substantial uncertainty to the meta-analytic estimate. As K grows, those roles reverse. Each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly. By K = 3, the metastudy already surpasses the A/B test’s power; by K = 15, it reaches near-ceiling power (&gt;99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy’s power gain comes from reducing the heterogeneity component — and it is substantial.</p>
 <p>The practical upshot: a single well-powered A/B test answers the question “does this effect occur in <em>this</em> context?” A metastudy with many microstudies answers the question “does this effect occur <em>in general</em>?” — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.</p>
 <p><strong>The connection to Section 3:</strong> a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions <em>by construction</em> — transforming unobserved confounders into <em>measured experimental factors</em> and extracting their effects cleanly.</p>
 <hr>
