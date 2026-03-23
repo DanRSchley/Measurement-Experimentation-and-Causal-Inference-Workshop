@@ -1,0 +1,264 @@
+---
+title: "Module 1: Measurement"
+subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers"
+---
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 1: Validity"></iframe>
+
+## Overview
+
+Good measurement is the foundation of good research, yet it is the step most often skipped. This module asks: *does your scale actually measure the construct you intend?* — and introduces the tools to find out.
+
+We cover discriminant validity, omitted variable bias from measurement error, measurement invariance across groups, latent class structure, and outlier detection. Each topic is treated both conceptually and with live R code.
+
+---
+
+## Learning Goals
+
+By the end of this module you should be able to:
+
+- Distinguish construct validity from reliability, and explain why reliability alone is insufficient
+- Diagnose discriminant validity problems using CFA and AVE/correlation comparisons
+- Explain how classical measurement error biases regression coefficients and in which direction
+- Test for measurement invariance across groups using configural, metric, and scalar CFA models
+- Identify latent class structure using mixture models and interpret class profiles
+- Detect and reason about outliers using Cook's D, DFFITS, and leverage diagnostics
+
+---
+
+## Recommended Reading
+
+| Paper | Why it matters |
+|---|---|
+| Flake & Fried (2020) — *Measurement Schmeasurement* | The best accessible critique of how measurement is treated in psychology and management |
+| Borsboom, Mellenbergh & van Heerden (2003) | What does it actually mean for a test to measure a construct? |
+| Arkes & Tetlock (2004) | A worked example of construct validity problems in political judgment research |
+| Vosgerau et al. (2019) — *Exerting Self-Control is Not Sacrificing Pleasure* | How reframing the DV changes conclusions |
+
+All papers are available in the `Module 1 - Recommended Reading/` folder.
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 8,
+  fig.height = 5,
+  fig.path = "figs/",
+  dev = "svg"
+)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{=html}
+<style>
+/* ── Floating bottom control bar ──────────────────────────────────────────── */
+#global-output-toggle {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 11px 24px;
+  background: #1e3a5f;
+  border-top: 3px solid #4a90d9;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.35);
+}
+#global-output-toggle span {
+  color: #c8d8ed;
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+/* Reserve space at page bottom so content never hides behind the bar */
+body { padding-bottom: 70px !important; }
+
+.gtbtn {
+  padding: 9px 24px;
+  color: #ffffff;
+  border-radius: 7px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+/* Code button — blue */
+.gtbtn.code-btn   { background: #2563a8; border-color: #5b9bd5; }
+.gtbtn.code-btn:hover { background: #1a4a80; border-color: #90bfe8; }
+/* Output button — teal/green */
+.gtbtn.output-btn { background: #2d6a4f; border-color: #52b788; }
+.gtbtn.output-btn:hover { background: #1b4332; border-color: #74c69d; }
+
+/* ── Per-output collapsible wrappers ──────────────────────────────────────── */
+details.out-fold { margin: 6px 0 14px 0; }
+summary.out-fold-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  background: #eef4fb;
+  border: 2px solid #4a90d9;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.94em;
+  font-weight: 700;
+  color: #1a3a6b;
+  user-select: none;
+  list-style: none;
+  transition: background 0.12s;
+}
+summary.out-fold-btn::-webkit-details-marker { display: none; }
+summary.out-fold-btn:hover { background: #cfe2f7; }
+details[open].out-fold > summary.out-fold-btn { background: #d6ecff; }
+summary.out-fold-btn .fold-icon { font-size: 1em; }
+details[open] .fold-icon-closed { display: none; }
+details:not([open]) .fold-icon-open { display: none; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── 1. Wrap every cell output in a collapsible <details> ──────────────── */
+  var outputSels = [
+    '.cell-output-stdout',
+    '.cell-output-stderr',
+    '.cell-output-display'
+  ];
+
+  document.querySelectorAll(outputSels.join(',')).forEach(function (el) {
+    if (el.closest('.callout') || el.closest('details.out-fold')) return;
+
+    var hasImg = !!el.querySelector('img, svg, canvas');
+    var hasTbl = !!el.querySelector('table');
+    var label  = hasImg ? '📊  Show plot'
+               : hasTbl ? '📋  Show table'
+               :           '📄  Show output';
+
+    var det = document.createElement('details');
+    det.className = 'out-fold';
+
+    var sum = document.createElement('summary');
+    sum.className = 'out-fold-btn';
+    sum.innerHTML =
+      '<span class="fold-icon fold-icon-closed">▶</span>' +
+      '<span class="fold-icon fold-icon-open">▼</span>' +
+      label;
+
+    el.parentNode.insertBefore(det, el);
+    det.appendChild(sum);
+    det.appendChild(el);
+  });
+
+  /* ── 2. Append the floating control bar to <body> ──────────────────────── */
+  var bar = document.createElement('div');
+  bar.id = 'global-output-toggle';
+  bar.innerHTML =
+    '<span>Quick controls:</span>' +
+    '<button id="code-toggle-btn"   class="gtbtn code-btn"   onclick="toggleCode()">▼ Expand All Code</button>' +
+    '<button id="output-toggle-btn" class="gtbtn output-btn" onclick="toggleOutput()">▼ Expand All Output</button>';
+
+  document.body.appendChild(bar);
+});
+
+/* Track open/collapsed state separately for code and output */
+var codeOpen   = false;
+var outputOpen = false;
+
+function toggleCode() {
+  codeOpen = !codeOpen;
+  document.querySelectorAll('details').forEach(function (d) {
+    /* Code details contain a .sourceCode descendant; output folds carry class out-fold */
+    if (!d.classList.contains('out-fold') && d.querySelector('.sourceCode')) {
+      d.open = codeOpen;
+    }
+  });
+  var btn = document.getElementById('code-toggle-btn');
+  if (btn) btn.textContent = codeOpen ? '▲ Collapse All Code' : '▼ Expand All Code';
+}
+
+function toggleOutput() {
+  outputOpen = !outputOpen;
+  document.querySelectorAll('details.out-fold').forEach(function (d) {
+    d.open = outputOpen;
+  });
+  var btn = document.getElementById('output-toggle-btn');
+  if (btn) btn.textContent = outputOpen ? '▲ Collapse All Output' : '▼ Expand All Output';
+}
+</script>
+```
+
+## What This Tutorial Is About
+
+There is a single idea running through everything in this tutorial:
+
+> **Y is supposed to reflect X — but it actually reflects X *plus something else*.**
+
+This problem shows up in five different guises that marketing researchers encounter regularly:
+
+- **Case 1 — Discriminant Validity:** Your Green Purchase Intention scale is supposed to measure *purchase intention* (X) — but its items also pick up *environmental concern* (something else). The scale cannot be told apart from a different construct.
+
+- **Case 2 — Omitted Variable Bias:** In your secondary data, observed *sales* (Y) is supposed to reflect *advertising spend* (X) — but sales also reflects *store quality* (something else, which you never measured). Your estimated advertising effect is inflated.
+
+- **Case 3 — Measurement Non-Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
+
+- **Case 4 — Latent Subgroups:** Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn't apply cleanly to anyone.
+
+- **Case 5 — Outliers:** Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.
+
+The statistical symptoms differ across these five cases, but the **underlying logic is identical**: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.
+
+::: {.callout-note}
+## Learning Objectives
+By the end of this tutorial, you will be able to:
+
+- Diagnose discriminant validity failures using HTMT and the DVI method (Pieters et al., 2025)
+- Identify omitted variable bias through residual diagnostics and coefficient sensitivity analysis
+- Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan
+- Use modification indices to pinpoint which specific items are non-invariant
+- Use Gaussian mixture models (via `mclust`) to detect latent subgroups that distort your outcome
+- Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers
+- Apply robust regression (MASS::rlm) as an alternative to deleting outliers
+- Explain the conceptual link between all five problems to a non-technical audience
+:::
+
+
+---
+
+
+## Packages Needed
+
+Install and load the required packages. If you haven't installed them before, run the `install.packages()` lines first.
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+# Uncomment to install if needed:
+# install.packages(c("lavaan", "semTools", "MASS", "ggplot2",
+#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
+#                    "mclust", "dbscan"))
+
+library(lavaan)       # CFA and SEM (Cases 1 and 3)
+library(semTools)     # htmt() and auxiliary SEM tools (Cases 1 and 3)
+library(MASS)         # mvrnorm(): generate multivariate normal data (all cases)
+library(ggplot2)      # Visualizations (all cases)
+library(dplyr)        # Data manipulation (all cases)
+library(tidyr)        # Data reshaping (Cases 2 and 3)
+library(corrplot)     # Correlation heatmap (Case 1)
+library(knitr)        # Nicely formatted tables (all cases)
+library(lmtest)       # Breusch-Pagan heteroskedasticity test (Case 2)
+library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
+library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
+```
+
+
+---

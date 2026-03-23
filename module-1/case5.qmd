@@ -1,0 +1,640 @@
+---
+title: "Cases 5 & 6: Outliers and Systematic Error"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 8,
+  fig.height = 5,
+  fig.path = "figs/",
+  dev = "svg"
+)
+
+dir.create("figs", recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r packages}
+#| code-summary: "▶ Load required packages"
+# Uncomment to install if needed:
+# install.packages(c("lavaan", "semTools", "MASS", "ggplot2",
+#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
+#                    "mclust", "dbscan"))
+
+library(lavaan)       # CFA and SEM (Cases 1 and 3)
+library(semTools)     # htmt() and auxiliary SEM tools (Cases 1 and 3)
+library(MASS)         # mvrnorm(): generate multivariate normal data (all cases)
+library(ggplot2)      # Visualizations (all cases)
+library(dplyr)        # Data manipulation (all cases)
+library(tidyr)        # Data reshaping (Cases 2 and 3)
+library(corrplot)     # Correlation heatmap (Case 1)
+library(knitr)        # Nicely formatted tables (all cases)
+library(lmtest)       # Breusch-Pagan heteroskedasticity test (Case 2)
+library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
+library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
+```
+
+---
+
+
+# Case 5: Outlier Detection and Robust Estimation {#sec-case5}
+
+## Connecting to the Earlier Cases
+
+Case 4 showed what happens when your sample contains two fundamentally different types of respondents. Case 5 extends this logic to observational data — specifically, to the problem of **outliers**.
+
+Not all outliers are the same. Two important distinctions:
+
+- **Collective outliers** are a group of observations that form their own cluster, far from the rest of the data. They usually represent a *different population* — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from Case 4: if you include them, your regression line tries to average over two different data-generating processes.
+
+- **Point outliers** (or global outliers) are individual observations that are simply extreme on one or more variables. They may represent data errors, rare events, or genuinely unusual cases. They pull the regression line toward them and inflate standard errors.
+
+Both types distort your results — but in different ways, and the solutions are different.
+
+::: {.callout-note}
+## The connection to discriminant validity and latent subgroups
+
+Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn't "wrong data" — it's a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics: the resulting coefficient doesn't accurately describe either group.
+
+Point outliers, by contrast, are statistical problems rather than conceptual ones. A single data entry error or an unusually extreme store doesn't imply a hidden population — it's just a disruptive data point that needs to be handled carefully.
+:::
+
+## Simulating the Dataset
+
+We create a store-level dataset with three groups:
+
+- **Regular stores** (n=500): Standard advertising–sales relationship
+- **Luxury flagships** (n=8): Collective outliers — much higher advertising and sales, forming their own cluster
+- **Point outliers** (n=5): Individual stores with implausibly extreme values
+
+```{r case5-simulate}
+#| code-summary: "▶ Simulate store dataset with collective and point outliers"
+set.seed(2025)
+
+# ── Regular stores ─────────────────────────────────────────────────────────────
+n_reg <- 500
+adv_reg   <- rnorm(n_reg, mean = 5, sd = 1.5)
+sales_reg <- 0.4 * adv_reg + rnorm(n_reg, sd = 1.2)
+
+# ── Luxury flagship stores (collective outliers) ───────────────────────────────
+# They advertise much more AND have much higher sales — different economic model
+n_lux <- 8
+adv_lux   <- rnorm(n_lux, mean = 18, sd = 1.2)
+sales_lux <- 0.3 * adv_lux + rnorm(n_lux, sd = 0.8) + 10   # elevated baseline
+
+# ── Point outliers (individual extreme observations) ───────────────────────────
+n_pt  <- 5
+adv_pt   <- c(22, 1, 3, 19, 2)          # extreme advertising values
+sales_pt <- c(2, 18, -1, 25, 15)        # extreme / inconsistent sales
+
+# ── Combine into single dataset ────────────────────────────────────────────────
+df5 <- data.frame(
+  advertising = c(adv_reg,    adv_lux,    adv_pt),
+  sales       = c(sales_reg,  sales_lux,  sales_pt),
+  store_type  = c(rep("Regular",   n_reg),
+                  rep("Luxury flagship", n_lux),
+                  rep("Point outlier",   n_pt))
+)
+```
+
+## Step 1: Visualising the Three Types of Stores
+
+```{r case5-scatter, fig.height = 5}
+#| code-summary: "▶ Plot: stores colored by true type"
+ggplot(df5, aes(x = advertising, y = sales, colour = store_type, shape = store_type)) +
+  geom_point(aes(size = store_type), alpha = 0.7) +
+  geom_smooth(data = filter(df5, store_type == "Regular"),
+              method = "lm", se = TRUE, colour = "#4575b4",
+              linewidth = 1.0, inherit.aes = FALSE,
+              aes(x = advertising, y = sales)) +
+  scale_colour_manual(
+    values = c("Regular"         = "#4575b4",
+               "Luxury flagship" = "#d73027",
+               "Point outlier"   = "#1a9641"),
+    name   = "Store type"
+  ) +
+  scale_shape_manual(
+    values = c("Regular" = 16, "Luxury flagship" = 17, "Point outlier" = 8),
+    name   = "Store type"
+  ) +
+  scale_size_manual(
+    values = c("Regular" = 1.5, "Luxury flagship" = 3.5, "Point outlier" = 4),
+    name   = "Store type"
+  ) +
+  labs(
+    x        = "Advertising Spend (standardised)",
+    y        = "Sales (standardised)",
+    title    = "Three Types of Observations in the Dataset",
+    subtitle = "Luxury flagships form their own cluster; point outliers are scattered extremes"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+::: {.callout-warning}
+## What to notice
+
+- **Regular stores** (blue): tight cluster with a clear advertising→sales relationship. This is the population you actually want to model.
+- **Luxury flagships** (red triangles): a separate cluster in the upper right. They form a coherent group — this is the collective outlier problem. Including them will rotate your regression line toward theirs.
+- **Point outliers** (green stars): scattered in unusual positions — very high advertising with low sales, or very low advertising with high sales. These are individually anomalous.
+:::
+
+## Step 2: Detecting Outliers with Local Outlier Factor (LOF)
+
+**Local Outlier Factor (LOF)** is a density-based method: it compares how densely packed each observation's neighbourhood is relative to its neighbours' neighbourhoods. If a point is in a sparse region surrounded by denser regions, it gets a high LOF score.
+
+- LOF ≈ 1: Normal point (density similar to neighbours)
+- LOF > 2–3: Moderate outlier (noticeably sparser than surroundings)
+- LOF >> 3: Strong outlier
+
+```{r case5-lof, fig.height = 5}
+#| code-summary: "▶ Compute LOF scores and visualize"
+# Standardise the variables before computing LOF
+df5_scaled <- data.frame(
+  advertising = scale(df5$advertising),
+  sales       = scale(df5$sales)
+)
+
+# Compute LOF scores (minPts = number of neighbours to consider)
+df5$lof_score <- dbscan::lof(df5_scaled, minPts = 10)
+
+# Visualise LOF scores
+ggplot(df5, aes(x = advertising, y = sales,
+                colour = lof_score, size = lof_score)) +
+  geom_point(alpha = 0.8) +
+  scale_colour_gradient2(low = "#4575b4", mid = "#ffffbf", high = "#d73027",
+                         midpoint = 2, name = "LOF score") +
+  scale_size_continuous(range = c(1, 5), name = "LOF score") +
+  labs(
+    x        = "Advertising Spend",
+    y        = "Sales",
+    title    = "Local Outlier Factor (LOF) Scores",
+    subtitle = "Warmer colour and larger point = more outlier-like"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "right")
+```
+
+```{r case5-lof-table}
+#| code-summary: "▶ Table: top outliers by LOF score"
+# Show the top outliers by LOF score
+df5 |>
+  arrange(desc(lof_score)) |>
+  select(advertising, sales, store_type, lof_score) |>
+  head(15) |>
+  mutate(across(where(is.numeric), \(x) round(x, 2))) |>
+  kable(
+    col.names = c("Advertising", "Sales", "Store Type", "LOF Score"),
+    caption   = "Top 15 Observations by LOF Score (highest = most outlier-like)"
+  )
+```
+
+::: {.callout-note}
+## Reading the LOF scores — and what to do with them
+
+**What LOF is telling you:** Each store's LOF score compares how densely packed its neighborhood is relative to its neighbors' neighborhoods. A score near 1.0 means the store is in a region as dense as its surroundings — it looks like a typical store. A score of 2 or 3 means the store is in a region roughly 2–3 times sparser than its neighbors' neighborhoods — it is noticeably isolated. Very high scores (5+) indicate severe outliers.
+
+**The critical point about classification:** LOF scores do NOT give you clean "outlier" vs "not outlier" categories. There is no universal threshold that separates outliers from normal observations — you have to choose one, and that choice involves judgment. Common practice is to flag observations with LOF > 2 or LOF > 3 for investigation, but these cutoffs are conventions, not laws of nature.
+
+**Practical steps for each high-LOF observation:**
+1. Look at the observation. What are its actual values? Does anything look unusual?
+2. Is it a data quality issue (entry error, unit mismatch)? Fix or remove.
+3. Is it a legitimately extreme but real observation (a genuinely exceptional store)? Keep and investigate — it may be telling you something important about your data.
+4. Does it form part of a coherent group of unusual observations? If yes, that's a collective outlier — treat it as a Case 4 problem (latent subgroup), not a Case 5 problem.
+
+**Never delete observations just because they have high LOF scores.** LOF is a signal to investigate, not an automatic deletion criterion.
+:::
+
+## Step 3: DBSCAN Clustering to Find the Collective Outlier Cluster
+
+**DBSCAN** (Density-Based Spatial Clustering of Applications with Noise) finds clusters of any shape in your data, and labels anything too sparse to belong to a cluster as **noise (cluster 0)**. This is useful for finding collective outliers: they form their own cluster (separate from the main group), while true point outliers get labelled as noise.
+
+```{r case5-dbscan, fig.height = 5}
+#| code-summary: "▶ DBSCAN clustering — find collective outlier cluster"
+# Fit DBSCAN
+# eps: maximum distance to be considered a "neighbour"
+# minPts: minimum cluster size
+dbscan_fit <- dbscan::dbscan(df5_scaled, eps = 0.4, minPts = 4)
+df5$cluster <- factor(dbscan_fit$cluster)
+
+ggplot(df5, aes(x = advertising, y = sales,
+                colour = cluster, shape = cluster)) +
+  geom_point(size = 2.5, alpha = 0.8) +
+  scale_colour_manual(
+    values = c("0" = "#d73027",   # noise = red (point outliers)
+               "1" = "#4575b4",   # main cluster = blue
+               "2" = "#1a9641",   # luxury cluster = green
+               "3" = "#fdae61"),  # any additional cluster
+    labels = c("0" = "Noise / point outlier",
+               "1" = "Main cluster (regular stores)",
+               "2" = "Collective outlier cluster (luxury)",
+               "3" = "Additional cluster"),
+    name   = "DBSCAN cluster",
+    drop   = FALSE
+  ) +
+  scale_shape_manual(
+    values = c("0" = 8, "1" = 16, "2" = 17, "3" = 15),
+    labels = c("0" = "Noise / point outlier",
+               "1" = "Main cluster (regular stores)",
+               "2" = "Collective outlier cluster (luxury)",
+               "3" = "Additional cluster"),
+    name   = "DBSCAN cluster",
+    drop   = FALSE
+  ) +
+  labs(
+    x        = "Advertising Spend",
+    y        = "Sales",
+    title    = "DBSCAN Clustering: Finding Collective and Point Outliers",
+    subtitle = "Cluster 0 = noise (point outliers); separate clusters = collective outlier groups"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+::: {.callout-note}
+## How to read the DBSCAN output — and the limits of inferred classification
+
+**What the clusters mean:**
+- **Cluster 0 (noise/red):** Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one.
+- **Cluster 1 (main mass):** The main group of regular stores. This is your target population for most analyses.
+- **Cluster 2+ (secondary clusters):** Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem (Case 4), not a statistical noise problem.
+
+**Important: these are inferred, probabilistic classifications.** DBSCAN does not know "the truth" about which stores are outliers any more than you do. It finds density-based patterns in the data, but:
+- The clusters depend on your choice of `eps` and `minPts` — different settings will produce different cluster assignments
+- A store assigned to cluster 0 (noise) may simply be on the outskirts of a real cluster that DBSCAN missed with your parameter settings
+- A store assigned to the main cluster may still be unusual in ways DBSCAN cannot see with just two variables
+
+**The classifications are a starting point, not a verdict.** Use them to flag observations for further investigation. Do not treat cluster assignment as definitive.
+
+**Choosing eps and minPts:** There is no single correct answer. A practical approach: plot the k-nearest-neighbor distances (sorted) and look for an "elbow" — the point where the distance curve bends sharply. That elbow value is a good starting point for eps. For minPts, a common default is 2 × (number of dimensions in your data).
+:::
+
+## Step 4: Robust Regression — No Need to Delete Outliers
+
+The traditional advice — delete the outliers and refit — creates its own problems: it introduces researcher degrees of freedom (which ones do you delete?), it loses information, and it's post-hoc. A better approach is **robust regression**, which automatically downweights observations that don't fit the main data pattern.
+
+`MASS::rlm()` uses **M-estimation**: instead of minimising the sum of squared residuals (which gives disproportionate influence to large residuals), it minimises a less sensitive function that penalises large residuals less severely.
+
+```{r case5-robust, fig.height = 4.5}
+#| code-summary: "▶ OLS vs. robust regression (rlm) coefficient comparison"
+# ── Fit three regression models ───────────────────────────────────────────────
+m_ols_all    <- lm(sales ~ advertising, data = df5)              # OLS with all data
+m_ols_reg    <- lm(sales ~ advertising,                          # OLS on regular only
+                   data = filter(df5, store_type == "Regular"))
+m_robust     <- MASS::rlm(sales ~ advertising, data = df5)       # Robust on all data
+
+# ── Compare coefficients ───────────────────────────────────────────────────────
+coef_compare5 <- data.frame(
+  Model = c("OLS — all stores (distorted)",
+            "OLS — regular stores only (oracle)",
+            "Robust regression (rlm) — all stores"),
+  `Advertising coefficient` = round(c(coef(m_ols_all)["advertising"],
+                                      coef(m_ols_reg)["advertising"],
+                                      coef(m_robust)["advertising"]), 3)
+)
+
+kable(coef_compare5,
+      col.names = c("Model", "Advertising Coefficient"),
+      caption   = "OLS vs. Robust Regression: How Much Do Outliers Matter?")
+```
+
+```{r case5-comparison-plot, fig.height = 5}
+#| code-summary: "▶ Plot: regression line comparison (OLS vs. robust)"
+# Generate clean prediction lines for all three models
+x_seq <- seq(min(df5$advertising), max(df5$advertising), length.out = 300)
+newdat <- data.frame(advertising = x_seq)
+
+pred_lines <- data.frame(
+  advertising  = rep(x_seq, 3),
+  sales        = c(predict(m_ols_all,  newdata = newdat),
+                   predict(m_ols_reg,  newdata = newdat),
+                   predict(m_robust,   newdata = newdat)),
+  model        = rep(c("OLS — all stores (distorted)",
+                       "OLS — regular only (benchmark)",
+                       "Robust rlm — all stores"),
+                     each = length(x_seq))
+)
+
+line_colors <- c(
+  "OLS — all stores (distorted)"    = "#d73027",
+  "OLS — regular only (benchmark)"  = "#4575b4",
+  "Robust rlm — all stores"         = "#1a9641"
+)
+line_types  <- c(
+  "OLS — all stores (distorted)"    = "dotted",
+  "OLS — regular only (benchmark)"  = "solid",
+  "Robust rlm — all stores"         = "dashed"
+)
+
+ggplot() +
+  # Points: just color by store type, no size variation
+  geom_point(data = df5,
+             aes(x = advertising, y = sales, colour = store_type),
+             alpha = 0.55, size = 2) +
+  # Regression lines
+  geom_line(data = pred_lines,
+            aes(x = advertising, y = sales,
+                colour = model, linetype = model),
+            linewidth = 1.2) +
+  scale_colour_manual(
+    values = c(
+      "Regular"                             = "grey60",
+      "Luxury flagship"                     = "#e8998d",
+      "Point outlier"                       = "#a8c5a0",
+      "OLS — all stores (distorted)"        = "#d73027",
+      "OLS — regular only (benchmark)"      = "#4575b4",
+      "Robust rlm — all stores"             = "#1a9641"
+    ),
+    breaks = c("OLS — all stores (distorted)",
+               "OLS — regular only (benchmark)",
+               "Robust rlm — all stores"),
+    name = "Regression line"
+  ) +
+  scale_linetype_manual(
+    values = line_types,
+    name   = "Regression line"
+  ) +
+  guides(
+    colour   = guide_legend(order = 1, override.aes = list(linewidth = 1.5)),
+    linetype = guide_legend(order = 1)
+  ) +
+  labs(
+    x        = "Advertising Spend",
+    y        = "Sales",
+    title    = "OLS vs. Robust Regression: Effect of Outliers on Slope Estimates",
+    subtitle = paste0(
+      "Red dotted = OLS distorted by outliers  |  ",
+      "Blue solid = benchmark (regular only)  |  ",
+      "Green dashed = robust rlm"
+    )
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position  = "bottom",
+    legend.direction = "horizontal",
+    legend.key.width = unit(1.8, "cm")
+  )
+```
+
+::: {.callout-important}
+## The core lesson from robust regression
+
+**OLS (all stores):** Pulled toward the luxury cluster and point outliers, producing a distorted slope. If you use this coefficient to predict sales for a regular store, you'll be systematically wrong.
+
+**OLS (regular only):** The "oracle" answer — what you'd get if you correctly identified and excluded the other groups. But in real research, you don't always know which stores to exclude.
+
+**Robust regression (rlm, all stores):** Automatically downweights observations with large residuals (the outliers and luxury stores fit poorly under the regular-store model, so they get low weights). The resulting coefficient is close to the regular-only estimate — without having to decide in advance which observations to delete.
+
+**Practical advice:**
+1. Always plot your data and check for visual outliers before running any regression
+2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually
+3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Case 4 problem
+4. For point outliers, verify the data and report results with and without them as a robustness check
+5. Use robust regression as your primary estimator when you suspect outliers but are not certain which observations to remove
+:::
+
+## Checking How Much Your Results Depend on Outliers
+
+A simple sensitivity check: compare OLS and robust regression. If they give substantially different results, outliers are influencing your conclusions. If they agree, outliers aren't driving your findings.
+
+```{r case5-sensitivity}
+#| code-summary: "▶ Sensitivity table: OLS vs. rlm coefficients"
+# Extract and compare key summary stats
+sens_df <- data.frame(
+  Method = c("OLS (all stores)", "Robust rlm (all stores)"),
+  `Intercept` = round(c(coef(m_ols_all)[1], coef(m_robust)[1]), 3),
+  `Advertising slope` = round(c(coef(m_ols_all)[2], coef(m_robust)[2]), 3)
+)
+
+kable(sens_df,
+      col.names = c("Method", "Intercept", "Advertising Slope"),
+      caption   = "Sensitivity Check: OLS vs. Robust Regression Coefficients")
+```
+
+::: {.callout-note}
+## Reporting guidance
+
+When you run a robust regression as a sensitivity check and it tells a *different* story from OLS:
+
+- Report both estimates in your paper
+- Investigate *which* observations are driving the OLS estimates (use LOF scores, DBSCAN clusters, or Cook's distance)
+- Describe these observations substantively: are they a separate population? A data quality issue?
+- Be transparent about the sensitivity of your conclusions to these observations
+
+When OLS and robust regression agree: briefly note the robustness check as evidence that your results are not driven by a small number of influential observations.
+:::
+
+## Other Methods for Outlier Detection and Robust Estimation
+
+LOF + DBSCAN and robust regression are practical entry points. The broader toolkit:
+
+- **Mahalanobis distance:** A multivariate distance metric that accounts for the covariances among variables. Points far from the centroid in Mahalanobis distance space are multivariate outliers. Computationally simple; assumes roughly elliptical distributions.
+- **Cook's distance:** In regression, measures how much each observation influences the fitted values. Observations with Cook's D > 4/n are conventionally flagged as influential. Complementary to LOF (which doesn't know about the regression).
+- **Minimum Covariance Determinant (MCD) — robustcov / rrcov packages:** A robust covariance estimator that finds the subset of observations with the smallest covariance determinant, effectively excluding outliers from the covariance estimation. Use it to get robust Mahalanobis distances.
+- **Isolation Forest (isotree package in R):** A tree-based outlier detection method. Anomalies are easier to isolate than normal points, so they end up in shorter trees. Scales well to large datasets. No distance computation needed.
+- **One-class SVM:** Learns the boundary of "normal" observations and flags points outside it. Useful when you have a large clean training set and want to detect anomalies in new data.
+- **Quantile regression (quantreg package):** Instead of modeling the mean, model multiple quantiles of Y. Outliers that pull the mean line don't affect quantile regression as severely. Useful when you care about the full distribution, not just the central tendency.
+- **Sandwich standard errors (sandwich package):** If heteroskedasticity (the fan pattern from Case 2) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.
+
+
+---
+
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={9a851c67-d785-444b-9421-ca47d50684a1}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 4: Systematic Measurement Error"></iframe>
+
+---
+
+# Case 6: Systematic Measurement Error on Bounded Scales {#sec-case6}
+
+## The Problem in Plain Language
+
+Almost every scale used in behavioral research has bounds — rating scales run from 1 to 7, percentages from 0 to 100, frequency measures from "never" to "always." These bounds are usually treated as a minor formatting detail. In practice, they introduce a systematic bias that most researchers never think about.
+
+Here is the mechanism. Suppose a participant's true level of some construct is 85 on a 0–100 scale, and they have a genuine tendency to vary ±15 points around that true value due to measurement noise (mood, attention, question framing). On the low side, they can express that variation freely — they might score 70, 75, 80. On the high side, they hit a ceiling. Scores of 95, 100, 105 are impossible — those attempts to go higher just pile up at 100. The result: the *observed* distribution of scores is not centered at 85. It is pulled toward the center of the scale. The ceiling cuts off the upper tail, making the observed mean *lower* than the true mean.
+
+The same thing happens at the lower bound: if the true value is close to the floor, the floor cuts off the lower tail and pulls the observed mean *upward*. Both effects push observations toward the middle of the scale.
+
+Three factors make this worse:
+
+1. **Proximity to a bound** — the closer the true value to a ceiling or floor, the more severe the truncation and the greater the bias.
+2. **More variability** — the more spread there is in true scores (or measurement noise), the more the tails get cut off and the stronger the pull toward the center.
+3. **Tighter scale** — a 7-point scale truncates more than a 100-point scale for the same true variability.
+
+::: {.callout-note}
+## One-sided vs. two-sided bounds
+
+Scales bounded on *both* ends (1–7 Likert, 0–100 slider) produce *symmetric* pull toward the center: ceiling effects at the top and floor effects at the bottom, each biasing estimates toward the midpoint.
+
+Scales bounded on *one end only* — like response time (lower bound at 0, no upper bound), log-transformed variables, or count data — produce *asymmetric* pull toward the *bounded* end only. The unbounded tail is free; the bounded tail is clipped. This asymmetry means the direction of bias depends on which bound participants approach.
+
+For right-skewed distributions common in bounded-at-zero measures (reaction time, income, sales), the floor effect is usually the active constraint, and the bias pushes mean estimates upward.
+:::
+
+## Interactive Simulator: See the Bias in Real Time
+
+The simulator below draws from a truncated normal distribution — what you would observe when participants have a normally distributed true score but the scale imposes hard limits. Adjust the sliders to see how the gap between the true mean (dashed black line) and the observed mean (solid blue) and median (solid red) changes with boundary proximity and variability.
+
+```{ojs}
+//| echo: false
+//| code-fold: false
+viewof bound_mu  = Inputs.range([5, 95], {step: 1, value: 50, label: "True mean (population)"})
+viewof bound_sd  = Inputs.range([2, 40], {step: 1, value: 15, label: "True SD (variability / noise)"})
+viewof bound_lo  = Inputs.select(["Bounded at 0", "No lower bound"], {value: "Bounded at 0", label: "Lower bound"})
+viewof bound_hi  = Inputs.select(["Bounded at 100", "No upper bound"], {value: "Bounded at 100", label: "Upper bound"})
+```
+
+```{ojs}
+//| echo: false
+//| code-fold: false
+
+// Normal PDF and CDF utilities
+function phi_fn(x) {
+  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+function erf_fn(x) {
+  const s = x >= 0 ? 1 : -1, ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t * Math.exp(-ax*ax));
+  return s * y;
+}
+function Phi_fn(x) { return 0.5 * (1 + erf_fn(x / Math.sqrt(2))); }
+
+// Inverse normal CDF (Acklam approximation)
+function qnorm(p) {
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.383577518672690e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const pL = 0.02425;
+  let q;
+  if (p < pL) {
+    q = Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else if (p <= 1-pL) {
+    q = p - 0.5; const r = q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  } else {
+    q = Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+}
+
+loB = bound_lo === "Bounded at 0"   ?   0 : -Infinity
+hiB = bound_hi === "Bounded at 100" ? 100 :  Infinity
+
+// Truncated normal moments (analytical)
+trunc_moments = {
+  const mu = bound_mu, sigma = bound_sd;
+  const lo = loB, hi = hiB;
+  const alpha = lo === -Infinity ? -Infinity : (lo - mu) / sigma;
+  const beta  = hi ===  Infinity ?  Infinity : (hi - mu) / sigma;
+  const pA = alpha === -Infinity ? 0 : Phi_fn(alpha);
+  const pB = beta  ===  Infinity ? 1 : Phi_fn(beta);
+  const Z  = pB - pA;
+  const fA = alpha === -Infinity ? 0 : phi_fn(alpha);
+  const fB = beta  ===  Infinity ? 0 : phi_fn(beta);
+  const obs_mean = mu + sigma * (fA - fB) / Z;
+  const obs_med  = mu + sigma * qnorm((pA + pB) / 2);
+  const obs_var  = sigma*sigma * (1 + (alpha*fA - beta*fB)/Z - ((fA-fB)/Z)**2);
+  return {obs_mean, obs_med, obs_sd: Math.sqrt(Math.max(0, obs_var)), Z};
+}
+
+density_data = {
+  const mu = bound_mu, sigma = bound_sd;
+  const lo = loB, hi = hiB;
+  const pA = lo === -Infinity ? 0 : Phi_fn((lo - mu)/sigma);
+  const pB = hi ===  Infinity ? 1 : Phi_fn((hi - mu)/sigma);
+  const Z  = pB - pA;
+
+  const xlo = Math.max(lo === -Infinity ? mu - 4.5*sigma : lo, -5);
+  const xhi = Math.min(hi ===  Infinity ? mu + 4.5*sigma : hi, 105);
+  const n   = 300;
+  return Array.from({length: n}, (_, i) => {
+    const x = xlo + (i / (n-1)) * (xhi - xlo);
+    const pdf = (x < lo || x > hi) ? 0 : phi_fn((x-mu)/sigma) / (sigma * Z);
+    return {x, pdf};
+  });
+}
+
+bias_mean   = trunc_moments.obs_mean - bound_mu
+bias_med    = trunc_moments.obs_med  - bound_mu
+bias_dir    = Math.abs(bias_mean) < 0.5 ? "negligible" : bias_mean > 0 ? "upward" : "downward"
+
+html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.88em;">
+  <div style="flex:1;min-width:160px;border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;">
+    <strong>True mean:</strong> ${bound_mu.toFixed(1)}
+  </div>
+  <div style="flex:1;min-width:160px;border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;">
+    <strong>Observed mean:</strong> ${trunc_moments.obs_mean.toFixed(2)}
+    <span style="color:${Math.abs(bias_mean)>1?'#e63946':'#888'}"> (bias: ${bias_mean > 0 ? '+' : ''}${bias_mean.toFixed(2)})</span>
+  </div>
+  <div style="flex:1;min-width:160px;border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;">
+    <strong>Observed median:</strong> ${trunc_moments.obs_med.toFixed(2)}
+    <span style="color:${Math.abs(bias_med)>1?'#e63946':'#888'}"> (bias: ${bias_med > 0 ? '+' : ''}${bias_med.toFixed(2)})</span>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+//| code-fold: false
+//| fig-cap: "Density of observed scores on the bounded scale. Dashed black = true mean; solid blue = observed mean; dashed red = observed median. The filled curve shows the distribution of observed scores — notice how it is cut off at the bounds and the peak shifts away from the true mean."
+
+Plot.plot({
+  width: 650, height: 300,
+  marginLeft: 55, marginBottom: 45, marginTop: 20, marginRight: 20,
+  x: {
+    label: "Scale value →",
+    domain: [
+      Math.max((loB === -Infinity ? bound_mu - 4.5*bound_sd : loB) - 2, -5),
+      Math.min((hiB ===  Infinity ? bound_mu + 4.5*bound_sd : hiB) + 2, 105)
+    ]
+  },
+  y: {label: "Density", domain: [0, null]},
+  marks: [
+    Plot.areaY(density_data, {x: "x", y: "pdf", fill: "#457b9d", fillOpacity: 0.30}),
+    Plot.line(density_data,  {x: "x", y: "pdf", stroke: "#457b9d", strokeWidth: 2.2}),
+    Plot.ruleX([bound_mu],               {stroke: "#222",     strokeDasharray: "6,3",  strokeWidth: 2.2}),
+    Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d",                           strokeWidth: 2.5}),
+    Plot.ruleX([trunc_moments.obs_med],  {stroke: "#e63946",  strokeDasharray: "4,3",  strokeWidth: 2.5}),
+    ...(loB > -Infinity ? [Plot.ruleX([loB], {stroke: "#aaa", strokeWidth: 1.5})] : []),
+    ...(hiB <  Infinity ? [Plot.ruleX([hiB], {stroke: "#aaa", strokeWidth: 1.5})] : [])
+  ]
+})
+```
+
+::: {.callout-warning}
+## What this means for your research
+
+**Means are biased toward the scale midpoint.** When comparing groups or conditions, if one group has a true mean closer to a bound than the other, the truncation bias is different for each group — the apparent treatment effect is distorted by the scale itself, not just the construct.
+
+**The problem gets worse as variability increases.** High within-person variability (which researchers often interpret as low reliability) amplifies truncation bias. Ironically, a noisy measure produces *more* bias, not just more noise.
+
+**Transformations can help, but not eliminate.** Logit-transforming proportions (e.g., `log(p/(1-p)`) or arcsine-transforming bounded scores can partially stabilize the bias. Tobit regression models the truncated distribution explicitly. For most applications, being *aware* of the direction of bias — and considering whether groups with different true means are differentially affected — is the first step.
+:::
+
+## References
+
+Pieters, R., Srivastava, J., & Bagchi, R. (2025). Improving the discriminant validation of multi-item scales. *Journal of Marketing Research*. https://doi.org/10.1177/00222437251322089
+
+Henseler, J., Ringle, C. M., & Sarstedt, M. (2015). A new criterion for assessing discriminant validity in variance-based structural equation modeling. *Journal of the Academy of Marketing Science*, 43(1), 115–135.
+
+Millsap, R. E., & Kwok, O.-M. (2004). Evaluating the impact of partial factor loading and intercept invariance on selection in two populations. *Psychological Methods*, 9(1), 93–115.
+
+Putnick, D. L., & Bornstein, M. H. (2016). Measurement invariance conventions and reporting: The state of the art and future directions for psychological research. *Developmental Review*, 41, 71–90.
+
+Rosseel, Y. (2012). lavaan: An R package for structural equation modeling. *Journal of Statistical Software*, 48(2), 1–36.
+
+Scrucca, L., Fop, M., Murphy, T. B., & Raftery, A. E. (2016). mclust 5: Clustering, classification and density estimation using Gaussian finite mixture models. *The R Journal*, 8(1), 289–317.
+
+Breunig, M. M., Kriegel, H.-P., Ng, R. T., & Sander, J. (2000). LOF: Identifying density-based local outliers. *ACM SIGMOD Record*, 29(2), 93–104.
+
+Ester, M., Kriegel, H.-P., Sander, J., & Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. *Proceedings of the 2nd International Conference on Knowledge Discovery and Data Mining* (KDD-96), 226–231.
+
+Venables, W. N., & Ripley, B. D. (2002). *Modern applied statistics with S* (4th ed.). Springer. [Source for MASS::rlm robust regression]
+
+Wooldridge, J. M. (2010). *Econometric analysis of cross section and panel data* (2nd ed.). MIT Press.
+
+---
+
+*Tutorial prepared for the Advanced Methods Workshop · Module 1: Measurement · Rotterdam School of Management*
