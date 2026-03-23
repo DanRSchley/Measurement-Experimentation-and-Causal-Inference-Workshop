@@ -1,5 +1,5 @@
 ---
-title: "Measurement, Experimentation & Causal Inference"
+title: "Measurement, Experimentation, & Causal Inference"
 subtitle: "Advanced Methods Workshop"
 toc: false
 ---

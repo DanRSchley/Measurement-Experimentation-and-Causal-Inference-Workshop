@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 book:
-  title: "Measurement, Experimentation & Causal Inference"
+  title: "Measurement, Experimentation, & Causal Inference"
   subtitle: "Advanced Methods Workshop · RSM"
   author: "Dan Schley"
   date: today
