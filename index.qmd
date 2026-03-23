@@ -14,41 +14,51 @@ The workshop is built around a core question that runs through all three modules
 ::: {.grid}
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 1
-**Measurement**
+### Module 1: Measurement
 
 When does your scale measure what you think it measures — and when does it measure something else entirely?
 
-[Overview](module-1/index.qmd){.btn .btn-primary}  [Tutorial](module-1/tutorial.qmd){.btn .btn-outline-secondary}
+[Module 1 →](module-1/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Case 1: Discriminant Validity](module-1/case1.qmd)
+- [Case 2: Omitted Variable Bias](module-1/case2.qmd)
+- [Case 3: Measurement Invariance](module-1/case3.qmd)
+- [Case 4: Latent Subgroups](module-1/case4.qmd)
+- [Cases 5 & 6: Outliers and Systematic Error](module-1/case5.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 2
-**Hypothesis Testing**
+### Module 2: Hypothesis Testing
 
 What does a p-value actually tell you? How does randomization create valid inference, and when does it fail?
 
-[Overview](module-2/index.qmd){.btn .btn-primary}  [Tutorial](module-2/tutorial.qmd){.btn .btn-outline-secondary}
+[Module 2 →](module-2/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: What Does a P-value Mean?](module-2/part1.qmd)
+- [Part 2: The Exclusion Restriction](module-2/part2.qmd)
+- [Part 3: What Does Random Assignment Require?](module-2/part3.qmd)
+- [Part 4: When Exchangeability Breaks Down](module-2/part4.qmd)
+- [Part 5: Experimental Design Strategies](module-2/part5.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 3
-**Causal Inference**
+### Module 3: Causal Inference
 
 When can we say that X *caused* Y? What methods go beyond randomized experiments, and what do they assume?
 
-[Overview](module-3/index.qmd){.btn .btn-primary}  [Tutorial](module-3/tutorial.qmd){.btn .btn-outline-secondary}
+[Module 3 →](module-3/index.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: What Is a Causal Effect?](module-3/tutorial.qmd#sec-m3-part1)
+- [Part 2: Selection on Observables](module-3/tutorial.qmd#sec-m3-part2)
+- [Part 3: Regression Discontinuity](module-3/tutorial.qmd#sec-m3-part3)
+- [Part 4: Difference-in-Differences](module-3/tutorial.qmd#sec-m3-part4)
+- [Part 5: Mediation](module-3/tutorial.qmd#sec-m3-part5)
 :::
 
 :::
-
----
-
-## How to use this site
-
-Each module has two parts:
-
-- **Overview** — the conceptual framing, learning goals, and slides
-- **Code Tutorial** — a fully worked R tutorial with collapsible code, figures, and exercises
-
-The tutorials assume basic R literacy but no prior familiarity with the methods covered.
