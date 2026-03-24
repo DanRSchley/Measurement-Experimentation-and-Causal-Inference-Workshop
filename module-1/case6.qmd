@@ -1,5 +1,5 @@
 ---
-title: "Part 6: Systematic Measurement Error"
+title: "Part 6: Systematic Measurement Error on Bounded Scales"
 ---
 
 ```{r setup, include=FALSE}
@@ -24,11 +24,17 @@ library(dplyr); library(tidyr); library(knitr)
 
 ---
 
-# Part 6: Systematic Measurement Error on Bounded Scales {#sec-case6}
-
 ## The Problem in Plain Language
 
 Almost every scale used in behavioral research has bounds — rating scales run from 1 to 7, percentages from 0 to 100, frequency measures from "never" to "always." These bounds are usually treated as a minor formatting detail. In practice, they introduce a systematic bias that most researchers never think about.
+
+::: {.callout-note}
+## Where this fits in the broader workshop arc
+
+Bounded scales are ubiquitous across the social, health, economic, and statistical sciences — and so is the bias they create. But the problem appears under different names depending on the discipline: **ceiling and floor effects** in psychometrics, **corner solutions** and **censored data** in econometrics, **bounded outcomes** in health statistics, **item difficulty effects** in item response theory. Despite the different terminology, the underlying mathematics is identical: a hard limit on what a scale can record truncates the true distribution, and the truncated mean departs systematically from the truth.
+
+This measurement-layer problem cascades upward through the rest of the inferential chain. Biased observed means corrupt hypothesis tests — because what is being tested is not the construct being theorized about. Those corrupted tests in turn compromise causal inference — because treatment-effect estimates compare biased observations rather than true latent values. A researcher who finds a null result comparing a control group (true mean 50) to a treated group (true mean 75, both on a 0–100 scale with SD 20) may be observing a genuine effect masked by **differential truncation bias**: the treated group's distribution is clipped more severely because it sits closer to the ceiling. The measurement layer is not preliminary housekeeping — it shapes every conclusion drawn above it.
+:::
 
 Here is the mechanism. Suppose a participant's true level of some construct is 85 on a 0–100 scale, and they have a genuine tendency to vary ±15 points around that true value due to measurement noise (mood, attention, question framing). On the low side, they can express that variation freely — they might score 70, 75, 80. On the high side, they hit a ceiling. Scores of 95, 100, 105 are impossible — those attempts to go higher just pile up at 100. The result: the *observed* distribution of scores is not centered at 85. It is pulled toward the center of the scale. The ceiling cuts off the upper tail, making the observed mean *lower* than the true mean.
 
@@ -52,7 +58,7 @@ For right-skewed distributions common in bounded-at-zero measures (reaction time
 
 ## Interactive Simulator: See the Bias in Real Time
 
-The simulator below draws from a truncated normal distribution — what you would observe when participants have a normally distributed true score but the scale imposes hard limits. Adjust the sliders to see how the gap between the true mean (dashed black line) and the observed mean (solid blue) and median (dashed red) changes with boundary proximity and variability.
+The simulator below overlays two density curves. The **gray shaded curve** is the *true* distribution — what scores would look like if the scale had no bounds. The **blue shaded curve** is the *observed* distribution — what researchers actually record after the bounds clip the tails. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). Adjust the sliders to see how the gap between true and observed means grows as the true mean approaches a bound or as variability increases.
 
 ```{ojs}
 //| echo: false
@@ -172,7 +178,7 @@ html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.8
 ```{ojs}
 //| echo: false
 //| code-fold: false
-//| fig-cap: "Density of observed scores on the bounded scale. Dashed black = true mean; solid blue = observed mean; dashed red = observed median. The filled curve shows the distribution of observed scores — notice how it is cut off at the bounds and the peak shifts away from the true mean."
+//| fig-cap: "Gray filled area = true (untruncated) distribution — what scores would look like without scale bounds. Blue filled area = observed (truncated) distribution — what researchers actually record. Dashed black vertical line = true mean; solid blue = observed mean; dashed red = observed median. Notice how the bounds clip the true distribution's tails, compressing the observed distribution and displacing its peak and mean toward the scale's center."
 
 Plot.plot({
   width: 650, height: 300,
@@ -206,11 +212,13 @@ Plot.plot({
 ::: {.callout-warning}
 ## What this means for your research
 
-**Means are biased toward the scale midpoint.** When comparing groups or conditions, if one group has a true mean closer to a bound than the other, the truncation bias is different for each group — the apparent treatment effect is distorted by the scale itself, not just the construct.
+**Means are biased toward the scale midpoint.** When comparing groups or conditions, if one group has a true mean closer to a bound than the other, the truncation bias differs between groups — the apparent treatment effect is distorted by the scale itself, not just the construct. This is particularly dangerous in pre–post designs, where an intervention may move participants toward a ceiling, making the post-treatment distribution more severely clipped and therefore making the estimated gain look smaller than it truly is.
 
-**The problem gets worse as variability increases.** High within-person variability (which researchers often interpret as low reliability) amplifies truncation bias. Ironically, a noisy measure produces *more* bias, not just more noise.
+**The problem gets worse as variability increases.** High within-person variability (which researchers often interpret as low reliability) amplifies truncation bias. Ironically, a noisy measure produces *more* bias, not just more noise. This also means that between-group comparisons of variance — common in psychometric analyses — are confounded whenever the groups sit at different distances from a bound.
 
-**Transformations can help, but not eliminate.** Logit-transforming proportions (e.g., `log(p/(1-p))`) or arcsine-transforming bounded scores can partially stabilize the bias. Tobit regression models the truncated distribution explicitly. For most applications, being *aware* of the direction of bias — and considering whether groups with different true means are differentially affected — is the first step.
+**Transformations can help, but not fully eliminate the problem.** Logit-transforming proportions (e.g., `log(p/(1-p))`) or arcsine-transforming bounded scores can partially stabilize the bias. Tobit regression (Wooldridge, 2010) models the truncated distribution explicitly and estimates the latent mean directly — it was developed in econometrics for exactly this structure, where household expenditure is zero for non-buyers and positive (and therefore bounded below) for buyers.
+
+**The problem has different names across disciplines — but the same solution.** In econometrics it is *censored data*; in health research it is *ceiling and floor effects* in patient-reported outcome (PRO) instruments; in psychometrics it appears as *item difficulty* in item response theory; in statistics it is *truncated distribution* estimation. Each field has converged on similar remedies: model the latent distribution explicitly (Tobit / truncated regression), use response scales whose range substantially exceeds the likely spread of true scores, and — as a minimum — report the proportion of respondents at or near each bound before interpreting means and treatment comparisons.
 :::
 
 ## References
