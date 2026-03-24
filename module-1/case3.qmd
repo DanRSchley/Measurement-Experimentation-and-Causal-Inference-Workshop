@@ -316,12 +316,12 @@ If the analysis was not pre-registered, the better approach is partial invarianc
 :::
 :::
 
-```{r case3-semtools-score}
-#| code-summary: "▶ semTools: score-test approach to pinpoint non-invariant items"
-# semTools::lavTestScore provides score statistics for each equality constraint.
+```{r case3-score-test}
+#| code-summary: "▶ Score-test approach to pinpoint non-invariant items"
+# lavaan::lavTestScore provides score statistics for each equality constraint.
 # Constraints with large X² are the ones most responsible for the scalar model
 # failing — these are the non-invariant items.
-score_test <- semTools::lavTestScore(fit_scalar, cumulative = TRUE)
+score_test <- lavaan::lavTestScore(fit_scalar, cumulative = TRUE)
 
 # Extract intercept constraints (op == "~1") and rank by score statistic
 score_uni <- as.data.frame(score_test$uni)
@@ -332,7 +332,7 @@ kable(
   head(score_intercepts, 8),
   col.names = c("Item", "Type", "RHS", "Score Stat. (X²)", "df", "p-value"),
   digits    = 3,
-  caption   = "semTools Score Tests: Intercept Constraints Ranked by Misfit (Scalar Model, Scenario B)"
+  caption   = "Score Tests: Intercept Constraints Ranked by Misfit (Scalar Model, Scenario B)"
 )
 ```
 
