@@ -22,6 +22,7 @@ book:
         - module-1/case3.qmd
         - module-1/case4.qmd
         - module-1/case5.qmd
+        - module-1/case6.qmd
     - part: "Module 2: Hypothesis Testing"
       chapters:
         - module-2/intro.qmd

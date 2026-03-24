@@ -27,7 +27,8 @@ When does your scale measure what you think it measures — and when does it mea
 - [Case 2: Omitted Variable Bias](module-1/case2.qmd)
 - [Case 3: Measurement Invariance](module-1/case3.qmd)
 - [Case 4: Latent Subgroups](module-1/case4.qmd)
-- [Cases 5 & 6: Outliers and Systematic Error](module-1/case5.qmd)
+- [Case 5: Outlier Detection and Robust Estimation](module-1/case5.qmd)
+- [Case 6: Systematic Measurement Error](module-1/case6.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}

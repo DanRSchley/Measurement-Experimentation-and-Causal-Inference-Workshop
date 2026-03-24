@@ -42,6 +42,41 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 # Case 1: Discriminant Validity {#sec-case1}
 
+## The Classical Test Theory Starting Point
+
+Every measurement model in the social sciences begins from the same core assumption: the observed score you record is a sum of the *true* score and *measurement error*.
+
+$$X_\text{observed} = T_\text{true} + \varepsilon$$
+
+Classical test theory (CTT) assumes the error term $\varepsilon$ is *random and symmetric* — equally likely to push the observed score up or down, averaging to zero across many observations. Under this assumption, observable scores are noisy but unbiased indicators of the latent construct you care about.
+
+But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by *something else*. The five cases in this tutorial are five different ways that "something else" creeps into your observed score:
+
+- When your scale picks up a second construct (**Case 1**), ε includes that construct's variance — and is no longer random.
+- When an omitted variable drives both your predictor and outcome (**Case 2**), the "error" in your regression coefficient is systematic, not random.
+- When scale items shift their baseline across groups (**Case 3**), ε differs systematically between conditions.
+- When your sample mixes two populations (**Case 4**), ε has a bimodal structure that standard models cannot represent.
+- When the scale has hard bounds (**Case 6**), ε is asymmetrically truncated — larger in one direction than the other.
+
+**Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.** The CTT equation becomes:
+
+$$X_\text{GPI} = T_\text{true GPI} + \lambda \cdot T_\text{EC} + \varepsilon_\text{random}$$
+
+where $\lambda$ captures how much of Environmental Concern bleeds into your GPI items. This is no longer a pure measure of one construct.
+
+::: {.callout-note}
+## The same problem in other disciplines
+
+The discriminant validity problem is not unique to scale-based research. The same underlying issue — an observable index picking up multiple latent sources of variance — shows up across many fields under different names:
+
+- **Econometrics / identification**: A regression coefficient is said to be *unidentified* (or *not identified*) when the predictor of interest cannot be separated from another variable that moves with it. In structural equation modeling, "identification" requires that each latent variable has its own distinct set of indicators — exactly the discriminant validity condition.
+- **Epidemiology / biomedical research**: When a biomarker (e.g., C-reactive protein) is elevated by both inflammation *and* metabolic syndrome simultaneously, researchers say it lacks *specificity*. A test that responds to multiple conditions cannot clearly indicate which one is present — the biomedical equivalent of discriminant validity failure.
+- **Psychometrics**: The problem is described as *construct contamination* — the scale measures variance beyond the intended construct. The closely related concept of *construct deficiency* is the mirror image: the scale misses important facets of the construct it is supposed to measure.
+- **Political science / social measurement**: Composite indices (e.g., democracy scores, corruption indices) frequently collapse multiple distinct dimensions into a single number. Researchers debate whether "democracy" as measured is really one thing or whether it conflates civil liberties, electoral competitiveness, and rule of law — each with different causes and consequences.
+
+The common thread: whenever you use a single observed variable (or a scale of items) to proxy a latent construct, you need to verify that the observable is specific to *that* construct and not a blend of several.
+:::
+
 ## The Study Scenario
 
 We are simulating data from a **green marketing experiment** with 400 participants. The study was designed to answer: *does exposure to eco-friendly brand messaging increase consumers' green purchase intentions?*

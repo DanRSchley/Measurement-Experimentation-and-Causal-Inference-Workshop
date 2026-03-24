@@ -34,8 +34,6 @@ library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
 library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ```
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 1: Validity"></iframe>
-
 ---
 
 
@@ -256,10 +254,16 @@ The residual fan pattern you see here is also a hint that latent subgroups (Case
 
 The residual diagnostics and proxy controls covered here are entry-level approaches. For more rigorous identification:
 
+::: {.callout-note}
+## Coming up in Module 3
+
+Several of the methods below are covered in depth in **Module 3: Causal Inference**. Regression discontinuity design (Part 3), difference-in-differences (Part 4), and propensity score / matching methods (Part 2) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.
+:::
+
 - **Instrumental variables (IV) / Two-Stage Least Squares (2SLS):** Find a variable that predicts X but does not directly affect Y (an "instrument"). Use it to isolate the exogenous variation in X. Powerful but requires strong theoretical justification for the instrument's validity.
-- **Regression discontinuity design (RDD):** If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification.
-- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Controls for time-invariant confounders. Requires parallel trends assumption.
-- **Propensity score methods:** Model the probability of "treatment" (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones.
+- **Regression discontinuity design (RDD):** If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. *Covered in Module 3, Part 3.*
+- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Controls for time-invariant confounders. Requires parallel trends assumption. *Covered in Module 3, Part 4.*
+- **Propensity score methods:** Model the probability of "treatment" (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. *Covered in Module 3, Part 2.*
 - **Hausman test:** Formally tests whether OLS and IV estimates differ significantly. If they do, OLS is inconsistent (endogeneity is present). Requires a valid instrument.
 - **Sensitivity analysis (Oster, 2019):** How large would the omitted variable's effect need to be (relative to included controls) to fully explain away the estimated coefficient? Quantifies the "how worried should I be?" question without requiring an instrument.
 - **Panel data fixed effects:** If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.

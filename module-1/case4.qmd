@@ -540,11 +540,13 @@ Plot.plot({
 ```
 
 ::: {.callout-important}
-## Why this matters for mediation
+## Why this matters: Simpson's Paradox as a marker of omitted variable bias
 
-When β_within = 0, a mediation analysis through MC would still produce a significant indirect effect — because the pooled path from condition → MC and from MC → DV are both non-zero. But that indirect effect is entirely a *group-level compositional artifact*, not evidence that MC mediates any psychological process. The groups differ on DV for reasons that have nothing to do with where individual participants fall on the MC within their group.
+When β_within = 0, the pooled slope between MC and DV is entirely a *between-group artifact* — it reflects the offset between conditions, not any within-person construct-to-outcome relationship. This is a strong diagnostic signal: **if the manipulation check scores predict the outcome only in the pooled sample but not within conditions, that is direct evidence of omitted variable bias.**
 
-This is a version of the ecological fallacy: group-level patterns do not necessarily reflect individual-level relationships. Before reporting mediation, always check whether the construct-to-DV relationship holds *within* conditions, not just in the pooled sample.
+The group-level difference in DV is real (the manipulation worked), but the *construct* measured by MC has zero individual-level relationship to DV within either condition. Any analysis that uses the pooled MC–DV association — including a mediation test — will falsely attribute the group-level effect to the construct, rather than to the experimental assignment itself.
+
+In plain terms: you can have a perfectly successful experiment (DV is higher in the High condition) while the construct you think caused it (MC) has no within-condition predictive power at all. The Simpson's Paradox structure tells you that something you *did not measure* — the experimental assignment — is the actual driver of the DV difference, not the within-person level of the construct. Before reporting any construct-level interpretation or mediation pathway, always verify that the MC–DV relationship holds *within* conditions, not just in the pooled sample.
 :::
 
 ## Other Methods for Detecting Latent Subgroups

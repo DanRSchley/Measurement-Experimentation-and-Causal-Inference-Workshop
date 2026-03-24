@@ -290,7 +290,7 @@ mi_scalar     <- modindices(fit_scalar, sort. = TRUE)
 mi_intercepts <- mi_scalar |>
   filter(op == "~1") |>
   arrange(desc(mi)) |>
-  select(lhs, op, block, mi, epc)
+  dplyr::select(lhs, op, block, mi, epc)
 
 kable(
   head(mi_intercepts, 10),
@@ -314,6 +314,32 @@ If you **pre-registered your measurement invariance analysis** before collecting
 
 If the analysis was not pre-registered, the better approach is partial invariance (see below).
 :::
+:::
+
+```{r case3-semtools-score}
+#| code-summary: "▶ semTools: score-test approach to pinpoint non-invariant items"
+# semTools::lavTestScore provides score statistics for each equality constraint.
+# Constraints with large X² are the ones most responsible for the scalar model
+# failing — these are the non-invariant items.
+score_test <- semTools::lavTestScore(fit_scalar, cumulative = TRUE)
+
+# Extract intercept constraints (op == "~1") and rank by score statistic
+score_uni <- as.data.frame(score_test$uni)
+score_intercepts <- score_uni[score_uni$op == "~1", ] |>
+  dplyr::arrange(dplyr::desc(X2))
+
+kable(
+  head(score_intercepts, 8),
+  col.names = c("Item", "Type", "RHS", "Score Stat. (X²)", "df", "p-value"),
+  digits    = 3,
+  caption   = "semTools Score Tests: Intercept Constraints Ranked by Misfit (Scalar Model, Scenario B)"
+)
+```
+
+::: {.callout-note}
+## Reading the score test results
+
+The score statistic (X²) for each row tells you how much the overall model χ² would improve if that constraint were freed. GPI1 and GPI2 intercepts should appear at the top of this list with the largest X² values and smallest p-values — confirming they are the primary source of scalar non-invariance. This converges with the modification index results above: two complementary approaches, same substantive conclusion.
 :::
 
 ## Fitting the Partial Invariance Model
