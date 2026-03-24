@@ -1178,7 +1178,7 @@ window.Quarto = {
 <p>In Module 1’s language: their randomization observable has <strong>low construct validity</strong> as an indicator of latent randomization, because the gap between the observable and the latent property is too wide to close at typical sample sizes.</p>
 </div>
 </div>
-<p>With a narrow outcome like <strong>Recall Accuracy</strong> (D = 2 dimensions): - To ensure <span class="math inline">\(|r| &lt; 0.10\)</span> with 95% confidence: N ≈ <strong>503</strong> — feasible - A study with N = 80 comfortably satisfies even a strict <span class="math inline">\(r_{\max} = 0.20\)</span></p>
+<p>With a narrow outcome like <strong>Visual Fixation Time</strong> (D = 2 dimensions): - To ensure <span class="math inline">\(|r| &lt; 0.10\)</span> with 95% confidence: N ≈ <strong>503</strong> — feasible - A study with N = 80 comfortably satisfies even a strict <span class="math inline">\(r_{\max} = 0.20\)</span></p>
 <p>With a broad outcome like <strong>Sustainable Purchase Intention</strong> (D = 10 dimensions): - To ensure <span class="math inline">\(|r| &lt; 0.10\)</span>: N ≈ <strong>788</strong> — rarely achieved in practice - To ensure <span class="math inline">\(|r| &lt; 0.20\)</span>: N ≈ <strong>197</strong> — still demanding for most lab studies - A study with N = 200 barely meets the r_max &lt; 0.20 threshold (required N = 197). A typical lab study with <strong>N = 80</strong>, however, is operating at an effective <span class="math inline">\(r_{\max} \approx 0.31\)</span> — where a single strong confounder (β ≈ 0.8 SD) can inject bias of 0.24 SD or more into your treatment estimate</p>
 <p>This is the direct experimental parallel to Module 1’s core finding about discriminant validity. A scale with <strong>many correlated sub-dimensions</strong> is hard to measure cleanly; a construct with <strong>many latent antecedents</strong> is hard to randomize cleanly. Both problems grow with construct breadth, and both require you to map the latent space before claiming clean measurement or clean identification.</p>
 </div>
@@ -1840,10 +1840,10 @@ window.Quarto = {
 </div>
 <details class="code-fold">
 <summary>▶ Omnibus randomization test via logistic regression</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Good randomization should produce R\u00b2 \u2248 0 and p &gt;&gt; .05.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Good randomization should produce R\u00b2 \u2248 0 and p well above .05.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Good randomization should produce R² ≈ 0 and p &gt;&gt; .05.</code></pre>
+<pre><code>Good randomization should produce R² ≈ 0 and p well above .05.</code></pre>
 </div>
 </div>
 <section id="handling-mixed-covariate-types" class="level4 unnumbered">
@@ -1927,7 +1927,7 @@ window.Quarto = {
 </tr>
 <tr class="odd">
 <td>Omnibus LRT p-value</td>
-<td>p &gt;&gt; .05</td>
+<td>p well above .05</td>
 <td>p &lt; .05</td>
 </tr>
 <tr class="even">

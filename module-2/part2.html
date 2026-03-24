@@ -700,39 +700,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a WTP-amount-anchored phrase to the WTP text to ensure the open-ended</span></span>
 <span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a><span class="co"># responses actually correlate with stated WTP (as real responses would).</span></span>
-<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="co"># High WTP → quality language; Low WTP → price/budget/overpay language.</span></span>
-<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co"># This mimics how real open-ended responses reflect stated amounts.</span></span>
-<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>add_wtp_anchor <span class="ot">&lt;-</span> <span class="cf">function</span>(i, base_text) {</span>
-<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> WTP_p2[i]</span>
-<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>  anchor <span class="ot">&lt;-</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">7.5</span>) {</span>
-<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, the quality and overall appeal of this product make it feel genuinely worth it — I am happy to spend considerably above what I normally would."</span></span>
-<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">5.5</span>) {</span>
-<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost."</span></span>
-<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee."</span></span>
-<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(base_text, anchor)</span>
-<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>wtp_text_raw <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_wtp_text)</span>
-<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>wtp_text     <span class="ot">&lt;-</span> <span class="fu">mapply</span>(add_wtp_anchor, <span class="fu">seq_len</span>(N_p2), wtp_text_raw)</span>
-<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview a few responses</span></span>
-<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">Condition        =</span> condition_p2[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Product text</span><span class="st">`</span>   <span class="ot">=</span> product_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">WTP text</span><span class="st">`</span>       <span class="ot">=</span> wtp_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(preview, <span class="at">caption =</span> <span class="st">"Example responses (one control, one eco-label participant)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="co"># Four tiers ensure continuous WTP correlates well with text-derived concept scores.</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co"># High WTP → quality/trust/sustainability language.</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Mid-high WTP → moderate value framing.</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="co"># Mid-low WTP → neutral / cost-aware framing.</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="co"># Low WTP → price/budget/overpay language (matches price_cost concept negatively).</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>add_wtp_anchor <span class="ot">&lt;-</span> <span class="cf">function</span>(i, base_text) {</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> WTP_p2[i]</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  anchor <span class="ot">&lt;-</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">7.5</span>) {</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Summing it up: the quality, trustworthiness, and sustainability of this product make it genuinely worth a significant premium — I would pay well above my usual coffee budget for it."</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">6.0</span>) {</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Summing it up: I see real quality and value here — a moderate premium feels fully justified, and I am comfortable stretching a bit beyond my typical spend."</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">4.5</span>) {</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Summing it up: the value seems fair but nothing exceptional — I would not pay much of a premium over what a comparable standard product costs."</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Summing it up: I am quite price-sensitive and budget-conscious about coffee — I would not want to overpay, and my price ceiling here is close to what I normally spend."</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(base_text, anchor)</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>wtp_text_raw <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_wtp_text)</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>wtp_text     <span class="ot">&lt;-</span> <span class="fu">mapply</span>(add_wtp_anchor, <span class="fu">seq_len</span>(N_p2), wtp_text_raw)</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview a few responses</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>  <span class="at">Condition        =</span> condition_p2[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Product text</span><span class="st">`</span>   <span class="ot">=</span> product_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">WTP text</span><span class="st">`</span>       <span class="ot">=</span> wtp_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(preview, <span class="at">caption =</span> <span class="st">"Example responses (one control, one eco-label participant)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Example responses (one control, one eco-label participant)</caption>
 <colgroup>
 <col style="width: 1%">
-<col style="width: 39%">
-<col style="width: 58%">
+<col style="width: 38%">
+<col style="width: 60%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -745,12 +750,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">Control</td>
 <td style="text-align: left;">This looks like a standard coffee blend. I am curious how the flavor compares to my usual brand.</td>
-<td style="text-align: left;">My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature. Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks. Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee.</td>
+<td style="text-align: left;">My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature. Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks. Summing it up: I am quite price-sensitive and budget-conscious about coffee — I would not want to overpay, and my price ceiling here is close to what I normally spend.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Eco-label</td>
 <td style="text-align: left;">Eco-certified means fewer pesticides and more natural farming practices, which I find very appealing. The research context makes it clear this study is about eco-labeling, which makes me more conscious of how much I should value green products.</td>
-<td style="text-align: left;">If I expect genuinely exceptional taste, I am happy to stretch my usual budget. Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health. Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost.</td>
+<td style="text-align: left;">If I expect genuinely exceptional taste, I am happy to stretch my usual budget. Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health. Summing it up: the value seems fair but nothing exceptional — I would not pay much of a premium over what a comparable standard product costs.</td>
 </tr>
 </tbody>
 </table>
@@ -861,7 +866,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">93</td>
 <td style="text-align: right;">7.33</td>
 <td style="text-align: right;">0.81</td>
-<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">0.72</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">quality_taste</td>
@@ -870,7 +875,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">-2.35</td>
 <td style="text-align: right;">-0.35</td>
-<td style="text-align: right;">0.46</td>
+<td style="text-align: right;">0.37</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">price_cost</td>
@@ -879,7 +884,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">-0.52</td>
 <td style="text-align: right;">-0.26</td>
-<td style="text-align: right;">-0.15</td>
+<td style="text-align: right;">0.00</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">social_values</td>
@@ -906,7 +911,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">95</td>
 <td style="text-align: right;">3.71</td>
 <td style="text-align: right;">0.54</td>
-<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.59</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">guilt_offset</td>
@@ -933,7 +938,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0.00</td>
 <td style="text-align: right;">0.00</td>
-<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.06</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">habit_routine</td>
@@ -984,6 +989,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="sec-whats-in-xy" class="level2" data-number="12.5">
 <h2 data-number="12.5" class="anchored" data-anchor-id="sec-whats-in-xy"><span class="header-section-number">12.5</span> What’s in X? What’s in Y?</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The 100%/0% problem — you cannot know which pathway matters without measuring each one
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When multiple latent constructs connect X to Y, the share of the total treatment effect flowing through the <em>intended</em> pathway could be anywhere from <strong>0% to 100%</strong> — and you cannot tell from the treatment coefficient alone.</p>
+<p>Think of it like giving a clinical trial patient a <strong>multivitamin</strong>: the pill contains 12 different compounds, the patient improves, and you report “the multivitamin works.” But which compound drove the improvement? Was it Vitamin D (the one your theory was about)? Vitamin B12? The zinc? The folic acid? Or is the pill inert and the patient improved for an unrelated reason? The single outcome measurement — patient health — cannot tell you.</p>
+<p>The eco-label experiment has the same structure. The manipulation bundle injects multiple signals — eco-certification, premium packaging, quality cues, social identity primes, demand effects — all simultaneously. The observed WTP increase is a weighted sum of contributions from each pathway. <strong>The eco-certification pathway could account for 100% of the effect, or for 0%.</strong> Unless you measure each latent input (and its relationship to WTP), the coefficient on “eco-label” conflates all of them.</p>
+<p>This is why the diagram below is not just a theoretical concern. Every blue line in it is a pathway that <em>could</em> be carrying the entire treatment effect.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1234,13 +1255,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">quality_taste</td>
 <td style="text-align: left;">quality_taste</td>
-<td style="text-align: right;">80</td>
+<td style="text-align: right;">73</td>
 <td style="text-align: left;">✓ Yes (prevalent)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">hedonic</td>
 <td style="text-align: left;">hedonic</td>
-<td style="text-align: right;">40</td>
+<td style="text-align: right;">53</td>
 <td style="text-align: left;">✓ Yes (prevalent)</td>
 </tr>
 <tr class="even">
@@ -1252,7 +1273,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">sustainability</td>
 <td style="text-align: left;">sustainability</td>
-<td style="text-align: right;">20</td>
+<td style="text-align: right;">23</td>
 <td style="text-align: left;">✕ No (rare in this sample)</td>
 </tr>
 <tr class="even">
@@ -1262,21 +1283,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">✕ No (rare in this sample)</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">trust_cert</td>
+<td style="text-align: left;">trust_cert</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">✕ No (rare in this sample)</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">demand_effect</td>
 <td style="text-align: left;">demand_effect</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">✕ No (rare in this sample)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">health_natural</td>
 <td style="text-align: left;">health_natural</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: left;">✕ No (rare in this sample)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">trust_cert</td>
-<td style="text-align: left;">trust_cert</td>
-<td style="text-align: right;">0</td>
 <td style="text-align: left;">✕ No (rare in this sample)</td>
 </tr>
 <tr class="even">
@@ -1475,67 +1496,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co"># unstable and their attenuated sum underestimates the true latent-factor indirect effect.</span></span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Correlated ERRORS within indicator pairs ──────────────────────────────────</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Beyond eco_latent, two pairs share a response-style method factor (loading 0.55):</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Beyond eco_latent, three pairs share a response-style method factor (loading 0.55):</span></span>
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#   sustainability &amp; health_natural: "natural/organic framing"</span></span>
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   social_values &amp; trust_cert: "social legitimacy/institutional approval"</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Both method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co"># SEM models both pairs via ~~ constraints; parallel mediation ignores them entirely.</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>method_sus_health <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.0</span>)   <span class="co"># natural/organic framing: sustainability ↔ health_natural</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>method_soc_trust  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.0</span>)   <span class="co"># social legitimacy:       social_values  ↔ trust_cert</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Eco-cluster indicators: caused by eco_latent + method factors ONLY ────────</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co"># eco_arm has NO direct effect on any indicator — its influence flows entirely</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="co"># through eco_latent. Consequences:</span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   (a) The CFA (eco_factor =~ indicators) is the correct measurement model for this DGP.</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   (b) SEM's structural path (eco_factor ~ condition) recovers the true a-path</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#       (condition → eco_latent), correctly weighting all 4 indicators and correcting</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#       for measurement-error attenuation in each.</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#   (c) Parallel mediation treats 4 highly correlated indicators (r ≈ 0.65–0.93) as</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="co">#       independent predictors → severe multicollinearity + attenuation → individual</span></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">#       b-paths unstable; summed eco-cluster indirect effect underestimates the truth.</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">#   (d) The method factors add within-pair residual correlations (loading 0.55) that</span></span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="co">#       parallel mediation ignores; the SEM models them via ~~ constraints.</span></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>med_scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">sustainability  =</span> <span class="fl">0.90</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_sus_health <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.25</span>),</span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">social_values   =</span> <span class="fl">0.88</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_soc_trust  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.25</span>),</span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">health_natural  =</span> <span class="fl">0.86</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_sus_health <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.2</span>, <span class="fl">0.25</span>),</span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">trust_cert      =</span> <span class="fl">0.84</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_soc_trust  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.25</span>),</span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Frugal cluster: moderately reflective of frugal_latent</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">price_cost      =</span> <span class="fl">0.70</span> <span class="sc">*</span> frugal_latent <span class="sc">-</span> <span class="fl">0.15</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.55</span>),</span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">habit_routine   =</span> <span class="fl">0.68</span> <span class="sc">*</span> frugal_latent                  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.55</span>),</span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Social/demand cluster: moderately reflective of social_latent</span></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">demand_effect   =</span> <span class="fl">0.70</span> <span class="sc">*</span> social_latent <span class="sc">+</span> <span class="fl">0.45</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">2.0</span>, <span class="fl">0.55</span>),</span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">guilt_offset    =</span> <span class="fl">0.68</span> <span class="sc">*</span> social_latent <span class="sc">+</span> <span class="fl">0.30</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">2.5</span>, <span class="fl">0.55</span>),</span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standalone mediators</span></span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality_taste   =</span> <span class="fl">0.40</span> <span class="sc">*</span> eco_latent   <span class="sc">+</span> <span class="fl">0.35</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.60</span>),</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">hedonic         =</span> <span class="fl">0.20</span> <span class="sc">*</span> eco_latent   <span class="sc">+</span> <span class="fl">0.15</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.8</span>, <span class="fl">0.65</span>)</span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardize mediators to z-scores</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>med_z <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">scale</span>(med_scores))</span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>med_z<span class="sc">$</span>condition <span class="ot">&lt;-</span> eco_arm</span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="co"># ── WTP: depends on LATENT FACTORS, not individual indicators ────────────────</span></span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the key DGP design: WTP reflects eco_latent (the shared construct</span></span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co"># behind the 4 correlated eco items), NOT each indicator separately.</span></span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallel mediation is doubly misspecified: (1) treats 4 highly correlated</span></span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co"># indicators (r ≈ 0.65–0.93) as independent predictors → multicollinearity;</span></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co"># (2) uses noisy proxies for eco_latent → attenuation bias in the b-paths.</span></span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a><span class="co"># SEM is correctly specified — it models eco_latent explicitly via CFA,</span></span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="co"># corrects for attenuation, and models the residual covariances via ~~.</span></span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>WTP_med <span class="ot">&lt;-</span> <span class="fl">5.0</span> <span class="sc">+</span></span>
-<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.50</span> <span class="sc">*</span> eco_arm       <span class="sc">+</span>   <span class="co"># direct condition effect</span></span>
-<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1.20</span> <span class="sc">*</span> eco_latent    <span class="sc">+</span>   <span class="co"># main indirect path (eco-mindedness → WTP)</span></span>
-<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a> <span class="sc">-</span><span class="fl">0.55</span> <span class="sc">*</span> frugal_latent <span class="sc">+</span>   <span class="co"># frugality lowers WTP</span></span>
-<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.50</span> <span class="sc">*</span> social_latent <span class="sc">+</span>   <span class="co"># social proof boosts WTP</span></span>
-<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.40</span> <span class="sc">*</span> (med_scores<span class="sc">$</span>quality_taste <span class="sc">-</span> <span class="fu">mean</span>(med_scores<span class="sc">$</span>quality_taste)) <span class="sc">/</span></span>
-<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sd</span>(med_scores<span class="sc">$</span>quality_taste) <span class="sc">+</span></span>
-<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.15</span> <span class="sc">*</span> (med_scores<span class="sc">$</span>hedonic <span class="sc">-</span> <span class="fu">mean</span>(med_scores<span class="sc">$</span>hedonic)) <span class="sc">/</span></span>
-<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sd</span>(med_scores<span class="sc">$</span>hedonic) <span class="sc">+</span></span>
-<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.5</span>)</span>
-<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>med_z<span class="sc">$</span>WTP <span class="ot">&lt;-</span> <span class="fu">scale</span>(WTP_med)[, <span class="dv">1</span>]</span>
-<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mediator score means by condition (standardized; should differ for eco-activated dims):</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#   quality_taste &amp; hedonic: "sensory/experiential evaluation"</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co"># All method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co"># SEM models all three pairs via ~~ constraints; parallel mediation ignores them entirely.</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>method_sus_health <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.0</span>)   <span class="co"># natural/organic framing: sustainability ↔ health_natural</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>method_soc_trust  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.0</span>)   <span class="co"># social legitimacy:       social_values  ↔ trust_cert</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>method_qual_hed   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.0</span>)   <span class="co"># sensory/experiential:    quality_taste  ↔ hedonic</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Eco-cluster indicators: caused by eco_latent + method factors ONLY ────────</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co"># eco_arm has NO direct effect on any indicator — its influence flows entirely</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co"># through eco_latent. Consequences:</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#   (a) The CFA (eco_factor =~ indicators) is the correct measurement model for this DGP.</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#   (b) SEM's structural path (eco_factor ~ condition) recovers the true a-path</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#       (condition → eco_latent), correctly weighting all 4 indicators and correcting</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="co">#       for measurement-error attenuation in each.</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">#   (c) Parallel mediation treats 4 highly correlated indicators (r ≈ 0.65–0.93) as</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">#       independent predictors → severe multicollinearity + attenuation → individual</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="co">#       b-paths unstable; summed eco-cluster indirect effect underestimates the truth.</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="co">#   (d) The three method factors add within-pair residual correlations (loading 0.55)</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a><span class="co">#       that parallel mediation ignores; the SEM models all three via ~~ constraints.</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>med_scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">sustainability  =</span> <span class="fl">0.90</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_sus_health <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.25</span>),</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">social_values   =</span> <span class="fl">0.88</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_soc_trust  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.25</span>),</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">health_natural  =</span> <span class="fl">0.86</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_sus_health <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.2</span>, <span class="fl">0.25</span>),</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">trust_cert      =</span> <span class="fl">0.84</span> <span class="sc">*</span> eco_latent <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_soc_trust  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.25</span>),</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Frugal cluster: moderately reflective of frugal_latent</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">price_cost      =</span> <span class="fl">0.70</span> <span class="sc">*</span> frugal_latent <span class="sc">-</span> <span class="fl">0.15</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.55</span>),</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">habit_routine   =</span> <span class="fl">0.68</span> <span class="sc">*</span> frugal_latent                  <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.0</span>, <span class="fl">0.55</span>),</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Social/demand cluster: moderately reflective of social_latent</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">demand_effect   =</span> <span class="fl">0.70</span> <span class="sc">*</span> social_latent <span class="sc">+</span> <span class="fl">0.45</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">2.0</span>, <span class="fl">0.55</span>),</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">guilt_offset    =</span> <span class="fl">0.68</span> <span class="sc">*</span> social_latent <span class="sc">+</span> <span class="fl">0.30</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">2.5</span>, <span class="fl">0.55</span>),</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standalone mediators — share a sensory/experiential method factor (loading 0.55)</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality_taste   =</span> <span class="fl">0.40</span> <span class="sc">*</span> eco_latent   <span class="sc">+</span> <span class="fl">0.35</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_qual_hed <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.5</span>, <span class="fl">0.35</span>),</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">hedonic         =</span> <span class="fl">0.20</span> <span class="sc">*</span> eco_latent   <span class="sc">+</span> <span class="fl">0.15</span> <span class="sc">*</span> eco_arm <span class="sc">+</span> <span class="fl">0.55</span> <span class="sc">*</span> method_qual_hed <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="fl">3.8</span>, <span class="fl">0.40</span>)</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardize mediators to z-scores</span></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>med_z <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">scale</span>(med_scores))</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>med_z<span class="sc">$</span>condition <span class="ot">&lt;-</span> eco_arm</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co"># ── WTP: depends on LATENT FACTORS, not individual indicators ────────────────</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the key DGP design: WTP reflects eco_latent (the shared construct</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co"># behind the 4 correlated eco items), NOT each indicator separately.</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallel mediation is doubly misspecified: (1) treats 4 highly correlated</span></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a><span class="co"># indicators (r ≈ 0.65–0.93) as independent predictors → multicollinearity;</span></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="co"># (2) uses noisy proxies for eco_latent → attenuation bias in the b-paths.</span></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="co"># SEM is correctly specified — it models eco_latent explicitly via CFA,</span></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a><span class="co"># corrects for attenuation, and models the residual covariances via ~~.</span></span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>WTP_med <span class="ot">&lt;-</span> <span class="fl">5.0</span> <span class="sc">+</span></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.50</span> <span class="sc">*</span> eco_arm       <span class="sc">+</span>   <span class="co"># direct condition effect</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1.20</span> <span class="sc">*</span> eco_latent    <span class="sc">+</span>   <span class="co"># main indirect path (eco-mindedness → WTP)</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a> <span class="sc">-</span><span class="fl">0.55</span> <span class="sc">*</span> frugal_latent <span class="sc">+</span>   <span class="co"># frugality lowers WTP</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.50</span> <span class="sc">*</span> social_latent <span class="sc">+</span>   <span class="co"># social proof boosts WTP</span></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.40</span> <span class="sc">*</span> (med_scores<span class="sc">$</span>quality_taste <span class="sc">-</span> <span class="fu">mean</span>(med_scores<span class="sc">$</span>quality_taste)) <span class="sc">/</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sd</span>(med_scores<span class="sc">$</span>quality_taste) <span class="sc">+</span></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.15</span> <span class="sc">*</span> (med_scores<span class="sc">$</span>hedonic <span class="sc">-</span> <span class="fu">mean</span>(med_scores<span class="sc">$</span>hedonic)) <span class="sc">/</span></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sd</span>(med_scores<span class="sc">$</span>hedonic) <span class="sc">+</span></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">1.5</span>)</span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>med_z<span class="sc">$</span>WTP <span class="ot">&lt;-</span> <span class="fu">scale</span>(WTP_med)[, <span class="dv">1</span>]</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mediator score means by condition (standardized; should differ for eco-activated dims):</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Mediator score means by condition (standardized; should differ for eco-activated dims):</code></pre>
@@ -1582,28 +1605,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Control</td>
-<td style="text-align: right;">3.37</td>
-<td style="text-align: right;">2.81</td>
-<td style="text-align: right;">3.15</td>
-<td style="text-align: right;">3.37</td>
-<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.34</td>
+<td style="text-align: right;">2.91</td>
+<td style="text-align: right;">3.10</td>
+<td style="text-align: right;">3.35</td>
 <td style="text-align: right;">3.03</td>
-<td style="text-align: right;">1.89</td>
-<td style="text-align: right;">2.45</td>
-<td style="text-align: right;">3.53</td>
-<td style="text-align: right;">3.75</td>
+<td style="text-align: right;">3.02</td>
+<td style="text-align: right;">1.95</td>
+<td style="text-align: right;">2.50</td>
+<td style="text-align: right;">3.38</td>
+<td style="text-align: right;">3.63</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Eco-label</td>
-<td style="text-align: right;">4.04</td>
-<td style="text-align: right;">3.57</td>
-<td style="text-align: right;">3.75</td>
-<td style="text-align: right;">4.13</td>
-<td style="text-align: right;">2.91</td>
-<td style="text-align: right;">3.01</td>
-<td style="text-align: right;">2.46</td>
-<td style="text-align: right;">2.78</td>
+<td style="text-align: right;">4.01</td>
+<td style="text-align: right;">3.64</td>
+<td style="text-align: right;">3.77</td>
 <td style="text-align: right;">4.14</td>
+<td style="text-align: right;">2.86</td>
+<td style="text-align: right;">2.92</td>
+<td style="text-align: right;">2.43</td>
+<td style="text-align: right;">2.82</td>
+<td style="text-align: right;">4.12</td>
 <td style="text-align: right;">4.09</td>
 </tr>
 </tbody>
@@ -1652,7 +1675,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(param_par<span class="sc">$</span>est[param_par<span class="sc">$</span>label_clean <span class="sc">==</span> <span class="st">"Total indirect"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Parallel mediation fitted. Total indirect: 0.692 </code></pre>
+<pre><code>Parallel mediation fitted. Total indirect: 0.637 </code></pre>
 </div>
 </div>
 </section>
@@ -1703,48 +1726,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a><span class="st">  eco_factor =~ sustainability + social_values + health_natural + trust_cert</span></span>
 <span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="st">  # Residual covariances: pairs of indicators share method variance in the DGP</span></span>
-<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="st">  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert).</span></span>
-<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="st">  # These parameters are IN the DGP but completely ignored by parallel mediation.</span></span>
-<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a><span class="st">  sustainability ~~ health_natural</span></span>
-<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="st">  social_values  ~~ trust_cert</span></span>
-<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a><span class="st">  # a-paths: condition predicts each mediator / latent factor</span></span>
-<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a><span class="st">  eco_factor     ~ a1 * condition</span></span>
-<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a><span class="st">  frugal_cluster ~ a2 * condition</span></span>
-<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a><span class="st">  social_cluster ~ a3 * condition</span></span>
-<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a><span class="st">  quality_taste  ~ a4 * condition</span></span>
-<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a><span class="st">  hedonic        ~ a5 * condition</span></span>
-<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a><span class="st">  # b-paths + direct effect on standardised WTP</span></span>
-<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="st">  WTP ~ b1 * eco_factor + b2 * frugal_cluster + b3 * social_cluster +</span></span>
-<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a><span class="st">        b4 * quality_taste + b5 * hedonic + cp * condition</span></span>
-<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a><span class="st">  # Indirect effects (all in standardised WTP units)</span></span>
-<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_eco     := a1 * b1</span></span>
-<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_frugal  := a2 * b2</span></span>
-<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_social  := a3 * b3</span></span>
-<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_quality := a4 * b4</span></span>
-<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_hedonic := a5 * b5</span></span>
-<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a><span class="st">  total_ind   := ind_eco + ind_frugal + ind_social + ind_quality + ind_hedonic</span></span>
-<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
-<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a><span class="co"># std.lv = TRUE: latent eco_factor standardised to variance 1 → comparable scale</span></span>
-<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a>fit_sem <span class="ot">&lt;-</span> <span class="fu">sem</span>(sem_model_txt, <span class="at">data =</span> med_sem,</span>
-<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a>               <span class="at">std.lv =</span> <span class="cn">TRUE</span>, <span class="at">se =</span> <span class="st">"bootstrap"</span>, <span class="at">bootstrap =</span> <span class="dv">200</span>)</span>
-<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a>param_sem <span class="ot">&lt;-</span> <span class="fu">parameterEstimates</span>(fit_sem, <span class="at">boot.ci.type =</span> <span class="st">"bca.simple"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb16-71"><a href="#cb16-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">":="</span>) <span class="sc">|&gt;</span></span>
-<span id="cb16-72"><a href="#cb16-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb16-73"><a href="#cb16-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">label_clean =</span> <span class="fu">c</span>(<span class="st">"via eco cluster"</span>, <span class="st">"via frugal cluster"</span>, <span class="st">"via social cluster"</span>,</span>
-<span id="cb16-74"><a href="#cb16-74" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"via quality taste"</span>, <span class="st">"via hedonic"</span>, <span class="st">"Total indirect"</span>),</span>
-<span id="cb16-75"><a href="#cb16-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"SEM (latent eco-factor)"</span></span>
-<span id="cb16-76"><a href="#cb16-76" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-77"><a href="#cb16-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-78"><a href="#cb16-78" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"SEM fitted. Total indirect:"</span>,</span>
-<span id="cb16-79"><a href="#cb16-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(param_sem<span class="sc">$</span>est[param_sem<span class="sc">$</span>label_clean <span class="sc">==</span> <span class="st">"Total indirect"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="st">  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert;</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="st">  #  sensory/experiential framing for quality_taste↔hedonic).</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a><span class="st">  # These parameters are IN the DGP but completely ignored by parallel mediation.</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="st">  sustainability ~~ health_natural</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="st">  social_values  ~~ trust_cert</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a><span class="st">  quality_taste  ~~ hedonic</span></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a><span class="st">  # a-paths: condition predicts each mediator / latent factor</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a><span class="st">  eco_factor     ~ a1 * condition</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a><span class="st">  frugal_cluster ~ a2 * condition</span></span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a><span class="st">  social_cluster ~ a3 * condition</span></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a><span class="st">  quality_taste  ~ a4 * condition</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a><span class="st">  hedonic        ~ a5 * condition</span></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a><span class="st">  # b-paths + direct effect on standardised WTP</span></span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a><span class="st">  WTP ~ b1 * eco_factor + b2 * frugal_cluster + b3 * social_cluster +</span></span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a><span class="st">        b4 * quality_taste + b5 * hedonic + cp * condition</span></span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a><span class="st">  # Indirect effects (all in standardised WTP units)</span></span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_eco     := a1 * b1</span></span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_frugal  := a2 * b2</span></span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_social  := a3 * b3</span></span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_quality := a4 * b4</span></span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a><span class="st">  ind_hedonic := a5 * b5</span></span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a><span class="st">  total_ind   := ind_eco + ind_frugal + ind_social + ind_quality + ind_hedonic</span></span>
+<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a><span class="co"># std.lv = TRUE: latent eco_factor standardised to variance 1 → comparable scale</span></span>
+<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a>fit_sem <span class="ot">&lt;-</span> <span class="fu">sem</span>(sem_model_txt, <span class="at">data =</span> med_sem,</span>
+<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a>               <span class="at">std.lv =</span> <span class="cn">TRUE</span>, <span class="at">se =</span> <span class="st">"bootstrap"</span>, <span class="at">bootstrap =</span> <span class="dv">200</span>)</span>
+<span id="cb16-71"><a href="#cb16-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-72"><a href="#cb16-72" aria-hidden="true" tabindex="-1"></a>param_sem <span class="ot">&lt;-</span> <span class="fu">parameterEstimates</span>(fit_sem, <span class="at">boot.ci.type =</span> <span class="st">"bca.simple"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-73"><a href="#cb16-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">":="</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-74"><a href="#cb16-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-75"><a href="#cb16-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">label_clean =</span> <span class="fu">c</span>(<span class="st">"via eco cluster"</span>, <span class="st">"via frugal cluster"</span>, <span class="st">"via social cluster"</span>,</span>
+<span id="cb16-76"><a href="#cb16-76" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"via quality taste"</span>, <span class="st">"via hedonic"</span>, <span class="st">"Total indirect"</span>),</span>
+<span id="cb16-77"><a href="#cb16-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"SEM (latent eco-factor)"</span></span>
+<span id="cb16-78"><a href="#cb16-78" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-79"><a href="#cb16-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-80"><a href="#cb16-80" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"SEM fitted. Total indirect:"</span>,</span>
+<span id="cb16-81"><a href="#cb16-81" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(param_sem<span class="sc">$</span>est[param_sem<span class="sc">$</span>label_clean <span class="sc">==</span> <span class="st">"Total indirect"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>SEM fitted. Total indirect: 0.743 </code></pre>
+<pre><code>SEM fitted. Total indirect: 0.701 </code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Step 4: SEM with latent eco-factor (CFA + structural mediation)</summary>
@@ -1837,7 +1862,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   eco_cluster frugal_cluster social_cluster  quality_taste        hedonic 
-         0.453          0.036          0.030          0.154          0.050 </code></pre>
+         0.384          0.036          0.041          0.244         -0.035 </code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Step 5: Compare recovered effects to true DGP</summary>
