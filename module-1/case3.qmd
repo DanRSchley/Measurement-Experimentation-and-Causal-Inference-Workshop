@@ -1,5 +1,5 @@
 ---
-title: "Case 3: Measurement Invariance"
+title: "Part 3: Measurement Invariance"
 ---
 
 ```{r setup, include=FALSE}
@@ -56,7 +56,7 @@ gen_items <- function(latent, loadings) {
 ---
 
 
-# Case 3: Measurement Non-Invariance — A Special Case of Discriminant Validity {#sec-case3}
+# Part 3: Measurement Non-Invariance — A Special Case of Discriminant Validity {#sec-case3}
 
 ## Connecting to Cases 1 and 2
 

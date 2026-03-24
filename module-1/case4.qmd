@@ -1,5 +1,5 @@
 ---
-title: "Case 4: Latent Subgroups"
+title: "Part 4: Latent Subgroups"
 ---
 
 ```{r setup, include=FALSE}
@@ -39,7 +39,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Case 4: Latent Subgroups — When Your Sample Contains Two Different Worlds {#sec-case4}
+# Part 4: Latent Subgroups — When Your Sample Contains Two Different Worlds {#sec-case4}
 
 ## Connecting to the Earlier Cases
 

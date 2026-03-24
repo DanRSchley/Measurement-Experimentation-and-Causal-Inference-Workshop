@@ -1,5 +1,5 @@
 ---
-title: "Case 1: Discriminant Validity"
+title: "Part 1: Discriminant Validity"
 ---
 
 <iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 1: Validity"></iframe>
@@ -23,24 +23,24 @@ dir.create("figs", recursive = TRUE, showWarnings = FALSE)
 #                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
 #                    "mclust", "dbscan"))
 
-library(lavaan)       # CFA and SEM (Cases 1 and 3)
-library(semTools)     # htmt() and auxiliary SEM tools (Cases 1 and 3)
-library(MASS)         # mvrnorm(): generate multivariate normal data (all cases)
-library(ggplot2)      # Visualizations (all cases)
-library(dplyr)        # Data manipulation (all cases)
-library(tidyr)        # Data reshaping (Cases 2 and 3)
-library(corrplot)     # Correlation heatmap (Case 1)
-library(knitr)        # Nicely formatted tables (all cases)
-library(lmtest)       # Breusch-Pagan heteroskedasticity test (Case 2)
-library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
-library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
+library(lavaan)       # CFA and SEM (Parts 1 and 3)
+library(semTools)     # htmt() and auxiliary SEM tools (Parts 1 and 3)
+library(MASS)         # mvrnorm(): generate multivariate normal data (all parts)
+library(ggplot2)      # Visualizations (all parts)
+library(dplyr)        # Data manipulation (all parts)
+library(tidyr)        # Data reshaping (Parts 2 and 3)
+library(corrplot)     # Correlation heatmap (Part 1)
+library(knitr)        # Nicely formatted tables (all parts)
+library(lmtest)       # Breusch-Pagan heteroskedasticity test (Part 2)
+library(mclust)       # Gaussian mixture models / latent class analysis (Part 4)
+library(dbscan)       # Local outlier factor and DBSCAN clustering (Part 5)
 ```
 
 
 ---
 
 
-# Case 1: Discriminant Validity {#sec-case1}
+# Part 1: Discriminant Validity {#sec-case1}
 
 ## The Classical Test Theory Starting Point
 
@@ -50,13 +50,13 @@ $$X_\text{observed} = T_\text{true} + \varepsilon$$
 
 Classical test theory (CTT) assumes the error term $\varepsilon$ is *random and symmetric* — equally likely to push the observed score up or down, averaging to zero across many observations. Under this assumption, observable scores are noisy but unbiased indicators of the latent construct you care about.
 
-But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by *something else*. The five cases in this tutorial are five different ways that "something else" creeps into your observed score:
+But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by *something else*. The five parts in this tutorial are five different ways that "something else" creeps into your observed score:
 
-- When your scale picks up a second construct (**Case 1**), ε includes that construct's variance — and is no longer random.
-- When an omitted variable drives both your predictor and outcome (**Case 2**), the "error" in your regression coefficient is systematic, not random.
-- When scale items shift their baseline across groups (**Case 3**), ε differs systematically between conditions.
-- When your sample mixes two populations (**Case 4**), ε has a bimodal structure that standard models cannot represent.
-- When the scale has hard bounds (**Case 6**), ε is asymmetrically truncated — larger in one direction than the other.
+- When your scale picks up a second construct (**Part 1**), ε includes that construct's variance — and is no longer random.
+- When an omitted variable drives both your predictor and outcome (**Part 2**), the "error" in your regression coefficient is systematic, not random.
+- When scale items shift their baseline across groups (**Part 3**), ε differs systematically between conditions.
+- When your sample mixes two populations (**Part 4**), ε has a bimodal structure that standard models cannot represent.
+- When the scale has hard bounds (**Part 6**), ε is asymmetrically truncated — larger in one direction than the other.
 
 **Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.** The CTT equation becomes:
 
@@ -96,7 +96,7 @@ We are simulating data from a **green marketing experiment** with 400 participan
 
 **The hidden problem we planted in the data:** The GPI scale was designed to measure purchase intention — but its items ended up being nearly indistinguishable from items measuring environmental concern. In real research, this often happens when constructs are conceptually close (caring about the environment vs. intending to buy green products). The two scales fail discriminant validity.
 
-In all five cases in this tutorial, the core problem is the same: the **observed Y** you are working with is an imperfect, contaminated proxy for the **latent Y** you are trying to study.
+In all five parts in this tutorial, the core problem is the same: the **observed Y** you are working with is an imperfect, contaminated proxy for the **latent Y** you are trying to study.
 
 ::: {.callout-warning}
 ## What "failing discriminant validity" means here

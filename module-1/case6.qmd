@@ -1,5 +1,5 @@
 ---
-title: "Case 6: Systematic Measurement Error"
+title: "Part 6: Systematic Measurement Error"
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +24,7 @@ library(dplyr); library(tidyr); library(knitr)
 
 ---
 
-# Case 6: Systematic Measurement Error on Bounded Scales {#sec-case6}
+# Part 6: Systematic Measurement Error on Bounded Scales {#sec-case6}
 
 ## The Problem in Plain Language
 

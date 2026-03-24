@@ -420,7 +420,14 @@ power_fn <- function(d, se, alpha = 0.05) {
   pnorm(d / se - z) + pnorm(-d / se - z)  # two-sided normal approximation
 }
 
-meta_se_fn <- function(K) sqrt(tau^2 / K + sigma^2 / N_total)
+# At K=1 a metastudy IS a single A/B test — the tau^2/K scenario-sampling term
+# does not apply because there is only one scenario and no averaging across scenarios.
+# For K >= 2 the DeKay et al. formula applies: SE = sqrt(tau^2/K + sigma^2/N).
+meta_se_fn <- function(K) {
+  ifelse(K == 1,
+         sigma * sqrt(4 / N_total),          # = ab_se_fn(1): same as one A/B test
+         sqrt(tau^2 / K + sigma^2 / N_total))
+}
 ab_se_fn   <- function(K) sigma * sqrt(4 / pmax(4, floor(N_total / K)))
 
 meta_label <- paste0("Metastudy: K microstudies, N = ", N_total, " total")
@@ -484,7 +491,7 @@ ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
         plot.margin = margin(5, 30, 5, 5))
 ```
 
-**Reading the plot:** at K = 1, the separate A/B test has higher power (~98%) because it runs one large, clean study with all 400 participants. The metastudy starts lower (~35%) because with only one microstudy you have no way to know whether your single chosen scenario is representative — the effect heterogeneity τ adds substantial uncertainty to the meta-analytic estimate. As K grows, those roles reverse. Each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly. By K = 3, the metastudy already surpasses the A/B test's power; by K = 15, it reaches near-ceiling power (>99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy's power gain comes from reducing the heterogeneity component — and it is substantial.
+**Reading the plot:** at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test, and they share the same SE and therefore the same power (~98% for d = 0.40 with N = 400). As K grows, the two designs diverge sharply in opposite directions. In the metastudy, each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly — so power rises. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls. By K = 3, the metastudy already surpasses the A/B test's power; by K = 15, it reaches near-ceiling power (>99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy's power gain comes from reducing the heterogeneity component τ²/K — and it is substantial.
 
 The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
 

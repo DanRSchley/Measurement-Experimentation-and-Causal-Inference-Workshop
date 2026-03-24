@@ -1,5 +1,5 @@
 ---
-title: "Case 2: Omitted Variable Bias"
+title: "Part 2: Omitted Variable Bias"
 ---
 
 ```{r setup, include=FALSE}
@@ -37,7 +37,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Case 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-case2}
+# Part 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-case2}
 
 ## Connecting to Case 1
 

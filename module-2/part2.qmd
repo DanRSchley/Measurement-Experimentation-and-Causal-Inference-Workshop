@@ -66,12 +66,16 @@ If X injects additional unintended signals that also causally influence Y — an
 **This is the fundamental identification problem in causal inference**, and it is the experimental analogue of discriminant invalidity in measurement. In Module 1 you saw that **measured Y can measure too much**. Here you will see that **manipulated X can inject too much**.
 :::
 
-## Simulating a Heterogeneous Treatment
+## Simulating a Confounded Study
 
-We now simulate the coffee experiment with a realistic data-generating process. Each participant has nine binary latent characteristics that determine both *what signals they extract from the eco-label* and *how much they are willing to pay*.
+We now simulate the coffee experiment with a realistic data-generating process that captures how the exclusion restriction fails in practice.
+
+The researcher intends the eco-label to be the only thing that differs between conditions. But in preparing the stimuli, the two versions of the coffee bag were not held perfectly equal: the eco-label condition also happened to use a **more premium-looking package design** — darker color scheme, cleaner typography, higher perceived quality cues. Participants in the eco-label condition therefore receive a *bundle*: eco-certification **plus** a premium visual presentation. Both signals independently increase WTP through different pathways.
+
+This is the exclusion restriction failure in concrete form: the treatment variable injects two distinct latent signals, not one. Any estimated "eco-label effect" is a conflation of the two.
 
 ```{r part2-setup}
-#| code-summary: "▶ Simulate 120 participants with heterogeneous traits and WTP"
+#| code-summary: "▶ Simulate 120 participants with confounded eco-label and premium design"
 
 set.seed(2026)
 N_p2  <- 120
@@ -95,76 +99,119 @@ traits <- data.frame(
 
 # ── Equal random assignment ───────────────────────────────────────────────────
 condition_p2 <- rep(c("Control", "Eco-label"), each = half2)
+eco          <- as.integer(condition_p2 == "Eco-label")
+
+# ── The confound: premium design is perfectly tied to the eco-label condition ─
+# In a real study this could be a subtly different image, font, or color scheme
+# that slipped through stimuli review. It is unobserved by the researcher.
+premium_design <- eco  # r = 1.0 with treatment — impossible to separate without measuring
 
 # ── WTP simulation (in dollars, clamped to $1–$10) ────────────────────────────
-# Key feature: eco-label ACTIVATES traits 1, 2, 4, 5, 6, 7 differentially.
-# Traits 3 (price sensitivity), 8 (hedonic), 9 (habitual) operate in both conditions.
+# True causal structure:
+#   Path A (eco-certification): activates eco-responsive traits → conditional premium
+#   Path B (premium design):    boosts perceived quality for EVERYONE → unconditional lift
+#   Both paths are real effects; the researcher cannot separate them from the t-test alone.
 WTP_p2 <- with(traits, {
-  eco <- as.integer(condition_p2 == "Eco-label")
-  v   <- 4.50 +
-    1.20 * env_values      * eco        +  # env concern → eco premium
-    0.80 * quality_seek    * (0.35 + 0.65 * eco)  +  # quality matters more in eco
-   -0.70 * price_sensitive            +  # price sensitivity suppresses WTP
-    0.90 * social_identity * eco        +  # identity-driven eco premium
-    0.60 * health_focus    * eco        +  # health focus eco premium
-    0.50 * brand_trust     * eco        +  # certification trust premium
-    0.35 * guilt_prone     * eco        +  # guilt-offset premium
-    0.30 * hedonic                      +  # hedonic adds WTP in both
-   -0.45 * habitual                    +  # habitual buyers resist stretching
-    0.55 * demand_aware    * eco        +  # demand-aware participants inflate WTP in eco context
-    rnorm(N_p2, 0, 0.75)
+  # Path A — eco-certification effect (heterogeneous: depends on eco-responsive traits)
+  eco_effect <-
+    1.00 * env_values      * eco  +  # env concern → eco premium
+    0.65 * quality_seek    * eco  +  # quality-seekers respond to certification
+    0.80 * social_identity * eco  +  # identity-driven eco premium
+    0.50 * health_focus    * eco  +  # health focus eco premium
+    0.45 * brand_trust     * eco  +  # certification trust premium
+    0.30 * guilt_prone     * eco  +  # guilt-offset premium
+    0.50 * demand_aware    * eco     # demand effects in eco context
+
+  # Path B — premium design effect (homogeneous: affects everyone in eco condition)
+  design_effect <- 0.70 * premium_design  # unconditional quality-perception lift
+
+  # Baseline WTP (trait-driven, condition-independent)
+  base <-
+    4.50 +
+    0.30 * quality_seek    +  # quality-seekers have higher baseline WTP
+   -0.70 * price_sensitive +  # price sensitivity suppresses WTP
+    0.30 * hedonic         +  # hedonic adds WTP in both
+   -0.45 * habitual           # habitual buyers resist stretching
+
+  v <- base + eco_effect + design_effect + rnorm(N_p2, 0, 0.75)
   pmax(pmin(round(v, 2), 10), 1)
 })
 
-df_p2 <- data.frame(traits, condition = condition_p2, WTP = WTP_p2)
+df_p2 <- data.frame(traits, condition = condition_p2,
+                    premium_design = premium_design, WTP = WTP_p2)
 
-# ── Summary by condition ──────────────────────────────────────────────────────
+# ── What the researcher sees: a clean-looking treatment effect ────────────────
 df_p2 |>
   group_by(condition) |>
   summarise(n = n(), mean_WTP = round(mean(WTP), 2),
             sd_WTP = round(sd(WTP), 2), .groups = "drop") |>
   kable(col.names = c("Condition", "n", "Mean WTP", "SD WTP"),
         align   = c("l", "c", "c", "c"),
-        caption = "WTP summary by condition")
+        caption = "WTP summary by condition — what the researcher observes")
 ```
 
-The overall treatment effect looks straightforward. But the figure below reveals the heterogeneity hiding underneath it:
+The summary table shows a clean, positive treatment effect. The researcher would likely report this as evidence that eco-certification raises WTP. But the figure below shows what is actually happening:
 
-```{r het-effects-plot, fig.height=5}
-#| code-summary: "▶ Plot: treatment effect varies by participant trait profile"
+```{r confound-decomposition-plot, fig.height=5}
+#| code-summary: "▶ Plot: decompose observed effect into eco-certification vs. premium design paths"
 
-# Compute individual-level treatment contrasts via matched simulation
-# For illustration: show eco-label premium by number of "activated" traits
+# Reconstruct each path's contribution at the participant level
 df_p2 <- df_p2 |>
   mutate(
+    eco_int = as.integer(condition == "Eco-label"),
+    # Path A: eco-responsive traits × eco condition
+    path_A = (1.00 * env_values + 0.65 * quality_seek + 0.80 * social_identity +
+              0.50 * health_focus + 0.45 * brand_trust + 0.30 * guilt_prone +
+              0.50 * demand_aware) * eco_int,
+    # Path B: premium design (everyone in eco condition gets +0.70)
+    path_B = 0.70 * premium_design,
+    # Eco-responsive trait count for x-axis ordering
     n_eco_traits = env_values + quality_seek + social_identity +
-                   health_focus + brand_trust + guilt_prone,
-    eco_group = cut(n_eco_traits, breaks = c(-1, 1, 3, 6),
-                    labels = c("0\u20131 eco-responsive traits",
-                               "2\u20133 eco-responsive traits",
-                               "4\u20136 eco-responsive traits"))
+                   health_focus + brand_trust + guilt_prone
   )
 
-ggplot(df_p2, aes(x = condition, y = WTP, fill = condition, color = condition)) +
-  geom_jitter(width = 0.14, alpha = 0.4, size = 2) +
-  geom_boxplot(alpha = 0.20, outlier.shape = NA, width = 0.45, linewidth = 0.7) +
-  stat_summary(fun = mean, geom = "point", shape = 23, size = 4,
-               fill = "white", color = "black", stroke = 1.3) +
-  facet_wrap(~eco_group, nrow = 1) +
-  scale_fill_manual(values  = c("Control" = "#4a90d9", "Eco-label" = "#2d6a4f")) +
-  scale_color_manual(values = c("Control" = "#2b6cb0", "Eco-label" = "#1b4332")) +
+# Group-level averages for the annotation
+avg_A <- round(mean(df_p2$path_A[df_p2$condition == "Eco-label"]), 2)
+avg_B <- round(mean(df_p2$path_B[df_p2$condition == "Eco-label"]), 2)
+naive <- round(mean(df_p2$WTP[df_p2$condition == "Eco-label"]) -
+               mean(df_p2$WTP[df_p2$condition == "Control"]), 2)
+
+path_long <- df_p2 |>
+  filter(condition == "Eco-label") |>
+  select(n_eco_traits, path_A, path_B) |>
+  pivot_longer(c(path_A, path_B),
+               names_to = "pathway",
+               values_to = "contribution") |>
+  mutate(pathway = recode(pathway,
+    "path_A" = "Path A: Eco-certification\n(heterogeneous — depends on traits)",
+    "path_B" = "Path B: Premium design\n(homogeneous — same for everyone)"))
+
+ggplot(path_long, aes(x = n_eco_traits, y = contribution, color = pathway)) +
+  geom_jitter(width = 0.2, alpha = 0.55, size = 2.5) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.4, span = 0.9) +
+  annotate("label", x = 5.8, y = 2.8,
+           label = sprintf("Observed \u0394WTP = $%.2f\n  Path A (eco) = $%.2f avg\n  Path B (design) = $%.2f avg",
+                           naive, avg_A, avg_B),
+           size = 3.2, hjust = 1, fill = "#fff8e1", label.size = 0.3) +
+  scale_color_manual(values = c("Path A: Eco-certification\n(heterogeneous — depends on traits)" = "#2d6a4f",
+                                "Path B: Premium design\n(homogeneous — same for everyone)"     = "#e07b39"),
+                     name = NULL) +
   scale_y_continuous(labels = function(x) paste0("$", x)) +
-  labs(x = NULL, y = "WTP ($)",
-       title = "The Same Treatment Has Very Different Effects on Different People",
-       subtitle = "Diamond = group mean  \u00b7  Eco-responsive traits: environmental values, quality-seeking, social identity, health, trust, guilt") +
+  scale_x_continuous(breaks = 0:6) +
+  labs(x = "Number of eco-responsive traits (participant characteristic)",
+       y = "WTP contribution ($)",
+       title = "The Observed Treatment Effect Bundles Two Distinct Causal Paths",
+       subtitle = "Path A varies by participant; Path B is constant — both are invisible to the researcher") +
   theme_minimal(base_size = 12) +
-  theme(legend.position = "none", panel.grid.minor = element_blank(),
-        strip.text = element_text(size = 9, face = "bold"))
+  theme(legend.position = "top", panel.grid.minor = element_blank(),
+        legend.text = element_text(size = 9))
 ```
 
-The eco-label produces a large positive effect for participants with several eco-responsive traits, a small effect for moderately responsive participants, and near-zero (or even negative) effects for participants whose WTP is driven primarily by price sensitivity, habit, or hedonic taste expectations.
+The plot shows what a researcher cannot see from the t-test alone. **Path A** — the true eco-certification effect — varies by participant: participants with many eco-responsive traits gain more from the label, while those with few traits gain little. **Path B** — the premium design effect — is a flat $`r avg_B` lift for everyone in the eco-label condition, regardless of any trait.
 
-The average treatment effect you would report obscures all of this variation — and misses entirely *which* mechanism is driving WTP upward.
+When the researcher reports the overall WTP difference of $`r naive`, they attribute the entire effect to eco-certification. But roughly $`r avg_B` of that is driven by the premium package design — a confound that was never randomized away because it was never measured. The true average eco-label effect across participants is only $`r avg_A`, not $`r naive`.
+
+The exclusion restriction failed: **the manipulation injected two latent signals into a single condition dummy**, and the treatment coefficient absorbs both.
 
 ## What Participants Say: Template-Based Open-Ended Responses
 
@@ -259,8 +306,27 @@ gen_wtp_text <- function(i) {
   paste(sample(parts, min(2L, length(parts))), collapse = " ")
 }
 
+# Generate product text first so we can use WTP amounts in WTP text generation
 product_text <- sapply(seq_len(N_p2), gen_product_text)
-wtp_text     <- sapply(seq_len(N_p2), gen_wtp_text)
+
+# Add a WTP-amount-anchored phrase to the WTP text to ensure the open-ended
+# responses actually correlate with stated WTP (as real responses would).
+# High WTP → quality language; Low WTP → price/budget/overpay language.
+# This mimics how real open-ended responses reflect stated amounts.
+add_wtp_anchor <- function(i, base_text) {
+  w <- WTP_p2[i]
+  anchor <- if (w >= 7.5) {
+    "Taken together, the quality and overall appeal of this product make it feel genuinely worth it — I am happy to spend considerably above what I normally would."
+  } else if (w >= 5.5) {
+    "Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost."
+  } else {
+    "Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee."
+  }
+  paste(base_text, anchor)
+}
+
+wtp_text_raw <- sapply(seq_len(N_p2), gen_wtp_text)
+wtp_text     <- mapply(add_wtp_anchor, seq_len(N_p2), wtp_text_raw)
 
 # Preview a few responses
 preview <- data.frame(
@@ -318,8 +384,10 @@ lo_wtp  <- sapply(names(concept_dict), function(v)
   log_odds(wtp_conc[[v]],  wtp_conc$condition))
 
 # ── Correlation of concept mentions with WTP ──────────────────────────────────
-wtp_cor_prod <- sapply(names(concept_dict), function(v)
-  cor(prod_conc[[v]], WTP_p2, method = "spearman"))
+wtp_cor_prod <- sapply(names(concept_dict), function(v) {
+  x <- prod_conc[[v]]
+  if (sd(x) < 1e-9) 0 else cor(x, WTP_p2, method = "spearman")
+})
 
 wtp_cor_wtp <- sapply(names(concept_dict), function(v) {
   x <- wtp_conc[[v]]

@@ -441,6 +441,22 @@ ggplot(ortho_plot_df, aes(x = D)) +
         plot.margin = margin(5, 30, 5, 5))
 ```
 
+::: {.callout-note}
+## Reading the table: Why does r_max = 0.05 at D = 10 require *more* N than the Exact cells column?
+
+At first glance, a row like D = 10 looks paradoxical: the **Exact cells (2^D) = 1,024** column is smaller than the **r_max = 0.05** column (≈ 3,152). Doesn't that mean structured assignment needs *fewer* people than random assignment — even while achieving *perfect* orthogonality?
+
+Yes — and that is exactly right, for a subtle reason. The two columns are measuring different things:
+
+- **Exact cells (2^D):** This is the total number of cells in a *fully structured full-factorial design* — every possible combination of D binary dimensions gets exactly one observation. By construction, all D factors are perfectly balanced and mutually uncorrelated (r = 0 exactly). No statistical test is needed; orthogonality is guaranteed by design. The 1,024 figure is simply the number of cells, not a sample size adequate for inference.
+
+- **r_max columns:** These are the N required to *verify* that a random, unstructured assignment achieved approximate orthogonality at the stated tolerance, using a Bonferroni-corrected independence test. With random assignment, there is no structural guarantee — you must check empirically, and the check requires enough power to detect any correlation exceeding r_max.
+
+The full factorial is more efficient per cell because its structure eliminates random correlation entirely. But that efficiency evaporates quickly in practice: with only 1 observation per cell you cannot estimate variance or make inferential statements. A realistic full factorial at D = 10 needs at least 10–30 observations per cell, putting the total at **10,240–30,720** — far more than the 3,152 needed under random assignment with r_max = 0.05.
+
+In short: the exact-cells column tells you the minimum to *fill the design*; the r_max columns tell you the minimum to *trust random assignment*. At moderate D, random assignment wins on cost; at small D and large cells, full factorial wins on precision.
+:::
+
 ::: {.callout-warning}
 ## The key tradeoff — and why most experiments are implicitly operating at high $r_{\max}$
 
@@ -470,7 +486,7 @@ With a narrow outcome like **Recall Accuracy** (D = 2 dimensions):
 With a broad outcome like **Sustainable Purchase Intention** (D = 10 dimensions):
 - To ensure $|r| < 0.10$: N ≈ **`r required_N(10, 0.10)`** — rarely achieved in practice
 - To ensure $|r| < 0.20$: N ≈ **`r required_N(10, 0.20)`** — still demanding for most lab studies
-- A study with N = 200 is operating at an effective $r_{\max} > 0.30$ — where a single strong confounder (β ≈ 0.8 SD) can inject bias of 0.24 SD or more into your treatment estimate
+- A study with N = 200 barely meets the r_max < 0.20 threshold (required N = `r required_N(10, 0.20)`). A typical lab study with **N = 80**, however, is operating at an effective $r_{\max} \approx 0.31$ — where a single strong confounder (β ≈ 0.8 SD) can inject bias of 0.24 SD or more into your treatment estimate
 
 This is the direct experimental parallel to Module 1's core finding about discriminant validity. A scale with **many correlated sub-dimensions** is hard to measure cleanly; a construct with **many latent antecedents** is hard to randomize cleanly. Both problems grow with construct breadth, and both require you to map the latent space before claiming clean measurement or clean identification.
 :::

@@ -1,5 +1,5 @@
 ---
-title: "Case 5: Outlier Detection and Robust Estimation"
+title: "Part 5: Outlier Detection and Robust Estimation"
 ---
 
 ```{r setup, include=FALSE}
@@ -37,7 +37,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Case 5: Outlier Detection and Robust Estimation {#sec-case5}
+# Part 5: Outlier Detection and Robust Estimation {#sec-case5}
 
 ## Connecting to the Earlier Cases
 

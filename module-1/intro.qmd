@@ -59,19 +59,19 @@ There is a single idea running through everything in this tutorial:
 
 > **Y is supposed to reflect X — but it actually reflects X *plus something else*.**
 
-This problem shows up in five different guises that marketing researchers encounter regularly:
+This problem shows up in five different parts that marketing researchers encounter regularly:
 
-- **Case 1 — Discriminant Validity:** Your Green Purchase Intention scale is supposed to measure *purchase intention* (X) — but its items also pick up *environmental concern* (something else). The scale cannot be told apart from a different construct.
+- **Part 1 — Discriminant Validity:** Your Green Purchase Intention scale is supposed to measure *purchase intention* (X) — but its items also pick up *environmental concern* (something else). The scale cannot be told apart from a different construct.
 
-- **Case 2 — Omitted Variable Bias:** In your secondary data, observed *sales* (Y) is supposed to reflect *advertising spend* (X) — but sales also reflects *store quality* (something else, which you never measured). Your estimated advertising effect is inflated.
+- **Part 2 — Omitted Variable Bias:** In your secondary data, observed *sales* (Y) is supposed to reflect *advertising spend* (X) — but sales also reflects *store quality* (something else, which you never measured). Your estimated advertising effect is inflated.
 
-- **Case 3 — Measurement Non-Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
+- **Part 3 — Measurement Non-Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
 
-- **Case 4 — Latent Subgroups:** Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn't apply cleanly to anyone.
+- **Part 4 — Latent Subgroups:** Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn't apply cleanly to anyone.
 
-- **Case 5 — Outliers:** Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.
+- **Part 5 — Outliers:** Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.
 
-The statistical symptoms differ across these five cases, but the **underlying logic is identical**: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.
+The statistical symptoms differ across these five parts, but the **underlying logic is identical**: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.
 
 ::: {.callout-note}
 ## Learning Objectives
@@ -102,17 +102,17 @@ Install and load the required packages. If you haven't installed them before, ru
 #                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
 #                    "mclust", "dbscan"))
 
-library(lavaan)       # CFA and SEM (Cases 1 and 3)
-library(semTools)     # htmt() and auxiliary SEM tools (Cases 1 and 3)
-library(MASS)         # mvrnorm(): generate multivariate normal data (all cases)
-library(ggplot2)      # Visualizations (all cases)
-library(dplyr)        # Data manipulation (all cases)
-library(tidyr)        # Data reshaping (Cases 2 and 3)
-library(corrplot)     # Correlation heatmap (Case 1)
-library(knitr)        # Nicely formatted tables (all cases)
-library(lmtest)       # Breusch-Pagan heteroskedasticity test (Case 2)
-library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
-library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
+library(lavaan)       # CFA and SEM (Parts 1 and 3)
+library(semTools)     # htmt() and auxiliary SEM tools (Parts 1 and 3)
+library(MASS)         # mvrnorm(): generate multivariate normal data (all parts)
+library(ggplot2)      # Visualizations (all parts)
+library(dplyr)        # Data manipulation (all parts)
+library(tidyr)        # Data reshaping (Parts 2 and 3)
+library(corrplot)     # Correlation heatmap (Part 1)
+library(knitr)        # Nicely formatted tables (all parts)
+library(lmtest)       # Breusch-Pagan heteroskedasticity test (Part 2)
+library(mclust)       # Gaussian mixture models / latent class analysis (Part 4)
+library(dbscan)       # Local outlier factor and DBSCAN clustering (Part 5)
 ```
 
 
