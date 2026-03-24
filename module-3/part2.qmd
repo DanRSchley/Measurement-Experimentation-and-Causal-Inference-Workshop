@@ -104,17 +104,15 @@ rob_extract <- function(fit) {
 }
 ```
 
-::: {.callout-note}
-## From Module 2: Statistical Fixes When Assignment Breaks Down
+::: {.callout-tip}
+## How to use the code in this section
 
-The following section was introduced in Module 2's discussion of exchangeability. It is reproduced here because these methods — Heckman's selection model and the Tobit model — are observational correction strategies that belong conceptually with the material in this part.
+The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
 :::
 
-## Statistical Solutions: Correcting for Broken Exchangeability After Data Collection
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={c4e4767b-beb7-4702-82bf-5717967f663e}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 3 Part 2: Selection on Observables"></iframe>
 
-Even with careful design, selection and attrition can still break exchangeability. Several statistical models attempt to recover causal estimates when this happens.
-
-### Heckman Selection Models
+## Heckman Selection Models {#sec-heckman}
 
 ::: {.callout-warning}
 ## The critical caveat — read this before the example
@@ -246,7 +244,64 @@ kable(heck_tab,
 
 Notice how the naive OLS estimate is **downward biased**: the eco condition attracted some low-theta ("curious but not eco-minded") completers who would not have bothered with the control condition. These participants bring down the mean WTP in the eco arm, understating the true eco-label effect. The control arm retained only high-theta (genuinely motivated) completers with high baseline WTP regardless. The Heckman correction uses the IMR to account for this differential attrition and recovers an estimate closer to the true $0.50 value.
 
-### Censored Data Models (Tobit)
+## When Instruments Fail: The Bad Instrument Case {#sec-bad-instrument}
+
+The exclusion restriction — that the instrument affects the outcome only through selection — is the most critical and least verifiable assumption in a Heckman model. It cannot be tested from the data alone. The example below shows what happens when this assumption is violated.
+
+```{r bad-instrument-demo}
+#| code-summary: "▶ Simulate: Heckman with a bad (invalid) instrument"
+
+# All dataset objects from the heckman-demo chunk above are already defined:
+# N_hk, theta, eco, selected, df_hk, df_full, naive, heckman
+
+# ── Bad instrument: whether the participant's friend also signed up ─────────────
+# friend_signed_up is correlated with theta (eco-mindedness) because
+# environmentally conscious people tend to have eco-conscious friends.
+# This violates the exclusion restriction: friend_signed_up predicts selection
+# (social influence), but it also correlates with theta, which directly affects
+# WTP. The instrument is therefore NOT excludable from the outcome equation.
+friend_signed_up <- rbinom(N_hk, 1, plogis(0.8 * theta))
+
+# ── Stage 1 probit with the bad instrument ────────────────────────────────────
+stage1_bad <- glm(selected ~ eco + friend_signed_up,
+                  data = data.frame(selected, eco, friend_signed_up),
+                  family = binomial(link = "probit"))
+
+# ── IMR from the bad Stage 1 ──────────────────────────────────────────────────
+# Because friend_signed_up correlates with theta, the IMR it generates is itself
+# confounded: it absorbs some of theta's variance but also carries its own
+# theta-contaminated signal into Stage 2, biasing the eco coefficient.
+xb_bad  <- predict(stage1_bad)[selected == 1]
+imr_bad <- dnorm(xb_bad) / pnorm(xb_bad)
+
+# ── Stage 2 with bad IMR ──────────────────────────────────────────────────────
+heckman_bad <- lm(wtp ~ eco + imr_bad, data = cbind(df_hk, imr_bad = imr_bad))
+
+# ── Comparison table ──────────────────────────────────────────────────────────
+bad_tab <- data.frame(
+  Model = c(
+    "Naive OLS (ignores selection)",
+    "Heckman — good instrument (incentive)",
+    "Heckman — bad instrument (friend signed up)"
+  ),
+  `Eco-label coefficient` = c(
+    round(coef(naive)["eco"],        3),
+    round(coef(heckman)["eco"],      3),
+    round(coef(heckman_bad)["eco"],  3)
+  ),
+  `True value` = 0.50,
+  check.names = FALSE
+)
+
+kable(bad_tab,
+      caption = paste0("Bad instrument demo: friend_signed_up correlates with theta (eco-mindedness), ",
+                       "violating the exclusion restriction. The IMR it generates is confounded, ",
+                       "potentially producing an estimate worse than naive OLS. True eco effect = $0.50."))
+```
+
+A bad instrument can produce estimates that are *worse* than naive OLS — the Heckman correction amplifies bias when the exclusion restriction fails rather than correcting it. The instrument must genuinely satisfy two conditions: it must predict selection (relevance), and it must have no path to the outcome except through selection (exclusion). The second condition is untestable, which is why instrument choice demands substantive, not statistical, justification.
+
+## Censored Data Models (Tobit) {#sec-tobit}
 
 In the eco-coffee WTP study, participants could not state WTP below $1 (floor) or above $10 (ceiling). In many studies, the outcome is **censored** — truncated at a boundary because the measurement instrument or the context prevents observing values beyond a threshold.
 
@@ -300,27 +355,6 @@ kable(cens_tab,
                        "~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."))
 ```
 
-::: {.callout-note}
-## Looking ahead in Module 3
-
-The selection and censored-data models above are a first pass at a much richer literature. The remainder of this module will formalize the causal inference frameworks (potential outcomes / Rubin causal model, DAGs / Pearl's do-calculus) that make precise which assumptions each model requires, and introduce more general solutions:
-
-- **Covariate matching** — pairing treated and control units on observed characteristics to reduce confounding
-- **Propensity score methods** (propensity matching, inverse probability weighting, doubly-robust estimators) for observational settings where selection is driven by observed covariates
-- **Instrumental variables (IV)** for endogenous regressors — the general solution to the exclusion restriction problem in Part 2
-- **Difference-in-differences and panel methods** for settings with longitudinal structure
-- **Regression discontinuity** for settings where treatment is assigned by a threshold rule
-- **Mediation analysis** — formalizing the decomposition approach we introduced in this module, with careful attention to the causal assumptions required for valid mediation inference
-
-The language we have built here — exchangeability, exclusion restriction, discriminant validity of X, nomological net of Y — will carry through directly into that causal inference framework.
-:::
-
----
-
-# Part 2: Selection on Observables {#sec-m3-part2}
-
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={c4e4767b-beb7-4702-82bf-5717967f663e}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 3 Part 2: Selection on Observables"></iframe>
-
 ## The Problem: Consumers Choose to Buy Eco-Labelled Products {#sec-obs-problem}
 
 Outside the lab, consumers freely *choose* whether to pick up the eco-labelled bag of coffee. This creates **selection bias**. The DGP below adds two realistic complications beyond Part 1:
@@ -334,6 +368,9 @@ These features mean that naive and simple-linear corrections will have remaining
 #| code-summary: "▶ Simulate observational data with non-linear confounding"
 set.seed(2024)
 N <- 2000
+# ── YOUR DATA: replace N with nrow(your_df); the columns env, price_sens,
+#    income, and age map to your pre-treatment covariates (standardise continuous
+#    ones with scale() so distance-based methods work correctly)
 
 env        <- rnorm(N, 0, 1)
 price_sens <- rnorm(N, 0, 1)
@@ -363,11 +400,18 @@ env_income  <- env * income
 
 df_obs <- tibble(id=1:N, treat=treat_obs, Y_obs, Y0, Y1, ITE,
                  env, price_sens, income, age, env_sq, env_income, ps_true)
+# ── YOUR DATA: df_obs should be your real data frame with columns:
+#    treat (0/1 treatment indicator), Y_obs (observed outcome),
+#    and all pre-treatment covariates. Drop Y0, Y1, ITE, ps_true —
+#    those are unobservable in real data; they exist here only for
+#    ground-truth evaluation.
 
 ATE_true_obs <- mean(Y1 - Y0)
 ATT_true_obs <- mean(ITE[treat_obs==1])
 cat(sprintf("True ATE = %.3f  |  True ATT = %.3f  |  Treatment rate = %.1f%%\n",
             ATE_true_obs, ATT_true_obs, 100*mean(treat_obs)))
+# ── CHECK: treatment rate far from 50% (< 10% or > 90%) signals severe overlap
+#    problems; near-zero or near-1 PS values will produce extreme IPW weights.
 ```
 
 ```{r naive-bias, fig.height=4.5, fig.width=9}
@@ -398,9 +442,16 @@ bind_rows(
 
 ```{r regression-adjustment}
 #| code-summary: "▶ Linear vs. flexible regression adjustment"
+# ── YOUR DATA: replace Y_obs with your outcome variable and treat with your
+#    treatment indicator; add your own covariates in place of env, price_sens,
+#    income. Flexible adjustment (m_flex) adds squared and interaction terms —
+#    include these whenever you suspect non-linear covariate effects.
 m_naive   <- lm(Y_obs ~ treat, data=df_obs)
 m_linear  <- lm(Y_obs ~ treat + env + price_sens + income, data=df_obs)
 m_flex    <- lm(Y_obs ~ treat + env + price_sens + income + env_sq + env_income, data=df_obs)
+# ── KEY ARGS: the formula after ~ lists covariates to adjust for; env_sq and
+#    env_income are pre-computed non-linear terms — create analogous columns in
+#    your data frame if you suspect curvilinear or interactive confounding.
 
 bind_rows(
   tidy(m_naive)  |> mutate(model="1. Unadjusted"),
@@ -431,6 +482,9 @@ The flexible model including `env²` and `env × income` tracks the true ATE not
 ```{r ipw}
 #| code-summary: "▶ Standard IPW vs. entropy-balanced IPW"
 # Standard IPW: logistic regression on linear terms (misses interaction)
+# ── YOUR DATA: replace treat ~ env + price_sens + income with your treatment
+#    variable and pre-treatment covariates. Use the same covariate set throughout
+#    all methods so comparisons are meaningful.
 ps_logit <- glm(treat ~ env + price_sens + income, data=df_obs, family=binomial)
 ps_hat   <- fitted(ps_logit)
 
@@ -445,13 +499,21 @@ ATE_ipw_raw   <- with(df_obs,
   weighted.mean(Y_obs[treat==0], ipw_wt[treat==0]))
 ATE_ipw_stab  <- lm(Y_obs ~ treat, data=df_obs, weights=ipw_stab) |>
   tidy() |> filter(term=="treat") |> pull(estimate)
+# ── CHECK: inspect summary(df_obs$ipw_wt) — any weights > 20–30 signal near-
+#    zero or near-one PS values (positivity violation); use stabilised weights
+#    or entropy balancing instead to reduce variance inflation.
 
 # Entropy balancing: directly balance means + variances + covariances
 # Includes quadratic and interaction terms for thorough moment matching
+# ── KEY ARGS: method="ebal" finds minimum-variance weights that exactly match
+#    covariate moments; estimand="ATE" targets the population ATE (use "ATT" if
+#    you only care about the effect among treated units).
 wb_ebal <- weightit(treat ~ env + price_sens + income + env_sq + env_income,
                     data=df_obs, method="ebal", estimand="ATE")
 ATE_ebal <- lm(Y_obs ~ treat, data=df_obs, weights=wb_ebal$weights) |>
   tidy() |> filter(term=="treat") |> pull(estimate)
+# ── CHECK: run summary(wb_ebal) to see effective sample size (ESS) after
+#    weighting — large weight loss (ESS much smaller than N) means poor overlap.
 
 cat(sprintf(
   "True ATE              = %.3f\nIPW (standard logit)  = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\n",
@@ -495,11 +557,23 @@ Unstabilised IPW weights become enormous near PS = 0 or 1. Entropy balancing avo
 
 ```{r covariate-matching}
 #| code-summary: "▶ 1:1 Mahalanobis nearest-neighbour matching"
+# ── YOUR DATA: replace df_obs with your data frame; treat ~ env + price_sens +
+#    income should list your pre-treatment covariates (continuous or binary).
+#    Mahalanobis distance accounts for correlations between covariates —
+#    useful when covariates are on very different scales.
+# ── KEY ARGS: method="nearest" does greedy nearest-neighbour matching;
+#    distance="mahalanobis" can be changed to "gower" (handles mixed types) or
+#    replaced by a propensity-score distance (see psm-comparison chunk);
+#    ratio=1 means 1 control matched per treated unit — increase (e.g., ratio=2)
+#    to gain precision at the cost of match quality.
 m_match_maha <- matchit(treat ~ env + price_sens + income, data=df_obs,
                         method="nearest", distance="mahalanobis", ratio=1)
 df_matched_maha <- match.data(m_match_maha)
 ATT_match_maha  <- lm(Y_obs ~ treat, data=df_matched_maha, weights=weights) |>
   tidy() |> filter(term=="treat") |> pull(estimate)
+# ── CHECK: run summary(m_match_maha) and inspect SMD (Std. Mean Difference)
+#    for each covariate — SMD < 0.1 means good balance; large SMD means the
+#    matched sample still has systematic differences on that covariate.
 
 cat(sprintf("True ATT (treated group)              = %.3f\nMatching (Mahalanobis, 1:1 NN) est.   = %.3f\n",
             ATT_true_obs, ATT_match_maha))
@@ -511,6 +585,15 @@ cat(sprintf("True ATT (treated group)              = %.3f\nMatching (Mahalanobis
 
 ```{r psm-comparison, fig.height=5.5, fig.width=10}
 #| code-summary: "▶ Compare five PS model specifications"
+# ── YOUR DATA: replace treat ~ env + price_sens + income with your treatment
+#    column and pre-treatment covariates. Run multiple matchit() calls varying
+#    the PS formula (try linear, polynomial, interaction terms) to test how
+#    sensitive your ATT estimate is to PS model choice — if estimates shift a
+#    lot, the result is fragile.
+# ── KEY ARGS: distance="logit" or "probit" estimates PS via logistic/probit
+#    regression; caliper= trims matches where PS difference > threshold SD
+#    (caliper=0.1 is a common rule-of-thumb); std.caliper=TRUE means the
+#    caliper is in units of the PS's standard deviation.
 # Misspecified models (common practice — miss the env:income interaction)
 m_ps1 <- matchit(treat ~ env + price_sens + income,
                  data=df_obs, method="nearest", distance="logit")
@@ -580,6 +663,14 @@ Here both the outcome model and PS model include the non-linear terms (`env²`, 
 
 ```{r doubly-robust}
 #| code-summary: "▶ AIPW with correctly-specified outcome and PS models"
+# ── YOUR DATA: replace Y_obs, treat, and the covariate list with your own
+#    variable names. Fit mu1_model on treated rows only, mu0_model on control
+#    rows only — these are separate outcome regressions for each arm.
+# ── KEY ARGS: include all covariates you believe affect the outcome in the
+#    outcome models (mu1/mu0) AND all covariates that predict treatment in the
+#    PS model. Adding non-linear terms (env_sq, env_income) reduces bias when
+#    the true relationship is non-linear. The AIPW formula is consistent if
+#    EITHER the outcome model OR the PS model is correctly specified.
 # Outcome models (correctly specified: include env^2 and env:income)
 mu1_model <- lm(Y_obs ~ env + price_sens + income + env_sq + env_income,
                 data=df_obs[df_obs$treat==1,])
@@ -600,6 +691,10 @@ tau_dr <- (mu1_hat - mu0_hat) +
 
 ATE_dr <- mean(tau_dr)
 SE_dr  <- sd(tau_dr)/sqrt(N)
+# ── CHECK: compare ATE_dr to IPW and regression adjustment estimates —
+#    if DR diverges sharply from both, a model may be badly misspecified.
+#    For inference with real data use a sandwich SE or bootstrap rather than
+#    the naive sd(tau_dr)/sqrt(N) used here for illustration.
 
 cat(sprintf(
   "True ATE              = %.3f\nNaive estimate        = %.3f\nLinear reg. adj.      = %.3f\nFlexible reg. adj.    = %.3f\nIPW (stabilised)      = %.3f\nEntropy balancing     = %.3f\nDR/AIPW (correct)     = %.3f  (SE = %.3f)\n",
@@ -677,6 +772,14 @@ The **doubly robust** and **entropy balancing** approaches consistently outperfo
 :::
 
 ## Synthetic Controls {#sec-synth}
+
+::: {.callout-warning}
+## Synthetic controls: validity depends on an unverifiable assumption
+
+A synthetic control constructs a weighted combination of untreated units to mimic the counterfactual for the treated unit. The approach is transparent and often produces compelling-looking pre-period fits — but there is no way to verify that the synthetic world it generates is a sufficiently representative stand-in for the real counterfactual post-treatment. Synthetic controls assume that the same weighting that matched pre-treatment trends would have continued to match post-treatment trends in the absence of treatment. This is an untestable assumption, and deviations — due to unobserved shocks, compositional changes, or structural breaks — will bias the estimated treatment effect without any diagnostic flag.
+
+Use synthetic controls when you have a single treated unit, a long pre-treatment window, and a credible pool of potential donor units. But always report sensitivity analyses varying the donor pool and be explicit about what would have to be true for the synthetic counterfactual to be valid.
+:::
 
 What if you only have **one treated unit** — say, AlterEco's flagship Rotterdam store introduced eco-labels?
 

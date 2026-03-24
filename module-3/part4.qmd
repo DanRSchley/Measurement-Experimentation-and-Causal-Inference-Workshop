@@ -104,7 +104,11 @@ rob_extract <- function(fit) {
 }
 ```
 
-# Part 4: Difference-in-Differences {#sec-m3-part4}
+::: {.callout-tip}
+## How to use the code in this section
+
+The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
+:::
 
 ## The Setup {#sec-did-setup}
 
@@ -116,6 +120,11 @@ The Dutch government introduces a **mandatory eco-labelling law** in **2022**. B
 set.seed(2024)
 n_dutch <- 15; n_belgian <- 20; n_stores_did <- n_dutch+n_belgian
 years <- 2018:2024; T_treat <- 2022
+# ── YOUR DATA: replace n_dutch / n_belgian with your counts of treated and
+#    control units; replace years with your time periods; replace T_treat with
+#    the first period when treatment took effect. Your data frame needs at minimum:
+#    a unit ID, a time period, a 0/1 treated column, a 0/1 post column, and your
+#    outcome variable.
 
 panel_did <- expand.grid(store=1:n_stores_did, year=years) |>
   as_tibble() |>
@@ -130,6 +139,9 @@ panel_did <- expand.grid(store=1:n_stores_did, year=years) |>
     treat_effect = did_indicator * 0.70,
     WTP_did      = 5.20 + store_fe + time_trend + country_fe + treat_effect + rnorm(n(), 0, 0.35)
   )
+# ── CHECK: plot group-mean outcomes by year (as below) — the two groups should
+#    run near-parallel BEFORE T_treat; a visible gap opening only after T_treat
+#    is consistent with parallel trends. Any pre-treatment divergence is a red flag.
 
 panel_did |>
   group_by(country, year) |>
@@ -165,9 +177,20 @@ $$\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_
 $$Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}$$
 
 ```{r did-twfe}
+# ── YOUR DATA: replace WTP_did with your outcome, did_indicator with the
+#    column you created as treated * post, and replace factor(store)/factor(year)
+#    with your unit and time identifiers. The formula adds one dummy per unit
+#    and one dummy per time period — this is the two-way fixed effects (TWFE) model.
+# ── KEY ARGS: clusters=store clusters standard errors at the unit level —
+#    change "store" to whatever your unit identifier column is called.
+#    If your units are nested (e.g., stores within chains), cluster at the
+#    higher level (chains) to account for within-cluster correlation.
 did_twfe <- lm_robust(WTP_did ~ did_indicator + factor(store) + factor(year),
                       data=panel_did, clusters=store)
 did_coef <- tidy(did_twfe) |> filter(term=="did_indicatorTRUE")
+# ── CHECK: the term for did_indicator should be "did_indicatorTRUE" if the
+#    column is logical; it will be "did_indicator" if numeric (0/1).
+#    The p-value and CI are cluster-robust — rely on these, not the naive SEs.
 cat(sprintf(
   "True DiD effect  = 0.70\nEstimated DiD    = %.3f  (SE = %.3f, p = %.4f)\n95%% CI: [%.3f, %.3f]\n",
   did_coef$estimate, did_coef$std.error, did_coef$p.value,
@@ -194,12 +217,23 @@ Each type of fixed effect removes a specific source of confounding:
 ## Testing Parallel Trends: Event Study {#sec-did-event}
 
 ```{r did-event-study, fig.height=4.5, fig.width=9}
+# ── YOUR DATA: year_rel = your_time_var - T_treat (e.g., calendar year minus
+#    first treatment year). The reference period is set to -1 (the year before
+#    treatment); change ref="-1" if your calendar doesn't align with this convention.
 panel_did <- panel_did |>
   mutate(year_rel=year-T_treat,
          year_rel_fac=relevel(factor(year_rel), ref="-1"))
 
+# ── KEY ARGS: the formula treated:year_rel_fac interacts the treated indicator
+#    with each relative-year factor — this produces one coefficient per period
+#    relative to treatment. factor(store) and factor(year) absorb unit and time
+#    fixed effects. clusters=store clusters SEs at the unit level.
 event_formula <- as.formula("WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)")
 did_event     <- lm_robust(event_formula, data=panel_did, clusters=store)
+# ── CHECK: in the event study plot, pre-treatment coefficients (yr < 0) should
+#    be near zero with CIs crossing zero — this is evidence for parallel trends.
+#    Any significant pre-trend (p < .05 before treatment) is a red flag that
+#    the treatment and control groups were already diverging before the policy.
 
 event_tbl <- tidy(did_event) |>
   filter(str_detect(term,"year_rel_fac")) |>
@@ -235,7 +269,20 @@ Each point is the DiD coefficient for that relative year — how much the Dutch�
 
 ## Synthetic Difference-in-Differences {#sec-synthdid}
 
+::: {.callout-warning}
+## The synthetic counterfactual is unverifiable
+
+Synthetic DiD — like classical synthetic controls — constructs a weighted combination of untreated units designed to reproduce the treated unit's pre-treatment trajectory. The pre-period fit can look compelling, but there is no way to verify that the synthetic world it generates is a sufficiently representative stand-in for the real counterfactual post-treatment. The method assumes the same weighting that matched pre-treatment trends would have continued to match post-treatment trends in the absence of the law. Unobserved shocks, structural breaks, or compositional changes that affect treated and synthetic units differently after treatment will bias the estimate without any diagnostic flag. Use this approach when you have a credible pool of donor units and a long pre-treatment window — and always report sensitivity analyses varying the donor pool.
+:::
+
 ```{r synthdid, fig.height=4, fig.width=8}
+# ── YOUR DATA: synthdid_estimate() requires a (units × time) outcome matrix
+#    arranged so that control units come FIRST (rows 1:N0) and pre-treatment
+#    periods come FIRST (columns 1:T0). pivot_wider() here creates that layout;
+#    replicate with your own unit ID, time, and outcome columns.
+# ── KEY ARGS: N0 = number of control units (rows before treated units);
+#    T0 = number of pre-treatment time periods (columns before treatment onset).
+#    These must exactly match the row/column layout of Y_matrix.
 sdid_wide <- panel_did |>
   dplyr::select(store, year, WTP_did, treated) |>
   pivot_wider(names_from=year, values_from=WTP_did) |>
@@ -254,6 +301,10 @@ tibble(
   `True effect`= 0.70,
   Bias         = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est))-0.70, 3)
 ) |> knitr::kable(caption="All three estimators vs. the true effect of 0.70")
+# ── CHECK: compare the three estimates — large divergence between standard DiD
+#    and Synthetic DiD suggests the parallel-trends assumption is strained and
+#    the synthetic approach is finding a materially different counterfactual.
+#    Use plot(sdid_est) to visualise the synthetic control trajectory.
 ```
 
 ```{r synthdid-plot, fig.height=5, fig.width=8}

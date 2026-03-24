@@ -1,5 +1,5 @@
 ---
-title: "Part 3: Regression Discontinuity"
+title: "Part 3: Regression Discontinuity Design"
 ---
 
 ```{r setup, include=FALSE}
@@ -104,7 +104,11 @@ rob_extract <- function(fit) {
 }
 ```
 
-# Part 3: Regression Discontinuity Design {#sec-m3-part3}
+::: {.callout-tip}
+## How to use the code in this section
+
+The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
+:::
 
 ## The Core Idea {#sec-rdd-idea}
 
@@ -128,6 +132,11 @@ This local near-randomness is what makes the jump causal. It is equivalent to a 
 #| code-summary: "▶ Simulate 1,200 products near the 70-point certification threshold"
 set.seed(2024)
 N_rdd <- 1200; cutoff <- 70; true_jump <- 0.80
+# ── YOUR DATA: replace audit_score with your running variable (the continuous
+#    score that determines treatment assignment), cutoff with the actual policy
+#    threshold, and WTP_rdd with your outcome variable.
+#    df_rdd must contain: the running variable, a 0/1 treatment indicator
+#    (= 1 if running variable >= cutoff), the outcome, and running = running - cutoff.
 audit_score <- runif(N_rdd, 30, 100)
 treat_rdd   <- as.integer(audit_score >= cutoff)
 
@@ -135,6 +144,9 @@ WTP_rdd <- 4.0 + 0.02*(audit_score-cutoff) - 0.0003*(audit_score-cutoff)^2 +
            true_jump*treat_rdd + rnorm(N_rdd, 0, 0.60)
 WTP_rdd <- pmax(1, pmin(10, WTP_rdd))
 df_rdd  <- tibble(audit_score, treat_rdd, WTP_rdd, running=audit_score-cutoff)
+# ── CHECK: plot outcome vs. running variable (as below) — a visible jump at
+#    the cutoff, with smooth trends on each side, is the visual signature of
+#    a valid RDD. Irregular or absent jumps warrant investigating the DGP.
 
 df_rdd |>
   ggplot(aes(x=audit_score, y=WTP_rdd, colour=factor(treat_rdd))) +
@@ -159,8 +171,17 @@ df_rdd |>
 ### Assumption 1: No Manipulation
 
 ```{r rdd-density-test, fig.height=4, fig.width=7}
+# ── YOUR DATA: replace df_rdd$audit_score with your running variable column
+#    and c=cutoff with your policy threshold value.
+# ── KEY ARGS: rddensity(X, c) tests whether the density of the running variable
+#    is continuous at the cutoff; a significant p-value (< .05) means units are
+#    sorting — manipulating the running variable to land just above (or below)
+#    the threshold, which invalidates the "as-good-as-random" RDD assumption.
 dens_test <- rddensity(X=df_rdd$audit_score, c=cutoff)
 summary(dens_test)
+# ── CHECK: look at the p-value in the summary output; p > .05 is required for
+#    the no-manipulation assumption; also inspect the density plot for visible
+#    bunching or a gap immediately around the cutoff.
 rdplotdensity(dens_test, X=df_rdd$audit_score,
               title="Density test: checking for bunching at the 70-point cutoff",
               xlabel="Audit score", ylabel="Density")
@@ -180,18 +201,39 @@ summary(rdd_env)
 ## Estimating the RDD Effect {#sec-rdd-estimate}
 
 ```{r rdd-estimate, fig.height=4.5, fig.width=8}
+# ── YOUR DATA: replace y= with your outcome variable, x= with your running
+#    variable, and c= with your cutoff value. Both y and x must be numeric vectors
+#    of the same length with no missing values at the cutoff.
+# ── KEY ARGS: rdrobust() selects bandwidth automatically (MSE-optimal rule);
+#    you can override with h= to specify a fixed bandwidth, or kernel= to change
+#    from the default triangular kernel (options: "epanechnikov", "uniform").
+#    The default uses local linear regression on each side; p=2 switches to
+#    local quadratic (more flexible, higher variance).
 rdd_est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff)
 summary(rdd_est)
+# ── CHECK: in the summary output, look at "Conventional" coef for the point
+#    estimate and "Robust" CI for the bias-corrected confidence interval —
+#    use the Robust CI for inference. Also note the automatically chosen
+#    bandwidth (h) and effective sample size on each side of the cutoff.
 rdplot(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff,
        title="RDD estimate: causal effect of sustainability badge on WTP",
        x.label="Audit Score", y.label="WTP ($)")
 ```
 
 ```{r rdd-bandwidth-sensitivity, fig.height=4, fig.width=8}
+# ── YOUR DATA: adjust the bandwidth grid c(5,8,10,15,20,25,30) to be
+#    meaningful in your running variable's units — e.g., if your score runs
+#    0–1000, sensible bandwidths might be c(25,50,75,100,150,200).
+#    Keep the grid symmetric around the MSE-optimal h chosen by rdrobust() above.
+# ── KEY ARGS: h=bw fixes the bandwidth; est$coef["Conventional",1] is the
+#    point estimate; est$se["Robust",1] is the bias-corrected robust SE.
 bw_results <- map_dfr(c(5,8,10,15,20,25,30), function(bw) {
   est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff, h=bw)
   tibble(bandwidth=bw, estimate=est$coef["Conventional",1], se=est$se["Robust",1])
 })
+# ── CHECK: estimates should be roughly flat across bandwidths — large swings
+#    indicate sensitivity to bandwidth choice (a red flag). If estimates collapse
+#    at very narrow bandwidths, the effective N is too small for precision.
 
 bw_results |>
   mutate(lo=estimate-1.96*se, hi=estimate+1.96*se) |>

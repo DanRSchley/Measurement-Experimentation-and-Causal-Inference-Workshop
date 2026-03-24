@@ -1,5 +1,5 @@
 ---
-title: "Part 5: Mediation"
+title: "Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?"
 ---
 
 ```{r setup, include=FALSE}
@@ -104,7 +104,11 @@ rob_extract <- function(fit) {
 }
 ```
 
-# Part 5: Mediation — Does the Eco-Label Work *Through* Perceived Sustainability? {#sec-m3-part5}
+::: {.callout-tip}
+## How to use the code in this section
+
+The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
+:::
 
 Mediation analysis asks whether the eco-label affects WTP **directly** or **through a mechanism** — here, *perceived sustainability* (M). Three estimators are compared across three scenarios that each challenge a different method.
 
@@ -149,12 +153,19 @@ dA | dB
 set.seed(2025)
 N_med <- 350
 X     <- rbinom(N_med, 1, 0.5)   # eco-label (1 = exposed to label)
+# ── YOUR DATA: X is your binary treatment (0/1); replace rbinom() with your
+#    actual treatment column. N_med should equal nrow(your_df).
+#    Each df_sN below maps to your real data frame with columns:
+#    eco_label (or your treatment name), perc_sust (your mediator), WTP (outcome).
 
 # True parameters (Scenarios 1 & 2)
 a_true    <- 0.50   # eco_label → perc_sust
 b_true    <- 0.55   # perc_sust → WTP
 c_prime   <- 0.30   # eco_label → WTP (direct path)
 ACME_true <- a_true * b_true   # 0.275
+# ── YOUR DATA: in real data you do NOT know a_true or b_true; these are set
+#    here only for ground-truth evaluation. With real data, run the
+#    run_mediation_triple() function directly on your data frame.
 
 # ── Scenario 1: Clean normal data ────────────────────────────────────────────
 # No violations; both OLS and ROBMED should recover ACME ≈ 0.275
@@ -177,6 +188,9 @@ eps_Y2[out_idx] <- eps_Y2[out_idx] + out_sgn * out_mag * 0.90   # correlated Y o
 M_s2   <- a_true * X + eps_M2
 Y_s2   <- c_prime * X + b_true * M_s2 + eps_Y2
 df_s2  <- data.frame(eco_label = X, perc_sust = M_s2, WTP = Y_s2)
+# ── CHECK (Scenario 2): plot perc_sust vs WTP and colour outlier points (out_idx)
+#    red — if a small cluster of points visually drives the OLS slope, ROBMED
+#    is important for your data; inspect with plot(df_s2$perc_sust, df_s2$WTP).
 
 # ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────
 # U* drives both perc_sust and WTP; there is NO causal M → Y path
@@ -188,6 +202,10 @@ M_s3   <- a_true * X + 0.60 * U + rnorm(N_med, 0, 0.55)
 Y_s3   <- c_prime * X + 0.65 * U + rnorm(N_med, 0, 0.55)   # no M_s3 term!
 df_s3  <- data.frame(eco_label = X, perc_sust = M_s3, WTP = Y_s3)
 ACME_true_s3 <- 0   # no causal M → Y
+# ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —
+#    an unmeasured variable (e.g., prior eco-engagement, health consciousness)
+#    drives both your mediator and outcome. Always run medsens() on your real
+#    data and report the critical ρ* alongside the ACME estimate.
 
 cat(sprintf("N = %d  |  Treatment rate = %.0f%%\n", N_med, 100 * mean(X)))
 cat(sprintf("Scenarios 1 & 2: true ACME = %.3f  (a=%.2f, b=%.2f, c'=%.2f)\n",
@@ -200,9 +218,17 @@ cat(sprintf("Scenario 3:      true ACME = %.3f  (U* confounds both M and Y)\n",
 
 ```{r run-all-mediation, cache=FALSE}
 #| code-summary: "▶ Run OLS delta method, ROBMED, and Imai on all three scenarios"
+# ── YOUR DATA: to apply this to your own data, call run_mediation_triple()
+#    with a data frame that has columns named eco_label (treatment), perc_sust
+#    (mediator), and WTP (outcome). Rename your columns to match, or edit the
+#    column references inside the function to match your variable names.
 run_mediation_triple <- function(df, R = 500) {
   m_m <- lm(perc_sust ~ eco_label, data = df)
   m_y <- lm(WTP ~ eco_label + perc_sust, data = df)
+  # ── KEY ARGS: m_m is the a-path model (treatment → mediator);
+  #    m_y is the b-path / outcome model (treatment + mediator → outcome).
+  #    Both must share the same data frame. Add covariates to both models
+  #    if confounders of the M→Y relationship are available (e.g., age, income).
 
   # 1. OLS: a × b with delta-method CI
   a_hat   <- coef(m_m)["eco_label"]
@@ -214,12 +240,20 @@ run_mediation_triple <- function(df, R = 500) {
   ols_hi  <- ols_est + 1.96 * se_ab
 
   # 2. ROBMED: MM-robust regression (downweights high-leverage outliers)
+  # ── KEY ARGS: WTP ~ m(perc_sust) + eco_label specifies outcome ~ m(mediator) +
+  #    treatment; the m() wrapper identifies the mediator for robmed.
+  #    method="regression" uses regression-based mediation; robust=TRUE activates
+  #    the MM-estimator. R= controls bootstrap replications — 500 for exploration,
+  #    2000+ for final publication figures.
   set.seed(99)
   med_rob  <- test_mediation(WTP ~ m(perc_sust) + eco_label,
                              data = df, method = "regression", robust = TRUE, R = R)
   rob      <- rob_extract(med_rob)
 
   # 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)
+  # ── KEY ARGS: treat= names the treatment column; mediator= names the mediator;
+  #    boot=FALSE uses quasi-Bayesian simulation (faster); sims= controls the
+  #    number of draws — increase to 1000 for publication.
   set.seed(99)
   med_imai <- mediate(m_m, m_y, treat = "eco_label", mediator = "perc_sust",
                       boot = FALSE, sims = R)
@@ -236,6 +270,9 @@ cat("Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...\n
 res_s1 <- run_mediation_triple(df_s1)
 res_s2 <- run_mediation_triple(df_s2)
 res_s3 <- run_mediation_triple(df_s3)
+# ── CHECK: compare ols_est vs. rob_est — if they differ substantially (> 0.05
+#    in standardised units), outliers are influential; prefer ROBMED.
+#    Always follow up with medsens() (see sensitivity chunk) to report ρ*.
 cat(sprintf("Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
             res_s1$ols_est, res_s1$rob_est, ACME_true))
 cat(sprintf("Scenario 2 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)\n",
@@ -374,10 +411,21 @@ Imai et al.'s `medsens()` asks: *how large would the correlation between M-equat
 
 ```{r med-sensitivity-compare, fig.height=4.5, fig.width=10}
 #| code-summary: "▶ Sensitivity analysis: clean DGP (robust) vs. confounded DGP (fragile)"
+# ── YOUR DATA: replace res_s1$med_imai and res_s3$med_imai with the med_imai
+#    object returned by run_mediation_triple() on your own data frame.
+#    Run medsens() on every mediation model you report — it costs little time
+#    and is now expected by reviewers in top journals.
+# ── KEY ARGS: rho.by = 0.05 evaluates sensitivity at ρ steps of 0.05 over
+#    [-1, 1]; effect.type = "indirect" targets the ACME specifically;
+#    sims = 500 controls bootstrap draws — use 1000+ for final results.
 set.seed(99)
 sens_s1 <- medsens(res_s1$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
 set.seed(99)
 sens_s3 <- medsens(res_s3$med_imai, rho.by = 0.05, effect.type = "indirect", sims = 500)
+# ── CHECK: look at crit_rho_s1 and crit_rho_s3 printed below —
+#    ρ* > 0.4 is generally considered robust (substantial confounding needed);
+#    ρ* < 0.2 is fragile (modest confounding would nullify the result).
+#    Report ρ* in your manuscript alongside the ACME point estimate and CI.
 
 safe_crit_rho <- function(s) {
   tryCatch({
