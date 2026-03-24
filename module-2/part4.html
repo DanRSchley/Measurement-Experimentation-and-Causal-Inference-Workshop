@@ -204,37 +204,37 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Part 1: Discriminant Validity</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Part 2: Omitted Variable Bias</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Part 3: Measurement Invariance</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Part 4: Latent Subgroups</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Case 5: Outlier Detection and Robust Estimation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Case 6: Systematic Measurement Error</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error</span></span></a>
   </div>
 </li>
       </ul>
@@ -857,68 +857,75 @@ window.Quarto = {
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pnorm</span>(d <span class="sc">/</span> se <span class="sc">-</span> z) <span class="sc">+</span> <span class="fu">pnorm</span>(<span class="sc">-</span>d <span class="sc">/</span> se <span class="sc">-</span> z)  <span class="co"># two-sided normal approximation</span></span>
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>meta_se_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(K) <span class="fu">sqrt</span>(tau<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> K <span class="sc">+</span> sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> N_total)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>ab_se_fn   <span class="ot">&lt;-</span> <span class="cf">function</span>(K) sigma <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">4</span> <span class="sc">/</span> <span class="fu">pmax</span>(<span class="dv">4</span>, <span class="fu">floor</span>(N_total <span class="sc">/</span> K)))</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>meta_label <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Metastudy: K microstudies, N = "</span>, N_total, <span class="st">" total"</span>)</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>ab_label   <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Separate A/B tests: N = "</span>, N_total, <span class="st">" / K per test"</span>)</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>power_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">K      =</span> <span class="fu">rep</span>(K_vec, <span class="dv">2</span>),</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">power  =</span> <span class="fu">c</span>(<span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">power_fn</span>(d, <span class="fu">meta_se_fn</span>(K))),</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">power_fn</span>(d, <span class="fu">ab_se_fn</span>(K)))),</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> <span class="fu">rep</span>(<span class="fu">c</span>(meta_label, ab_label), <span class="at">each =</span> <span class="fu">length</span>(K_vec))</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co"># At K=1 a metastudy IS a single A/B test — the tau^2/K scenario-sampling term</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co"># does not apply because there is only one scenario and no averaging across scenarios.</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co"># For K &gt;= 2 the DeKay et al. formula applies: SE = sqrt(tau^2/K + sigma^2/N).</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>meta_se_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(K) {</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(K <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>         sigma <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">4</span> <span class="sc">/</span> N_total),          <span class="co"># = ab_se_fn(1): same as one A/B test</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>         <span class="fu">sqrt</span>(tau<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> K <span class="sc">+</span> sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> N_total))</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>ab_se_fn   <span class="ot">&lt;-</span> <span class="cf">function</span>(K) sigma <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">4</span> <span class="sc">/</span> <span class="fu">pmax</span>(<span class="dv">4</span>, <span class="fu">floor</span>(N_total <span class="sc">/</span> K)))</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>meta_label <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Metastudy: K microstudies, N = "</span>, N_total, <span class="st">" total"</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>ab_label   <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Separate A/B tests: N = "</span>, N_total, <span class="st">" / K per test"</span>)</span>
 <span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co"># ── SE-component annotation data ─────────────────────────────────────────────</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>se_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">K =</span> K_vec) <span class="sc">|&gt;</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_total    =</span> <span class="fu">meta_se_fn</span>(K),</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_floor    =</span> <span class="fu">sqrt</span>(sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> N_total),   <span class="co"># lower bound: tau^2/K → 0</span></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_tau_only =</span> <span class="fu">sqrt</span>(tau<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> K)            <span class="co"># heterogeneity component alone</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>color_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#2d6a4f"</span>, <span class="st">"#e63946"</span>)</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(color_vals) <span class="ot">&lt;-</span> <span class="fu">c</span>(meta_label, ab_label)</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_df, <span class="fu">aes</span>(<span class="at">x =</span> K, <span class="at">y =</span> power, <span class="at">color =</span> design, <span class="at">group =</span> design)) <span class="sc">+</span></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.80</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray40"</span>) <span class="sc">+</span></span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">30.5</span>, <span class="at">y =</span> <span class="fl">0.83</span>, <span class="at">label =</span> <span class="st">"80% power"</span>,</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"gray40"</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># shaded region showing heterogeneity reduction benefit</span></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> se_df,</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> K,</span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>        <span class="at">ymin =</span> <span class="fu">power_fn</span>(d, se_total),</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>        <span class="at">ymax =</span> <span class="fu">power_fn</span>(d, se_floor)),</span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"#2d6a4f"</span>, <span class="at">alpha =</span> <span class="fl">0.10</span></span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">16</span>, <span class="at">y =</span> <span class="fl">0.90</span>,</span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Shaded area = power gain</span><span class="sc">\n</span><span class="st">from reducing \u03c4\u00b2/K"</span>,</span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#2d6a4f"</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">fontface =</span> <span class="st">"italic"</span>) <span class="sc">+</span></span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_vals, <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of microstudies / scenarios (K)"</span>,</span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="fu">paste0</span>(<span class="st">"Power to detect average effect  (d = "</span>, d, <span class="st">")"</span>),</span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Metastudy Power RISES with K; Separate A/B Tests Collapse"</span>,</span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both designs use N = "</span>, N_total, <span class="st">" total  \u00b7  "</span>,</span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>      <span class="st">"d = "</span>, d, <span class="st">"  \u00b7  \u03c4 = "</span>, tau,</span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>      <span class="st">" (SD of true effect across scenarios)</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Metastudy SE = \u221a(\u03c4\u00b2/K + \u03c3\u00b2/N): "</span>,</span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>      <span class="st">"the \u03c4\u00b2/K term shrinks as K grows, so SE falls and power rises  \u00b7  "</span>,</span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>      <span class="st">"A/B SE \u221d 1/\u221a(N/K): shrinking budget per test collapses power"</span></span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>),</span>
-<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">5</span>, <span class="dv">30</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>power_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">K      =</span> <span class="fu">rep</span>(K_vec, <span class="dv">2</span>),</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">power  =</span> <span class="fu">c</span>(<span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">power_fn</span>(d, <span class="fu">meta_se_fn</span>(K))),</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(K_vec, <span class="cf">function</span>(K) <span class="fu">power_fn</span>(d, <span class="fu">ab_se_fn</span>(K)))),</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> <span class="fu">rep</span>(<span class="fu">c</span>(meta_label, ab_label), <span class="at">each =</span> <span class="fu">length</span>(K_vec))</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="co"># ── SE-component annotation data ─────────────────────────────────────────────</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>se_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">K =</span> K_vec) <span class="sc">|&gt;</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_total    =</span> <span class="fu">meta_se_fn</span>(K),</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_floor    =</span> <span class="fu">sqrt</span>(sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> N_total),   <span class="co"># lower bound: tau^2/K → 0</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_tau_only =</span> <span class="fu">sqrt</span>(tau<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> K)            <span class="co"># heterogeneity component alone</span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>color_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#2d6a4f"</span>, <span class="st">"#e63946"</span>)</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(color_vals) <span class="ot">&lt;-</span> <span class="fu">c</span>(meta_label, ab_label)</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(power_df, <span class="fu">aes</span>(<span class="at">x =</span> K, <span class="at">y =</span> power, <span class="at">color =</span> design, <span class="at">group =</span> design)) <span class="sc">+</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.80</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray40"</span>) <span class="sc">+</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">30.5</span>, <span class="at">y =</span> <span class="fl">0.83</span>, <span class="at">label =</span> <span class="st">"80% power"</span>,</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"gray40"</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># shaded region showing heterogeneity reduction benefit</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> se_df,</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> K,</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>        <span class="at">ymin =</span> <span class="fu">power_fn</span>(d, se_total),</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        <span class="at">ymax =</span> <span class="fu">power_fn</span>(d, se_floor)),</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"#2d6a4f"</span>, <span class="at">alpha =</span> <span class="fl">0.10</span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">16</span>, <span class="at">y =</span> <span class="fl">0.90</span>,</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Shaded area = power gain</span><span class="sc">\n</span><span class="st">from reducing \u03c4\u00b2/K"</span>,</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#2d6a4f"</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">fontface =</span> <span class="st">"italic"</span>) <span class="sc">+</span></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_vals, <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of microstudies / scenarios (K)"</span>,</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="fu">paste0</span>(<span class="st">"Power to detect average effect  (d = "</span>, d, <span class="st">")"</span>),</span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Metastudy Power RISES with K; Separate A/B Tests Collapse"</span>,</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both designs use N = "</span>, N_total, <span class="st">" total  \u00b7  "</span>,</span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>      <span class="st">"d = "</span>, d, <span class="st">"  \u00b7  \u03c4 = "</span>, tau,</span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>      <span class="st">" (SD of true effect across scenarios)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Metastudy SE = \u221a(\u03c4\u00b2/K + \u03c3\u00b2/N): "</span>,</span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>      <span class="st">"the \u03c4\u00b2/K term shrinks as K grows, so SE falls and power rises  \u00b7  "</span>,</span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>      <span class="st">"A/B SE \u221d 1/\u221a(N/K): shrinking budget per test collapses power"</span></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>),</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">5</span>, <span class="dv">30</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -928,7 +935,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Reading the plot:</strong> at K = 1, the separate A/B test has higher power (~98%) because it runs one large, clean study with all 400 participants. The metastudy starts lower (~35%) because with only one microstudy you have no way to know whether your single chosen scenario is representative — the effect heterogeneity τ adds substantial uncertainty to the meta-analytic estimate. As K grows, those roles reverse. Each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly. By K = 3, the metastudy already surpasses the A/B test’s power; by K = 15, it reaches near-ceiling power (&gt;99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy’s power gain comes from reducing the heterogeneity component — and it is substantial.</p>
+<p><strong>Reading the plot:</strong> at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test, and they share the same SE and therefore the same power (~98% for d = 0.40 with N = 400). As K grows, the two designs diverge sharply in opposite directions. In the metastudy, each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly — so power rises. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls. By K = 3, the metastudy already surpasses the A/B test’s power; by K = 15, it reaches near-ceiling power (&gt;99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy’s power gain comes from reducing the heterogeneity component τ²/K — and it is substantial.</p>
 <p>The practical upshot: a single well-powered A/B test answers the question “does this effect occur in <em>this</em> context?” A metastudy with many microstudies answers the question “does this effect occur <em>in general</em>?” — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.</p>
 <p><strong>The connection to Section 3:</strong> a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions <em>by construction</em> — transforming unobserved confounders into <em>measured experimental factors</em> and extracting their effects cleanly.</p>
 <hr>

@@ -173,37 +173,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Case 1: Discriminant Validity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Part 1: Discriminant Validity</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Case 2: Omitted Variable Bias</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Part 2: Omitted Variable Bias</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Case 3: Measurement Invariance</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Part 3: Measurement Invariance</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Case 4: Latent Subgroups</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Part 4: Latent Subgroups</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Case 5: Outlier Detection and Robust Estimation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-1/case6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Case 6: Systematic Measurement Error</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error</span></span></a>
   </div>
 </li>
       </ul>
@@ -309,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#sec-exclusion" id="toc-sec-exclusion" class="nav-link active" data-scroll-target="#sec-exclusion"><span class="header-section-number">12</span> Part 2: The Exclusion Restriction — What Else Is in Your Treatment?</a>
   <ul class="collapse">
   <li><a href="#one-button-many-signals" id="toc-one-button-many-signals" class="nav-link" data-scroll-target="#one-button-many-signals"><span class="header-section-number">12.1</span> One Button, Many Signals</a></li>
-  <li><a href="#simulating-a-heterogeneous-treatment" id="toc-simulating-a-heterogeneous-treatment" class="nav-link" data-scroll-target="#simulating-a-heterogeneous-treatment"><span class="header-section-number">12.2</span> Simulating a Heterogeneous Treatment</a></li>
+  <li><a href="#simulating-a-confounded-study" id="toc-simulating-a-confounded-study" class="nav-link" data-scroll-target="#simulating-a-confounded-study"><span class="header-section-number">12.2</span> Simulating a Confounded Study</a></li>
   <li><a href="#what-participants-say-template-based-open-ended-responses" id="toc-what-participants-say-template-based-open-ended-responses" class="nav-link" data-scroll-target="#what-participants-say-template-based-open-ended-responses"><span class="header-section-number">12.3</span> What Participants Say: Template-Based Open-Ended Responses</a></li>
   <li><a href="#text-analysis-how-concept-composition-shifts-across-conditions" id="toc-text-analysis-how-concept-composition-shifts-across-conditions" class="nav-link" data-scroll-target="#text-analysis-how-concept-composition-shifts-across-conditions"><span class="header-section-number">12.4</span> Text Analysis: How Concept Composition Shifts Across Conditions</a></li>
   <li><a href="#sec-whats-in-xy" id="toc-sec-whats-in-xy" class="nav-link" data-scroll-target="#sec-whats-in-xy"><span class="header-section-number">12.5</span> What’s in X? What’s in Y?</a>
@@ -427,12 +427,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="simulating-a-heterogeneous-treatment" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="simulating-a-heterogeneous-treatment"><span class="header-section-number">12.2</span> Simulating a Heterogeneous Treatment</h2>
-<p>We now simulate the coffee experiment with a realistic data-generating process. Each participant has nine binary latent characteristics that determine both <em>what signals they extract from the eco-label</em> and <em>how much they are willing to pay</em>.</p>
+<section id="simulating-a-confounded-study" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="simulating-a-confounded-study"><span class="header-section-number">12.2</span> Simulating a Confounded Study</h2>
+<p>We now simulate the coffee experiment with a realistic data-generating process that captures how the exclusion restriction fails in practice.</p>
+<p>The researcher intends the eco-label to be the only thing that differs between conditions. But in preparing the stimuli, the two versions of the coffee bag were not held perfectly equal: the eco-label condition also happened to use a <strong>more premium-looking package design</strong> — darker color scheme, cleaner typography, higher perceived quality cues. Participants in the eco-label condition therefore receive a <em>bundle</em>: eco-certification <strong>plus</strong> a premium visual presentation. Both signals independently increase WTP through different pathways.</p>
+<p>This is the exclusion restriction failure in concrete form: the treatment variable injects two distinct latent signals, not one. Any estimated “eco-label effect” is a conflation of the two.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Simulate 120 participants with heterogeneous traits and WTP</summary>
+<summary>▶ Simulate 120 participants with confounded eco-label and premium design</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>N_p2  <span class="ot">&lt;-</span> <span class="dv">120</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>half2 <span class="ot">&lt;-</span> N_p2 <span class="sc">/</span> <span class="dv">2</span></span>
@@ -455,41 +457,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Equal random assignment ───────────────────────────────────────────────────</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>condition_p2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Eco-label"</span>), <span class="at">each =</span> half2)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># ── WTP simulation (in dollars, clamped to $1–$10) ────────────────────────────</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Key feature: eco-label ACTIVATES traits 1, 2, 4, 5, 6, 7 differentially.</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Traits 3 (price sensitivity), 8 (hedonic), 9 (habitual) operate in both conditions.</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>WTP_p2 <span class="ot">&lt;-</span> <span class="fu">with</span>(traits, {</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  eco <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(condition_p2 <span class="sc">==</span> <span class="st">"Eco-label"</span>)</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  v   <span class="ot">&lt;-</span> <span class="fl">4.50</span> <span class="sc">+</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.20</span> <span class="sc">*</span> env_values      <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># env concern → eco premium</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.80</span> <span class="sc">*</span> quality_seek    <span class="sc">*</span> (<span class="fl">0.35</span> <span class="sc">+</span> <span class="fl">0.65</span> <span class="sc">*</span> eco)  <span class="sc">+</span>  <span class="co"># quality matters more in eco</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>   <span class="sc">-</span><span class="fl">0.70</span> <span class="sc">*</span> price_sensitive            <span class="sc">+</span>  <span class="co"># price sensitivity suppresses WTP</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.90</span> <span class="sc">*</span> social_identity <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># identity-driven eco premium</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.60</span> <span class="sc">*</span> health_focus    <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># health focus eco premium</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.50</span> <span class="sc">*</span> brand_trust     <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># certification trust premium</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.35</span> <span class="sc">*</span> guilt_prone     <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># guilt-offset premium</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.30</span> <span class="sc">*</span> hedonic                      <span class="sc">+</span>  <span class="co"># hedonic adds WTP in both</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>   <span class="sc">-</span><span class="fl">0.45</span> <span class="sc">*</span> habitual                    <span class="sc">+</span>  <span class="co"># habitual buyers resist stretching</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.55</span> <span class="sc">*</span> demand_aware    <span class="sc">*</span> eco        <span class="sc">+</span>  <span class="co"># demand-aware participants inflate WTP in eco context</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">0.75</span>)</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmax</span>(<span class="fu">pmin</span>(<span class="fu">round</span>(v, <span class="dv">2</span>), <span class="dv">10</span>), <span class="dv">1</span>)</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(traits, <span class="at">condition =</span> condition_p2, <span class="at">WTP =</span> WTP_p2)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>eco          <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(condition_p2 <span class="sc">==</span> <span class="st">"Eco-label"</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ── The confound: premium design is perfectly tied to the eco-label condition ─</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># In a real study this could be a subtly different image, font, or color scheme</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># that slipped through stimuli review. It is unobserved by the researcher.</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>premium_design <span class="ot">&lt;-</span> eco  <span class="co"># r = 1.0 with treatment — impossible to separate without measuring</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ── WTP simulation (in dollars, clamped to $1–$10) ────────────────────────────</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># True causal structure:</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#   Path A (eco-certification): activates eco-responsive traits → conditional premium</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   Path B (premium design):    boosts perceived quality for EVERYONE → unconditional lift</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   Both paths are real effects; the researcher cannot separate them from the t-test alone.</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>WTP_p2 <span class="ot">&lt;-</span> <span class="fu">with</span>(traits, {</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Path A — eco-certification effect (heterogeneous: depends on eco-responsive traits)</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  eco_effect <span class="ot">&lt;-</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.00</span> <span class="sc">*</span> env_values      <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># env concern → eco premium</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.65</span> <span class="sc">*</span> quality_seek    <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># quality-seekers respond to certification</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.80</span> <span class="sc">*</span> social_identity <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># identity-driven eco premium</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.50</span> <span class="sc">*</span> health_focus    <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># health focus eco premium</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.45</span> <span class="sc">*</span> brand_trust     <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># certification trust premium</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.30</span> <span class="sc">*</span> guilt_prone     <span class="sc">*</span> eco  <span class="sc">+</span>  <span class="co"># guilt-offset premium</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.50</span> <span class="sc">*</span> demand_aware    <span class="sc">*</span> eco     <span class="co"># demand effects in eco context</span></span>
 <span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Summary by condition ──────────────────────────────────────────────────────</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="sc">|&gt;</span></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition) <span class="sc">|&gt;</span></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean_WTP =</span> <span class="fu">round</span>(<span class="fu">mean</span>(WTP), <span class="dv">2</span>),</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_WTP =</span> <span class="fu">round</span>(<span class="fu">sd</span>(WTP), <span class="dv">2</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Condition"</span>, <span class="st">"n"</span>, <span class="st">"Mean WTP"</span>, <span class="st">"SD WTP"</span>),</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">align   =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"c"</span>, <span class="st">"c"</span>, <span class="st">"c"</span>),</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"WTP summary by condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Path B — premium design effect (homogeneous: affects everyone in eco condition)</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  design_effect <span class="ot">&lt;-</span> <span class="fl">0.70</span> <span class="sc">*</span> premium_design  <span class="co"># unconditional quality-perception lift</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Baseline WTP (trait-driven, condition-independent)</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  base <span class="ot">&lt;-</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="fl">4.50</span> <span class="sc">+</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.30</span> <span class="sc">*</span> quality_seek    <span class="sc">+</span>  <span class="co"># quality-seekers have higher baseline WTP</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>   <span class="sc">-</span><span class="fl">0.70</span> <span class="sc">*</span> price_sensitive <span class="sc">+</span>  <span class="co"># price sensitivity suppresses WTP</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.30</span> <span class="sc">*</span> hedonic         <span class="sc">+</span>  <span class="co"># hedonic adds WTP in both</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>   <span class="sc">-</span><span class="fl">0.45</span> <span class="sc">*</span> habitual           <span class="co"># habitual buyers resist stretching</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  v <span class="ot">&lt;-</span> base <span class="sc">+</span> eco_effect <span class="sc">+</span> design_effect <span class="sc">+</span> <span class="fu">rnorm</span>(N_p2, <span class="dv">0</span>, <span class="fl">0.75</span>)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmax</span>(<span class="fu">pmin</span>(<span class="fu">round</span>(v, <span class="dv">2</span>), <span class="dv">10</span>), <span class="dv">1</span>)</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(traits, <span class="at">condition =</span> condition_p2,</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>                    <span class="at">premium_design =</span> premium_design, <span class="at">WTP =</span> WTP_p2)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="co"># ── What the researcher sees: a clean-looking treatment effect ────────────────</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="sc">|&gt;</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition) <span class="sc">|&gt;</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean_WTP =</span> <span class="fu">round</span>(<span class="fu">mean</span>(WTP), <span class="dv">2</span>),</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_WTP =</span> <span class="fu">round</span>(<span class="fu">sd</span>(WTP), <span class="dv">2</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Condition"</span>, <span class="st">"n"</span>, <span class="st">"Mean WTP"</span>, <span class="st">"SD WTP"</span>),</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        <span class="at">align   =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"c"</span>, <span class="st">"c"</span>, <span class="st">"c"</span>),</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"WTP summary by condition — what the researcher observes"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>WTP summary by condition</caption>
+<caption>WTP summary by condition — what the researcher observes</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Condition</th>
@@ -502,61 +522,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">Control</td>
 <td style="text-align: center;">60</td>
-<td style="text-align: center;">4.06</td>
-<td style="text-align: center;">0.72</td>
+<td style="text-align: center;">4.07</td>
+<td style="text-align: center;">0.73</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Eco-label</td>
 <td style="text-align: center;">60</td>
-<td style="text-align: center;">6.21</td>
-<td style="text-align: center;">1.31</td>
+<td style="text-align: center;">6.72</td>
+<td style="text-align: center;">1.25</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The overall treatment effect looks straightforward. But the figure below reveals the heterogeneity hiding underneath it:</p>
+<p>The summary table shows a clean, positive treatment effect. The researcher would likely report this as evidence that eco-certification raises WTP. But the figure below shows what is actually happening:</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Plot: treatment effect varies by participant trait profile</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute individual-level treatment contrasts via matched simulation</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># For illustration: show eco-label premium by number of "activated" traits</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="ot">&lt;-</span> df_p2 <span class="sc">|&gt;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_eco_traits =</span> env_values <span class="sc">+</span> quality_seek <span class="sc">+</span> social_identity <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                   health_focus <span class="sc">+</span> brand_trust <span class="sc">+</span> guilt_prone,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">eco_group =</span> <span class="fu">cut</span>(n_eco_traits, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>),</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0\u20131 eco-responsive traits"</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"2\u20133 eco-responsive traits"</span>,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"4\u20136 eco-responsive traits"</span>))</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_p2, <span class="fu">aes</span>(<span class="at">x =</span> condition, <span class="at">y =</span> WTP, <span class="at">fill =</span> condition, <span class="at">color =</span> condition)) <span class="sc">+</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.14</span>, <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.20</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>, <span class="at">width =</span> <span class="fl">0.45</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">shape =</span> <span class="dv">23</span>, <span class="at">size =</span> <span class="dv">4</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>               <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">stroke =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>eco_group, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values  =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#4a90d9"</span>, <span class="st">"Eco-label"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>)) <span class="sc">+</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Control"</span> <span class="ot">=</span> <span class="st">"#2b6cb0"</span>, <span class="st">"Eco-label"</span> <span class="ot">=</span> <span class="st">"#1b4332"</span>)) <span class="sc">+</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="st">"$"</span>, x)) <span class="sc">+</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"WTP ($)"</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"The Same Treatment Has Very Different Effects on Different People"</span>,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Diamond = group mean  \u00b7  Eco-responsive traits: environmental values, quality-seeking, social identity, health, trust, guilt"</span>) <span class="sc">+</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>▶ Plot: decompose observed effect into eco-certification vs.&nbsp;premium design paths</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reconstruct each path's contribution at the participant level</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_p2 <span class="ot">&lt;-</span> df_p2 <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">eco_int =</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"Eco-label"</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Path A: eco-responsive traits × eco condition</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">path_A =</span> (<span class="fl">1.00</span> <span class="sc">*</span> env_values <span class="sc">+</span> <span class="fl">0.65</span> <span class="sc">*</span> quality_seek <span class="sc">+</span> <span class="fl">0.80</span> <span class="sc">*</span> social_identity <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>              <span class="fl">0.50</span> <span class="sc">*</span> health_focus <span class="sc">+</span> <span class="fl">0.45</span> <span class="sc">*</span> brand_trust <span class="sc">+</span> <span class="fl">0.30</span> <span class="sc">*</span> guilt_prone <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>              <span class="fl">0.50</span> <span class="sc">*</span> demand_aware) <span class="sc">*</span> eco_int,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Path B: premium design (everyone in eco condition gets +0.70)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">path_B =</span> <span class="fl">0.70</span> <span class="sc">*</span> premium_design,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Eco-responsive trait count for x-axis ordering</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_eco_traits =</span> env_values <span class="sc">+</span> quality_seek <span class="sc">+</span> social_identity <span class="sc">+</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                   health_focus <span class="sc">+</span> brand_trust <span class="sc">+</span> guilt_prone</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Group-level averages for the annotation</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>avg_A <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(df_p2<span class="sc">$</span>path_A[df_p2<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Eco-label"</span>]), <span class="dv">2</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>avg_B <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(df_p2<span class="sc">$</span>path_B[df_p2<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Eco-label"</span>]), <span class="dv">2</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>naive <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(df_p2<span class="sc">$</span>WTP[df_p2<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Eco-label"</span>]) <span class="sc">-</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>               <span class="fu">mean</span>(df_p2<span class="sc">$</span>WTP[df_p2<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Control"</span>]), <span class="dv">2</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>path_long <span class="ot">&lt;-</span> df_p2 <span class="sc">|&gt;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(condition <span class="sc">==</span> <span class="st">"Eco-label"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(n_eco_traits, path_A, path_B) <span class="sc">|&gt;</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(path_A, path_B),</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"pathway"</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"contribution"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pathway =</span> <span class="fu">recode</span>(pathway,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"path_A"</span> <span class="ot">=</span> <span class="st">"Path A: Eco-certification</span><span class="sc">\n</span><span class="st">(heterogeneous — depends on traits)"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"path_B"</span> <span class="ot">=</span> <span class="st">"Path B: Premium design</span><span class="sc">\n</span><span class="st">(homogeneous — same for everyone)"</span>))</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(path_long, <span class="fu">aes</span>(<span class="at">x =</span> n_eco_traits, <span class="at">y =</span> contribution, <span class="at">color =</span> pathway)) <span class="sc">+</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">alpha =</span> <span class="fl">0.55</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="fl">1.4</span>, <span class="at">span =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"label"</span>, <span class="at">x =</span> <span class="fl">5.8</span>, <span class="at">y =</span> <span class="fl">2.8</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"Observed \u0394WTP = $%.2f</span><span class="sc">\n</span><span class="st">  Path A (eco) = $%.2f avg</span><span class="sc">\n</span><span class="st">  Path B (design) = $%.2f avg"</span>,</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                           naive, avg_A, avg_B),</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">fill =</span> <span class="st">"#fff8e1"</span>, <span class="at">label.size =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Path A: Eco-certification</span><span class="sc">\n</span><span class="st">(heterogeneous — depends on traits)"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Path B: Premium design</span><span class="sc">\n</span><span class="st">(homogeneous — same for everyone)"</span>     <span class="ot">=</span> <span class="st">"#e07b39"</span>),</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                     <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="st">"$"</span>, x)) <span class="sc">+</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of eco-responsive traits (participant characteristic)"</span>,</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"WTP contribution ($)"</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"The Observed Treatment Effect Bundles Two Distinct Causal Paths"</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Path A varies by participant; Path B is constant — both are invisible to the researcher"</span>) <span class="sc">+</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>, <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="figs/het-effects-plot-1.svg" class="img-fluid figure-img" width="864"></p>
+<p><img src="figs/confound-decomposition-plot-1.svg" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The eco-label produces a large positive effect for participants with several eco-responsive traits, a small effect for moderately responsive participants, and near-zero (or even negative) effects for participants whose WTP is driven primarily by price sensitivity, habit, or hedonic taste expectations.</p>
-<p>The average treatment effect you would report obscures all of this variation — and misses entirely <em>which</em> mechanism is driving WTP upward.</p>
+<p>The plot shows what a researcher cannot see from the t-test alone. <strong>Path A</strong> — the true eco-certification effect — varies by participant: participants with many eco-responsive traits gain more from the label, while those with few traits gain little. <strong>Path B</strong> — the premium design effect — is a flat $0.7 lift for everyone in the eco-label condition, regardless of any trait.</p>
+<p>When the researcher reports the overall WTP difference of $2.65, they attribute the entire effect to eco-certification. But roughly $0.7 of that is driven by the premium package design — a confound that was never randomized away because it was never measured. The true average eco-label effect across participants is only $1.88, not $2.65.</p>
+<p>The exclusion restriction failed: <strong>the manipulation injected two latent signals into a single condition dummy</strong>, and the treatment coefficient absorbs both.</p>
 </section>
 <section id="what-participants-say-template-based-open-ended-responses" class="level2" data-number="12.3">
 <h2 data-number="12.3" class="anchored" data-anchor-id="what-participants-say-template-based-open-ended-responses"><span class="header-section-number">12.3</span> What Participants Say: Template-Based Open-Ended Responses</h2>
@@ -651,25 +695,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">sample</span>(parts, <span class="fu">min</span>(<span class="dv">2</span>L, <span class="fu">length</span>(parts))), <span class="at">collapse =</span> <span class="st">" "</span>)</span>
 <span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>product_text <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_product_text)</span>
-<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>wtp_text     <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_wtp_text)</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate product text first so we can use WTP amounts in WTP text generation</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>product_text <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_product_text)</span>
 <span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview a few responses</span></span>
-<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">Condition        =</span> condition_p2[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Product text</span><span class="st">`</span>   <span class="ot">=</span> product_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">WTP text</span><span class="st">`</span>       <span class="ot">=</span> wtp_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
-<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(preview, <span class="at">caption =</span> <span class="st">"Example responses (one control, one eco-label participant)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a WTP-amount-anchored phrase to the WTP text to ensure the open-ended</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a><span class="co"># responses actually correlate with stated WTP (as real responses would).</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="co"># High WTP → quality language; Low WTP → price/budget/overpay language.</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co"># This mimics how real open-ended responses reflect stated amounts.</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>add_wtp_anchor <span class="ot">&lt;-</span> <span class="cf">function</span>(i, base_text) {</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> WTP_p2[i]</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>  anchor <span class="ot">&lt;-</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">7.5</span>) {</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, the quality and overall appeal of this product make it feel genuinely worth it — I am happy to spend considerably above what I normally would."</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (w <span class="sc">&gt;=</span> <span class="fl">5.5</span>) {</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost."</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee."</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(base_text, anchor)</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>wtp_text_raw <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_len</span>(N_p2), gen_wtp_text)</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>wtp_text     <span class="ot">&lt;-</span> <span class="fu">mapply</span>(add_wtp_anchor, <span class="fu">seq_len</span>(N_p2), wtp_text_raw)</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview a few responses</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">Condition        =</span> condition_p2[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Product text</span><span class="st">`</span>   <span class="ot">=</span> product_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">WTP text</span><span class="st">`</span>       <span class="ot">=</span> wtp_text[<span class="fu">c</span>(<span class="dv">1</span>, half2 <span class="sc">+</span> <span class="dv">1</span>)],</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(preview, <span class="at">caption =</span> <span class="st">"Example responses (one control, one eco-label participant)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Example responses (one control, one eco-label participant)</caption>
 <colgroup>
-<col style="width: 2%">
-<col style="width: 51%">
-<col style="width: 46%">
+<col style="width: 1%">
+<col style="width: 39%">
+<col style="width: 58%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -682,12 +745,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">Control</td>
 <td style="text-align: left;">This looks like a standard coffee blend. I am curious how the flavor compares to my usual brand.</td>
-<td style="text-align: left;">My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature. Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks.</td>
+<td style="text-align: left;">My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature. Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks. Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Eco-label</td>
 <td style="text-align: left;">Eco-certified means fewer pesticides and more natural farming practices, which I find very appealing. The research context makes it clear this study is about eco-labeling, which makes me more conscious of how much I should value green products.</td>
-<td style="text-align: left;">If I expect genuinely exceptional taste, I am happy to stretch my usual budget. Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health.</td>
+<td style="text-align: left;">If I expect genuinely exceptional taste, I am happy to stretch my usual budget. Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health. Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost.</td>
 </tr>
 </tbody>
 </table>
@@ -739,31 +802,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log_odds</span>(wtp_conc[[v]],  wtp_conc<span class="sc">$</span>condition))</span>
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Correlation of concept mentions with WTP ──────────────────────────────────</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>wtp_cor_prod <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(concept_dict), <span class="cf">function</span>(v)</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(prod_conc[[v]], WTP_p2, <span class="at">method =</span> <span class="st">"spearman"</span>))</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>wtp_cor_wtp <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(concept_dict), <span class="cf">function</span>(v) {</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> wtp_conc[[v]]</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If concept never appears in WTP text, correlation is undefined → treat as 0</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">sd</span>(x) <span class="sc">&lt;</span> <span class="fl">1e-9</span>) <span class="dv">0</span> <span class="cf">else</span> <span class="fu">cor</span>(x, WTP_p2, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Summary table ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>concept_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">Concept      =</span> <span class="fu">names</span>(concept_dict),</span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">pct_ctrl     =</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(prod_conc[prod_conc<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Control"</span>,</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">names</span>(concept_dict)]) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">0</span>),</span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">pct_eco      =</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(prod_conc[prod_conc<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Eco-label"</span>,</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>wtp_cor_prod <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(concept_dict), <span class="cf">function</span>(v) {</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> prod_conc[[v]]</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">sd</span>(x) <span class="sc">&lt;</span> <span class="fl">1e-9</span>) <span class="dv">0</span> <span class="cf">else</span> <span class="fu">cor</span>(x, WTP_p2, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>wtp_cor_wtp <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(concept_dict), <span class="cf">function</span>(v) {</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> wtp_conc[[v]]</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If concept never appears in WTP text, correlation is undefined → treat as 0</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">sd</span>(x) <span class="sc">&lt;</span> <span class="fl">1e-9</span>) <span class="dv">0</span> <span class="cf">else</span> <span class="fu">cor</span>(x, WTP_p2, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Summary table ─────────────────────────────────────────────────────────────</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>concept_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">Concept      =</span> <span class="fu">names</span>(concept_dict),</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">pct_ctrl     =</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(prod_conc[prod_conc<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Control"</span>,</span>
 <span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">names</span>(concept_dict)]) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">0</span>),</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">log_odds_col =</span> <span class="fu">round</span>(lo_prod, <span class="dv">2</span>),</span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_prod       =</span> <span class="fu">round</span>(wtp_cor_prod, <span class="dv">2</span>),</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_wtp        =</span> <span class="fu">round</span>(wtp_cor_wtp, <span class="dv">2</span>)</span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(concept_summary,</span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Concept"</span>, <span class="st">"Control (%)"</span>, <span class="st">"Eco-label (%)"</span>,</span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Log-odds (product text)"</span>, <span class="st">"r with WTP (product)"</span>, <span class="st">"r with WTP (WTP text)"</span>),</span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Concept prevalence and associations by condition (product perception text)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">pct_eco      =</span> <span class="fu">round</span>(<span class="fu">colMeans</span>(prod_conc[prod_conc<span class="sc">$</span>condition <span class="sc">==</span> <span class="st">"Eco-label"</span>,</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">names</span>(concept_dict)]) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">0</span>),</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">log_odds_col =</span> <span class="fu">round</span>(lo_prod, <span class="dv">2</span>),</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_prod       =</span> <span class="fu">round</span>(wtp_cor_prod, <span class="dv">2</span>),</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_wtp        =</span> <span class="fu">round</span>(wtp_cor_wtp, <span class="dv">2</span>)</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(concept_summary,</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Concept"</span>, <span class="st">"Control (%)"</span>, <span class="st">"Eco-label (%)"</span>,</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Log-odds (product text)"</span>, <span class="st">"r with WTP (product)"</span>, <span class="st">"r with WTP (WTP text)"</span>),</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Concept prevalence and associations by condition (product perception text)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -795,8 +860,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">93</td>
 <td style="text-align: right;">7.33</td>
-<td style="text-align: right;">0.77</td>
-<td style="text-align: right;">0.44</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0.45</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">quality_taste</td>
@@ -804,8 +869,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">73</td>
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">-2.35</td>
-<td style="text-align: right;">-0.31</td>
-<td style="text-align: right;">-0.03</td>
+<td style="text-align: right;">-0.35</td>
+<td style="text-align: right;">0.46</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">price_cost</td>
@@ -813,8 +878,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">30</td>
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">-0.52</td>
-<td style="text-align: right;">-0.28</td>
-<td style="text-align: right;">-0.07</td>
+<td style="text-align: right;">-0.26</td>
+<td style="text-align: right;">-0.15</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">social_values</td>
@@ -822,8 +887,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">2.83</td>
-<td style="text-align: right;">0.17</td>
-<td style="text-align: right;">0.33</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.35</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">health_natural</td>
@@ -840,7 +905,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">28</td>
 <td style="text-align: right;">95</td>
 <td style="text-align: right;">3.71</td>
-<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">0.54</td>
 <td style="text-align: right;">0.00</td>
 </tr>
 <tr class="odd">
@@ -849,7 +914,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">18</td>
 <td style="text-align: right;">3.34</td>
-<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.26</td>
 <td style="text-align: right;">0.00</td>
 </tr>
 <tr class="even">
@@ -858,8 +923,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">2.98</td>
-<td style="text-align: right;">0.16</td>
-<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.30</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">hedonic</td>
@@ -867,8 +932,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0.00</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">habit_routine</td>
@@ -876,8 +941,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0.00</td>
-<td style="text-align: right;">NA</td>
 <td style="text-align: right;">0.00</td>
+<td style="text-align: right;">-0.01</td>
 </tr>
 </tbody>
 </table>
@@ -1169,7 +1234,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">quality_taste</td>
 <td style="text-align: left;">quality_taste</td>
-<td style="text-align: right;">47</td>
+<td style="text-align: right;">80</td>
 <td style="text-align: left;">✓ Yes (prevalent)</td>
 </tr>
 <tr class="odd">
