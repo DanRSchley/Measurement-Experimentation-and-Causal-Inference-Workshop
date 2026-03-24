@@ -269,13 +269,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-2/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 5: Design Solutions and Assignment Strategies</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies and Assignment Solutions</span></span></a>
   </div>
 </li>
       </ul>
@@ -292,37 +286,37 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
   </div>
 </li>
       </ul>
@@ -399,6 +393,8 @@ window.Quarto = {
 </header>
 
 
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen="" title="Module 1 Part 1: Validity">
+</iframe>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Load required packages</summary>
@@ -1911,18 +1907,18 @@ Defined Parameters:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="831" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 830;"><span id="cb18-831"><a href="#cb18-831" aria-hidden="true" tabindex="-1"></a>viewof sim_k <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> {</span>
-<span id="cb18-832"><a href="#cb18-832" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
-<span id="cb18-833"><a href="#cb18-833" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of items per scale (k)"</span></span>
-<span id="cb18-834"><a href="#cb18-834" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb18-835"><a href="#cb18-835" aria-hidden="true" tabindex="-1"></a>viewof sim_within_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.10</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
-<span id="cb18-836"><a href="#cb18-836" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.50</span><span class="op">,</span></span>
-<span id="cb18-837"><a href="#cb18-837" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-scale inter-item correlation (ρ̄)"</span></span>
-<span id="cb18-838"><a href="#cb18-838" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb18-839"><a href="#cb18-839" aria-hidden="true" tabindex="-1"></a>viewof sim_between_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.00</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
-<span id="cb18-840"><a href="#cb18-840" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.30</span><span class="op">,</span></span>
-<span id="cb18-841"><a href="#cb18-841" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Between-scale correlation (discriminant validity threat)"</span></span>
-<span id="cb18-842"><a href="#cb18-842" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="833" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 832;"><span id="cb18-833"><a href="#cb18-833" aria-hidden="true" tabindex="-1"></a>viewof sim_k <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> {</span>
+<span id="cb18-834"><a href="#cb18-834" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb18-835"><a href="#cb18-835" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of items per scale (k)"</span></span>
+<span id="cb18-836"><a href="#cb18-836" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-837"><a href="#cb18-837" aria-hidden="true" tabindex="-1"></a>viewof sim_within_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.10</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
+<span id="cb18-838"><a href="#cb18-838" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.50</span><span class="op">,</span></span>
+<span id="cb18-839"><a href="#cb18-839" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-scale inter-item correlation (ρ̄)"</span></span>
+<span id="cb18-840"><a href="#cb18-840" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-841"><a href="#cb18-841" aria-hidden="true" tabindex="-1"></a>viewof sim_between_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.00</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
+<span id="cb18-842"><a href="#cb18-842" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.30</span><span class="op">,</span></span>
+<span id="cb18-843"><a href="#cb18-843" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Between-scale correlation (discriminant validity threat)"</span></span>
+<span id="cb18-844"><a href="#cb18-844" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -1946,37 +1942,37 @@ Defined Parameters:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="848" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 847;"><span id="cb19-848"><a href="#cb19-848" aria-hidden="true" tabindex="-1"></a>rel_alpha <span class="op">=</span> (sim_k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (sim_k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)</span>
-<span id="cb19-849"><a href="#cb19-849" aria-hidden="true" tabindex="-1"></a>rel_htmt  <span class="op">=</span> sim_between_r <span class="op">/</span> sim_within_r</span>
-<span id="cb19-850"><a href="#cb19-850" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-851"><a href="#cb19-851" aria-hidden="true" tabindex="-1"></a>alpha_col <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span> <span class="op">:</span> <span class="st">"#e63946"</span></span>
-<span id="cb19-852"><a href="#cb19-852" aria-hidden="true" tabindex="-1"></a>htmt_col  <span class="op">=</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span></span>
-<span id="cb19-853"><a href="#cb19-853" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"#e9c46a"</span></span>
-<span id="cb19-854"><a href="#cb19-854" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"#e63946"</span></span>
-<span id="cb19-855"><a href="#cb19-855" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-856"><a href="#cb19-856" aria-hidden="true" tabindex="-1"></a>alpha_label <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"Excellent"</span></span>
-<span id="cb19-857"><a href="#cb19-857" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.80</span> <span class="op">?</span> <span class="st">"Good"</span></span>
-<span id="cb19-858"><a href="#cb19-858" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"Acceptable"</span></span>
-<span id="cb19-859"><a href="#cb19-859" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">"Too low"</span></span>
-<span id="cb19-860"><a href="#cb19-860" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-861"><a href="#cb19-861" aria-hidden="true" tabindex="-1"></a>htmt_label <span class="op">=</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"✓ Discriminant validity supported"</span></span>
-<span id="cb19-862"><a href="#cb19-862" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"⚠ Borderline — approaching threshold"</span></span>
-<span id="cb19-863"><a href="#cb19-863" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"✗ Discriminant validity VIOLATED"</span></span>
-<span id="cb19-864"><a href="#cb19-864" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-865"><a href="#cb19-865" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;"&gt;</span></span>
-<span id="cb19-866"><a href="#cb19-866" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
-<span id="cb19-867"><a href="#cb19-867" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;Cronbach's Alpha&lt;/div&gt;</span></span>
-<span id="cb19-868"><a href="#cb19-868" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_alpha<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb19-869"><a href="#cb19-869" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>alpha_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb19-870"><a href="#cb19-870" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold ≥ 0.70&lt;/div&gt;</span></span>
-<span id="cb19-871"><a href="#cb19-871" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb19-872"><a href="#cb19-872" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
-<span id="cb19-873"><a href="#cb19-873" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;HTMT&lt;/div&gt;</span></span>
-<span id="cb19-874"><a href="#cb19-874" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_htmt<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb19-875"><a href="#cb19-875" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>htmt_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb19-876"><a href="#cb19-876" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold &lt; 0.85&lt;/div&gt;</span></span>
-<span id="cb19-877"><a href="#cb19-877" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb19-878"><a href="#cb19-878" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="850" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 849;"><span id="cb19-850"><a href="#cb19-850" aria-hidden="true" tabindex="-1"></a>rel_alpha <span class="op">=</span> (sim_k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (sim_k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)</span>
+<span id="cb19-851"><a href="#cb19-851" aria-hidden="true" tabindex="-1"></a>rel_htmt  <span class="op">=</span> sim_between_r <span class="op">/</span> sim_within_r</span>
+<span id="cb19-852"><a href="#cb19-852" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-853"><a href="#cb19-853" aria-hidden="true" tabindex="-1"></a>alpha_col <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span> <span class="op">:</span> <span class="st">"#e63946"</span></span>
+<span id="cb19-854"><a href="#cb19-854" aria-hidden="true" tabindex="-1"></a>htmt_col  <span class="op">=</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span></span>
+<span id="cb19-855"><a href="#cb19-855" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"#e9c46a"</span></span>
+<span id="cb19-856"><a href="#cb19-856" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"#e63946"</span></span>
+<span id="cb19-857"><a href="#cb19-857" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-858"><a href="#cb19-858" aria-hidden="true" tabindex="-1"></a>alpha_label <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"Excellent"</span></span>
+<span id="cb19-859"><a href="#cb19-859" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.80</span> <span class="op">?</span> <span class="st">"Good"</span></span>
+<span id="cb19-860"><a href="#cb19-860" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"Acceptable"</span></span>
+<span id="cb19-861"><a href="#cb19-861" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">"Too low"</span></span>
+<span id="cb19-862"><a href="#cb19-862" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-863"><a href="#cb19-863" aria-hidden="true" tabindex="-1"></a>htmt_label <span class="op">=</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"✓ Discriminant validity supported"</span></span>
+<span id="cb19-864"><a href="#cb19-864" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"⚠ Borderline — approaching threshold"</span></span>
+<span id="cb19-865"><a href="#cb19-865" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"✗ Discriminant validity VIOLATED"</span></span>
+<span id="cb19-866"><a href="#cb19-866" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-867"><a href="#cb19-867" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;"&gt;</span></span>
+<span id="cb19-868"><a href="#cb19-868" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
+<span id="cb19-869"><a href="#cb19-869" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;Cronbach's Alpha&lt;/div&gt;</span></span>
+<span id="cb19-870"><a href="#cb19-870" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_alpha<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb19-871"><a href="#cb19-871" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>alpha_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb19-872"><a href="#cb19-872" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold ≥ 0.70&lt;/div&gt;</span></span>
+<span id="cb19-873"><a href="#cb19-873" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb19-874"><a href="#cb19-874" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
+<span id="cb19-875"><a href="#cb19-875" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;HTMT&lt;/div&gt;</span></span>
+<span id="cb19-876"><a href="#cb19-876" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_htmt<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb19-877"><a href="#cb19-877" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>htmt_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb19-878"><a href="#cb19-878" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold &lt; 0.85&lt;/div&gt;</span></span>
+<span id="cb19-879"><a href="#cb19-879" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb19-880"><a href="#cb19-880" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-2-1" data-nodetype="declaration">
@@ -2028,34 +2024,34 @@ Defined Parameters:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="886" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 885;"><span id="cb20-886"><a href="#cb20-886" aria-hidden="true" tabindex="-1"></a>k_vals <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">14</span>}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">2</span>)</span>
-<span id="cb20-887"><a href="#cb20-887" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-888"><a href="#cb20-888" aria-hidden="true" tabindex="-1"></a>alpha_long <span class="op">=</span> k_vals<span class="op">.</span><span class="fu">flatMap</span>(k <span class="kw">=&gt;</span> [</span>
-<span id="cb20-889"><a href="#cb20-889" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)}<span class="op">,</span></span>
-<span id="cb20-890"><a href="#cb20-890" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"HTMT"</span><span class="op">,</span>         <span class="dt">value</span><span class="op">:</span> sim_between_r <span class="op">/</span> sim_within_r}</span>
-<span id="cb20-891"><a href="#cb20-891" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb20-892"><a href="#cb20-892" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-893"><a href="#cb20-893" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb20-894"><a href="#cb20-894" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">640</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">280</span><span class="op">,</span></span>
-<span id="cb20-895"><a href="#cb20-895" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb20-896"><a href="#cb20-896" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
-<span id="cb20-897"><a href="#cb20-897" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb20-898"><a href="#cb20-898" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="st">"HTMT"</span>]<span class="op">,</span></span>
-<span id="cb20-899"><a href="#cb20-899" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
-<span id="cb20-900"><a href="#cb20-900" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb20-901"><a href="#cb20-901" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items per scale (k)"</span><span class="op">,</span> <span class="dt">tickValues</span><span class="op">:</span> [<span class="dv">2</span><span class="op">,</span><span class="dv">4</span><span class="op">,</span><span class="dv">6</span><span class="op">,</span><span class="dv">8</span><span class="op">,</span><span class="dv">10</span><span class="op">,</span><span class="dv">12</span><span class="op">,</span><span class="dv">14</span><span class="op">,</span><span class="dv">15</span>]}<span class="op">,</span></span>
-<span id="cb20-902"><a href="#cb20-902" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb20-903"><a href="#cb20-903" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span></span>
-<span id="cb20-904"><a href="#cb20-904" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="fl">1.3</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="fl">1.1</span><span class="op">,</span> rel_htmt <span class="op">+</span> <span class="fl">0.15</span>))]</span>
-<span id="cb20-905"><a href="#cb20-905" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb20-906"><a href="#cb20-906" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb20-907"><a href="#cb20-907" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.70</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#f4a261"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
-<span id="cb20-908"><a href="#cb20-908" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.85</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#e63946"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
-<span id="cb20-909"><a href="#cb20-909" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(alpha_long<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
-<span id="cb20-910"><a href="#cb20-910" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(alpha_long<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">k</span> <span class="op">===</span> sim_k)<span class="op">,</span></span>
-<span id="cb20-911"><a href="#cb20-911" aria-hidden="true" tabindex="-1"></a>             {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">7</span>})</span>
-<span id="cb20-912"><a href="#cb20-912" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb20-913"><a href="#cb20-913" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="888" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 887;"><span id="cb20-888"><a href="#cb20-888" aria-hidden="true" tabindex="-1"></a>k_vals <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">14</span>}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">2</span>)</span>
+<span id="cb20-889"><a href="#cb20-889" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-890"><a href="#cb20-890" aria-hidden="true" tabindex="-1"></a>alpha_long <span class="op">=</span> k_vals<span class="op">.</span><span class="fu">flatMap</span>(k <span class="kw">=&gt;</span> [</span>
+<span id="cb20-891"><a href="#cb20-891" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)}<span class="op">,</span></span>
+<span id="cb20-892"><a href="#cb20-892" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"HTMT"</span><span class="op">,</span>         <span class="dt">value</span><span class="op">:</span> sim_between_r <span class="op">/</span> sim_within_r}</span>
+<span id="cb20-893"><a href="#cb20-893" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb20-894"><a href="#cb20-894" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-895"><a href="#cb20-895" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb20-896"><a href="#cb20-896" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">640</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">280</span><span class="op">,</span></span>
+<span id="cb20-897"><a href="#cb20-897" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb20-898"><a href="#cb20-898" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
+<span id="cb20-899"><a href="#cb20-899" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb20-900"><a href="#cb20-900" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="st">"HTMT"</span>]<span class="op">,</span></span>
+<span id="cb20-901"><a href="#cb20-901" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
+<span id="cb20-902"><a href="#cb20-902" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb20-903"><a href="#cb20-903" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items per scale (k)"</span><span class="op">,</span> <span class="dt">tickValues</span><span class="op">:</span> [<span class="dv">2</span><span class="op">,</span><span class="dv">4</span><span class="op">,</span><span class="dv">6</span><span class="op">,</span><span class="dv">8</span><span class="op">,</span><span class="dv">10</span><span class="op">,</span><span class="dv">12</span><span class="op">,</span><span class="dv">14</span><span class="op">,</span><span class="dv">15</span>]}<span class="op">,</span></span>
+<span id="cb20-904"><a href="#cb20-904" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb20-905"><a href="#cb20-905" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span></span>
+<span id="cb20-906"><a href="#cb20-906" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="fl">1.3</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="fl">1.1</span><span class="op">,</span> rel_htmt <span class="op">+</span> <span class="fl">0.15</span>))]</span>
+<span id="cb20-907"><a href="#cb20-907" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb20-908"><a href="#cb20-908" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb20-909"><a href="#cb20-909" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.70</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#f4a261"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
+<span id="cb20-910"><a href="#cb20-910" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.85</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#e63946"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
+<span id="cb20-911"><a href="#cb20-911" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(alpha_long<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
+<span id="cb20-912"><a href="#cb20-912" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(alpha_long<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">k</span> <span class="op">===</span> sim_k)<span class="op">,</span></span>
+<span id="cb20-913"><a href="#cb20-913" aria-hidden="true" tabindex="-1"></a>             {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">7</span>})</span>
+<span id="cb20-914"><a href="#cb20-914" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb20-915"><a href="#cb20-915" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-ojs-cell-3" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ojs-cell-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
