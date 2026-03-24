@@ -28,7 +28,7 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={5084cf20-fd5e-4b13-b0bf-a5edd90cb802}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 3: Random Assignment"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSyGh6sF8I9YHHL9ShrSBqS8CPrZXcaSYYJoyuLJJMOSpYxA2RKTmtfVyold85MpQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 3: Random Assignment"></iframe>
 
 # Part 3: What Does "Random Assignment" Actually Require? {#sec-randomization}
 

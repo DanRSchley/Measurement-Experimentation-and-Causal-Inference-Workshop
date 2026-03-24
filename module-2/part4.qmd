@@ -21,7 +21,7 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={3765cd25-8a88-451e-974b-cde273d25cbc}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 4: Experimental Design"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQnz6Vpt7vp1ADOrFLktNe2nhQI99W5TbY1lJ7FH6jk9VA5bY618C_nx4-FzQsJdA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Experimental Design"></iframe>
 
 # Part 4: Experimental Design Strategies — Using Structure to Buy Efficiency {#sec-designs}
 

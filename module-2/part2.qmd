@@ -28,7 +28,7 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={e76285ab-242d-4ae8-9861-fa2d25c86f2c}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 2 Part 2: Exclusion Restriction"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTampW1IhJLthWX0znIsCs4Dsz_AGj8VDEErcPXdRQ02wugmdGKE4RBi86qp-PSQQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 2: Exclusion Restriction"></iframe>
 
 # Part 2: The Exclusion Restriction — What Else Is in Your Treatment? {#sec-exclusion}
 

@@ -34,7 +34,7 @@ library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
 library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ```
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={dabadf6f-9a11-4df8-b5db-2abafa5b2176}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 3: Latent Subgroups"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQoHWAC3AyWd-Yahv2V9k6wNRzYoUPlJGLzSIhf-NTBjXmlkLXBcGreJB1DjguGUg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 3: Latent Subgroups"></iframe>
 
 ---
 
