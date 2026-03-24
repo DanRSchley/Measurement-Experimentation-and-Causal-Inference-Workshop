@@ -311,16 +311,21 @@ product_text <- sapply(seq_len(N_p2), gen_product_text)
 
 # Add a WTP-amount-anchored phrase to the WTP text to ensure the open-ended
 # responses actually correlate with stated WTP (as real responses would).
-# High WTP → quality language; Low WTP → price/budget/overpay language.
-# This mimics how real open-ended responses reflect stated amounts.
+# Four tiers ensure continuous WTP correlates well with text-derived concept scores.
+# High WTP → quality/trust/sustainability language.
+# Mid-high WTP → moderate value framing.
+# Mid-low WTP → neutral / cost-aware framing.
+# Low WTP → price/budget/overpay language (matches price_cost concept negatively).
 add_wtp_anchor <- function(i, base_text) {
   w <- WTP_p2[i]
   anchor <- if (w >= 7.5) {
-    "Taken together, the quality and overall appeal of this product make it feel genuinely worth it — I am happy to spend considerably above what I normally would."
-  } else if (w >= 5.5) {
-    "Taken together, I think the value here is reasonable — nothing that excites me, but a fair trade-off between quality and cost."
+    "Summing it up: the quality, trustworthiness, and sustainability of this product make it genuinely worth a significant premium — I would pay well above my usual coffee budget for it."
+  } else if (w >= 6.0) {
+    "Summing it up: I see real quality and value here — a moderate premium feels fully justified, and I am comfortable stretching a bit beyond my typical spend."
+  } else if (w >= 4.5) {
+    "Summing it up: the value seems fair but nothing exceptional — I would not pay much of a premium over what a comparable standard product costs."
   } else {
-    "Taken together, I am quite price-conscious about this purchase and would not want to overpay — I need to stay within my usual budget for coffee."
+    "Summing it up: I am quite price-sensitive and budget-conscious about coffee — I would not want to overpay, and my price ceiling here is close to what I normally spend."
   }
   paste(base_text, anchor)
 }
@@ -441,6 +446,18 @@ ggplot(lo_df, aes(x = log_odds, y = concept, fill = source)) +
 The eco-label dramatically increases mentions of sustainability, quality, social values, health, and trust in the *product perception* text. The effect bleeds through — though more weakly — into the *WTP justification* text. Note that `habit_routine` and `hedonic` show no shift at all: they are driven by participant characteristics, not by the experimental manipulation.
 
 ## What's in X? What's in Y? {#sec-whats-in-xy}
+
+::: {.callout-important}
+## The 100%/0% problem — you cannot know which pathway matters without measuring each one
+
+When multiple latent constructs connect X to Y, the share of the total treatment effect flowing through the *intended* pathway could be anywhere from **0% to 100%** — and you cannot tell from the treatment coefficient alone.
+
+Think of it like giving a clinical trial patient a **multivitamin**: the pill contains 12 different compounds, the patient improves, and you report "the multivitamin works." But which compound drove the improvement? Was it Vitamin D (the one your theory was about)? Vitamin B12? The zinc? The folic acid? Or is the pill inert and the patient improved for an unrelated reason? The single outcome measurement — patient health — cannot tell you.
+
+The eco-label experiment has the same structure. The manipulation bundle injects multiple signals — eco-certification, premium packaging, quality cues, social identity primes, demand effects — all simultaneously. The observed WTP increase is a weighted sum of contributions from each pathway. **The eco-certification pathway could account for 100% of the effect, or for 0%.** Unless you measure each latent input (and its relationship to WTP), the coefficient on "eco-label" conflates all of them.
+
+This is why the diagram below is not just a theoretical concern. Every blue line in it is a pathway that *could* be carrying the entire treatment effect.
+:::
 
 ::: {.callout-important}
 ## This is the most important figure in Section 2 — read it carefully
@@ -787,13 +804,15 @@ social_latent <- rnorm(N_p2)                               # social proof: stabl
 # unstable and their attenuated sum underestimates the true latent-factor indirect effect.
 
 # ── Correlated ERRORS within indicator pairs ──────────────────────────────────
-# Beyond eco_latent, two pairs share a response-style method factor (loading 0.55):
+# Beyond eco_latent, three pairs share a response-style method factor (loading 0.55):
 #   sustainability & health_natural: "natural/organic framing"
 #   social_values & trust_cert: "social legitimacy/institutional approval"
-# Both method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.
-# SEM models both pairs via ~~ constraints; parallel mediation ignores them entirely.
+#   quality_taste & hedonic: "sensory/experiential evaluation"
+# All method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.
+# SEM models all three pairs via ~~ constraints; parallel mediation ignores them entirely.
 method_sus_health <- rnorm(N_p2, 0, 1.0)   # natural/organic framing: sustainability ↔ health_natural
 method_soc_trust  <- rnorm(N_p2, 0, 1.0)   # social legitimacy:       social_values  ↔ trust_cert
+method_qual_hed   <- rnorm(N_p2, 0, 1.0)   # sensory/experiential:    quality_taste  ↔ hedonic
 
 # ── Eco-cluster indicators: caused by eco_latent + method factors ONLY ────────
 # eco_arm has NO direct effect on any indicator — its influence flows entirely
@@ -805,8 +824,8 @@ method_soc_trust  <- rnorm(N_p2, 0, 1.0)   # social legitimacy:       social_val
 #   (c) Parallel mediation treats 4 highly correlated indicators (r ≈ 0.65–0.93) as
 #       independent predictors → severe multicollinearity + attenuation → individual
 #       b-paths unstable; summed eco-cluster indirect effect underestimates the truth.
-#   (d) The method factors add within-pair residual correlations (loading 0.55) that
-#       parallel mediation ignores; the SEM models them via ~~ constraints.
+#   (d) The three method factors add within-pair residual correlations (loading 0.55)
+#       that parallel mediation ignores; the SEM models all three via ~~ constraints.
 med_scores <- data.frame(
   sustainability  = 0.90 * eco_latent + 0.55 * method_sus_health + rnorm(N_p2, 3.5, 0.25),
   social_values   = 0.88 * eco_latent + 0.55 * method_soc_trust  + rnorm(N_p2, 3.0, 0.25),
@@ -818,9 +837,9 @@ med_scores <- data.frame(
   # Social/demand cluster: moderately reflective of social_latent
   demand_effect   = 0.70 * social_latent + 0.45 * eco_arm + rnorm(N_p2, 2.0, 0.55),
   guilt_offset    = 0.68 * social_latent + 0.30 * eco_arm + rnorm(N_p2, 2.5, 0.55),
-  # Standalone mediators
-  quality_taste   = 0.40 * eco_latent   + 0.35 * eco_arm + rnorm(N_p2, 3.5, 0.60),
-  hedonic         = 0.20 * eco_latent   + 0.15 * eco_arm + rnorm(N_p2, 3.8, 0.65)
+  # Standalone mediators — share a sensory/experiential method factor (loading 0.55)
+  quality_taste   = 0.40 * eco_latent   + 0.35 * eco_arm + 0.55 * method_qual_hed + rnorm(N_p2, 3.5, 0.35),
+  hedonic         = 0.20 * eco_latent   + 0.15 * eco_arm + 0.55 * method_qual_hed + rnorm(N_p2, 3.8, 0.40)
 )
 
 # Standardize mediators to z-scores
@@ -947,10 +966,12 @@ sem_model_txt <- '
   eco_factor =~ sustainability + social_values + health_natural + trust_cert
 
   # Residual covariances: pairs of indicators share method variance in the DGP
-  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert).
+  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert;
+  #  sensory/experiential framing for quality_taste↔hedonic).
   # These parameters are IN the DGP but completely ignored by parallel mediation.
   sustainability ~~ health_natural
   social_values  ~~ trust_cert
+  quality_taste  ~~ hedonic
 
   # a-paths: condition predicts each mediator / latent factor
   eco_factor     ~ a1 * condition

@@ -120,6 +120,7 @@ trunc_moments = {
   return {obs_mean, obs_med, obs_sd: Math.sqrt(Math.max(0, obs_var)), Z};
 }
 
+// Truncated (observed) density
 density_data = {
   const mu = bound_mu, sigma = bound_sd;
   const lo = loB, hi = hiB;
@@ -134,6 +135,18 @@ density_data = {
     const x = xlo + (i / (n-1)) * (xhi - xlo);
     const pdf = (x < lo || x > hi) ? 0 : phi_fn((x-mu)/sigma) / (sigma * Z);
     return {x, pdf};
+  });
+}
+
+// True (untruncated) normal density — what the distribution would be without bounds
+density_true = {
+  const mu = bound_mu, sigma = bound_sd;
+  const xlo = Math.max((loB === -Infinity ? mu - 4.5*sigma : loB) - 2, -5);
+  const xhi = Math.min((hiB ===  Infinity ? mu + 4.5*sigma : hiB) + 2, 105);
+  const n   = 300;
+  return Array.from({length: n}, (_, i) => {
+    const x = xlo + (i / (n-1)) * (xhi - xlo);
+    return {x, pdf: phi_fn((x - mu) / sigma) / sigma};
   });
 }
 
@@ -173,8 +186,14 @@ Plot.plot({
   },
   y: {label: "Density", domain: [0, null]},
   marks: [
-    Plot.areaY(density_data, {x: "x", y: "pdf", fill: "#457b9d", fillOpacity: 0.30}),
+    // True (untruncated) distribution — what scores would look like without bounds
+    Plot.areaY(density_true, {x: "x", y: "pdf", fill: "#aaa", fillOpacity: 0.18}),
+    Plot.line(density_true,  {x: "x", y: "pdf", stroke: "#999", strokeWidth: 1.5,
+                              strokeDasharray: "5,3"}),
+    // Observed (truncated) distribution — what researchers actually see
+    Plot.areaY(density_data, {x: "x", y: "pdf", fill: "#457b9d", fillOpacity: 0.35}),
     Plot.line(density_data,  {x: "x", y: "pdf", stroke: "#457b9d", strokeWidth: 2.2}),
+    // Reference lines
     Plot.ruleX([bound_mu],               {stroke: "#222",     strokeDasharray: "6,3",  strokeWidth: 2.2}),
     Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d",                           strokeWidth: 2.5}),
     Plot.ruleX([trunc_moments.obs_med],  {stroke: "#e63946",  strokeDasharray: "4,3",  strokeWidth: 2.5}),

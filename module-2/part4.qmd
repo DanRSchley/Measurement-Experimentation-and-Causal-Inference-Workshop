@@ -146,11 +146,11 @@ viewof ls_config = Inputs.form({
   n_fac:      Inputs.range([2, 5], {step: 1, value: 3,
                 label: "Number of factors to study"}),
   a_name:     Inputs.text({label: "Factor A — name",   value: "Eco badge",    width: 160}),
-  a_levels:   Inputs.select([2, 3, 4], {label: "Factor A — levels", value: 2}),
+  a_levels:   Inputs.select([2, 3, 4], {label: "Factor A — levels", value: 3}),
   b_name:     Inputs.text({label: "Factor B — name",   value: "Price level",  width: 160}),
   b_levels:   Inputs.select([2, 3, 4], {label: "Factor B — levels", value: 3}),
   c_name:     Inputs.text({label: "Factor C — name",   value: "Framing",      width: 160}),
-  c_levels:   Inputs.select([2, 3, 4], {label: "Factor C — levels", value: 2}),
+  c_levels:   Inputs.select([2, 3, 4], {label: "Factor C — levels", value: 3}),
   d_name:     Inputs.text({label: "Factor D — name",   value: "Source cred.", width: 160}),
   d_levels:   Inputs.select([2, 3, 4], {label: "Factor D — levels", value: 2}),
   e_name:     Inputs.text({label: "Factor E — name",   value: "Ad copy",      width: 160}),
@@ -392,41 +392,49 @@ Contrast this with running K separate, independent A/B tests using the same tota
 ```{r metastudy-power, fig.height=5.5, fig.width=12}
 #| code-summary: "▶ Plot: metastudy power rises with K; separate A/B tests collapse"
 
-# ── Parameters (inspired by DeKay et al., 2022, Experiment 2) ────────────────
+# ── Parameters ────────────────────────────────────────────────────────────────
 # d   = average true effect size (Cohen's d) across all scenarios
-# tau = SD of true effects across scenarios (heterogeneity); tau/d ≈ 0.63
-#       mirrors the paper's reported ratio of ~0.71 for the framing effect
+# tau = SD of true effects across scenarios (effect heterogeneity)
 # N   = fixed total participant budget
 N_total <- 400
-d       <- 0.40
-tau     <- 0.25
+d       <- 0.28    # near 80% power at K=1 with N=400
+tau     <- 0.10    # moderate between-scenario heterogeneity
 sigma   <- 1.0
 alpha   <- 0.05
 K_vec   <- c(1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30)
 
 # ── Analytical power (no simulation needed — formula is exact) ───────────────
 #
-# Metastudy: K microstudies, each n1 = N/K participants (between-person design)
-#   SE_meta = sqrt(tau^2 / K  +  sigma^2 / N)
-#   Note: sigma^2 / (n1 * K) = sigma^2 / ((N/K) * K) = sigma^2 / N — fixed!
-#   Only the tau^2/K term shrinks as K grows → SE shrinks → power rises.
+# Correct SE derivation for metastudy (DeKay et al. 2022):
+#   K microstudies, each n = N/K participants, n/2 per condition.
+#   SE per microstudy = sigma * sqrt(4 / n) = sigma * sqrt(4K / N)
+#   Meta-analytic average of K independent estimates:
+#     Var(d̄) = (1/K²) * K * [sigma² * 4K/N  +  tau²]
+#             = 4*sigma²/N  +  tau²/K
+#   SE_meta = sqrt(4*sigma²/N + tau²/K)
+#
+#   The 4*sigma²/N term is FIXED (all N participants contribute to the eco contrast).
+#   Only the tau²/K term shrinks as K grows → power rises monotonically for K ≥ 2.
+#
+#   At K=1 a metastudy IS a single A/B test — the tau²/K scenario-sampling term
+#   does not apply (only one scenario, no averaging). Use A/B SE directly.
 #
 # Separate A/B tests: K independent studies, each with N/K participants
 #   SE_AB = sigma * sqrt(4 / floor(N/K))   [two arms of N/2K each]
 #   As K grows: floor(N/K) shrinks → SE_AB grows → power falls.
+#   The A/B test NEVER benefits from averaging across scenarios.
 
 power_fn <- function(d, se, alpha = 0.05) {
   z <- qnorm(1 - alpha / 2)
   pnorm(d / se - z) + pnorm(-d / se - z)  # two-sided normal approximation
 }
 
-# At K=1 a metastudy IS a single A/B test — the tau^2/K scenario-sampling term
-# does not apply because there is only one scenario and no averaging across scenarios.
-# For K >= 2 the DeKay et al. formula applies: SE = sqrt(tau^2/K + sigma^2/N).
 meta_se_fn <- function(K) {
+  # K=1: same as one A/B test (no scenario averaging, tau²/K irrelevant)
+  # K≥2: correct DeKay formula — 4*sigma²/N is the fixed floor; tau²/K shrinks
   ifelse(K == 1,
-         sigma * sqrt(4 / N_total),          # = ab_se_fn(1): same as one A/B test
-         sqrt(tau^2 / K + sigma^2 / N_total))
+         sigma * sqrt(4 / N_total),
+         sqrt(tau^2 / K + 4 * sigma^2 / N_total))
 }
 ab_se_fn   <- function(K) sigma * sqrt(4 / pmax(4, floor(N_total / K)))
 
@@ -440,49 +448,49 @@ power_df <- data.frame(
   design = rep(c(meta_label, ab_label), each = length(K_vec))
 )
 
-# ── SE-component annotation data ─────────────────────────────────────────────
-se_df <- data.frame(K = K_vec) |>
+# ── Ribbon data: vertical gap between metastudy and A/B power ─────────────────
+ribbon_df <- data.frame(K = K_vec) |>
   mutate(
-    se_total    = meta_se_fn(K),
-    se_floor    = sqrt(sigma^2 / N_total),   # lower bound: tau^2/K → 0
-    se_tau_only = sqrt(tau^2 / K)            # heterogeneity component alone
+    meta_power = sapply(K, function(k) power_fn(d, meta_se_fn(k))),
+    ab_power   = sapply(K, function(k) power_fn(d, ab_se_fn(k)))
   )
 
 color_vals <- c("#2d6a4f", "#e63946")
 names(color_vals) <- c(meta_label, ab_label)
 
+# Annotation: find K where metastudy-A/B gap is largest (for arrow placement)
+gap_max_K <- ribbon_df$K[which.max(ribbon_df$meta_power - ribbon_df$ab_power)]
+gap_max_y <- mean(c(ribbon_df$meta_power[which.max(ribbon_df$meta_power - ribbon_df$ab_power)],
+                    ribbon_df$ab_power[which.max(ribbon_df$meta_power - ribbon_df$ab_power)]))
+
 ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
   geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
   annotate("text", x = 30.5, y = 0.83, label = "80% power",
            color = "gray40", size = 3.2, hjust = 1) +
-  # shaded region showing heterogeneity reduction benefit
+  # shaded region = vertical distance between metastudy and A/B test curves
   geom_ribbon(
-    data = se_df,
-    aes(x = K,
-        ymin = power_fn(d, se_total),
-        ymax = power_fn(d, se_floor)),
+    data = ribbon_df,
+    aes(x = K, ymin = ab_power, ymax = meta_power),
     inherit.aes = FALSE,
-    fill = "#2d6a4f", alpha = 0.10
+    fill = "#2d6a4f", alpha = 0.12
   ) +
   geom_line(linewidth = 1.3) +
   geom_point(size = 3.5) +
-  annotate("text", x = 16, y = 0.90,
-           label = "Shaded area = power gain\nfrom reducing \u03c4\u00b2/K",
-           color = "#2d6a4f", size = 3.0, hjust = 0, fontface = "italic") +
+  annotate("text", x = gap_max_K + 1.5, y = gap_max_y,
+           label = "Shaded area =\nmetastudy advantage\nover A/B tests",
+           color = "#2d6a4f", size = 2.9, hjust = 0, fontface = "italic") +
   scale_color_manual(values = color_vals, name = NULL) +
   scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
   scale_x_continuous(breaks = c(1, 5, 10, 15, 20, 25, 30)) +
   labs(
     x        = "Number of microstudies / scenarios (K)",
     y        = paste0("Power to detect average effect  (d = ", d, ")"),
-    title    = "Metastudy Power RISES with K; Separate A/B Tests Collapse",
+    title    = "Metastudy Maintains Power Across K; Separate A/B Tests Collapse",
     subtitle = paste0(
-      "Both designs use N = ", N_total, " total  \u00b7  ",
-      "d = ", d, "  \u00b7  \u03c4 = ", tau,
-      " (SD of true effect across scenarios)\n",
-      "Metastudy SE = \u221a(\u03c4\u00b2/K + \u03c3\u00b2/N): ",
-      "the \u03c4\u00b2/K term shrinks as K grows, so SE falls and power rises  \u00b7  ",
-      "A/B SE \u221d 1/\u221a(N/K): shrinking budget per test collapses power"
+      "Both designs use N = ", N_total, " total  \u00b7  d = ", d,
+      "  \u00b7  \u03c4 = ", tau, " (SD of true effect across scenarios)\n",
+      "Metastudy SE = \u221a(\u03c4\u00b2/K + 4\u03c3\u00b2/N): dips slightly at low K then recovers  \u00b7  ",
+      "A/B SE = \u221a(4\u03c3\u00b2/(N/K)): shrinking budget per test collapses power"
     )
   ) +
   theme_minimal(base_size = 13) +
@@ -491,7 +499,7 @@ ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
         plot.margin = margin(5, 30, 5, 5))
 ```
 
-**Reading the plot:** at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test, and they share the same SE and therefore the same power (~98% for d = 0.40 with N = 400). As K grows, the two designs diverge sharply in opposite directions. In the metastudy, each new microstudy samples a different region of the scenario space, and the τ²/K term in the SE formula shrinks rapidly — so power rises. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls. By K = 3, the metastudy already surpasses the A/B test's power; by K = 15, it reaches near-ceiling power (>99%) while the separate A/B tests have collapsed below 20% (each test now has only ~27 participants). The shaded region shows precisely how much of the metastudy's power gain comes from reducing the heterogeneity component τ²/K — and it is substantial.
+**Reading the plot:** at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test — and they share the same power (~80% for d = 0.28 with N = 400). As K grows, the designs diverge. In the metastudy, K = 2 introduces a small dip in power (the τ²/K term is still non-trivial at K = 2), but power quickly recovers and rises as more scenarios average out the between-scenario heterogeneity — metastudy power asymptotes back toward its K = 1 level and beyond. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls monotonically. By K = 3 the metastudy already surpasses the A/B test; by K = 15 the metastudy is near its ceiling while the separate A/B tests have collapsed below 20% power. The shaded region shows the metastudy's cumulative advantage — the vertical gap between the two curves — which grows steadily from K = 2 onward.
 
 The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
 
@@ -593,30 +601,6 @@ The tradeoff is well known: **carryover effects** (condition A changes how the p
 - The outcome requires learning or practice (performance tasks)
 
 For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.
-
----
-
-::: {.callout-note}
-## Module 2 — the complete thread
-
-Every concept in this module is a direct extension of Module 1, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:
-
-| Module 1 (Measurement of Y) | Module 2 (Manipulation of X and Randomization) |
-|---|---|
-| Scale items are observables for a latent construct | Treatment assignment is an observable for latent randomization |
-| Discriminant validity: does Y measure *only* what it should? | Exclusion restriction: does X activate *only* the intended pathway? |
-| Construct breadth determines how many items you need | Construct breadth of Y determines how much N you need for orthogonality |
-| Correlated subscales: efficient but can hide distinct pathways | Correlated latent dimensions: can ease orthogonality OR cascade failures |
-| Open-ended text reveals the nomological net of Y | Open-ended text identifies unmeasured confounders and latent dimensions |
-| Stratified measurement (subscales by domain) | Stratified randomization (block by measured covariates) |
-| Multi-level data (participants nested in groups) | Clustered randomization (interventions at group level, ICC inflates required N) |
-| Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
-| Broad constructs: many items, hard to achieve discriminant validity | Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy) |
-
-**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 3, Part 2) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
-:::
-
----
 
 # Design Solutions: CRA, Stratified, and Clustered Assignment {#sec-design-solutions}
 
@@ -770,6 +754,28 @@ ggplot(deff_df, aes(x = icc, y = Neff_80,
 | Analogy (Module 1) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
 
 The core message: stratification and clustering both depart from simple CRA, but in opposite directions for power. Use stratification proactively when you can; account for clustering carefully when you must.
+:::
+
+---
+
+::: {.callout-note}
+## Module 2 — the complete thread
+
+Every concept in this module is a direct extension of Module 1, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:
+
+| Module 1 (Measurement of Y) | Module 2 (Manipulation of X and Randomization) |
+|---|---|
+| Scale items are observables for a latent construct | Treatment assignment is an observable for latent randomization |
+| Discriminant validity: does Y measure *only* what it should? | Exclusion restriction: does X activate *only* the intended pathway? |
+| Construct breadth determines how many items you need | Construct breadth of Y determines how much N you need for orthogonality |
+| Correlated subscales: efficient but can hide distinct pathways | Correlated latent dimensions: can ease orthogonality OR cascade failures |
+| Open-ended text reveals the nomological net of Y | Open-ended text identifies unmeasured confounders and latent dimensions |
+| Stratified measurement (subscales by domain) | Stratified randomization (block by measured covariates) |
+| Multi-level data (participants nested in groups) | Clustered randomization (interventions at group level, ICC inflates required N) |
+| Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
+| Broad constructs: many items, hard to achieve discriminant validity | Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy) |
+
+**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 3, Part 2) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
 :::
 
 ---

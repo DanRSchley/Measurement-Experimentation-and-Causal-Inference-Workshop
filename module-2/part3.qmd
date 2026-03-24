@@ -479,7 +479,7 @@ A typical psychology or marketing experiment with **N = 60–120** participants 
 In Module 1's language: their randomization observable has **low construct validity** as an indicator of latent randomization, because the gap between the observable and the latent property is too wide to close at typical sample sizes.
 :::
 
-With a narrow outcome like **Recall Accuracy** (D = 2 dimensions):
+With a narrow outcome like **Visual Fixation Time** (D = 2 dimensions):
 - To ensure $|r| < 0.10$ with 95% confidence: N ≈ **`r required_N(2, 0.10)`** — feasible
 - A study with N = 80 comfortably satisfies even a strict $r_{\max} = 0.20$
 
@@ -969,7 +969,7 @@ cat(sprintf("Omnibus LRT: p = %.4f\n",  lrt_p))
 cat(sprintf("Nagelkerke R\u00b2: %.3f\n", r2_nag))
 cat(sprintf("Interpretation: Covariates explain %.1f%% of variance in treatment assignment.\n",
             r2_nag * 100))
-cat("Good randomization should produce R\u00b2 \u2248 0 and p >> .05.\n")
+cat("Good randomization should produce R\u00b2 \u2248 0 and p well above .05.\n")
 ```
 
 #### Handling mixed covariate types {.unnumbered}
@@ -1031,7 +1031,7 @@ The omnibus LRT tests whether **any** covariate — regardless of type — predi
 |---|---|---|
 | Balance table p-values | All p > .05 | Any p < .05 |
 | Love plot SMDs | All \|SMD\| < 0.10 | Any \|SMD\| > 0.10 |
-| Omnibus LRT p-value | p >> .05 | p < .05 |
+| Omnibus LRT p-value | p well above .05 | p < .05 |
 | Nagelkerke R² | R² ≈ 0 | R² > 0.05 |
 
 These checks only evaluate the **observable** dimensions you measured. The latent dimensions — all the antecedents of Y you did not think to measure — remain unverified. The exchangeability assumption is always partly an act of faith, and that faith becomes more tenuous the broader and more complex Y is.
