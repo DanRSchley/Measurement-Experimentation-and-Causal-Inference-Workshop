@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta charset="utf-8" />
+<meta name="generator" content="quarto-1.7.32" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 
 
-<title>8&nbsp; Part 6: Systematic Measurement Error on Bounded Scales – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>8  Part 6: Systematic Measurement Error on Bounded Scales – Measurement, Experimentation, & Causal Inference</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -60,26 +59,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }
 </style>
 
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../module-2/intro.html" rel="next">
-<link href="../module-1/case5.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<!-- htmldependencies:E3FAD763 -->
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -108,23 +88,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
-<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+<link  href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet" />
 
 
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../styles.css" />
 </head>
 
-<body class="nav-sidebar docked quarto-light">
+<body>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn"
+      data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" 
+      aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
+      onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/case6.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <h1 class="quarto-secondary-nav-title no-breadcrumbs"></h1>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" role="link"
+        aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
+        onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -138,9 +123,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Measurement, Experimentation, &amp; Causal Inference</a> 
+      <a href="/">
+      Measurement, Experimentation, &amp; Causal Inference
+      </a> 
         <div class="sidebar-tools-main">
-    <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop"  title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
     </div>
       </div>
@@ -153,13 +140,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Measurement, Experimentation, &amp; Causal Inference</span></span></a>
+  <a href="/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>1</span>  <span class='chapter-title'>Measurement, Experimentation, & Causal Inference</span></span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1"  role="navigation" aria-expanded="true">
  <span class="menu-text">Module 1: Measurement</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -168,51 +155,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></span></a>
+  <a href="/module-1/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>2</span>  <span class='chapter-title'>Module 1: Measurement</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Part 1: Discriminant Validity</span></span></a>
+  <a href="/module-1/case1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>3</span>  <span class='chapter-title'>Part 1: Discriminant Validity</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Part 2: Omitted Variable Bias</span></span></a>
+  <a href="/module-1/case2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>4</span>  <span class='chapter-title'>Part 2: Omitted Variable Bias</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Part 3: Measurement Invariance</span></span></a>
+  <a href="/module-1/case3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>5</span>  <span class='chapter-title'>Part 3: Measurement Invariance</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Part 4: Latent Subgroups</span></span></a>
+  <a href="/module-1/case4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>6</span>  <span class='chapter-title'>Part 4: Latent Subgroups</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span></a>
+  <a href="/module-1/case5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>7</span>  <span class='chapter-title'>Part 5: Outlier Detection and Robust Estimation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case6.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></span></a>
+  <a href="/module-1/case6.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class='chapter-number'>8</span>  <span class='chapter-title'>Part 6: Systematic Measurement Error on Bounded Scales</span></span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2"  role="navigation" aria-expanded="true">
  <span class="menu-text">Module 2: Hypothesis Testing</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -221,39 +208,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span></a>
+  <a href="/module-2/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>9</span>  <span class='chapter-title'>Module 2: Hypothesis Testing</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Part 1: What Does a P-value Mean?</span></span></a>
+  <a href="/module-2/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>10</span>  <span class='chapter-title'>Part 1: What Does a P-value Mean?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Part 2: The Exclusion Restriction</span></span></a>
+  <a href="/module-2/part2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>11</span>  <span class='chapter-title'>Part 2: The Exclusion Restriction</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Part 3: What Does Random Assignment Require?</span></span></a>
+  <a href="/module-2/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>12</span>  <span class='chapter-title'>Part 3: What Does Random Assignment Require?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies and Assignment Solutions</span></span></a>
+  <a href="/module-2/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>13</span>  <span class='chapter-title'>Part 4: Experimental Design Strategies and Assignment Solutions</span></span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3"  role="navigation" aria-expanded="true">
  <span class="menu-text">Module 3: Causal Inference</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -262,38 +249,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+  <a href="/module-3/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>14</span>  <span class='chapter-title'>Module 3: Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
+  <a href="/module-3/part1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>15</span>  <span class='chapter-title'>Part 1: What Is a Causal Effect?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+  <a href="/module-3/part2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>16</span>  <span class='chapter-title'>Part 2: Selection on Observables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span></a>
+  <a href="/module-3/part3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>17</span>  <span class='chapter-title'>Part 3: Regression Discontinuity Design</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
+  <a href="/module-3/part4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>18</span>  <span class='chapter-title'>Part 4: Difference-in-Differences</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
+  <a href="/module-3/part5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class='chapter-number'>19</span>  <span class='chapter-title'>Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
   </div>
 </li>
       </ul>
@@ -301,25 +288,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" ></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#the-problem-in-plain-language" id="toc-the-problem-in-plain-language" class="nav-link active" data-scroll-target="#the-problem-in-plain-language"><span class="header-section-number">8.1</span> The Problem in Plain Language</a></li>
-  <li><a href="#interactive-simulator-see-the-bias-in-real-time" id="toc-interactive-simulator-see-the-bias-in-real-time" class="nav-link" data-scroll-target="#interactive-simulator-see-the-bias-in-real-time"><span class="header-section-number">8.2</span> Interactive Simulator: See the Bias in Real Time</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8.3</span> References</a></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+        <div id="quarto-toc-target"></div>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/case6.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<h1 class="title"><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></h1>
 </div>
 
 
@@ -335,27 +314,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-problem-in-plain-language" id="toc-the-problem-in-plain-language"><span class="header-section-number">8.1</span> The Problem in Plain Language</a></li>
+  <li><a href="#interactive-simulator-see-the-bias-in-real-time" id="toc-interactive-simulator-see-the-bias-in-real-time"><span class="header-section-number">8.2</span> Interactive Simulator: See the Bias in Real Time</a></li>
+  <li><a href="#references" id="toc-references"><span class="header-section-number">8.3</span> References</a></li>
+  </ul>
+</nav>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Load required packages</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan); <span class="fu">library</span>(semTools); <span class="fu">library</span>(MASS); <span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr); <span class="fu">library</span>(tidyr); <span class="fu">library</span>(knitr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan); <span class="fu">library</span>(semTools); <span class="fu">library</span>(MASS); <span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr); <span class="fu">library</span>(tidyr); <span class="fu">library</span>(knitr)</span></code></pre></div>
 </details>
 </div>
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={9a851c67-d785-444b-9421-ca47d50684a1}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen="" title="Module 1 Part 4: Systematic Measurement Error">
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={9a851c67-d785-444b-9421-ca47d50684a1}&amp;action=embedview&amp;wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 4: Systematic Measurement Error">
 </iframe>
-<hr>
+<hr />
 <section id="the-problem-in-plain-language" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="the-problem-in-plain-language"><span class="header-section-number">8.1</span> The Problem in Plain Language</h2>
+<h2 data-number="8.1"><span class="header-section-number">8.1</span> The Problem in Plain Language</h2>
 <p>Almost every scale used in behavioral research has bounds — rating scales run from 1 to 7, percentages from 0 to 100, frequency measures from “never” to “always.” These bounds are usually treated as a minor formatting detail. In practice, they introduce a systematic bias that most researchers never think about.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class='callout-icon'></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Where this fits in the broader workshop arc
+Where this fits in the broader workshop arc
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -374,10 +361,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class='callout-icon'></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>One-sided vs.&nbsp;two-sided bounds
+One-sided vs. two-sided bounds
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -388,13 +375,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 <section id="interactive-simulator-see-the-bias-in-real-time" class="level2" data-number="8.2">
-<h2 data-number="8.2" class="anchored" data-anchor-id="interactive-simulator-see-the-bias-in-real-time"><span class="header-section-number">8.2</span> Interactive Simulator: See the Bias in Real Time</h2>
+<h2 data-number="8.2"><span class="header-section-number">8.2</span> Interactive Simulator: See the Bias in Real Time</h2>
 <p>The simulator below overlays two density curves. The <strong>gray shaded curve</strong> is the <em>true</em> distribution — what scores would look like if the scale had no bounds. The <strong>blue shaded curve</strong> is the <em>observed</em> distribution — what researchers actually record after the bounds clip the tails. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). Adjust the sliders to see how the gap between true and observed means grows as the true mean approaches a bound or as variability increases.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="66" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 65;"><span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>viewof bound_mu  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">95</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">50</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"True mean (population)"</span>})</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>viewof bound_sd  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">15</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"True SD (variability / noise)"</span>})</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>viewof bound_lo  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">"Bounded at 0"</span><span class="op">,</span> <span class="st">"No lower bound"</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="st">"Bounded at 0"</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Lower bound"</span>})</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>viewof bound_hi  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">"Bounded at 100"</span><span class="op">,</span> <span class="st">"No upper bound"</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="st">"Bounded at 100"</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Upper bound"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb2" data-startFrom="66" data-source-offset="-0"><pre class="sourceCode js cell-code hidden"><code class="sourceCode javascript" style="counter-reset: source-line 65;"><span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>viewof bound_mu  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">5</span><span class="op">,</span> <span class="dv">95</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">50</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;True mean (population)&quot;</span>})</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>viewof bound_sd  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">15</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;True SD (variability / noise)&quot;</span>})</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>viewof bound_lo  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">&quot;Bounded at 0&quot;</span><span class="op">,</span> <span class="st">&quot;No lower bound&quot;</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="st">&quot;Bounded at 0&quot;</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Lower bound&quot;</span>})</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>viewof bound_hi  <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>([<span class="st">&quot;Bounded at 100&quot;</span><span class="op">,</span> <span class="st">&quot;No upper bound&quot;</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="st">&quot;Bounded at 100&quot;</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Upper bound&quot;</span>})</span></code></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -425,7 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="77" data-source-offset="-33"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 76;"><span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">phi_fn</span>(x) {</span>
+<div class="sourceCode" id="cb3" data-startFrom="77" data-source-offset="-33"><pre class="sourceCode js cell-code hidden"><code class="sourceCode javascript" style="counter-reset: source-line 76;"><span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">phi_fn</span>(x) {</span>
 <span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> x <span class="op">*</span> x) <span class="op">/</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>)<span class="op">;</span></span>
 <span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">erf_fn</span>(x) {</span>
@@ -457,8 +444,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>loB <span class="op">=</span> bound_lo <span class="op">===</span> <span class="st">"Bounded at 0"</span>   <span class="op">?</span>   <span class="dv">0</span> <span class="op">:</span> <span class="op">-</span><span class="kw">Infinity</span></span>
-<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>hiB <span class="op">=</span> bound_hi <span class="op">===</span> <span class="st">"Bounded at 100"</span> <span class="op">?</span> <span class="dv">100</span> <span class="op">:</span>  <span class="kw">Infinity</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>loB <span class="op">=</span> bound_lo <span class="op">===</span> <span class="st">&quot;Bounded at 0&quot;</span>   <span class="op">?</span>   <span class="dv">0</span> <span class="op">:</span> <span class="op">-</span><span class="kw">Infinity</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>hiB <span class="op">=</span> bound_hi <span class="op">===</span> <span class="st">&quot;Bounded at 100&quot;</span> <span class="op">?</span> <span class="dv">100</span> <span class="op">:</span>  <span class="kw">Infinity</span></span>
 <span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a><span class="co">// Truncated normal moments (analytical)</span></span>
 <span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>trunc_moments <span class="op">=</span> {</span>
@@ -509,21 +496,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>bias_mean   <span class="op">=</span> trunc_moments<span class="op">.</span><span class="at">obs_mean</span> <span class="op">-</span> bound_mu</span>
 <span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>bias_med    <span class="op">=</span> trunc_moments<span class="op">.</span><span class="at">obs_med</span>  <span class="op">-</span> bound_mu</span>
-<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>bias_dir    <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_mean) <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">?</span> <span class="st">"negligible"</span> <span class="op">:</span> bias_mean <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">"upward"</span> <span class="op">:</span> <span class="st">"downward"</span></span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>bias_dir    <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_mean) <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">?</span> <span class="st">&quot;negligible&quot;</span> <span class="op">:</span> bias_mean <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">&quot;upward&quot;</span> <span class="op">:</span> <span class="st">&quot;downward&quot;</span></span>
 <span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.88em;"&gt;</span></span>
-<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:160px;border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;"&gt;</span></span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style=&quot;display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.88em;&quot;&gt;</span></span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style=&quot;flex:1;min-width:160px;border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;&quot;&gt;</span></span>
 <span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;True mean:&lt;/strong&gt; </span><span class="sc">${</span>bound_mu<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span></span>
 <span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:160px;border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;"&gt;</span></span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style=&quot;flex:1;min-width:160px;border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;&quot;&gt;</span></span>
 <span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Observed mean:&lt;/strong&gt; </span><span class="sc">${</span>trunc_moments<span class="op">.</span><span class="at">obs_mean</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span></span>
-<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style="color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_mean)<span class="op">&gt;</span><span class="dv">1</span><span class="op">?</span><span class="st">'#e63946'</span><span class="op">:</span><span class="st">'#888'</span><span class="sc">}</span><span class="vs">"&gt; (bias: </span><span class="sc">${</span>bias_mean <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">'+'</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}${</span>bias_mean<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">)&lt;/span&gt;</span></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style=&quot;color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_mean)<span class="op">&gt;</span><span class="dv">1</span><span class="op">?</span><span class="st">&#39;#e63946&#39;</span><span class="op">:</span><span class="st">&#39;#888&#39;</span><span class="sc">}</span><span class="vs">&quot;&gt; (bias: </span><span class="sc">${</span>bias_mean <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">&#39;+&#39;</span> <span class="op">:</span> <span class="st">&#39;&#39;</span><span class="sc">}${</span>bias_mean<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">)&lt;/span&gt;</span></span>
 <span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:160px;border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;"&gt;</span></span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style=&quot;flex:1;min-width:160px;border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;&quot;&gt;</span></span>
 <span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Observed median:&lt;/strong&gt; </span><span class="sc">${</span>trunc_moments<span class="op">.</span><span class="at">obs_med</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span></span>
-<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style="color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_med)<span class="op">&gt;</span><span class="dv">1</span><span class="op">?</span><span class="st">'#e63946'</span><span class="op">:</span><span class="st">'#888'</span><span class="sc">}</span><span class="vs">"&gt; (bias: </span><span class="sc">${</span>bias_med <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">'+'</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}${</span>bias_med<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">)&lt;/span&gt;</span></span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style=&quot;color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(bias_med)<span class="op">&gt;</span><span class="dv">1</span><span class="op">?</span><span class="st">&#39;#e63946&#39;</span><span class="op">:</span><span class="st">&#39;#888&#39;</span><span class="sc">}</span><span class="vs">&quot;&gt; (bias: </span><span class="sc">${</span>bias_med <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">&#39;+&#39;</span> <span class="op">:</span> <span class="st">&#39;&#39;</span><span class="sc">}${</span>bias_med<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">)&lt;/span&gt;</span></span>
 <span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-2-1" data-nodetype="declaration">
@@ -617,42 +604,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="181" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 180;"><span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<div class="sourceCode" id="cb4" data-startFrom="181" data-source-offset="0"><pre class="sourceCode js cell-code hidden"><code class="sourceCode javascript" style="counter-reset: source-line 180;"><span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
 <span id="cb4-182"><a href="#cb4-182" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">650</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span><span class="op">,</span></span>
 <span id="cb4-183"><a href="#cb4-183" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
 <span id="cb4-184"><a href="#cb4-184" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {</span>
-<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Scale value →"</span><span class="op">,</span></span>
+<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Scale value →&quot;</span><span class="op">,</span></span>
 <span id="cb4-186"><a href="#cb4-186" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [</span>
 <span id="cb4-187"><a href="#cb4-187" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>((loB <span class="op">===</span> <span class="op">-</span><span class="kw">Infinity</span> <span class="op">?</span> bound_mu <span class="op">-</span> <span class="fl">4.5</span><span class="op">*</span>bound_sd <span class="op">:</span> loB) <span class="op">-</span> <span class="dv">2</span><span class="op">,</span> <span class="op">-</span><span class="dv">5</span>)<span class="op">,</span></span>
 <span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>((hiB <span class="op">===</span>  <span class="kw">Infinity</span> <span class="op">?</span> bound_mu <span class="op">+</span> <span class="fl">4.5</span><span class="op">*</span>bound_sd <span class="op">:</span> hiB) <span class="op">+</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">105</span>)</span>
 <span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a>    ]</span>
 <span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Density"</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="kw">null</span>]}<span class="op">,</span></span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">&quot;Density&quot;</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="kw">null</span>]}<span class="op">,</span></span>
 <span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
 <span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a>    <span class="co">// True (untruncated) distribution — what scores would look like without bounds</span></span>
-<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(density_true<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#aaa"</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.18</span>})<span class="op">,</span></span>
-<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(density_true<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"pdf"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"#999"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span><span class="op">,</span></span>
-<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a>                              <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span>})<span class="op">,</span></span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(density_true<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">&quot;x&quot;</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">&quot;pdf&quot;</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">&quot;#aaa&quot;</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.18</span>})<span class="op">,</span></span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(density_true<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">&quot;x&quot;</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">&quot;pdf&quot;</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#999&quot;</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span><span class="op">,</span></span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a>                              <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">&quot;5,3&quot;</span>})<span class="op">,</span></span>
 <span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Observed (truncated) distribution — what researchers actually see</span></span>
-<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(density_data<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#457b9d"</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.35</span>})<span class="op">,</span></span>
-<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(density_data<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"pdf"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"#457b9d"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(density_data<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">&quot;x&quot;</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">&quot;pdf&quot;</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">&quot;#457b9d&quot;</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.35</span>})<span class="op">,</span></span>
+<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(density_data<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">&quot;x&quot;</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">&quot;pdf&quot;</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#457b9d&quot;</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
 <span id="cb4-200"><a href="#cb4-200" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Reference lines</span></span>
-<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([bound_mu]<span class="op">,</span>               {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#222"</span><span class="op">,</span>     <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"6,3"</span><span class="op">,</span>  <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
-<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([trunc_moments<span class="op">.</span><span class="at">obs_mean</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#457b9d"</span><span class="op">,</span>                           <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
-<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([trunc_moments<span class="op">.</span><span class="at">obs_med</span>]<span class="op">,</span>  {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#e63946"</span><span class="op">,</span>  <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"4,3"</span><span class="op">,</span>  <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
-<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span>(loB <span class="op">&gt;</span> <span class="op">-</span><span class="kw">Infinity</span> <span class="op">?</span> [Plot<span class="op">.</span><span class="fu">ruleX</span>([loB]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#aaa"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span>})] <span class="op">:</span> [])<span class="op">,</span></span>
-<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span>(hiB <span class="op">&lt;</span>  <span class="kw">Infinity</span> <span class="op">?</span> [Plot<span class="op">.</span><span class="fu">ruleX</span>([hiB]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#aaa"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span>})] <span class="op">:</span> [])</span>
+<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([bound_mu]<span class="op">,</span>               {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#222&quot;</span><span class="op">,</span>     <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">&quot;6,3&quot;</span><span class="op">,</span>  <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
+<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([trunc_moments<span class="op">.</span><span class="at">obs_mean</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#457b9d&quot;</span><span class="op">,</span>                           <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
+<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([trunc_moments<span class="op">.</span><span class="at">obs_med</span>]<span class="op">,</span>  {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#e63946&quot;</span><span class="op">,</span>  <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">&quot;4,3&quot;</span><span class="op">,</span>  <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
+<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span>(loB <span class="op">&gt;</span> <span class="op">-</span><span class="kw">Infinity</span> <span class="op">?</span> [Plot<span class="op">.</span><span class="fu">ruleX</span>([loB]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#aaa&quot;</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span>})] <span class="op">:</span> [])<span class="op">,</span></span>
+<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span>(hiB <span class="op">&lt;</span>  <span class="kw">Infinity</span> <span class="op">?</span> [Plot<span class="op">.</span><span class="fu">ruleX</span>([hiB]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">&quot;#aaa&quot;</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.5</span>})] <span class="op">:</span> [])</span>
 <span id="cb4-206"><a href="#cb4-206" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="fig-ojs-cell-3" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div id="fig-ojs-cell-3" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-ojs-cell-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-3" data-nodetype="expression">
 
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ojs-cell-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.1: Gray filled area = true (untruncated) distribution — what scores would look like without scale bounds. Blue filled area = observed (truncated) distribution — what researchers actually record. Dashed black vertical line = true mean; solid blue = observed mean; dashed red = observed median. Notice how the bounds clip the true distribution’s tails, compressing the observed distribution and displacing its peak and mean toward the scale’s center.
+Figure 8.1: Gray filled area = true (untruncated) distribution — what scores would look like without scale bounds. Blue filled area = observed (truncated) distribution — what researchers actually record. Dashed black vertical line = true mean; solid blue = observed mean; dashed red = observed median. Notice how the bounds clip the true distribution’s tails, compressing the observed distribution and displacing its peak and mean toward the scale’s center.
 </figcaption>
 </figure>
 </div>
@@ -660,10 +647,10 @@ Figure&nbsp;8.1: Gray filled area = true (untruncated) distribution — what sco
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class='callout-icon'></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>What this means for your research
+What this means for your research
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -675,7 +662,7 @@ Figure&nbsp;8.1: Gray filled area = true (untruncated) distribution — what sco
 </div>
 </section>
 <section id="references" class="level2" data-number="8.3">
-<h2 data-number="8.3" class="anchored" data-anchor-id="references"><span class="header-section-number">8.3</span> References</h2>
+<h2 data-number="8.3"><span class="header-section-number">8.3</span> References</h2>
 <p>Pieters, R., Srivastava, J., &amp; Bagchi, R. (2025). Improving the discriminant validation of multi-item scales. <em>Journal of Marketing Research</em>. https://doi.org/10.1177/00222437251322089</p>
 <p>Henseler, J., Ringle, C. M., &amp; Sarstedt, M. (2015). A new criterion for assessing discriminant validity in variance-based structural equation modeling. <em>Journal of the Academy of Marketing Science</em>, 43(1), 115–135.</p>
 <p>Millsap, R. E., &amp; Kwok, O.-M. (2004). Evaluating the impact of partial factor loading and intercept invariance on selection in two populations. <em>Psychological Methods</em>, 9(1), 93–115.</p>
@@ -686,9 +673,13 @@ Figure&nbsp;8.1: Gray filled area = true (untruncated) distribution — what sco
 <p>Ester, M., Kriegel, H.-P., Sander, J., &amp; Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. <em>Proceedings of the 2nd International Conference on Knowledge Discovery and Data Mining</em> (KDD-96), 226–231.</p>
 <p>Venables, W. N., &amp; Ripley, B. D. (2002). <em>Modern applied statistics with S</em> (4th ed.). Springer.</p>
 <p>Wooldridge, J. M. (2010). <em>Econometric analysis of cross section and panel data</em> (2nd ed.). MIT Press.</p>
-<hr>
-
-
+<hr />
+<div id="quarto-navigation-envelope" class="hidden">
+<p><span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyLXRpdGxl">Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1uYXZiYXItdGl0bGU=">Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1uZXh0"><span class="chapter-number">9</span>  <span class="chapter-title">Module 2: Hypothesis Testing</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1wcmV2"><span class="chapter-number">7</span>  <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9pbmRleC5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xPC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPk1lYXN1cmVtZW50LC1FeHBlcmltZW50YXRpb24sLSYtQ2F1c2FsLUluZmVyZW5jZTwvc3Bhbj4="><span class="chapter-number">1</span>  <span class="chapter-title">Measurement, Experimentation, &amp; Causal Inference</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOnF1YXJ0by1zaWRlYmFyLXNlY3Rpb24tMQ==">Module 1: Measurement</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9pbnRyby5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4yPC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPk1vZHVsZS0xOi1NZWFzdXJlbWVudDwvc3Bhbj4="><span class="chapter-number">2</span>  <span class="chapter-title">Module 1: Measurement</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlMS5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4zPC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtMTotRGlzY3JpbWluYW50LVZhbGlkaXR5PC9zcGFuPg=="><span class="chapter-number">3</span>  <span class="chapter-title">Part 1: Discriminant Validity</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlMi5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz40PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtMjotT21pdHRlZC1WYXJpYWJsZS1CaWFzPC9zcGFuPg=="><span class="chapter-number">4</span>  <span class="chapter-title">Part 2: Omitted Variable Bias</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlMy5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz41PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtMzotTWVhc3VyZW1lbnQtSW52YXJpYW5jZTwvc3Bhbj4="><span class="chapter-number">5</span>  <span class="chapter-title">Part 3: Measurement Invariance</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlNC5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz42PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtNDotTGF0ZW50LVN1Ymdyb3Vwczwvc3Bhbj4="><span class="chapter-number">6</span>  <span class="chapter-title">Part 4: Latent Subgroups</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlNS5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz43PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtNTotT3V0bGllci1EZXRlY3Rpb24tYW5kLVJvYnVzdC1Fc3RpbWF0aW9uPC9zcGFuPg=="><span class="chapter-number">7</span>  <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMS9jYXNlNi5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz44PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPlBhcnQtNjotU3lzdGVtYXRpYy1NZWFzdXJlbWVudC1FcnJvci1vbi1Cb3VuZGVkLVNjYWxlczwvc3Bhbj4="><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOnF1YXJ0by1zaWRlYmFyLXNlY3Rpb24tMg==">Module 2: Hypothesis Testing</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMi9pbnRyby5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz45PC9zcGFuPi0tPHNwYW4tY2xhc3M9J2NoYXB0ZXItdGl0bGUnPk1vZHVsZS0yOi1IeXBvdGhlc2lzLVRlc3Rpbmc8L3NwYW4+"><span class="chapter-number">9</span>  <span class="chapter-title">Module 2: Hypothesis Testing</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMi9wYXJ0MS5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xMDwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTE6LVdoYXQtRG9lcy1hLVAtdmFsdWUtTWVhbj88L3NwYW4+"><span class="chapter-number">10</span>  <span class="chapter-title">Part 1: What Does a P-value Mean?</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMi9wYXJ0Mi5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xMTwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTI6LVRoZS1FeGNsdXNpb24tUmVzdHJpY3Rpb248L3NwYW4+"><span class="chapter-number">11</span>  <span class="chapter-title">Part 2: The Exclusion Restriction</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMi9wYXJ0My5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xMjwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTM6LVdoYXQtRG9lcy1SYW5kb20tQXNzaWdubWVudC1SZXF1aXJlPzwvc3Bhbj4="><span class="chapter-number">12</span>  <span class="chapter-title">Part 3: What Does Random Assignment Require?</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMi9wYXJ0NC5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xMzwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTQ6LUV4cGVyaW1lbnRhbC1EZXNpZ24tU3RyYXRlZ2llcy1hbmQtQXNzaWdubWVudC1Tb2x1dGlvbnM8L3NwYW4+"><span class="chapter-number">13</span>  <span class="chapter-title">Part 4: Experimental Design Strategies and Assignment Solutions</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOnF1YXJ0by1zaWRlYmFyLXNlY3Rpb24tMw==">Module 3: Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9pbnRyby5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xNDwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5Nb2R1bGUtMzotQ2F1c2FsLUluZmVyZW5jZTwvc3Bhbj4="><span class="chapter-number">14</span>  <span class="chapter-title">Module 3: Causal Inference</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9wYXJ0MS5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xNTwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTE6LVdoYXQtSXMtYS1DYXVzYWwtRWZmZWN0Pzwvc3Bhbj4="><span class="chapter-number">15</span>  <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9wYXJ0Mi5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xNjwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTI6LVNlbGVjdGlvbi1vbi1PYnNlcnZhYmxlczwvc3Bhbj4="><span class="chapter-number">16</span>  <span class="chapter-title">Part 2: Selection on Observables</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9wYXJ0My5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xNzwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTM6LVJlZ3Jlc3Npb24tRGlzY29udGludWl0eS1EZXNpZ248L3NwYW4+"><span class="chapter-number">17</span>  <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9wYXJ0NC5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xODwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTQ6LURpZmZlcmVuY2UtaW4tRGlmZmVyZW5jZXM8L3NwYW4+"><span class="chapter-number">18</span>  <span class="chapter-title">Part 4: Difference-in-Differences</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWludC1zaWRlYmFyOi9tb2R1bGUtMy9wYXJ0NS5odG1sPHNwYW4tY2xhc3M9J2NoYXB0ZXItbnVtYmVyJz4xOTwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTU6LU1lZGlhdGlvbi3igJQtRG9lcy10aGUtRWNvLUxhYmVsLVdvcmstVGhyb3VnaC1QZXJjZWl2ZWQtU3VzdGFpbmFiaWxpdHk/PC9zcGFuPg=="><span class="chapter-number">19</span>  <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWJyZWFkY3J1bWJzLU1vZHVsZS0xOi1NZWFzdXJlbWVudA==">Module 1: Measurement</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLWJyZWFkY3J1bWJzLTxzcGFuLWNsYXNzPSdjaGFwdGVyLW51bWJlcic+ODwvc3Bhbj4tLTxzcGFuLWNsYXNzPSdjaGFwdGVyLXRpdGxlJz5QYXJ0LTY6LVN5c3RlbWF0aWMtTWVhc3VyZW1lbnQtRXJyb3Itb24tQm91bmRlZC1TY2FsZXM8L3NwYW4+"><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></span></p>
+</div>
+<div id="quarto-meta-markdown" class="hidden">
+<p><span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLW1ldGF0aXRsZQ=="><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span> – Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLXR3aXR0ZXJjYXJkdGl0bGU="><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span> – Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLW9nY2FyZHRpdGxl"><span class="chapter-number">8</span>  <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span> – Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLW1ldGFzaXRlbmFtZQ==">Measurement, Experimentation, &amp; Causal Inference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLXR3aXR0ZXJjYXJkZGVzYw=="></span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="cXVhcnRvLW9nY2FyZGRkZXNj"></span></p>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -703,7 +694,7 @@ window._ojs.paths.docToRoot = "..";
 window._ojs.selfContained = false;
 window._ojs.runtime.interpretFromScriptTags();
 </script>
-<script id="quarto-html-after-body" type="application/javascript">
+<script id = "quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
     const anchorJS = new window.AnchorJS();
@@ -754,14 +745,13 @@ window._ojs.runtime.interpretFromScriptTags();
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1156,19 +1146,18 @@ window._ojs.runtime.interpretFromScriptTags();
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-1/case5.html" class="pagination-link" aria-label="Part 5: Outlier Detection and Robust Estimation">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span>
+      <a  href="/module-1/case5.html" class="pagination-link" aria-label="Part 5: Outlier Detection and Robust Estimation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class='chapter-number'>7</span>  <span class='chapter-title'>Part 5: Outlier Detection and Robust Estimation</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-2/intro.html" class="pagination-link" aria-label="Module 2: Hypothesis Testing">
-        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Module 2: Hypothesis Testing</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a  href="/module-2/intro.html" class="pagination-link" aria-label="Module 2: Hypothesis Testing">
+        <span class="nav-page-text"><span class='chapter-number'>9</span>  <span class='chapter-title'>Module 2: Hypothesis Testing</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
 
+</body>
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</html>
