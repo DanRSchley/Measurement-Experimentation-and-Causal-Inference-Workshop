@@ -308,7 +308,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -320,7 +320,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
   </div>
 </li>
       </ul>
@@ -335,18 +335,15 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#sec-m3-part4" id="toc-sec-m3-part4" class="nav-link active" data-scroll-target="#sec-m3-part4"><span class="header-section-number">19</span> Part 4: Difference-in-Differences</a>
+  <li><a href="#sec-did-setup" id="toc-sec-did-setup" class="nav-link active" data-scroll-target="#sec-did-setup"><span class="header-section-number">18.1</span> The Setup</a></li>
+  <li><a href="#sec-did-sim" id="toc-sec-did-sim" class="nav-link" data-scroll-target="#sec-did-sim"><span class="header-section-number">18.2</span> Simulating Panel Data</a></li>
+  <li><a href="#sec-did-twfe" id="toc-sec-did-twfe" class="nav-link" data-scroll-target="#sec-did-twfe"><span class="header-section-number">18.3</span> Two-Way Fixed Effects (TWFE)</a></li>
+  <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event"><span class="header-section-number">18.4</span> Testing Parallel Trends: Event Study</a></li>
+  <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid"><span class="header-section-number">18.5</span> Synthetic Difference-in-Differences</a></li>
+  <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure"><span class="header-section-number">18.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a>
   <ul class="collapse">
-  <li><a href="#sec-did-setup" id="toc-sec-did-setup" class="nav-link" data-scroll-target="#sec-did-setup"><span class="header-section-number">19.1</span> The Setup</a></li>
-  <li><a href="#sec-did-sim" id="toc-sec-did-sim" class="nav-link" data-scroll-target="#sec-did-sim"><span class="header-section-number">19.2</span> Simulating Panel Data</a></li>
-  <li><a href="#sec-did-twfe" id="toc-sec-did-twfe" class="nav-link" data-scroll-target="#sec-did-twfe"><span class="header-section-number">19.3</span> Two-Way Fixed Effects (TWFE)</a></li>
-  <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event"><span class="header-section-number">19.4</span> Testing Parallel Trends: Event Study</a></li>
-  <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid"><span class="header-section-number">19.5</span> Synthetic Difference-in-Differences</a></li>
-  <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure"><span class="header-section-number">19.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a>
-  <ul class="collapse">
-  <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">19.6.1</span> A Realistic Parallel Trends Violation</a></li>
-  <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">19.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
-  </ul></li>
+  <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</a></li>
+  <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -373,48 +370,67 @@ window.Quarto = {
 </header>
 
 
-<section id="sec-m3-part4" class="level1" data-number="19">
-<h1 data-number="19"><span class="header-section-number">19</span> Part 4: Difference-in-Differences</h1>
-<section id="sec-did-setup" class="level2" data-number="19.1">
-<h2 data-number="19.1" class="anchored" data-anchor-id="sec-did-setup"><span class="header-section-number">19.1</span> The Setup</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>How to use the code in this section
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
+</div>
+</div>
+<section id="sec-did-setup" class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="sec-did-setup"><span class="header-section-number">18.1</span> The Setup</h2>
 <p>The Dutch government introduces a <strong>mandatory eco-labelling law</strong> in <strong>2022</strong>. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).</p>
 </section>
-<section id="sec-did-sim" class="level2" data-number="19.2">
-<h2 data-number="19.2" class="anchored" data-anchor-id="sec-did-sim"><span class="header-section-number">19.2</span> Simulating Panel Data</h2>
+<section id="sec-did-sim" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="sec-did-sim"><span class="header-section-number">18.2</span> Simulating Panel Data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_dutch <span class="ot">&lt;-</span> <span class="dv">15</span>; n_belgian <span class="ot">&lt;-</span> <span class="dv">20</span>; n_stores_did <span class="ot">&lt;-</span> n_dutch<span class="sc">+</span>n_belgian</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>years <span class="ot">&lt;-</span> <span class="dv">2018</span><span class="sc">:</span><span class="dv">2024</span>; T_treat <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store=</span><span class="dv">1</span><span class="sc">:</span>n_stores_did, <span class="at">year=</span>years) <span class="sc">|&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">country      =</span> <span class="fu">ifelse</span>(store<span class="sc">&lt;=</span>n_dutch,<span class="st">"Netherlands"</span>,<span class="st">"Belgium"</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated      =</span> (country<span class="sc">==</span><span class="st">"Netherlands"</span>),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">post         =</span> (year<span class="sc">&gt;=</span>T_treat),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">did_indicator=</span> treated <span class="sc">&amp;</span> post,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">store_fe     =</span> <span class="fu">rnorm</span>(n_stores_did, <span class="dv">0</span>, <span class="fl">0.5</span>)[store],</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_trend   =</span> <span class="fl">0.10</span><span class="sc">*</span>(year<span class="dv">-2018</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">country_fe   =</span> <span class="fu">ifelse</span>(country<span class="sc">==</span><span class="st">"Netherlands"</span>, <span class="fl">0.30</span>, <span class="dv">0</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat_effect =</span> did_indicator <span class="sc">*</span> <span class="fl">0.70</span>,</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">WTP_did      =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> time_trend <span class="sc">+</span> country_fe <span class="sc">+</span> treat_effect <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.35</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>panel_did <span class="sc">|&gt;</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_WTP=</span><span class="fu">mean</span>(WTP_did), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>mean_WTP, <span class="at">colour=</span>country, <span class="at">group=</span>country)) <span class="sc">+</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>T_treat<span class="fl">-0.5</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth=</span><span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>T_treat<span class="fl">+0.1</span>, <span class="at">y=</span><span class="fl">5.1</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"Dutch eco-label</span><span class="sc">\n</span><span class="st">law takes effect"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>) <span class="sc">+</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Netherlands"</span><span class="ot">=</span>clr_eco,<span class="st">"Belgium"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Year"</span>, <span class="at">y=</span><span class="st">"Mean WTP ($)"</span>, <span class="at">colour=</span><span class="cn">NULL</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"DiD: parallel pre-trends are the key identifying assumption"</span>,</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after"</span>) <span class="sc">+</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace n_dutch / n_belgian with your counts of treated and</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    control units; replace years with your time periods; replace T_treat with</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    the first period when treatment took effect. Your data frame needs at minimum:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    a unit ID, a time period, a 0/1 treated column, a 0/1 post column, and your</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    outcome variable.</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store=</span><span class="dv">1</span><span class="sc">:</span>n_stores_did, <span class="at">year=</span>years) <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">country      =</span> <span class="fu">ifelse</span>(store<span class="sc">&lt;=</span>n_dutch,<span class="st">"Netherlands"</span>,<span class="st">"Belgium"</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated      =</span> (country<span class="sc">==</span><span class="st">"Netherlands"</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">post         =</span> (year<span class="sc">&gt;=</span>T_treat),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">did_indicator=</span> treated <span class="sc">&amp;</span> post,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">store_fe     =</span> <span class="fu">rnorm</span>(n_stores_did, <span class="dv">0</span>, <span class="fl">0.5</span>)[store],</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_trend   =</span> <span class="fl">0.10</span><span class="sc">*</span>(year<span class="dv">-2018</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">country_fe   =</span> <span class="fu">ifelse</span>(country<span class="sc">==</span><span class="st">"Netherlands"</span>, <span class="fl">0.30</span>, <span class="dv">0</span>),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat_effect =</span> did_indicator <span class="sc">*</span> <span class="fl">0.70</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">WTP_did      =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> time_trend <span class="sc">+</span> country_fe <span class="sc">+</span> treat_effect <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.35</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: plot group-mean outcomes by year (as below) — the two groups should</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#    run near-parallel BEFORE T_treat; a visible gap opening only after T_treat</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">#    is consistent with parallel trends. Any pre-treatment divergence is a red flag.</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>panel_did <span class="sc">|&gt;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_WTP=</span><span class="fu">mean</span>(WTP_did), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>mean_WTP, <span class="at">colour=</span>country, <span class="at">group=</span>country)) <span class="sc">+</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>T_treat<span class="fl">-0.5</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth=</span><span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>T_treat<span class="fl">+0.1</span>, <span class="at">y=</span><span class="fl">5.1</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"Dutch eco-label</span><span class="sc">\n</span><span class="st">law takes effect"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Netherlands"</span><span class="ot">=</span>clr_eco,<span class="st">"Belgium"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Year"</span>, <span class="at">y=</span><span class="st">"Mean WTP ($)"</span>, <span class="at">colour=</span><span class="cn">NULL</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"DiD: parallel pre-trends are the key identifying assumption"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after"</span>) <span class="sc">+</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -442,20 +458,31 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-did-twfe" class="level2" data-number="19.3">
-<h2 data-number="19.3" class="anchored" data-anchor-id="sec-did-twfe"><span class="header-section-number">19.3</span> Two-Way Fixed Effects (TWFE)</h2>
+<section id="sec-did-twfe" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="sec-did-twfe"><span class="header-section-number">18.3</span> Two-Way Fixed Effects (TWFE)</h2>
 <p><span class="math display">\[Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}\]</span></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>did_twfe <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP_did <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>did_coef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_twfe) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"did_indicatorTRUE"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True DiD effect  = 0.70</span><span class="sc">\n</span><span class="st">Estimated DiD    = %.3f  (SE = %.3f, p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [%.3f, %.3f]</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>estimate, did_coef<span class="sc">$</span>std.error, did_coef<span class="sc">$</span>p.value,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>conf.low, did_coef<span class="sc">$</span>conf.high</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace WTP_did with your outcome, did_indicator with the</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    column you created as treated * post, and replace factor(store)/factor(year)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    with your unit and time identifiers. The formula adds one dummy per unit</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    and one dummy per time period — this is the two-way fixed effects (TWFE) model.</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: clusters=store clusters standard errors at the unit level —</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    change "store" to whatever your unit identifier column is called.</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    If your units are nested (e.g., stores within chains), cluster at the</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    higher level (chains) to account for within-cluster correlation.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>did_twfe <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP_did <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>did_coef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_twfe) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"did_indicatorTRUE"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: the term for did_indicator should be "did_indicatorTRUE" if the</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    column is logical; it will be "did_indicator" if numeric (0/1).</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#    The p-value and CI are cluster-robust — rely on these, not the naive SEs.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True DiD effect  = 0.70</span><span class="sc">\n</span><span class="st">Estimated DiD    = %.3f  (SE = %.3f, p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [%.3f, %.3f]</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>estimate, did_coef<span class="sc">$</span>std.error, did_coef<span class="sc">$</span>p.value,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>conf.low, did_coef<span class="sc">$</span>conf.high</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>True DiD effect  = 0.70
@@ -510,36 +537,47 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-did-event" class="level2" data-number="19.4">
-<h2 data-number="19.4" class="anchored" data-anchor-id="sec-did-event"><span class="header-section-number">19.4</span> Testing Parallel Trends: Event Study</h2>
+<section id="sec-did-event" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="sec-did-event"><span class="header-section-number">18.4</span> Testing Parallel Trends: Event Study</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_rel=</span>year<span class="sc">-</span>T_treat,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">year_rel_fac=</span><span class="fu">relevel</span>(<span class="fu">factor</span>(year_rel), <span class="at">ref=</span><span class="st">"-1"</span>))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>event_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)"</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>did_event     <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(event_formula, <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: year_rel = your_time_var - T_treat (e.g., calendar year minus</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    first treatment year). The reference period is set to -1 (the year before</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    treatment); change ref="-1" if your calendar doesn't align with this convention.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_rel=</span>year<span class="sc">-</span>T_treat,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">year_rel_fac=</span><span class="fu">relevel</span>(<span class="fu">factor</span>(year_rel), <span class="at">ref=</span><span class="st">"-1"</span>))</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_event) <span class="sc">|&gt;</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(term,<span class="st">"year_rel_fac"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">yr=</span><span class="fu">as.integer</span>(<span class="fu">str_extract</span>(term,<span class="st">"-?</span><span class="sc">\\</span><span class="st">d+$"</span>)),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">period=</span><span class="fu">if_else</span>(yr<span class="sc">&lt;</span><span class="dv">0</span>,<span class="st">"Pre-treatment"</span>,<span class="st">"Post-treatment"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_row</span>(<span class="at">yr=</span><span class="sc">-</span><span class="dv">1</span>L, <span class="at">estimate=</span><span class="dv">0</span>, <span class="at">conf.low=</span><span class="dv">0</span>, <span class="at">conf.high=</span><span class="dv">0</span>, <span class="at">period=</span><span class="st">"Reference (−1)"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="sc">|&gt;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>yr, <span class="at">y=</span>estimate, <span class="at">ymin=</span>conf.low, <span class="at">ymax=</span>conf.high, <span class="at">colour=</span>period)) <span class="sc">+</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="sc">-</span><span class="fl">0.5</span>, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span><span class="st">"grey60"</span>) <span class="sc">+</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Pre-treatment"</span><span class="ot">=</span>clr_ctrl,<span class="st">"Post-treatment"</span><span class="ot">=</span>clr_eco,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Reference (−1)"</span><span class="ot">=</span><span class="st">"grey40"</span>)) <span class="sc">+</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Years relative to Dutch eco-label law (0 = 2022)"</span>, <span class="at">y=</span><span class="st">"DiD coefficient ($)"</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour=</span><span class="cn">NULL</span>,</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Event study: pre-treatment coefficients near zero — parallel trends supported"</span>,</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Post-treatment estimates rise consistently — evidence of a sustained law effect"</span>) <span class="sc">+</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: the formula treated:year_rel_fac interacts the treated indicator</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#    with each relative-year factor — this produces one coefficient per period</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#    relative to treatment. factor(store) and factor(year) absorb unit and time</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#    fixed effects. clusters=store clusters SEs at the unit level.</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>event_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>did_event     <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(event_formula, <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: in the event study plot, pre-treatment coefficients (yr &lt; 0) should</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    be near zero with CIs crossing zero — this is evidence for parallel trends.</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    Any significant pre-trend (p &lt; .05 before treatment) is a red flag that</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#    the treatment and control groups were already diverging before the policy.</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_event) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(term,<span class="st">"year_rel_fac"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">yr=</span><span class="fu">as.integer</span>(<span class="fu">str_extract</span>(term,<span class="st">"-?</span><span class="sc">\\</span><span class="st">d+$"</span>)),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">period=</span><span class="fu">if_else</span>(yr<span class="sc">&lt;</span><span class="dv">0</span>,<span class="st">"Pre-treatment"</span>,<span class="st">"Post-treatment"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_row</span>(<span class="at">yr=</span><span class="sc">-</span><span class="dv">1</span>L, <span class="at">estimate=</span><span class="dv">0</span>, <span class="at">conf.low=</span><span class="dv">0</span>, <span class="at">conf.high=</span><span class="dv">0</span>, <span class="at">period=</span><span class="st">"Reference (−1)"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="sc">|&gt;</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>yr, <span class="at">y=</span>estimate, <span class="at">ymin=</span>conf.low, <span class="at">ymax=</span>conf.high, <span class="at">colour=</span>period)) <span class="sc">+</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="sc">-</span><span class="fl">0.5</span>, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span><span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Pre-treatment"</span><span class="ot">=</span>clr_ctrl,<span class="st">"Post-treatment"</span><span class="ot">=</span>clr_eco,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Reference (−1)"</span><span class="ot">=</span><span class="st">"grey40"</span>)) <span class="sc">+</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Years relative to Dutch eco-label law (0 = 2022)"</span>, <span class="at">y=</span><span class="st">"DiD coefficient ($)"</span>,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour=</span><span class="cn">NULL</span>,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Event study: pre-treatment coefficients near zero — parallel trends supported"</span>,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Post-treatment estimates rise consistently — evidence of a sustained law effect"</span>) <span class="sc">+</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -566,29 +604,49 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-synthdid" class="level2" data-number="19.5">
-<h2 data-number="19.5" class="anchored" data-anchor-id="sec-synthdid"><span class="header-section-number">19.5</span> Synthetic Difference-in-Differences</h2>
+<section id="sec-synthdid" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="sec-synthdid"><span class="header-section-number">18.5</span> Synthetic Difference-in-Differences</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The synthetic counterfactual is unverifiable
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Synthetic DiD — like classical synthetic controls — constructs a weighted combination of untreated units designed to reproduce the treated unit’s pre-treatment trajectory. The pre-period fit can look compelling, but there is no way to verify that the synthetic world it generates is a sufficiently representative stand-in for the real counterfactual post-treatment. The method assumes the same weighting that matched pre-treatment trends would have continued to match post-treatment trends in the absence of the law. Unobserved shocks, structural breaks, or compositional changes that affect treated and synthetic units differently after treatment will bias the estimate without any diagnostic flag. Use this approach when you have a credible pool of donor units and a long pre-treatment window — and always report sensitivity analyses varying the donor pool.</p>
+</div>
+</div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sdid_wide <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(store, year, WTP_did, treated) <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>year, <span class="at">values_from=</span>WTP_did) <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(treated)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>N0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span>sdid_wide<span class="sc">$</span>treated); T0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(years <span class="sc">&lt;</span> T_treat)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>Y_matrix <span class="ot">&lt;-</span> sdid_wide <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>store,<span class="sc">-</span>treated) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>sdid_est <span class="ot">&lt;-</span> <span class="fu">synthdid_estimate</span>(Y_matrix, N0, T0)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>sc_est   <span class="ot">&lt;-</span> <span class="fu">sc_estimate</span>(Y_matrix, N0, T0)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>did_est  <span class="ot">&lt;-</span> <span class="fu">did_estimate</span>(Y_matrix, N0, T0)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: synthdid_estimate() requires a (units × time) outcome matrix</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    arranged so that control units come FIRST (rows 1:N0) and pre-treatment</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    periods come FIRST (columns 1:T0). pivot_wider() here creates that layout;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    replicate with your own unit ID, time, and outcome columns.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: N0 = number of control units (rows before treated units);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    T0 = number of pre-treatment time periods (columns before treatment onset).</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    These must exactly match the row/column layout of Y_matrix.</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>sdid_wide <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(store, year, WTP_did, treated) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>year, <span class="at">values_from=</span>WTP_did) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(treated)</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method       =</span> <span class="fu">c</span>(<span class="st">"Standard DiD"</span>,<span class="st">"Synthetic Control"</span>,<span class="st">"Synthetic DiD"</span>),</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate     =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est)), <span class="dv">3</span>),</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True effect</span><span class="st">`</span><span class="ot">=</span> <span class="fl">0.70</span>,</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bias         =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est))<span class="sc">-</span><span class="fl">0.70</span>, <span class="dv">3</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">"All three estimators vs. the true effect of 0.70"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>N0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span>sdid_wide<span class="sc">$</span>treated); T0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(years <span class="sc">&lt;</span> T_treat)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>Y_matrix <span class="ot">&lt;-</span> sdid_wide <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>store,<span class="sc">-</span>treated) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>sdid_est <span class="ot">&lt;-</span> <span class="fu">synthdid_estimate</span>(Y_matrix, N0, T0)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>sc_est   <span class="ot">&lt;-</span> <span class="fu">sc_estimate</span>(Y_matrix, N0, T0)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>did_est  <span class="ot">&lt;-</span> <span class="fu">did_estimate</span>(Y_matrix, N0, T0)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method       =</span> <span class="fu">c</span>(<span class="st">"Standard DiD"</span>,<span class="st">"Synthetic Control"</span>,<span class="st">"Synthetic DiD"</span>),</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate     =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est)), <span class="dv">3</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True effect</span><span class="st">`</span><span class="ot">=</span> <span class="fl">0.70</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bias         =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est))<span class="sc">-</span><span class="fl">0.70</span>, <span class="dv">3</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">"All three estimators vs. the true effect of 0.70"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -623,11 +681,18 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </tbody>
 </table>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: compare the three estimates — large divergence between standard DiD</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    and Synthetic DiD suggests the parallel-trends assumption is strained and</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    the synthetic approach is finding a materially different counterfactual.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    Use plot(sdid_est) to visualise the synthetic control trajectory.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sdid_est, <span class="at">se.method=</span><span class="st">"placebo"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sdid_est, <span class="at">se.method=</span><span class="st">"placebo"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -638,8 +703,8 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-pt-failure" class="level2" data-number="19.6">
-<h2 data-number="19.6" class="anchored" data-anchor-id="sec-pt-failure"><span class="header-section-number">19.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</h2>
+<section id="sec-pt-failure" class="level2" data-number="18.6">
+<h2 data-number="18.6" class="anchored" data-anchor-id="sec-pt-failure"><span class="header-section-number">18.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</h2>
 <p>Parallel trends is <strong>not directly testable</strong> — you never observe what Dutch stores would have done without the eco-label law. What you <em>can</em> test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:</p>
 <ol type="1">
 <li><strong>Too few pre-treatment periods.</strong> Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.</li>
@@ -664,60 +729,60 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 <p>Passing the pre-trend test is necessary but far from sufficient for causal identification.</p>
 </div>
 </div>
-<section id="sec-pt-violation-viz" class="level3" data-number="19.6.1">
-<h3 data-number="19.6.1" class="anchored" data-anchor-id="sec-pt-violation-viz"><span class="header-section-number">19.6.1</span> A Realistic Parallel Trends Violation</h3>
+<section id="sec-pt-violation-viz" class="level3" data-number="18.6.1">
+<h3 data-number="18.6.1" class="anchored" data-anchor-id="sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</h3>
 <p>Suppose Dutch stores were <em>already</em> attracting more environmentally conscious shoppers whose WTP grew $0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there (selection). <strong>The true treatment effect is zero.</strong> The eco-label law is irrelevant. But this ongoing differential growth will trick DiD into finding one.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Same violation: unmistakeable with 8 pre-periods, invisible with 2</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n_dutch_v  <span class="ot">&lt;-</span> <span class="dv">15</span>; n_belgian_v <span class="ot">&lt;-</span> <span class="dv">20</span>; n_stores_v <span class="ot">&lt;-</span> n_dutch_v <span class="sc">+</span> n_belgian_v</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>T_treat_v  <span class="ot">&lt;-</span> <span class="dv">2022</span>; n_post_v <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>diff_slope_v <span class="ot">&lt;-</span> <span class="fl">0.15</span>   <span class="co"># Dutch stores grow $0.15/yr faster throughout (selection, not treatment)</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>store_fes_v  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>make_violation_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(yrs, <span class="at">true_eff =</span> <span class="dv">0</span>) {</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand.grid</span>(<span class="at">store =</span> <span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">year =</span> yrs) <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated       =</span> <span class="fu">as.numeric</span>(store <span class="sc">&lt;=</span> n_dutch_v),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">country       =</span> <span class="fu">ifelse</span>(treated <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"Netherlands"</span>, <span class="st">"Belgium"</span>),</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">post          =</span> <span class="fu">as.numeric</span>(year <span class="sc">&gt;=</span> T_treat_v),</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">did_indicator =</span> treated <span class="sc">*</span> post,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">store_fe      =</span> store_fes_v[store],</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">diff_trend    =</span> treated <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v),</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP           =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v) <span class="sc">+</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                      diff_trend <span class="sc">+</span> true_eff <span class="sc">*</span> did_indicator <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>panel_many_v <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2014</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 8 pre-periods</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>panel_few_v  <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2020</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 2 pre-periods</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>plot_pt_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(panel, subtitle) {</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  panel <span class="sc">|&gt;</span> <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">WTP =</span> <span class="fu">mean</span>(WTP), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> WTP, <span class="at">colour =</span> country, <span class="at">group =</span> country)) <span class="sc">+</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> T_treat_v <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>               <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Netherlands"</span> <span class="ot">=</span> clr_eco, <span class="st">"Belgium"</span> <span class="ot">=</span> clr_ctrl)) <span class="sc">+</span></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">unique</span>(panel<span class="sc">$</span>year)) <span class="sc">+</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Mean WTP ($)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>, <span class="at">subtitle =</span> subtitle) <span class="sc">+</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_mod3</span>()</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>p_many_v <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_many_v,</span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">"8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here"</span>)</span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>p_few_v  <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_few_v,</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">"2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged"</span>)</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>(p_many_v <span class="sc">/</span> p_few_v) <span class="sc">+</span></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)"</span>,</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How many pre-periods you happen to collect determines whether you can even see the problem"</span>,</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme    =</span> <span class="fu">theme</span>(<span class="at">plot.title    =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>                     <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>))</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_dutch_v  <span class="ot">&lt;-</span> <span class="dv">15</span>; n_belgian_v <span class="ot">&lt;-</span> <span class="dv">20</span>; n_stores_v <span class="ot">&lt;-</span> n_dutch_v <span class="sc">+</span> n_belgian_v</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>T_treat_v  <span class="ot">&lt;-</span> <span class="dv">2022</span>; n_post_v <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>diff_slope_v <span class="ot">&lt;-</span> <span class="fl">0.15</span>   <span class="co"># Dutch stores grow $0.15/yr faster throughout (selection, not treatment)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>store_fes_v  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>make_violation_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(yrs, <span class="at">true_eff =</span> <span class="dv">0</span>) {</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand.grid</span>(<span class="at">store =</span> <span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">year =</span> yrs) <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated       =</span> <span class="fu">as.numeric</span>(store <span class="sc">&lt;=</span> n_dutch_v),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">country       =</span> <span class="fu">ifelse</span>(treated <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"Netherlands"</span>, <span class="st">"Belgium"</span>),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">post          =</span> <span class="fu">as.numeric</span>(year <span class="sc">&gt;=</span> T_treat_v),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">did_indicator =</span> treated <span class="sc">*</span> post,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">store_fe      =</span> store_fes_v[store],</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">diff_trend    =</span> treated <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP           =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v) <span class="sc">+</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                      diff_trend <span class="sc">+</span> true_eff <span class="sc">*</span> did_indicator <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>panel_many_v <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2014</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 8 pre-periods</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>panel_few_v  <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2020</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 2 pre-periods</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>plot_pt_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(panel, subtitle) {</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  panel <span class="sc">|&gt;</span> <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">WTP =</span> <span class="fu">mean</span>(WTP), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> WTP, <span class="at">colour =</span> country, <span class="at">group =</span> country)) <span class="sc">+</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> T_treat_v <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>               <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Netherlands"</span> <span class="ot">=</span> clr_eco, <span class="st">"Belgium"</span> <span class="ot">=</span> clr_ctrl)) <span class="sc">+</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">unique</span>(panel<span class="sc">$</span>year)) <span class="sc">+</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Mean WTP ($)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>, <span class="at">subtitle =</span> subtitle) <span class="sc">+</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_mod3</span>()</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>p_many_v <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_many_v,</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">"8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here"</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>p_few_v  <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_few_v,</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">"2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged"</span>)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>(p_many_v <span class="sc">/</span> p_few_v) <span class="sc">+</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)"</span>,</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How many pre-periods you happen to collect determines whether you can even see the problem"</span>,</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme    =</span> <span class="fu">theme</span>(<span class="at">plot.title    =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>                     <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>))</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -731,14 +796,14 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 <div class="cell">
 <details class="code-fold">
 <summary>▶ DiD on 2-pre-period data: statistically significant, entirely spurious</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>did_viol <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> panel_few_v, <span class="at">clusters =</span> store)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>dv <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_viol) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"did_indicator"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True treatment effect  = $0.000</span><span class="sc">\n</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">DiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [$%.3f, $%.3f]</span><span class="sc">\n\n</span><span class="st">This looks like a meaningful, significant eco-label effect.</span><span class="sc">\n</span><span class="st">It is entirely spurious. The violation was undetectable with 2 pre-periods.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  dv<span class="sc">$</span>estimate, dv<span class="sc">$</span>std.error, dv<span class="sc">$</span>p.value, dv<span class="sc">$</span>conf.low, dv<span class="sc">$</span>conf.high</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>did_viol <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> panel_few_v, <span class="at">clusters =</span> store)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dv <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_viol) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"did_indicator"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True treatment effect  = $0.000</span><span class="sc">\n</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">DiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [$%.3f, $%.3f]</span><span class="sc">\n\n</span><span class="st">This looks like a meaningful, significant eco-label effect.</span><span class="sc">\n</span><span class="st">It is entirely spurious. The violation was undetectable with 2 pre-periods.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  dv<span class="sc">$</span>estimate, dv<span class="sc">$</span>std.error, dv<span class="sc">$</span>p.value, dv<span class="sc">$</span>conf.low, dv<span class="sc">$</span>conf.high</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>True treatment effect  = $0.000
@@ -751,8 +816,8 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 </div>
 </div>
 </section>
-<section id="sec-pt-mc" class="level3" data-number="19.6.2">
-<h3 data-number="19.6.2" class="anchored" data-anchor-id="sec-pt-mc"><span class="header-section-number">19.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</h3>
+<section id="sec-pt-mc" class="level3" data-number="18.6.2">
+<h3 data-number="18.6.2" class="anchored" data-anchor-id="sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</h3>
 <p>We now formalise this with 300 simulations per condition. <strong>True effect = $0 throughout.</strong> We vary the number of pre-treatment periods from 1 to 6 and track three quantities:</p>
 <table class="caption-top table">
 <colgroup>
@@ -784,61 +849,61 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>N_SIM_PT <span class="ot">&lt;-</span> <span class="dv">300</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>pt_sim_one <span class="ot">&lt;-</span> <span class="cf">function</span>(n_pre) {</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  years_s <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(T_treat_v <span class="sc">-</span> n_pre, T_treat_v <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>               T_treat_v<span class="sc">:</span>(T_treat_v <span class="sc">+</span> n_post_v <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  n_yrs <span class="ot">&lt;-</span> <span class="fu">length</span>(years_s)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_PT, {</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    n_obs     <span class="ot">&lt;-</span> n_stores_v <span class="sc">*</span> n_yrs</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    store_s   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">each =</span> n_yrs)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    year_s    <span class="ot">&lt;-</span> <span class="fu">rep</span>(years_s, <span class="at">times =</span> n_stores_v)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    treated_s <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(store_s <span class="sc">&lt;=</span> n_dutch_v)</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    post_s    <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(year_s <span class="sc">&gt;=</span> T_treat_v)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    did_s     <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> post_s</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    diff_s    <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v)</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    fe_s      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)[store_s]</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    WTP_s     <span class="ot">&lt;-</span> <span class="fl">5.20</span> <span class="sc">+</span> fe_s <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v) <span class="sc">+</span> diff_s <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    df_s <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP     =</span> WTP_s,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">did     =</span> did_s,</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">store   =</span> <span class="fu">factor</span>(store_s),</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">year    =</span> <span class="fu">factor</span>(year_s),</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated =</span> treated_s,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">post    =</span> post_s,</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">year_num=</span> year_s</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># DiD p-value with clustered SEs</span></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    fit_d  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> did <span class="sc">+</span> store <span class="sc">+</span> year, <span class="at">data =</span> df_s)</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    pval_d <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_d, <span class="fu">vcovCL</span>(fit_d, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"did"</span>, <span class="dv">4</span>]</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-trend test: treated x linear year interaction in pre-period only</span></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (n_pre <span class="sc">&gt;=</span> <span class="dv">2</span>) {</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>      pre_s      <span class="ot">&lt;-</span> df_s[df_s<span class="sc">$</span>post <span class="sc">==</span> <span class="dv">0</span>, ]</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>      pre_s<span class="sc">$</span>yr_c <span class="ot">&lt;-</span> pre_s<span class="sc">$</span>year_num <span class="sc">-</span> <span class="fu">mean</span>(pre_s<span class="sc">$</span>year_num)</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>      fit_p  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> treated <span class="sc">*</span> yr_c <span class="sc">+</span> store, <span class="at">data =</span> pre_s)</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>      ct_p   <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_p, <span class="fu">vcovCL</span>(fit_p, <span class="at">cluster =</span> <span class="sc">~</span>store))</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(ct_p[<span class="st">"treated:yr_c"</span>, <span class="dv">4</span>], <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fl">1.0</span>   <span class="co"># Cannot test with only 1 pre-period — always "passes"</span></span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(pval_d, pval_p)</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>  })  <span class="co"># 2 × N_SIM_PT matrix</span></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">n_pre    =</span> n_pre,</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>             <span class="at">did_pval =</span> mat[<span class="dv">1</span>, ],</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>             <span class="at">pre_pval =</span> mat[<span class="dv">2</span>, ])</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>sim_all_pt <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, pt_sim_one)</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Simulation complete: %d total runs across 6 pre-period conditions.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nrow</span>(sim_all_pt)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>N_SIM_PT <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>pt_sim_one <span class="ot">&lt;-</span> <span class="cf">function</span>(n_pre) {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  years_s <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(T_treat_v <span class="sc">-</span> n_pre, T_treat_v <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>               T_treat_v<span class="sc">:</span>(T_treat_v <span class="sc">+</span> n_post_v <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  n_yrs <span class="ot">&lt;-</span> <span class="fu">length</span>(years_s)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_PT, {</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    n_obs     <span class="ot">&lt;-</span> n_stores_v <span class="sc">*</span> n_yrs</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    store_s   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">each =</span> n_yrs)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    year_s    <span class="ot">&lt;-</span> <span class="fu">rep</span>(years_s, <span class="at">times =</span> n_stores_v)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    treated_s <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(store_s <span class="sc">&lt;=</span> n_dutch_v)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    post_s    <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(year_s <span class="sc">&gt;=</span> T_treat_v)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    did_s     <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> post_s</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    diff_s    <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    fe_s      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)[store_s]</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    WTP_s     <span class="ot">&lt;-</span> <span class="fl">5.20</span> <span class="sc">+</span> fe_s <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v) <span class="sc">+</span> diff_s <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    df_s <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP     =</span> WTP_s,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">did     =</span> did_s,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">store   =</span> <span class="fu">factor</span>(store_s),</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">year    =</span> <span class="fu">factor</span>(year_s),</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated =</span> treated_s,</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">post    =</span> post_s,</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">year_num=</span> year_s</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># DiD p-value with clustered SEs</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    fit_d  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> did <span class="sc">+</span> store <span class="sc">+</span> year, <span class="at">data =</span> df_s)</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    pval_d <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_d, <span class="fu">vcovCL</span>(fit_d, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"did"</span>, <span class="dv">4</span>]</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-trend test: treated x linear year interaction in pre-period only</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (n_pre <span class="sc">&gt;=</span> <span class="dv">2</span>) {</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>      pre_s      <span class="ot">&lt;-</span> df_s[df_s<span class="sc">$</span>post <span class="sc">==</span> <span class="dv">0</span>, ]</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>      pre_s<span class="sc">$</span>yr_c <span class="ot">&lt;-</span> pre_s<span class="sc">$</span>year_num <span class="sc">-</span> <span class="fu">mean</span>(pre_s<span class="sc">$</span>year_num)</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>      fit_p  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> treated <span class="sc">*</span> yr_c <span class="sc">+</span> store, <span class="at">data =</span> pre_s)</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>      ct_p   <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_p, <span class="fu">vcovCL</span>(fit_p, <span class="at">cluster =</span> <span class="sc">~</span>store))</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(ct_p[<span class="st">"treated:yr_c"</span>, <span class="dv">4</span>], <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fl">1.0</span>   <span class="co"># Cannot test with only 1 pre-period — always "passes"</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(pval_d, pval_p)</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  })  <span class="co"># 2 × N_SIM_PT matrix</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">n_pre    =</span> n_pre,</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>             <span class="at">did_pval =</span> mat[<span class="dv">1</span>, ],</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>             <span class="at">pre_pval =</span> mat[<span class="dv">2</span>, ])</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>sim_all_pt <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, pt_sim_one)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Simulation complete: %d total runs across 6 pre-period conditions.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nrow</span>(sim_all_pt)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Simulation complete: 1800 total runs across 6 pre-period conditions.</code></pre>
@@ -949,7 +1014,6 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <hr>
 
 
-</section>
 </section>
 </section>
 
@@ -1407,13 +1471,13 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Regression Discontinuity">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span>
+      <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Regression Discontinuity Design">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-3/part5.html" class="pagination-link" aria-label="Part 5: Mediation">
-        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-3/part5.html" class="pagination-link" aria-label="Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

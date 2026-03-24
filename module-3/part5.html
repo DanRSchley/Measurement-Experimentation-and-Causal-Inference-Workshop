@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>19&nbsp; Part 5: Mediation – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>19&nbsp; Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability? – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -149,7 +149,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -307,7 +307,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -319,7 +319,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
   </div>
 </li>
       </ul>
@@ -334,29 +334,26 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#sec-m3-part5" id="toc-sec-m3-part5" class="nav-link active" data-scroll-target="#sec-m3-part5"><span class="header-section-number">20</span> Part 5: Mediation — Does the Eco-Label Work <em>Through</em> Perceived Sustainability?</a>
-  <ul class="collapse">
-  <li><a href="#sec-med-dags" id="toc-sec-med-dags" class="nav-link" data-scroll-target="#sec-med-dags"><span class="header-section-number">20.1</span> Causal Structures</a></li>
-  <li><a href="#sec-med-dgp" id="toc-sec-med-dgp" class="nav-link" data-scroll-target="#sec-med-dgp"><span class="header-section-number">20.2</span> Setup: Three DGPs</a></li>
-  <li><a href="#sec-med-run" id="toc-sec-med-run" class="nav-link" data-scroll-target="#sec-med-run"><span class="header-section-number">20.3</span> Estimating All Three Methods</a></li>
-  <li><a href="#sec-med-clean" id="toc-sec-med-clean" class="nav-link" data-scroll-target="#sec-med-clean"><span class="header-section-number">20.4</span> Scenario 1: Clean Normal Data — All Methods Should Work</a></li>
-  <li><a href="#sec-med-outliers" id="toc-sec-med-outliers" class="nav-link" data-scroll-target="#sec-med-outliers"><span class="header-section-number">20.5</span> Scenario 2: Large Outliers — ROBMED’s Advantage</a></li>
-  <li><a href="#sec-med-confounded" id="toc-sec-med-confounded" class="nav-link" data-scroll-target="#sec-med-confounded"><span class="header-section-number">20.6</span> Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</a></li>
-  <li><a href="#sec-med-sensitivity" id="toc-sec-med-sensitivity" class="nav-link" data-scroll-target="#sec-med-sensitivity"><span class="header-section-number">20.7</span> Where Imai’s Framework Shines: Sensitivity Analysis</a></li>
-  <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison"><span class="header-section-number">20.8</span> Comprehensive Bias Comparison Across All Scenarios</a></li>
-  <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2"><span class="header-section-number">20.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
-  <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table"><span class="header-section-number">20.10</span> Summary of Methods</a></li>
+  <li><a href="#sec-med-dags" id="toc-sec-med-dags" class="nav-link active" data-scroll-target="#sec-med-dags"><span class="header-section-number">19.1</span> Causal Structures</a></li>
+  <li><a href="#sec-med-dgp" id="toc-sec-med-dgp" class="nav-link" data-scroll-target="#sec-med-dgp"><span class="header-section-number">19.2</span> Setup: Three DGPs</a></li>
+  <li><a href="#sec-med-run" id="toc-sec-med-run" class="nav-link" data-scroll-target="#sec-med-run"><span class="header-section-number">19.3</span> Estimating All Three Methods</a></li>
+  <li><a href="#sec-med-clean" id="toc-sec-med-clean" class="nav-link" data-scroll-target="#sec-med-clean"><span class="header-section-number">19.4</span> Scenario 1: Clean Normal Data — All Methods Should Work</a></li>
+  <li><a href="#sec-med-outliers" id="toc-sec-med-outliers" class="nav-link" data-scroll-target="#sec-med-outliers"><span class="header-section-number">19.5</span> Scenario 2: Large Outliers — ROBMED’s Advantage</a></li>
+  <li><a href="#sec-med-confounded" id="toc-sec-med-confounded" class="nav-link" data-scroll-target="#sec-med-confounded"><span class="header-section-number">19.6</span> Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</a></li>
+  <li><a href="#sec-med-sensitivity" id="toc-sec-med-sensitivity" class="nav-link" data-scroll-target="#sec-med-sensitivity"><span class="header-section-number">19.7</span> Where Imai’s Framework Shines: Sensitivity Analysis</a></li>
+  <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison"><span class="header-section-number">19.8</span> Comprehensive Bias Comparison Across All Scenarios</a></li>
+  <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2"><span class="header-section-number">19.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
+  <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table"><span class="header-section-number">19.10</span> Summary of Methods</a></li>
   <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session Info</a></li>
-  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -373,8 +370,19 @@ window.Quarto = {
 </header>
 
 
-<section id="sec-m3-part5" class="level1" data-number="20">
-<h1 data-number="20"><span class="header-section-number">20</span> Part 5: Mediation — Does the Eco-Label Work <em>Through</em> Perceived Sustainability?</h1>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>How to use the code in this section
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
+</div>
+</div>
 <p>Mediation analysis asks whether the eco-label affects WTP <strong>directly</strong> or <strong>through a mechanism</strong> — here, <em>perceived sustainability</em> (M). Three estimators are compared across three scenarios that each challenge a different method.</p>
 <table class="caption-top table">
 <colgroup>
@@ -426,8 +434,8 @@ window.Quarto = {
 </ol>
 </div>
 </div>
-<section id="sec-med-dags" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="sec-med-dags"><span class="header-section-number">20.1</span> Causal Structures</h2>
+<section id="sec-med-dags" class="level2" data-number="19.1">
+<h2 data-number="19.1" class="anchored" data-anchor-id="sec-med-dags"><span class="header-section-number">19.1</span> Causal Structures</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -438,55 +446,69 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-dgp" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="sec-med-dgp"><span class="header-section-number">20.2</span> Setup: Three DGPs</h2>
+<section id="sec-med-dgp" class="level2" data-number="19.2">
+<h2 data-number="19.2" class="anchored" data-anchor-id="sec-med-dgp"><span class="header-section-number">19.2</span> Setup: Three DGPs</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>N_med <span class="ot">&lt;-</span> <span class="dv">350</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>X     <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_med, <span class="dv">1</span>, <span class="fl">0.5</span>)   <span class="co"># eco-label (1 = exposed to label)</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters (Scenarios 1 &amp; 2)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>a_true    <span class="ot">&lt;-</span> <span class="fl">0.50</span>   <span class="co"># eco_label → perc_sust</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>b_true    <span class="ot">&lt;-</span> <span class="fl">0.55</span>   <span class="co"># perc_sust → WTP</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>c_prime   <span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># eco_label → WTP (direct path)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ACME_true <span class="ot">&lt;-</span> a_true <span class="sc">*</span> b_true   <span class="co"># 0.275</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 1: Clean normal data ────────────────────────────────────────────</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># No violations; both OLS and ROBMED should recover ACME ≈ 0.275</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>M_s1   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Y_s1   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>df_s1  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s1, <span class="at">WTP =</span> Y_s1)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 2: Large correlated outliers (12% contamination) ───────────────</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlated shocks to M and Y residuals in the same direction: outlier obs</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># suggest a much steeper M→Y slope → OLS b-path inflated → OLS ACME &gt;&gt; 0.275</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ROBMED MM-estimator downweights these high-leverage points → stays near truth</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>out_n   <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(N_med <span class="sc">*</span> <span class="fl">0.12</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>out_idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(N_med, out_n)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>out_sgn <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, out_n)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>out_mag <span class="ot">&lt;-</span> <span class="fu">runif</span>(out_n, <span class="dv">6</span>, <span class="dv">10</span>)   <span class="co"># 10–17× the baseline SD: strong leverage</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>eps_M2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>eps_Y2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>eps_M2[out_idx] <span class="ot">&lt;-</span> eps_M2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag          <span class="co"># M outlier</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>eps_Y2[out_idx] <span class="ot">&lt;-</span> eps_Y2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag <span class="sc">*</span> <span class="fl">0.90</span>   <span class="co"># correlated Y outlier</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>M_s2   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> eps_M2</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>Y_s2   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s2 <span class="sc">+</span> eps_Y2</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>df_s2  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s2, <span class="at">WTP =</span> Y_s2)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># U* drives both perc_sust and WTP; there is NO causal M → Y path</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS and ROBMED both find spurious ACME (Type I error) because they cannot</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># separate causal M→Y from U-induced M–Y correlation</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Imai's medsens() reveals the finding's fragility via a small critical ρ*</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>U      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>M_s3   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.60</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>Y_s3   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.65</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)   <span class="co"># no M_s3 term!</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>df_s3  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s3, <span class="at">WTP =</span> Y_s3)</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>ACME_true_s3 <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># no causal M → Y</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"N = %d  |  Treatment rate = %.0f%%</span><span class="sc">\n</span><span class="st">"</span>, N_med, <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(X)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: X is your binary treatment (0/1); replace rbinom() with your</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    actual treatment column. N_med should equal nrow(your_df).</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    Each df_sN below maps to your real data frame with columns:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    eco_label (or your treatment name), perc_sust (your mediator), WTP (outcome).</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters (Scenarios 1 &amp; 2)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>a_true    <span class="ot">&lt;-</span> <span class="fl">0.50</span>   <span class="co"># eco_label → perc_sust</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>b_true    <span class="ot">&lt;-</span> <span class="fl">0.55</span>   <span class="co"># perc_sust → WTP</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>c_prime   <span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># eco_label → WTP (direct path)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ACME_true <span class="ot">&lt;-</span> a_true <span class="sc">*</span> b_true   <span class="co"># 0.275</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: in real data you do NOT know a_true or b_true; these are set</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    here only for ground-truth evaluation. With real data, run the</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    run_mediation_triple() function directly on your data frame.</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 1: Clean normal data ────────────────────────────────────────────</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># No violations; both OLS and ROBMED should recover ACME ≈ 0.275</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>M_s1   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>Y_s1   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>df_s1  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s1, <span class="at">WTP =</span> Y_s1)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 2: Large correlated outliers (12% contamination) ───────────────</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlated shocks to M and Y residuals in the same direction: outlier obs</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># suggest a much steeper M→Y slope → OLS b-path inflated → OLS ACME &gt;&gt; 0.275</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ROBMED MM-estimator downweights these high-leverage points → stays near truth</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>out_n   <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(N_med <span class="sc">*</span> <span class="fl">0.12</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>out_idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(N_med, out_n)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>out_sgn <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, out_n)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>out_mag <span class="ot">&lt;-</span> <span class="fu">runif</span>(out_n, <span class="dv">6</span>, <span class="dv">10</span>)   <span class="co"># 10–17× the baseline SD: strong leverage</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>eps_M2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>eps_Y2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>eps_M2[out_idx] <span class="ot">&lt;-</span> eps_M2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag          <span class="co"># M outlier</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>eps_Y2[out_idx] <span class="ot">&lt;-</span> eps_Y2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag <span class="sc">*</span> <span class="fl">0.90</span>   <span class="co"># correlated Y outlier</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>M_s2   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> eps_M2</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>Y_s2   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s2 <span class="sc">+</span> eps_Y2</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>df_s2  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s2, <span class="at">WTP =</span> Y_s2)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK (Scenario 2): plot perc_sust vs WTP and colour outlier points (out_idx)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">#    red — if a small cluster of points visually drives the OLS slope, ROBMED</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">#    is important for your data; inspect with plot(df_s2$perc_sust, df_s2$WTP).</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># U* drives both perc_sust and WTP; there is NO causal M → Y path</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS and ROBMED both find spurious ACME (Type I error) because they cannot</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># separate causal M→Y from U-induced M–Y correlation</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Imai's medsens() reveals the finding's fragility via a small critical ρ*</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>U      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>M_s3   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.60</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>Y_s3   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.65</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)   <span class="co"># no M_s3 term!</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>df_s3  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s3, <span class="at">WTP =</span> Y_s3)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>ACME_true_s3 <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># no causal M → Y</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co">#    an unmeasured variable (e.g., prior eco-engagement, health consciousness)</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">#    drives both your mediator and outcome. Always run medsens() on your real</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#    data and report the critical ρ* alongside the ACME estimate.</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"N = %d  |  Treatment rate = %.0f%%</span><span class="sc">\n</span><span class="st">"</span>, N_med, <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(X)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>N = 350  |  Treatment rate = 50%</code></pre>
@@ -509,44 +531,60 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-run" class="level2" data-number="20.3">
-<h2 data-number="20.3" class="anchored" data-anchor-id="sec-med-run"><span class="header-section-number">20.3</span> Estimating All Three Methods</h2>
+<section id="sec-med-run" class="level2" data-number="19.3">
+<h2 data-number="19.3" class="anchored" data-anchor-id="sec-med-run"><span class="header-section-number">19.3</span> Estimating All Three Methods</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>run_mediation_triple <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">R =</span> <span class="dv">500</span>) {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  m_m <span class="ot">&lt;-</span> <span class="fu">lm</span>(perc_sust <span class="sc">~</span> eco_label, <span class="at">data =</span> df)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  m_y <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> eco_label <span class="sc">+</span> perc_sust, <span class="at">data =</span> df)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. OLS: a × b with delta-method CI</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  a_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_m)[<span class="st">"eco_label"</span>]</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  b_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_y)[<span class="st">"perc_sust"</span>]</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  ols_est <span class="ot">&lt;-</span> a_hat <span class="sc">*</span> b_hat</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  se_ab   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(b_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_m)[<span class="st">"eco_label"</span>,<span class="st">"eco_label"</span>] <span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                  a_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_y)[<span class="st">"perc_sust"</span>,<span class="st">"perc_sust"</span>])</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  ols_lo  <span class="ot">&lt;-</span> ols_est <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  ols_hi  <span class="ot">&lt;-</span> ols_est <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. ROBMED: MM-robust regression (downweights high-leverage outliers)</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  med_rob  <span class="ot">&lt;-</span> <span class="fu">test_mediation</span>(WTP <span class="sc">~</span> <span class="fu">m</span>(perc_sust) <span class="sc">+</span> eco_label,</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data =</span> df, <span class="at">method =</span> <span class="st">"regression"</span>, <span class="at">robust =</span> <span class="cn">TRUE</span>, <span class="at">R =</span> R)</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  rob      <span class="ot">&lt;-</span> <span class="fu">rob_extract</span>(med_rob)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  med_imai <span class="ot">&lt;-</span> <span class="fu">mediate</span>(m_m, m_y, <span class="at">treat =</span> <span class="st">"eco_label"</span>, <span class="at">mediator =</span> <span class="st">"perc_sust"</span>,</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                      <span class="at">boot =</span> <span class="cn">FALSE</span>, <span class="at">sims =</span> R)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a_hat    =</span> a_hat,          <span class="at">b_hat    =</span> b_hat,</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">ols_est  =</span> ols_est,        <span class="at">ols_lo   =</span> ols_lo,       <span class="at">ols_hi  =</span> ols_hi,</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">rob_est  =</span> rob<span class="sc">$</span>est,        <span class="at">rob_lo   =</span> rob<span class="sc">$</span>lo,       <span class="at">rob_hi  =</span> rob<span class="sc">$</span>hi,</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_est =</span> med_imai<span class="sc">$</span>d0,    <span class="at">imai_lo  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">1</span>],</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_hi  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">2</span>],</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">med_imai =</span> med_imai,       <span class="at">med_rob  =</span> med_rob)</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: to apply this to your own data, call run_mediation_triple()</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    with a data frame that has columns named eco_label (treatment), perc_sust</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    (mediator), and WTP (outcome). Rename your columns to match, or edit the</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    column references inside the function to match your variable names.</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>run_mediation_triple <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">R =</span> <span class="dv">500</span>) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  m_m <span class="ot">&lt;-</span> <span class="fu">lm</span>(perc_sust <span class="sc">~</span> eco_label, <span class="at">data =</span> df)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  m_y <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> eco_label <span class="sc">+</span> perc_sust, <span class="at">data =</span> df)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: m_m is the a-path model (treatment → mediator);</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    m_y is the b-path / outcome model (treatment + mediator → outcome).</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    Both must share the same data frame. Add covariates to both models</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    if confounders of the M→Y relationship are available (e.g., age, income).</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. OLS: a × b with delta-method CI</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  a_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_m)[<span class="st">"eco_label"</span>]</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  b_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_y)[<span class="st">"perc_sust"</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  ols_est <span class="ot">&lt;-</span> a_hat <span class="sc">*</span> b_hat</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  se_ab   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(b_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_m)[<span class="st">"eco_label"</span>,<span class="st">"eco_label"</span>] <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                  a_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_y)[<span class="st">"perc_sust"</span>,<span class="st">"perc_sust"</span>])</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  ols_lo  <span class="ot">&lt;-</span> ols_est <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  ols_hi  <span class="ot">&lt;-</span> ols_est <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. ROBMED: MM-robust regression (downweights high-leverage outliers)</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: WTP ~ m(perc_sust) + eco_label specifies outcome ~ m(mediator) +</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    treatment; the m() wrapper identifies the mediator for robmed.</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    method="regression" uses regression-based mediation; robust=TRUE activates</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    the MM-estimator. R= controls bootstrap replications — 500 for exploration,</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    2000+ for final publication figures.</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  med_rob  <span class="ot">&lt;-</span> <span class="fu">test_mediation</span>(WTP <span class="sc">~</span> <span class="fu">m</span>(perc_sust) <span class="sc">+</span> eco_label,</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data =</span> df, <span class="at">method =</span> <span class="st">"regression"</span>, <span class="at">robust =</span> <span class="cn">TRUE</span>, <span class="at">R =</span> R)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  rob      <span class="ot">&lt;-</span> <span class="fu">rob_extract</span>(med_rob)</span>
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: treat= names the treatment column; mediator= names the mediator;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    boot=FALSE uses quasi-Bayesian simulation (faster); sims= controls the</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    number of draws — increase to 1000 for publication.</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  med_imai <span class="ot">&lt;-</span> <span class="fu">mediate</span>(m_m, m_y, <span class="at">treat =</span> <span class="st">"eco_label"</span>, <span class="at">mediator =</span> <span class="st">"perc_sust"</span>,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                      <span class="at">boot =</span> <span class="cn">FALSE</span>, <span class="at">sims =</span> R)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a_hat    =</span> a_hat,          <span class="at">b_hat    =</span> b_hat,</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">ols_est  =</span> ols_est,        <span class="at">ols_lo   =</span> ols_lo,       <span class="at">ols_hi  =</span> ols_hi,</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">rob_est  =</span> rob<span class="sc">$</span>est,        <span class="at">rob_lo   =</span> rob<span class="sc">$</span>lo,       <span class="at">rob_hi  =</span> rob<span class="sc">$</span>hi,</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_est =</span> med_imai<span class="sc">$</span>d0,    <span class="at">imai_lo  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">1</span>],</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_hi  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">2</span>],</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">med_imai =</span> med_imai,       <span class="at">med_rob  =</span> med_rob)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...</code></pre>
@@ -556,8 +594,11 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res_s1 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s1)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>res_s2 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s2)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res_s3 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s3)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            res_s1<span class="sc">$</span>ols_est, res_s1<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: compare ols_est vs. rob_est — if they differ substantially (&gt; 0.05</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    in standardised units), outliers are influential; prefer ROBMED.</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    Always follow up with medsens() (see sensitivity chunk) to report ρ*.</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            res_s1<span class="sc">$</span>ols_est, res_s1<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Scenario 1 — OLS: 0.272  ROBMED: 0.254  (truth = 0.275)</code></pre>
@@ -580,8 +621,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-clean" class="level2" data-number="20.4">
-<h2 data-number="20.4" class="anchored" data-anchor-id="sec-med-clean"><span class="header-section-number">20.4</span> Scenario 1: Clean Normal Data — All Methods Should Work</h2>
+<section id="sec-med-clean" class="level2" data-number="19.4">
+<h2 data-number="19.4" class="anchored" data-anchor-id="sec-med-clean"><span class="header-section-number">19.4</span> Scenario 1: Clean Normal Data — All Methods Should Work</h2>
 <p>With textbook normal errors and no confounding, OLS, ROBMED, and Imai all estimate ACME accurately. This is the baseline case each method was designed for.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -635,8 +676,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-outliers" class="level2" data-number="20.5">
-<h2 data-number="20.5" class="anchored" data-anchor-id="sec-med-outliers"><span class="header-section-number">20.5</span> Scenario 2: Large Outliers — ROBMED’s Advantage</h2>
+<section id="sec-med-outliers" class="level2" data-number="19.5">
+<h2 data-number="19.5" class="anchored" data-anchor-id="sec-med-outliers"><span class="header-section-number">19.5</span> Scenario 2: Large Outliers — ROBMED’s Advantage</h2>
 <p>Twelve percent of participants show large, <strong>correlated</strong> deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55 to OLS — inflating the b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -714,8 +755,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-confounded" class="level2" data-number="20.6">
-<h2 data-number="20.6" class="anchored" data-anchor-id="sec-med-confounded"><span class="header-section-number">20.6</span> Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</h2>
+<section id="sec-med-confounded" class="level2" data-number="19.6">
+<h2 data-number="19.6" class="anchored" data-anchor-id="sec-med-confounded"><span class="header-section-number">19.6</span> Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</h2>
 <p>U* drives both perceived sustainability and WTP. <strong>There is no causal M→Y path.</strong> The true ACME = 0. Yet both OLS and ROBMED find a large, significant “mediation effect” because they cannot distinguish causal M→Y from U-induced M–Y correlation. This is a structural identification failure, not an estimation problem — no regression method alone can fix it. But Imai’s sensitivity analysis reveals that the result is fragile.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -769,8 +810,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-med-sensitivity" class="level2" data-number="20.7">
-<h2 data-number="20.7" class="anchored" data-anchor-id="sec-med-sensitivity"><span class="header-section-number">20.7</span> Where Imai’s Framework Shines: Sensitivity Analysis</h2>
+<section id="sec-med-sensitivity" class="level2" data-number="19.7">
+<h2 data-number="19.7" class="anchored" data-anchor-id="sec-med-sensitivity"><span class="header-section-number">19.7</span> Where Imai’s Framework Shines: Sensitivity Analysis</h2>
 <p>Imai et al.’s <code>medsens()</code> asks: <em>how large would the correlation between M-equation and Y-equation residuals (ρ) need to be to drive ACME to zero?</em> This <strong>critical ρ*</strong> measures fragility:</p>
 <ul>
 <li><strong>Large ρ</strong>*: only substantial unmeasured confounding could explain away the result → <strong>robust</strong></li>
@@ -779,24 +820,35 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sens_s1 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s1<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>sens_s3 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s3<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>safe_crit_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(s) {</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    idx_neg <span class="ot">&lt;-</span> <span class="fu">which</span>(s<span class="sc">$</span>d0 <span class="sc">&lt;=</span> <span class="dv">0</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(idx_neg) <span class="sc">==</span> <span class="dv">0</span>) <span class="cn">NA_real_</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="fu">round</span>(<span class="fu">min</span>(<span class="fu">abs</span>(s<span class="sc">$</span>rho[idx_neg]), <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>)</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>crit_rho_s1 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s1)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>crit_rho_s3 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s3)</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>fmt_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="fu">is.na</span>(x)) <span class="st">"&gt; 1.0"</span> <span class="cf">else</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, x)</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">fmt_rho</span>(crit_rho_s1)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace res_s1$med_imai and res_s3$med_imai with the med_imai</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    object returned by run_mediation_triple() on your own data frame.</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    Run medsens() on every mediation model you report — it costs little time</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    and is now expected by reviewers in top journals.</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: rho.by = 0.05 evaluates sensitivity at ρ steps of 0.05 over</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    [-1, 1]; effect.type = "indirect" targets the ACME specifically;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    sims = 500 controls bootstrap draws — use 1000+ for final results.</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>sens_s1 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s1<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>sens_s3 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s3<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: look at crit_rho_s1 and crit_rho_s3 printed below —</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    ρ* &gt; 0.4 is generally considered robust (substantial confounding needed);</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#    ρ* &lt; 0.2 is fragile (modest confounding would nullify the result).</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    Report ρ* in your manuscript alongside the ACME point estimate and CI.</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>safe_crit_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(s) {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    idx_neg <span class="ot">&lt;-</span> <span class="fu">which</span>(s<span class="sc">$</span>d0 <span class="sc">&lt;=</span> <span class="dv">0</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(idx_neg) <span class="sc">==</span> <span class="dv">0</span>) <span class="cn">NA_real_</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="fu">round</span>(<span class="fu">min</span>(<span class="fu">abs</span>(s<span class="sc">$</span>rho[idx_neg]), <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>crit_rho_s1 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s1)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>crit_rho_s3 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s3)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>fmt_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="fu">is.na</span>(x)) <span class="st">"&gt; 1.0"</span> <span class="cf">else</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, x)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>            <span class="fu">fmt_rho</span>(crit_rho_s1)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Scenario 1 (true ACME = 0.275): critical ρ* ≈ 0.50  → ROBUST finding</code></pre>
@@ -894,8 +946,8 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 </div>
 </section>
-<section id="sec-med-comparison" class="level2" data-number="20.8">
-<h2 data-number="20.8" class="anchored" data-anchor-id="sec-med-comparison"><span class="header-section-number">20.8</span> Comprehensive Bias Comparison Across All Scenarios</h2>
+<section id="sec-med-comparison" class="level2" data-number="19.8">
+<h2 data-number="19.8" class="anchored" data-anchor-id="sec-med-comparison"><span class="header-section-number">19.8</span> Comprehensive Bias Comparison Across All Scenarios</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -956,8 +1008,8 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 </div>
 </section>
-<section id="sec-med-2x2" class="level2" data-number="20.9">
-<h2 data-number="20.9" class="anchored" data-anchor-id="sec-med-2x2"><span class="header-section-number">20.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</h2>
+<section id="sec-med-2x2" class="level2" data-number="19.9">
+<h2 data-number="19.9" class="anchored" data-anchor-id="sec-med-2x2"><span class="header-section-number">19.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</h2>
 <p>The three-scenario analysis above treats confounding as a special case. The 2×2 design below makes the mechanism explicit by crossing two independent dimensions:</p>
 <ul>
 <li><strong>Rows</strong>: true mediation exists vs.&nbsp;does not exist (b = 0)</li>
@@ -998,8 +1050,8 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 <hr>
 </section>
-<section id="sec-summary-table" class="level2" data-number="20.10">
-<h2 data-number="20.10" class="anchored" data-anchor-id="sec-summary-table"><span class="header-section-number">20.10</span> Summary of Methods</h2>
+<section id="sec-summary-table" class="level2" data-number="19.10">
+<h2 data-number="19.10" class="anchored" data-anchor-id="sec-summary-table"><span class="header-section-number">19.10</span> Summary of Methods</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1193,7 +1245,6 @@ loaded via a namespace (and not attached):
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
