@@ -2,6 +2,8 @@
 title: "Case 1: Discriminant Validity"
 ---
 
+<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 1: Validity"></iframe>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,

@@ -3,8 +3,6 @@ title: "Module 1: Measurement"
 subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers"
 ---
 
-<iframe src="https://liveeur-my.sharepoint.com/personal/58542dsc_eur_nl/_layouts/15/Doc.aspx?sourcedoc={4a5ede60-44ee-4081-9230-dba63b2c5ecb}&action=embedview&wdAr=1.7777777777777777" width="100%" height="500px" frameborder="0" allowfullscreen title="Module 1 Part 1: Validity"></iframe>
-
 ## Overview
 
 Good measurement is the foundation of good research, yet it is the step most often skipped. This module asks: *does your scale actually measure the construct you intend?* — and introduces the tools to find out.

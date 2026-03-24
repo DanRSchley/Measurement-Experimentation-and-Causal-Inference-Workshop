@@ -1,5 +1,5 @@
 ---
-title: "Part 4: Experimental Design Strategies"
+title: "Part 4: Experimental Design Strategies and Assignment Solutions"
 ---
 
 ```{r setup, include=FALSE}
@@ -606,7 +606,163 @@ Every concept in this module is a direct extension of Module 1, applied to the t
 | Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
 | Broad constructs: many items, hard to achieve discriminant validity | Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy) |
 
-**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 2, Part 4) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
+**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 3, Part 2) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
+:::
+
+---
+
+# Design Solutions: CRA, Stratified, and Clustered Assignment {#sec-design-solutions}
+
+The Latin Square and metastudy designs are *pre-experimental* solutions that achieve orthogonality through structure. Sometimes you cannot redesign the study — the assignment mechanism is fixed. The three designs below represent progressively stronger responses to assignment constraints.
+
+## Completely Random Assignment — The Baseline
+
+In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check "randomize" in Qualtrics.
+
+CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 3 showed, that chance is often disappointingly low when Y is complex.
+
+## Stratified (Blocked) Random Assignment
+
+**The idea:** divide participants into groups (strata or blocks) based on measured covariates that you expect to relate to Y, then randomize *within* each block.
+
+**Concrete example:** In the eco-coffee study, you know from Module 1's analysis that "environmental values" is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs. low environmental values strata. Then assign 50% to eco-label and 50% to control *within each stratum*.
+
+**Why it works:** By randomizing within strata, you guarantee that each condition contains equal proportions of high- and low-environmental-values participants. This eliminates one source of latent imbalance — the most important one — by design rather than by chance.
+
+```{r stratified-random, fig.height=5, fig.width=10}
+#| code-summary: "▶ Simulate: CRA vs. stratified assignment for 500 experiments"
+
+set.seed(2026)
+N_str  <- 200
+D_str  <- 3    # three binary covariates to stratify on
+
+n_sims <- 500
+
+# Helper: absolute SMD for a covariate
+abs_smd <- function(x, trt) {
+  m1 <- mean(x[trt == 1]); m0 <- mean(x[trt == 0])
+  s  <- sqrt((var(x[trt == 1]) + var(x[trt == 0])) / 2)
+  if (s == 0) return(0)
+  abs(m1 - m0) / s
+}
+
+# Simulate one run under CRA and one under stratified
+one_run <- function() {
+  # Participant covariates (binary)
+  X1 <- rbinom(N_str, 1, 0.45)  # environmental values
+  X2 <- rbinom(N_str, 1, 0.50)  # income
+  X3 <- rbinom(N_str, 1, 0.40)  # health focus
+
+  # CRA
+  trt_cra  <- sample(rep(0:1, N_str / 2))
+
+  # Stratified: randomize within each of 2^3 = 8 strata
+  strata   <- paste(X1, X2, X3, sep = "-")
+  trt_strat <- integer(N_str)
+  for (s in unique(strata)) {
+    idx <- which(strata == s)
+    n_s <- length(idx)
+    trt_strat[idx] <- sample(c(rep(0, ceiling(n_s / 2)),
+                                rep(1, floor(n_s / 2)))[seq_len(n_s)])
+  }
+
+  data.frame(
+    method = c(rep("CRA", 3L), rep("Stratified", 3L)),
+    cov    = rep(c("Env. Values", "Income", "Health Focus"), 2L),
+    smd    = c(abs_smd(X1, trt_cra),  abs_smd(X2, trt_cra),  abs_smd(X3, trt_cra),
+               abs_smd(X1, trt_strat), abs_smd(X2, trt_strat), abs_smd(X3, trt_strat))
+  )
+}
+
+set.seed(42)
+strat_sims <- bind_rows(replicate(n_sims, one_run(), simplify = FALSE))
+
+strat_summary <- strat_sims |>
+  group_by(method, cov) |>
+  summarise(mean_smd = mean(smd), p90_smd = quantile(smd, 0.90), .groups = "drop") |>
+  mutate(method = factor(method, levels = c("CRA", "Stratified")))
+
+ggplot(strat_summary, aes(x = cov, y = mean_smd, fill = method,
+                           ymin = 0, ymax = p90_smd)) +
+  geom_col(position = position_dodge(0.7), width = 0.6, alpha = 0.85) +
+  geom_errorbar(aes(ymin = mean_smd, ymax = p90_smd),
+                position = position_dodge(0.7), width = 0.25, linewidth = 0.8) +
+  geom_hline(yintercept = 0.10, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  annotate("text", x = 3.45, y = 0.105, label = "|SMD| = 0.10\nthreshold",
+           size = 3.0, color = "gray40", hjust = 0, lineheight = 0.85) +
+  scale_fill_manual(values = c("CRA" = "#e63946", "Stratified" = "#52b788"), name = NULL) +
+  labs(x = "Covariate", y = "Mean |SMD| (bar) + 90th percentile (error bar)",
+       title = "Stratified vs. Completely Random Assignment: Balance on Stratified Covariates",
+       subtitle = paste0("N = ", N_str, "  \u00b7  500 simulated experiments  \u00b7  ",
+                         "Bars = mean |SMD|  \u00b7  Error bars = 90th percentile worst case")) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+Stratification dramatically reduces both the mean and worst-case imbalance on the stratified covariates. The 90th-percentile bar for CRA often exceeds the 0.10 threshold; the stratified version almost never does.
+
+**The limitation** is the same as in Module 1's measurement section: you can only stratify on what you have *measured*. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.
+
+## Clustered Random Assignment
+
+**The idea:** sometimes participants come in natural groups (classrooms, teams, branches, households), and the intervention must be assigned at the group level. In this case, you assign entire clusters to conditions.
+
+**Concrete example:** You want to test whether providing eco-label information changes café purchasing behavior. You cannot assign individual customers within a café to different menu conditions simultaneously — contamination would occur. Instead, you assign *cafés* to conditions.
+
+**The tradeoff:** clustering increases statistical efficiency when you have to intervene at the group level, but it also introduces **intraclass correlation (ICC)**. If people within the same café are more similar to each other (they self-select into similar cafés), then your N cafés provide less independent information than N individuals would.
+
+```{r clustered-random, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Illustrate: effective N under clustered assignment for different ICCs"
+
+icc_vals      <- c(0.00, 0.05, 0.10, 0.20, 0.30, 0.50)
+cluster_sizes <- c(5, 10, 20, 40)
+
+deff_df <- expand.grid(icc = icc_vals, m = cluster_sizes) |>
+  mutate(
+    DEFF    = 1 + (m - 1) * icc,
+    Neff_80 = ceiling(
+      power.t.test(delta = 0.40, sd = 1, sig.level = 0.05, power = 0.80,
+                   type = "two.sample")$n * DEFF
+    ),
+    m_label = paste0("Cluster size = ", m)
+  )
+
+ggplot(deff_df, aes(x = icc, y = Neff_80,
+                    color = factor(m), group = factor(m))) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.8) +
+  geom_hline(yintercept = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
+                                        power = 0.80, type = "two.sample")$n,
+             linetype = "dashed", color = "gray40", linewidth = 0.7) +
+  annotate("text", x = 0.51, y = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
+                                                power = 0.80, type = "two.sample")$n + 3,
+           label = "Required N\nif individual\nassignment",
+           size = 2.8, color = "gray40", hjust = 0, lineheight = 0.85) +
+  scale_color_manual(values = c("5" = "#4a90d9", "10" = "#52b788",
+                                 "20" = "#f4a261", "40" = "#e63946"),
+                     name = "Cluster size (m)") +
+  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f", x)) +
+  scale_y_continuous(labels = comma) +
+  labs(x = "Intraclass correlation (ICC)",
+       y = "Required total N (individuals)",
+       title = "Clustered Assignment: How ICC Inflates Required Sample Size",
+       subtitle = "DEFF = 1 + (m\u22121)\u00d7ICC  \u00b7  Design effect multiplies into required N  \u00b7  Target: d = 0.40, 80% power") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank())
+```
+
+::: {.callout-note}
+## Stratified vs. Clustered — the key contrast
+
+| Feature | Stratified | Clustered |
+|---|---|---|
+| Unit of randomization | Individual (within strata) | Group / cluster |
+| Effect on balance | **Improves** balance on stratified vars | No improvement (can worsen) |
+| Effect on required N | Reduces N slightly | **Increases** N via design effect |
+| When to use | When measured covariates predict Y strongly | When intervention must be applied at group level |
+| Analogy (Module 1) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
+
+The core message: stratification and clustering both depart from simple CRA, but in opposite directions for power. Use stratification proactively when you can; account for clustering carefully when you must.
 :::
 
 ---
