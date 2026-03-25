@@ -38,6 +38,8 @@ book:
         - module-3/part3.qmd
         - module-3/part4.qmd
         - module-3/part5.qmd
+  appendices:
+    - about.qmd
 
 format:
   html:
