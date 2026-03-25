@@ -1569,5 +1569,16 @@
       "Appendices",
       "<span class='chapter-number'>A</span>  <span class='chapter-title'>About the Author</span>"
     ]
+  },
+  {
+    "objectID": "suggest.html",
+    "href": "suggest.html",
+    "title": "Appendix B — Suggest a Topic",
+    "section": "",
+    "text": "This workshop is a living resource. If there is a topic, method, or concept you would like to see covered — whether from statistics, psychometrics, experimental psychology, econometrics, or any adjacent field — I would genuinely like to hear about it.\nClick the button below to open a short topic request on GitHub. You do not need to provide your name or affiliation. A brief description of the topic and why it would be useful is all that is needed.\n\n\n  Submit a Topic Request\n\n\nYou will be taken to GitHub to submit an issue. A GitHub account is required. If you prefer, you can also email suggestions directly to schley@rsm.nl.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>B</span>  <span class='chapter-title'>Suggest a Topic</span>"
+    ]
   }
 ]
