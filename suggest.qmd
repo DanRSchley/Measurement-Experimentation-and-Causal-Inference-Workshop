@@ -1,0 +1,19 @@
+---
+title: "Suggest a Topic"
+toc: false
+number-sections: false
+---
+
+This workshop is a living resource. If there is a topic, method, or concept you would like to see covered — whether from statistics, psychometrics, experimental psychology, econometrics, or any adjacent field — I would genuinely like to hear about it.
+
+Click the button below to open a short topic request on GitHub. You do not need to provide your name or affiliation. A brief description of the topic and why it would be useful is all that is needed.
+
+```{=html}
+<div style="margin: 2rem 0;">
+<a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new?title=Topic+Suggestion%3A+&labels=topic-request&body=%23%23+Topic+I%27d+like+to+see+covered%0A%0A%3C!--+Briefly+describe+the+topic+--%3E%0A%0A%23%23+Why+it+would+be+useful%0A%0A%3C!--+Who+would+benefit+and+in+what+context+--%3E%0A%0A%23%23+My+background+%28optional%29%0A%0A%3C!--+e.g.+PhD+student+in+economics%2C+marketing+faculty%2C+industry+researcher+--%3E" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
+  <i class="bi bi-github" style="margin-right:0.4em;"></i>Submit a Topic Request
+</a>
+</div>
+```
+
+*You will be taken to GitHub to submit an issue. A GitHub account is required. If you prefer, you can also email suggestions directly to [schley@rsm.nl](mailto:schley@rsm.nl).*

@@ -40,6 +40,7 @@ book:
         - module-3/part5.qmd
   appendices:
     - about.qmd
+    - suggest.qmd
 
 format:
   html:
