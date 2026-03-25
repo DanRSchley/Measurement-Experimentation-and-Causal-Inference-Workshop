@@ -1558,5 +1558,16 @@
       "Module 3: Causal Inference",
       "<span class='chapter-number'>19</span>  <span class='chapter-title'>Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span>"
     ]
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Appendix A — About the Author",
+    "section": "",
+    "text": "Dan Schley is an Associate Professor in the Department of Marketing Management at Rotterdam School of Management, Erasmus University Rotterdam. His work sits at the intersection of psychology, economics, and statistical methodology, with a particular interest in measurement, experimentation, and causal inference. Contact: schley@rsm.nl\n\nI came to these topics by moving across fields rather than staying within one. I began in economics at UC San Diego, where my early training emphasized econometrics and traditional frequentist statistics. After discovering behavioral economics, I became increasingly interested in questions that sat between economics and psychology. That led me to doctoral training at The Ohio State University in quantitative psychology.\nAt Ohio State, I was fortunate to study psychometrics, cognitive modeling, Bayesian statistics, and judgment and decision making in the same intellectual environment. That combination shaped how I think about research. It made clear to me that measurement, experimental design, hypothesis testing, and causal reasoning are not separate topics so much as connected parts of the same inferential process.\nAfter joining Erasmus University Rotterdam, I continued developing experimental research with a stronger methodological emphasis. Over time, I became especially interested in causal inference and in how different fields often ask closely related questions while using different vocabularies and different tools. That became especially visible in marketing, where consumer behavior research often inherits its methods from psychology while quantitative marketing often inherits its methods from economics.\nTeaching in the ERIM doctoral program helped crystallize that perspective. I found that students often connected more easily with difficult ideas when the links across traditions were made explicit. Psychometrics can improve what we measure. Experiments can improve identification. Econometric reasoning can sharpen how we think about endogeneity in observational data. Over time, that course evolved into a broader effort to connect measurement, experimentation, and causal inference within a shared framework.\nThis website grew out of that effort. Its goal is to share methods knowledge in a way that is accessible across the social, behavioral, economic, and statistical sciences. There is already a great deal of useful knowledge across these fields, but much of it remains siloed by discipline. My hope is that building a more common language can help researchers make better use of ideas that too often stay separated.",
+    "crumbs": [
+      "Appendices",
+      "<span class='chapter-number'>A</span>  <span class='chapter-title'>About the Author</span>"
+    ]
   }
 ]
