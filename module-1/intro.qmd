@@ -35,8 +35,22 @@ By the end of this module you should be able to:
 | Borsboom, Mellenbergh & van Heerden (2003) | What does it actually mean for a test to measure a construct? |
 | Arkes & Tetlock (2004) | A worked example of construct validity problems in political judgment research |
 | Vosgerau et al. (2019) — *Exerting Self-Control is Not Sacrificing Pleasure* | How reframing the DV changes conclusions |
+| [Putnick & Bornstein (2016)](https://doi.org/10.1016/j.dr.2016.06.004) | Comprehensive tutorial on measurement invariance testing across groups and cultures |
+| [Rousseeuw & Hubert (2011)](https://doi.org/10.1002/wics.196) | Overview of robust statistical methods and their advantages over classical estimators when outliers are present |
+| [Zimek & Filzmoser (2018)](https://doi.org/10.1002/widm.1280) | Survey of outlier detection methods covering theoretical foundations and practical guidance |
+| [Nylund, Asparouhov & Muthén (2007)](https://doi.org/10.1080/10705510701575396) | How to determine the number of latent classes; compares BIC, AIC, and likelihood ratio tests |
+| [Liddell & Kruschke (2018)](https://doi.org/10.1016/j.jesp.2018.08.009) | Why treating ordinal Likert data as continuous distorts results, and how to handle it correctly |
+| [Smithson & Verkuilen (2006)](https://doi.org/10.1037/1082-989X.11.1.54) | Introduction to beta regression for proportion and bounded-scale outcomes |
+| [Cinelli & Hazlett (2020)](https://doi.org/10.1111/rssb.12348) | Sensitivity analysis for omitted variable bias — how large would an omitted variable need to be to overturn your result? |
+| [Hodge & Austin (2004)](https://doi.org/10.1093/comjnl/47.1.85) | A readable survey of outlier and novelty detection methods across statistical and machine learning traditions |
 
-All papers are available in the `Module 1 - Recommended Reading/` folder.
+**Useful Online Resources**
+
+| Resource | What it covers |
+|---|---|
+| [R for Psychometrics](https://bookdown.org/sz_psyc490/r4psychometics/) | Introductory online textbook on psychometric modeling in R, including CFA and scale evaluation |
+| [UCLA: Confirmatory Factor Analysis in R](https://stats.oarc.ucla.edu/r/seminars/rcfa/) | Step-by-step seminar on CFA using lavaan |
+| [UCLA: Latent Growth Models in R](https://stats.oarc.ucla.edu/r/seminars/lgm/) | Tutorial on longitudinal SEM, measurement invariance testing, and growth curve models |
 
 ---
 

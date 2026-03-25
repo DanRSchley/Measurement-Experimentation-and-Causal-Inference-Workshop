@@ -30,13 +30,22 @@ By the end of this module you should be able to:
 |---|---|
 | Cohen (1994) — *The Earth is Round (p < .05)* | The classic critique of NHST, still the best starting point |
 | Simmons, Nelson & Simonsohn (2011) — *False-Positive Psychology* | Demonstrates how researcher degrees of freedom inflate false positives |
-| Simonsohn, Nelson & Simmons (2014) — *P-curve* | A tool for detecting publication bias and assessing evidential value |
 | Wells & Windschitl (1999) — *Stimulus Sampling* | Why treating stimuli as fixed effects is a validity threat |
 | Bahník & Vranka (2017) | A worked example of stimulus sampling in practice |
 | Andre (2022) — *How (Not) to Exclude Outliers* | Researcher degrees of freedom in outlier exclusion |
 | Smaldino (2016) — *Models are Stupid, and We Need More of Them* | Why formal models help you think clearly about hypothesis testing |
+| [Simonsohn, Montealegre & Evangelidis (2025)](https://doi.org/10.1037/pspa0000449) | Reimagines stimulus sampling with mix-and-match designs and stimulus-level visualization of results |
+| [Mellon (2025)](https://doi.org/10.1111/ajps.12894) | Documents 194 potential exclusion-restriction violations for studies using weather as an instrument — a cautionary tale for IV design |
+| [André & Reinholtz (2024)](https://doi.org/10.1093/jcr/ucae028) | Introduces Pre-Registered Interim Analysis Designs (PRIADs) for more cost-effective hypothesis testing |
+| [Chester & Lasko (2021)](https://doi.org/10.1177/1745691620950684) | Best-practices guide for construct validation of experimental manipulations |
+| Shadish, Cook & Campbell (2002) — *Experimental and Quasi-Experimental Designs* | The definitive reference on quasi-experimental design and threats to validity |
+| [DeKay et al. (2022)](https://doi.org/10.1177/17456916221079611) | How metastudies reveal treatment effect heterogeneity that standard meta-analyses obscure |
 
-All papers are available in the `Module 2 - Recommended Reading/` folder.
+**Useful Online Resources**
+
+| Resource | What it covers |
+|---|---|
+| [UCLA: Structural Equation Modeling in R](https://stats.oarc.ucla.edu/r/seminars/rsem/) | Hands-on tutorial for SEM using lavaan, including path models and model fit assessment |
 
 ---
 

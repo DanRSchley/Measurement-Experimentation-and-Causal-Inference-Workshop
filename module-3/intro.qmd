@@ -33,8 +33,17 @@ By the end of this module you should be able to:
 | Introduction to Pearl Framework | DAGs and the do-calculus explained for social scientists |
 | Spencer, Zanna & Fong (2005) — *Establishing a Causal Chain* | When and how to test mediation with experiments |
 | Pieters (2017) — *Meaningful Mediation Analysis* | What mediation analysis can and cannot establish |
+| [Rohrer et al. (2022)](https://doi.org/10.1177/25152459221095827) | Common pitfalls in path model interpretation — when your DAG leads you astray |
+| [Alfons & Schley (2025)](https://doi.org/10.1002/wics.70051) | Robust mediation analysis: methods that remain valid when outliers or distributional assumptions are violated |
+| [Imai et al. (2010)](https://doi.org/10.1037/a0020761) | The formal causal framework for mediation analysis and the assumptions required for identification |
 
-All papers are available in the `Module 3 - Recommended Reading/` folder.
+**Useful Online Resources**
+
+| Resource | What it covers |
+|---|---|
+| [Causal Inference: The Mixtape](https://mixtape.scunning.com/) | Free online textbook covering the core causal inference toolkit with intuitive explanations and R/Stata code |
+| [The Effect](https://theeffectbook.net/) | Accessible introduction to causal inference with minimal math, well-suited for social scientists |
+| [Causal Inference: What If](https://www.amazon.sg/dp/046509760X) | A rigorous but readable treatment by Hernán & Robins; math-light and available free online |
 
 ---
 
