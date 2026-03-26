@@ -154,8 +154,10 @@ dag_states = {
 //             (equivalent to corXM + corMY + corXY together)
 //   expX   — X is experimentally         → X is exogenous: no arrows INTO X
 //             manipulated                  (removes xm=2,3 and xy=2,3)
-//   med    — mediation analysis          → no direct X-Y link (xy=0);
-//             X-M and M-Y links present    any(xm) and any(my)
+//   med    — mediation analysis          → requires X-M and M-Y links (any(xm) && any(my))
+//             Pure mediation (med alone): also removes direct X-Y link (xy=0).
+//             Partial mediation (med + corXY or reg active): X-Y link allowed;
+//             xy=0 constraint relaxed so the combination stays satisfiable.
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
   const any = v => v > 0;               // any connection at all
@@ -165,11 +167,17 @@ function dagConsistent(s, active) {
   if (active.includes("expX") && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
 
   for (const t of active) {
-    if (t === "corXM" && !any(xm))                          return false; // no X-M link
-    if (t === "corMY" && !any(my))                          return false; // no M-Y link
-    if (t === "corXY" && !any(xy))                          return false; // no X-Y link
-    if (t === "reg"   && !(any(xm) && any(my) && any(xy)))  return false; // all three pairs required
-    if (t === "med"   && !(any(xm) && any(my) && xy === 0)) return false; // no X-Y; X-M and M-Y present
+    if (t === "corXM" && !any(xm))                         return false; // no X-M link
+    if (t === "corMY" && !any(my))                         return false; // no M-Y link
+    if (t === "corXY" && !any(xy))                         return false; // no X-Y link
+    if (t === "reg"   && !(any(xm) && any(my) && any(xy))) return false; // all three pairs required
+    if (t === "med") {
+      if (!any(xm) || !any(my)) return false;              // X-M and M-Y links required
+      // Enforce no direct X-Y link only when there is no independent X-Y evidence
+      // (corXY or reg active). With that evidence present, partial mediation applies.
+      const hasXYEvidence = active.includes("corXY") || active.includes("reg");
+      if (!hasXYEvidence && xy !== 0) return false;
+    }
   }
   return true;
 }
