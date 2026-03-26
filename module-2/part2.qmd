@@ -626,7 +626,7 @@ The approach: ask a small pilot sample (n ≈ 20–30) to write briefly about th
 
 1. **Enumeration:** it tells you *how many* latent pathways from X to Y exist — the practical answer to "What's in X? What's in Y?"
 2. **Measurement guidance:** every concept the text reveals is a mediator you should measure quantitatively in the main study (using the scale construction tools from Module 1)
-3. **Identification strategy:** once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in Part 3 and in detail in Module 3)
+3. **Identification strategy:** once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in detail in Module 3)
 
 ::: {.callout-important}
 ## The identification problem and its resolution

@@ -27,12 +27,12 @@ set.seed(2025)
 
 ## The Core Tension
 
-Parts 3 and 4 showed a fundamental tension:
+Parts 2 and 3 showed a fundamental tension:
 
 - **More dimensions of Y** → larger design space → more N needed for orthogonality
 - **More N** → more expensive → temptation to reduce sample → back to poor orthogonality
 
-Section 4 offered two partial design-based solutions (stratification, clustering). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
+Section 3 offered two partial design-based solutions (stratification, clustering). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
 
 ## Completely Random, Factorial, and Latin Square Designs
 
