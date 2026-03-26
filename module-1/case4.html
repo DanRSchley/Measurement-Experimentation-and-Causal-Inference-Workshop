@@ -400,14 +400,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="7"><span class="header-section-number">7</span> Part 4: Latent Subgroups — When Your Sample Contains Two Different Worlds</h1>
 <section id="connecting-to-the-earlier-cases" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="connecting-to-the-earlier-cases"><span class="header-section-number">7.1</span> Connecting to the Earlier Cases</h2>
-<p>All three previous cases involved a Y variable contaminated by something extra. Case 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?</p>
+<p>All three previous parts involved a Y variable contaminated by something extra. Part 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?</p>
 <p>Imagine your 600 study participants come from two populations:</p>
 <ul>
 <li><strong>Green Champions</strong> (~60% of the sample): Highly environmentally concerned, willing to pay premium prices for eco-friendly products. They respond strongly to the green marketing campaign.</li>
 <li><strong>Price Skeptics</strong> (~40% of the sample): Price-driven, less concerned with environmental credentials. They barely respond to the same campaign.</li>
 </ul>
 <p>If you analyse the full sample as if everyone is the same type of consumer, you get an estimate of the “average” treatment effect. But that average is the mathematical midpoint between two very different responses — it may not accurately describe <em>either</em> group. Your GPI outcome now measures a mixture of “how Green Champions responded” and “how Price Skeptics responded.” That is, once again, Y reflects more than X.</p>
-<p>This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Case 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.</p>
+<p>This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Part 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -546,7 +546,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p>What you just saw in the two panels is a textbook example of <strong>Simpson’s Paradox</strong>: a relationship that appears strong and consistent in the aggregate data reverses — or dissolves — when you condition on a hidden grouping variable.</p>
 <p>Simpson’s Paradox comes up whenever your data have a <strong>nested structure</strong> that you’re ignoring. The classic marketing contexts: - Survey data pooled across different market segments - Panel data where unit-level effects differ from the aggregate trend - Multi-country datasets where the country effect dominates individual-level effects - Any dataset where “the sample” is actually a mixture of distinct populations</p>
-<p>The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is <em>exactly</em> the mechanism that causes discriminant validity failures when latent subgroups are present (Case 1 connection).</p>
+<p>The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is <em>exactly</em> the mechanism that causes discriminant validity failures when latent subgroups are present (Part 1 connection).</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning callout-titled">
@@ -559,7 +559,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Left panel (what you see):</strong> A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Case 1.</p>
+<p><strong>Left panel (what you see):</strong> A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Part 1.</p>
 <p><strong>Right panel (oracle reveal):</strong> The relationship separates into two distinct clusters. Within each class, the EC–GPI correlation is much weaker. The high <em>pooled</em> correlation is largely a consequence of the two groups sitting at different positions on both axes — not because EC and GPI measure the same thing within a group.</p>
 <p>This is called <strong>Simpson’s paradox</strong> in statistics — aggregate patterns can completely reverse or disappear when you break the data down by a hidden grouping variable.</p>
 </div>
@@ -586,7 +586,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p>Imagine you are looking at a scatterplot of EC and GPI scores and you can see two rough blobs of points but you can’t tell where one ends and the other begins.</p>
 <p><strong>Starting guess (Step 0):</strong> The algorithm randomly places two “cluster centers” somewhere in the data. Think of these as two starting hypotheses about where Green Champions and Price Skeptics tend to sit.</p>
-<p><strong>E-step (Expectation):</strong> For each person in the data, the algorithm computes: <em>“Given where the cluster centers currently are, what is the probability this person belongs to Class 1 vs.&nbsp;Class 2?”</em> Someone right at the edge between the two clusters gets, say, 55% Class 1 and 45% Class 2. Someone deep inside a cluster gets 99% vs 1%. These are <strong>soft assignments</strong> — everyone has a probability of belonging to each class, not a hard yes/no.</p>
+<p><strong>E-step (Expectation):</strong> For each person in the data, the algorithm computes: <em>“Given where the cluster centers currently are, what is the probability this person belongs to Class 1 vs.&nbsp;Class 2?”</em> Someone right at the edge between the two clusters gets, say, 55% Class 1 and 45% Class 2. Someone deep inside a cluster gets 99% vs.&nbsp;1%. These are <strong>soft assignments</strong> — everyone has a probability of belonging to each class, not a hard yes/no.</p>
 <p><strong>M-step (Maximization):</strong> Using those probabilities as weights, the algorithm recalculates the best-fitting cluster center for each class. A person who is 99% Class 1 contributes almost fully to the Class 1 center. A person who is 50/50 contributes half to each. The cluster centers shift to better fit the data.</p>
 <p><strong>Repeat:</strong> The algorithm alternates E and M steps until the cluster centers stop moving (converge). At that point, you have your estimated latent classes.</p>
 <p>The key advantage over k-means (which you may have heard of): <strong>EM produces probabilities</strong>, not hard assignments. This is both more realistic (most people are not purely one type) and more statistically principled. It also naturally handles clusters of different shapes and sizes.</p>
@@ -818,7 +818,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li><strong>Unexpectedly high HTMT / factor correlations</strong> in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Case 1 connection)</li>
+<li><strong>Unexpectedly high HTMT / factor correlations</strong> in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Part 1 connection)</li>
 <li><strong>Bimodal or non-normal distributions</strong> in your scale scores — histogram with two humps suggests a mixture</li>
 <li><strong>Unstable regression coefficients</strong> across subsamples (men vs.&nbsp;women, different markets, etc.)</li>
 <li><strong>Large heterogeneity in individual responses</strong> — residual variance is very high despite significant effects</li>

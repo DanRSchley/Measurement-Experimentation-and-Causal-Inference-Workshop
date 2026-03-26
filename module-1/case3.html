@@ -411,10 +411,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="6"><span class="header-section-number">6</span> Part 3: Measurement Non-Invariance — A Special Case of Discriminant Validity</h1>
 <section id="connecting-to-cases-1-and-2" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="connecting-to-cases-1-and-2"><span class="header-section-number">6.1</span> Connecting to Cases 1 and 2</h2>
-<p>Cases 1 and 2 both showed how Y captures more than X. Case 3 is actually a <strong>special case of the discriminant validity problem from Case 1</strong> — it just appears in an experimental context.</p>
-<p>Here’s the connection: in Case 1, the GPI scale failed discriminant validity because it was contaminated by a <em>different construct</em> (Environmental Concern). In Case 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.</p>
+<p>Parts 1 and 2 both showed how Y captures more than X. Part 3 is actually a <strong>special case of the discriminant validity problem from Part 1</strong> — it just appears in an experimental context.</p>
+<p>Here’s the connection: in Part 1, the GPI scale failed discriminant validity because it was contaminated by a <em>different construct</em> (Environmental Concern). In Part 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.</p>
 <p>When that happens, “GPI” no longer measures the same construct across groups. Within each group the scale may be fine; but across groups, the same item is measuring subtly different things. This is a discriminant validity failure in disguise — the measurement model is picking up “item-specific sensitivity to the marketing treatment” alongside “genuine purchase intention.”</p>
-<p>And if your sample contains latent subgroups (Case 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.</p>
+<p>And if your sample contains latent subgroups (Part 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -447,17 +447,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Case 1</strong></td>
+<td><strong>Part 1</strong></td>
 <td>GPI and EC overlap as constructs</td>
 <td>High factor correlation; HTMT &gt; 0.90</td>
 </tr>
 <tr class="even">
-<td><strong>Case 2</strong></td>
+<td><strong>Part 2</strong></td>
 <td>Omitted store quality confounds X and Y</td>
 <td>Fan-shaped residuals; coefficient instability</td>
 </tr>
 <tr class="odd">
-<td><strong>Case 3</strong></td>
+<td><strong>Part 3</strong></td>
 <td>GPI items shift across conditions</td>
 <td>Scalar model fails; mod. indices flag specific items</td>
 </tr>
@@ -1066,7 +1066,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="callout-body-container callout-body">
 <p>The full scalar model forces GPI1 and GPI2 to behave as if they’re invariant. Since they’re not, their elevated scores in the treatment group get attributed to a larger latent GPI shift — inflating the estimated treatment effect above 0.40.</p>
 <p>The partial invariance model correctly absorbs the item-level shifts into the freed intercepts, and the estimated latent mean difference recovers to something close to the true 0.40.</p>
-<p><strong>This is the discriminant validity connection:</strong> the scale in the treatment group is partially measuring “item-specific response to green marketing” alongside “genuine purchase intention” — exactly the same “Y measures X + something else” problem as Case 1. Measurement invariance testing is how you detect it in an experimental setting.</p>
+<p><strong>This is the discriminant validity connection:</strong> the scale in the treatment group is partially measuring “item-specific response to green marketing” alongside “genuine purchase intention” — exactly the same “Y measures X + something else” problem as Part 1. Measurement invariance testing is how you detect it in an experimental setting.</p>
 </div>
 </div>
 </section>

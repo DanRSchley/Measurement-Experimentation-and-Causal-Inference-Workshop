@@ -460,7 +460,7 @@ window.Quarto = {
 <li>When an omitted variable drives both your predictor and outcome (<strong>Part 2</strong>), the “error” in your regression coefficient is systematic, not random.</li>
 <li>When scale items shift their baseline across groups (<strong>Part 3</strong>), ε differs systematically between conditions.</li>
 <li>When your sample mixes two populations (<strong>Part 4</strong>), ε has a bimodal structure that standard models cannot represent.</li>
-<li>When the scale has hard bounds (<strong>Part 6</strong>), ε is asymmetrically truncated — larger in one direction than the other.</li>
+<li>When your data contain influential outliers (<strong>Part 5</strong>), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.</li>
 </ul>
 <p><strong>Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.</strong> Consider a case where we are trying to measure Green Purchase Intentions (GPI) but our measurement also captures a related but separable construct Environmental Concern (EC), then the CTT equation becomes:</p>
 <p><span class="math display">\[X_\text{GPI} = T_\text{true GPI} + \lambda \cdot T_\text{EC} + \varepsilon_\text{random}\]</span></p>
