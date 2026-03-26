@@ -1084,7 +1084,7 @@ plot(sdid_est, se.method="placebo")
 
 ## When Parallel Trends Fails — and Pre-Testing Cannot Always Save You {#sec-pt-failure}
 
-Parallel trends is **not directly testable** — you never observe what Dutch stores would have done without the eco-label law. What you *can* test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:
+Parallel trends are **not directly testable** — you never observe what Dutch stores would have done without the eco-label law. What you *can* test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:
 
 1. **Too few pre-treatment periods.** Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.
 2. **You collect whatever data exists.** Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.
@@ -1157,7 +1157,7 @@ p_few_v  <- plot_pt_panel(panel_few_v,
   )
 ```
 
-With 8 pre-periods the violation is glaringly obvious — you would never run DiD here. With 2 pre-periods the same violation is invisible. Yet the DiD estimate is equally spurious in both cases:
+With 8 pre-periods, the violation is glaringly obvious — you would never run DiD here. With 2 pre-periods, the same violation is invisible. Yet the DiD estimate is equally spurious in both cases:
 
 ```{r pt-violation-did}
 #| code-summary: "▶ DiD on 2-pre-period data: statistically significant, entirely spurious"
@@ -1181,7 +1181,7 @@ We now formalise this with 300 simulations per condition. **True effect = \$0 th
 | **Overall Type I error** | How often does DiD falsely reject H₀? |
 | **Conditional Type I error** | Given the pre-test *passes* (p ≥ .05), how often does DiD still falsely reject? |
 
-The conditional rate is what matters most: it is the false-positive rate faced by researchers who *did their due diligence* with an event study and got a clean-looking pre-trend.
+The conditional rate is what matters most: it is the false-positive rate faced by researchers who *did their due diligence* with an event study and got clean-looking pre-trends.
 
 ```{r pt-simulation}
 #| code-summary: "▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)"
@@ -1505,7 +1505,7 @@ tibble(
 
 ## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
 
-Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55 to OLS — inflating the b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
+Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
 
 ::: {.callout-note}
 ## Why correlated outliers inflate the *b*-path specifically

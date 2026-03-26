@@ -310,7 +310,7 @@ tibble(
 
 ## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
 
-Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55 to OLS — inflating the b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
+Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
 
 ::: {.callout-note}
 ## Why correlated outliers inflate the *b*-path specifically
