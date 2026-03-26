@@ -139,36 +139,43 @@ dag_states = {
 ```{ojs}
 //| echo: false
 // ── Consistency logic ──────────────────────────────────────────────────────────
-// Returns true if state s is consistent with all active tool findings
+// Returns true if state s is consistent with all active tool findings.
+//
+// Arrow code per pair: 0=none, 1=A→B (forward), 2=A←B (backward), 3=A↔B (bidir)
+// Pairs: xm (X,M), my (M,Y), xy (X,Y)
+//
+// Tool logic (each button represents a POSITIVE finding that rules out
+// structures that cannot produce that result):
+//
+//   corXM  — observed cor(X,M)>0        → requires any direct X-M link (xm≠0)
+//   corMY  — observed cor(M,Y)>0        → requires any direct M-Y link (my≠0)
+//   corXY  — observed cor(X,Y)>0        → requires any direct X-Y link (xy≠0)
+//   expXM  — manipulated X, M changed   → requires forward X→M link; also makes
+//             X exogenous (no arrows INTO X: removes xm=2,3 and xy=2,3)
+//   expXY  — manipulated X, Y changed   → requires forward X→Y link; same
+//             exogeneity constraint
+//   regX   — Y~X+M: X significant       → requires direct X→Y path (after M ctrl)
+//   regM   — Y~X+M: M significant       → requires direct M→Y path (after X ctrl)
+//   med    — significant X→M→Y indirect → requires forward X→M AND forward M→Y
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
-  const fwd = v => v === 1 || v === 3;   // forward causal path exists (A→B or A↔B)
-  const any = v => v > 0;                // any connection at all
+  const fwd = v => v === 1 || v === 3;  // forward causal path: A→B or A↔B
+  const any = v => v > 0;               // any connection at all
 
-  // Does X-Y have an unconditional (marginal) correlation?
-  // No → only if there is no direct X-Y link AND no open path through M.
-  // The pure collider X→M←Y does NOT create marginal X-Y correlation.
-  const corXY = () => {
-    if (any(xy)) return true;
-    if (!any(xm) || !any(my)) return false;
-    if (xm === 1 && my === 2) return false; // pure collider: X→M←Y
-    return true;
-  };
-
-  // Experimental manipulation of X makes it exogenous: no variable can cause X.
-  // Rules out M→X (xm=2), X↔M (xm=3), Y→X (xy=2), and X↔Y (xy=3).
+  // Experimental manipulation of X makes it exogenous.
+  // Rules out M→X (xm=2), X↔M (xm=3), Y→X (xy=2), X↔Y (xy=3).
   const xManipulated = active.includes("expXM") || active.includes("expXY");
   if (xManipulated && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
 
   for (const t of active) {
-    if (t === "corXM" && !any(xm))                            return false;
-    if (t === "corMY" && !any(my))                            return false;
-    if (t === "corXY" && !corXY())                            return false;
-    if (t === "expXM" && !fwd(xm))                           return false;
-    if (t === "expXY" && !(fwd(xy) || (fwd(xm) && fwd(my)))) return false;
-    if (t === "regX"  && !fwd(xy))                           return false;
-    if (t === "regM"  && !fwd(my))                           return false;
-    if (t === "med"   && !(fwd(xm) && fwd(my)))              return false;
+    if (t === "corXM" && !any(xm))           return false; // no X-M link → inconsistent
+    if (t === "corMY" && !any(my))           return false; // no M-Y link → inconsistent
+    if (t === "corXY" && !any(xy))           return false; // no X-Y link → inconsistent
+    if (t === "expXM" && !fwd(xm))           return false; // X must cause M directly
+    if (t === "expXY" && !fwd(xy))           return false; // X must cause Y directly
+    if (t === "regX"  && !fwd(xy))           return false; // direct X→Y effect required
+    if (t === "regM"  && !fwd(my))           return false; // direct M→Y effect required
+    if (t === "med"   && !(fwd(xm) && fwd(my))) return false; // X→M and M→Y both required
   }
   return true;
 }
