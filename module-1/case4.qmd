@@ -43,7 +43,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 ## Connecting to the Earlier Cases
 
-All three previous cases involved a Y variable contaminated by something extra. Case 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?
+All three previous parts involved a Y variable contaminated by something extra. Part 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?
 
 Imagine your 600 study participants come from two populations:
 
@@ -52,7 +52,7 @@ Imagine your 600 study participants come from two populations:
 
 If you analyse the full sample as if everyone is the same type of consumer, you get an estimate of the "average" treatment effect. But that average is the mathematical midpoint between two very different responses — it may not accurately describe *either* group. Your GPI outcome now measures a mixture of "how Green Champions responded" and "how Price Skeptics responded." That is, once again, Y reflects more than X.
 
-This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Case 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.
+This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Part 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.
 
 ::: {.callout-note}
 ## The connection to discriminant validity
@@ -175,13 +175,13 @@ Simpson's Paradox comes up whenever your data have a **nested structure** that y
 - Multi-country datasets where the country effect dominates individual-level effects
 - Any dataset where "the sample" is actually a mixture of distinct populations
 
-The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is *exactly* the mechanism that causes discriminant validity failures when latent subgroups are present (Case 1 connection).
+The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is *exactly* the mechanism that causes discriminant validity failures when latent subgroups are present (Part 1 connection).
 :::
 
 ::: {.callout-warning}
 ## What the two panels show
 
-**Left panel (what you see):** A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Case 1.
+**Left panel (what you see):** A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Part 1.
 
 **Right panel (oracle reveal):** The relationship separates into two distinct clusters. Within each class, the EC–GPI correlation is much weaker. The high *pooled* correlation is largely a consequence of the two groups sitting at different positions on both axes — not because EC and GPI measure the same thing within a group.
 
@@ -204,7 +204,7 @@ Imagine you are looking at a scatterplot of EC and GPI scores and you can see tw
 
 **Starting guess (Step 0):** The algorithm randomly places two "cluster centers" somewhere in the data. Think of these as two starting hypotheses about where Green Champions and Price Skeptics tend to sit.
 
-**E-step (Expectation):** For each person in the data, the algorithm computes: *"Given where the cluster centers currently are, what is the probability this person belongs to Class 1 vs. Class 2?"* Someone right at the edge between the two clusters gets, say, 55% Class 1 and 45% Class 2. Someone deep inside a cluster gets 99% vs 1%. These are **soft assignments** — everyone has a probability of belonging to each class, not a hard yes/no.
+**E-step (Expectation):** For each person in the data, the algorithm computes: *"Given where the cluster centers currently are, what is the probability this person belongs to Class 1 vs. Class 2?"* Someone right at the edge between the two clusters gets, say, 55% Class 1 and 45% Class 2. Someone deep inside a cluster gets 99% vs. 1%. These are **soft assignments** — everyone has a probability of belonging to each class, not a hard yes/no.
 
 **M-step (Maximization):** Using those probabilities as weights, the algorithm recalculates the best-fitting cluster center for each class. A person who is 99% Class 1 contributes almost fully to the Class 1 center. A person who is 50/50 contributes half to each. The cluster centers shift to better fit the data.
 
@@ -351,7 +351,7 @@ The pooled estimate is a weighted average of two very different effects. If Gree
 ::: {.callout-note}
 ## Checklist: signs that latent subgroups may be distorting your results
 
-1. **Unexpectedly high HTMT / factor correlations** in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Case 1 connection)
+1. **Unexpectedly high HTMT / factor correlations** in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Part 1 connection)
 2. **Bimodal or non-normal distributions** in your scale scores — histogram with two humps suggests a mixture
 3. **Unstable regression coefficients** across subsamples (men vs. women, different markets, etc.)
 4. **Large heterogeneity in individual responses** — residual variance is very high despite significant effects

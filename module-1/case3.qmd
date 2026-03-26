@@ -60,13 +60,13 @@ gen_items <- function(latent, loadings) {
 
 ## Connecting to Cases 1 and 2
 
-Cases 1 and 2 both showed how Y captures more than X. Case 3 is actually a **special case of the discriminant validity problem from Case 1** — it just appears in an experimental context.
+Parts 1 and 2 both showed how Y captures more than X. Part 3 is actually a **special case of the discriminant validity problem from Part 1** — it just appears in an experimental context.
 
-Here's the connection: in Case 1, the GPI scale failed discriminant validity because it was contaminated by a *different construct* (Environmental Concern). In Case 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.
+Here's the connection: in Part 1, the GPI scale failed discriminant validity because it was contaminated by a *different construct* (Environmental Concern). In Part 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.
 
 When that happens, "GPI" no longer measures the same construct across groups. Within each group the scale may be fine; but across groups, the same item is measuring subtly different things. This is a discriminant validity failure in disguise — the measurement model is picking up "item-specific sensitivity to the marketing treatment" alongside "genuine purchase intention."
 
-And if your sample contains latent subgroups (Case 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.
+And if your sample contains latent subgroups (Part 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.
 
 ::: {.callout-note}
 ## Two kinds of shift to distinguish
@@ -80,9 +80,9 @@ And if your sample contains latent subgroups (Case 4), the items may appear non-
 
 | | What produces the group difference in Y | How it shows up |
 |---|---|---|
-| **Case 1** | GPI and EC overlap as constructs | High factor correlation; HTMT > 0.90 |
-| **Case 2** | Omitted store quality confounds X and Y | Fan-shaped residuals; coefficient instability |
-| **Case 3** | GPI items shift across conditions | Scalar model fails; mod. indices flag specific items |
+| **Part 1** | GPI and EC overlap as constructs | High factor correlation; HTMT > 0.90 |
+| **Part 2** | Omitted store quality confounds X and Y | Fan-shaped residuals; coefficient instability |
+| **Part 3** | GPI items shift across conditions | Scalar model fails; mod. indices flag specific items |
 
 ## Two Scenarios to Compare
 
@@ -414,7 +414,7 @@ The full scalar model forces GPI1 and GPI2 to behave as if they're invariant. Si
 
 The partial invariance model correctly absorbs the item-level shifts into the freed intercepts, and the estimated latent mean difference recovers to something close to the true 0.40.
 
-**This is the discriminant validity connection:** the scale in the treatment group is partially measuring "item-specific response to green marketing" alongside "genuine purchase intention" — exactly the same "Y measures X + something else" problem as Case 1. Measurement invariance testing is how you detect it in an experimental setting.
+**This is the discriminant validity connection:** the scale in the treatment group is partially measuring "item-specific response to green marketing" alongside "genuine purchase intention" — exactly the same "Y measures X + something else" problem as Part 1. Measurement invariance testing is how you detect it in an experimental setting.
 :::
 
 ## Other Methods for Testing Measurement Invariance

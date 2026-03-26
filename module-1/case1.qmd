@@ -56,7 +56,7 @@ But this assumption is almost always violated in practice. The measurement error
 - When an omitted variable drives both your predictor and outcome (**Part 2**), the "error" in your regression coefficient is systematic, not random.
 - When scale items shift their baseline across groups (**Part 3**), ε differs systematically between conditions.
 - When your sample mixes two populations (**Part 4**), ε has a bimodal structure that standard models cannot represent.
-- When the scale has hard bounds (**Part 6**), ε is asymmetrically truncated — larger in one direction than the other.
+- When your data contain influential outliers (**Part 5**), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.
 
 **Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.** Consider a case where we are trying to measure Green Purchase Intentions (GPI) but our measurement also captures a related but separable construct Environmental Concern (EC), then the CTT equation becomes:
 
