@@ -30,8 +30,8 @@ By the end of this module you should be able to:
 | Paper | Why it matters |
 |---|---|
 | [Imbens & Rubin (2015)](https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB) — *Causal Inference for Statistics, Social, and Biomedical Sciences* | Comprehensive treatment of the potential outcomes framework with broad applications |
-| [Spencer, Zanna & Fong (2005)](https://doi.org/10.1037/0022-3514.89.6.845) — *Establishing a Causal Chain* | When and how to test mediation with experiments |
-| [Pieters (2017)](https://doi.org/10.1093/jcr/ucx063) — *Meaningful Mediation Analysis* | What mediation analysis can and cannot establish |
+| [Spencer, Zanna & Fong (2005)](https://doi.org/10.1037/0022-3514.89.6.845) — *Establishing a Causal Chain* | Argues that causal mediation requires experimental manipulation of the mediator, not just statistical controls — explains the logic and provides a concrete design template |
+| [Pieters (2017)](https://doi.org/10.1093/jcr/ucx063) — *Meaningful Mediation Analysis* | Distinguishes between plausible causal mediation and mere statistical decomposition; shows how to interpret indirect effects without overclaiming and how to communicate them clearly |
 | [Rohrer et al. (2022)](https://doi.org/10.1177/25152459221095827) | Common pitfalls in path model interpretation — when your DAG leads you astray |
 | [Alfons & Schley (2025)](https://doi.org/10.1002/wics.70051) | Robust mediation analysis: methods that remain valid when outliers or distributional assumptions are violated |
 | [Imai et al. (2010)](https://doi.org/10.1037/a0020761) | The formal causal framework for mediation analysis and the assumptions required for identification |

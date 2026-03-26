@@ -31,7 +31,7 @@ By the end of this module you should be able to:
 | [Cohen (1994)](https://doi.org/10.1037/0003-066X.49.12.997) — *The Earth is Round (p < .05)* | The classic critique of NHST, still the best starting point |
 | [Simmons, Nelson & Simonsohn (2011)](https://doi.org/10.1177/0956797611417632) — *False-Positive Psychology* | Demonstrates how researcher degrees of freedom inflate false positives |
 | [Wells & Windschitl (1999)](https://doi.org/10.1177/01461672992511011) — *Stimulus Sampling* | Why treating stimuli as fixed effects is a validity threat |
-| [Bahník & Vranka (2017)](https://doi.org/10.1177/0956797616685770) | A worked example of stimulus sampling in practice |
+| [Bahník & Vranka (2017)](https://doi.org/10.1177/0956797616685770) | Shows that a well-known fluency–risk effect disappears entirely when tested on new stimuli — a direct empirical demonstration of why treating stimuli as fixed is a validity threat |
 | [André (2022)](https://doi.org/10.1037/xge0001097) — *How (Not) to Exclude Outliers* | Researcher degrees of freedom in outlier exclusion |
 | Smaldino (2017) — *Models are Stupid, and We Need More of Them* | Why formal models help you think clearly about hypothesis testing (book chapter in *Computational Social Psychology*) |
 | [Simonsohn, Montealegre & Evangelidis (2025)](https://doi.org/10.1037/pspa0000449) | Reimagines stimulus sampling with mix-and-match designs and stimulus-level visualization of results |
