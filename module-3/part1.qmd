@@ -147,35 +147,29 @@ dag_states = {
 // Tool logic (each button represents a POSITIVE finding that rules out
 // structures that cannot produce that result):
 //
-//   corXM  — observed cor(X,M)>0        → requires any direct X-M link (xm≠0)
-//   corMY  — observed cor(M,Y)>0        → requires any direct M-Y link (my≠0)
-//   corXY  — observed cor(X,Y)>0        → requires any direct X-Y link (xy≠0)
-//   expXM  — manipulated X, M changed   → requires forward X→M link; also makes
-//             X exogenous (no arrows INTO X: removes xm=2,3 and xy=2,3)
-//   expXY  — manipulated X, Y changed   → requires forward X→Y link; same
-//             exogeneity constraint
-//   regX   — Y~X+M: X significant       → requires direct X→Y path (after M ctrl)
-//   regM   — Y~X+M: M significant       → requires direct M→Y path (after X ctrl)
-//   med    — significant X→M→Y indirect → requires forward X→M AND forward M→Y
+//   corXM  — observed cor(X,M)>0         → requires any X-M link (xm≠0)
+//   corMY  — observed cor(M,Y)>0         → requires any M-Y link (my≠0)
+//   corXY  — observed cor(X,Y)>0         → requires any X-Y link (xy≠0)
+//   reg    — regression Y ~ X + M        → requires all three pairs linked
+//             (equivalent to corXM + corMY + corXY together)
+//   expX   — X is experimentally         → X is exogenous: no arrows INTO X
+//             manipulated                  (removes xm=2,3 and xy=2,3)
+//   med    — mediation analysis          → no direct X-Y link (xy=0);
+//             X-M and M-Y links present    any(xm) and any(my)
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
-  const fwd = v => v === 1 || v === 3;  // forward causal path: A→B or A↔B
   const any = v => v > 0;               // any connection at all
 
-  // Experimental manipulation of X makes it exogenous.
+  // Experimental manipulation of X makes it exogenous: no arrows into X.
   // Rules out M→X (xm=2), X↔M (xm=3), Y→X (xy=2), X↔Y (xy=3).
-  const xManipulated = active.includes("expXM") || active.includes("expXY");
-  if (xManipulated && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
+  if (active.includes("expX") && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
 
   for (const t of active) {
-    if (t === "corXM" && !any(xm))           return false; // no X-M link → inconsistent
-    if (t === "corMY" && !any(my))           return false; // no M-Y link → inconsistent
-    if (t === "corXY" && !any(xy))           return false; // no X-Y link → inconsistent
-    if (t === "expXM" && !fwd(xm))           return false; // X must cause M directly
-    if (t === "expXY" && !fwd(xy))           return false; // X must cause Y directly
-    if (t === "regX"  && !fwd(xy))           return false; // direct X→Y effect required
-    if (t === "regM"  && !fwd(my))           return false; // direct M→Y effect required
-    if (t === "med"   && !(fwd(xm) && fwd(my))) return false; // X→M and M→Y both required
+    if (t === "corXM" && !any(xm))                          return false; // no X-M link
+    if (t === "corMY" && !any(my))                          return false; // no M-Y link
+    if (t === "corXY" && !any(xy))                          return false; // no X-Y link
+    if (t === "reg"   && !(any(xm) && any(my) && any(xy)))  return false; // all three pairs required
+    if (t === "med"   && !(any(xm) && any(my) && xy === 0)) return false; // no X-Y; X-M and M-Y present
   }
   return true;
 }
@@ -186,14 +180,12 @@ function dagConsistent(s, active) {
 // ── Tool buttons ───────────────────────────────────────────────────────────────
 viewof activeTools = {
   const TOOLS = [
-    { id:"corXM", cat:"Correlations",  label:"cor(X, M) > 0",                sub:"X and M co-vary" },
-    { id:"corMY", cat:"Correlations",  label:"cor(M, Y) > 0",                sub:"M and Y co-vary" },
-    { id:"corXY", cat:"Correlations",  label:"cor(X, Y) > 0",                sub:"X and Y co-vary" },
-    { id:"expXM", cat:"Experiment",    label:"Manipulate X → M changes",     sub:"X has a causal effect on M" },
-    { id:"expXY", cat:"Experiment",    label:"Manipulate X → Y changes",     sub:"X has a causal effect on Y" },
-    { id:"regX",  cat:"Regression",    label:"X → Y  (direct, after M)",     sub:"Y ~ X + M: X still significant" },
-    { id:"regM",  cat:"Regression",    label:"M → Y  (direct, after X)",     sub:"Y ~ X + M: M still significant" },
-    { id:"med",   cat:"Mediation",     label:"X → M → Y  indirect path",     sub:"Significant indirect effect" },
+    { id:"corXM", cat:"Correlations", label:"cor(X, M) > 0",          sub:"X and M co-vary" },
+    { id:"corMY", cat:"Correlations", label:"cor(M, Y) > 0",          sub:"M and Y co-vary" },
+    { id:"corXY", cat:"Correlations", label:"cor(X, Y) > 0",          sub:"X and Y co-vary" },
+    { id:"reg",   cat:"Regression",   label:"Regression Y ~ X + M",   sub:"All three pairs must be linked" },
+    { id:"expX",  cat:"Experiment",   label:"Manipulate X",            sub:"X is exogenous — removes all arrows into X" },
+    { id:"med",   cat:"Mediation",    label:"X → M → Y  indirect",    sub:"No direct X–Y link; X–M and M–Y links present" },
   ];
   const ICONS = { Correlations:"🔗", Experiment:"🧪", Regression:"📊", Mediation:"⛓️" };
   const active = new Set();
