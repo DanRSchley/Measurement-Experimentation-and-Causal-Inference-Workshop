@@ -155,6 +155,11 @@ function dagConsistent(s, active) {
     return true;
   };
 
+  // Experimental manipulation of X makes it exogenous: no variable can cause X.
+  // Rules out M→X (xm=2), X↔M (xm=3), Y→X (xy=2), and X↔Y (xy=3).
+  const xManipulated = active.includes("expXM") || active.includes("expXY");
+  if (xManipulated && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
+
   for (const t of active) {
     if (t === "corXM" && !any(xm))                            return false;
     if (t === "corMY" && !any(my))                            return false;

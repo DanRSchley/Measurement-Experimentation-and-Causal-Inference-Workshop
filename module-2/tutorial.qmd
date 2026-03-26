@@ -1597,7 +1597,7 @@ This is the direct parallel to Module 1's discriminant validity problem: just as
 
 **5. Two Further Threats to Mediation Inference — and Their Remedies**
 
-The parallel mediation and SEM above address *which* mediators to include and *how* to model them. Two additional threats remain regardless of model specification: **non-normal residuals / influential outliers** (which can corrupt OLS *b*-path estimates) and **unmeasured M–Y confounders** which we will disucss in Module 3.
+The parallel mediation and SEM above address *which* mediators to include and *how* to model them. Two additional threats remain regardless of model specification: **non-normal residuals / influential outliers** (which can corrupt OLS *b*-path estimates) and **unmeasured M–Y confounders** which we will discuss in Module 3.
 
 ---
 
