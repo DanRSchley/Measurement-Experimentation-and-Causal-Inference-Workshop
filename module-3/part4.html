@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -478,6 +478,8 @@ window.Quarto = {
 <p><span class="math display">\[\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_{\text{Belgian}}}_{\text{counterfactual proxy}} = \delta_{\text{DiD}}\]</span></p>
 <p><strong>Reading the plot above:</strong> The two lines run nearly parallel from 2018–2021 (same slope, constant gap). After 2022 the Dutch line separates from the Belgian. DiD attributes that separation — roughly $0.70 — to the eco-label law, <em>after</em> subtracting whatever movement Belgium showed over the same period (which would have happened anyway).</p>
 <p><strong>What makes this assumption fail?</strong> Anything that makes Dutch and Belgian stores diverge <em>for reasons unrelated to the law</em> — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.</p>
+<p><strong>The parallel trends assumption and Module 2:</strong> Parallel trends is to DiD what exchangeability is to experimentation. In Module 2, you saw that even carefully randomised experiments can fail exchangeability — attrition, demand effects, and differential compliance all erode it. In DiD, parallel trends is unverifiable for the post-treatment period (we never observe what Dutch stores would have done without the law). Pre-treatment trend tests provide <em>some</em> diagnostic evidence, but just as a successful manipulation check does not <em>prove</em> the exclusion restriction (Module 2), clean pre-trends do not <em>prove</em> that post-treatment trends would have remained parallel. It is an assumption, not a result.</p>
+<p><strong>A Module 1 parallel:</strong> Fixed effects eliminate time-invariant confounders — but only if the <em>measurement</em> of the outcome variable is consistent across time and units. If the WTP question wording, scale, or survey protocol changes between periods (a measurement artefact from Module 1), the DiD estimate conflates treatment effects with measurement change. In practice, always verify that outcome measurement is held constant across waves.</p>
 </div>
 </div>
 </section>
@@ -733,6 +735,7 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 <li><strong>Too few pre-treatment periods.</strong> Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.</li>
 <li><strong>You collect whatever data exists.</strong> Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.</li>
 </ol>
+<p><strong>The Module 2 power connection:</strong> In Module 2, you saw how underpowered studies inflate apparent effect sizes — only the most extreme estimates cross the significance threshold, leading to an inflated published literature. The same logic applies here in reverse: a pre-trend test with only two pre-periods has low power to <em>detect</em> a violation, so a non-significant result tells you very little. A failure to find pre-trend divergence with few observations is not evidence that trends were parallel — it is evidence that your test had insufficient power to catch the divergence that may have been there. This is one reason Callaway–Sant’Anna and other modern DiD estimators require researchers to be explicit about the number of clean pre-periods available.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -419,7 +419,9 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p>Imagine two products with audit scores of 69 and 71. They have almost identical green credentials — similar supply chains, similar materials — but the auditor’s ruler is imprecise. Those two points of difference are largely measurement noise. Yet one gets the badge and the other doesn’t. <strong>Near the cutoff, badge assignment is as good as a coin flip.</strong></p>
 <p>This local near-randomness is what makes the jump causal. It is equivalent to a mini natural experiment: products just above and just below 70 are exchangeable in every way except for badge receipt. The jump in WTP at that threshold is therefore attributable <em>entirely</em> to the badge.</p>
-<p><strong>The cost of this elegance</strong>: the estimate is a <em>local</em> average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently.</p>
+<p><strong>The cost of this elegance</strong>: the estimate is a <em>local</em> average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently. This LATE is conceptually identical to the LATE from Part 1 of this module — both arise because the causal estimate is anchored to a specific sub-population (compliers near the threshold) rather than the full population.</p>
+<p><strong>A Module 2 connection:</strong> The “as-good-as-random near the cutoff” logic is local randomisation — a naturally occurring version of the randomised experiment studied in Module 2. The same assumption that makes experiments valid (exchangeability of treated and control) holds here, but only locally. In Module 2, randomisation made exchangeability a design guarantee; here, it is an <em>empirical claim</em> that must be verified through the diagnostics below.</p>
+<p><strong>A Module 1 connection:</strong> The running variable itself is a measurement. If audit scores are measured with substantial error — auditors apply different standards, or scores reflect lobbying as much as sustainability — then the near-threshold units may <em>not</em> be as similar as assumed. Measurement error in the running variable biases the RDD estimate toward zero (attenuation at the boundary) and inflates the apparent smoothness of pre-cutoff trends. This is the causal-inference analogue of the reliability problem in Module 1: a noisy ruler undermines the precision of every inference drawn from it.</p>
 <p><strong>A practical check to run first</strong>: If brands can game the audit score to land just above 70, the “as-good-as-random” assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.</p>
 </div>
 </div>
@@ -529,50 +531,14 @@ Window Length              &lt;c     &gt;=c    P&gt;|T|
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: look at the p-value in the summary output; p &gt; .05 is required for</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    the no-manipulation assumption; also inspect the density plot for visible</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    bunching or a gap immediately around the cutoff.</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rdplotdensity</span>(dens_test, <span class="at">X=</span>df_rdd<span class="sc">$</span>audit_score,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">rdplotdensity</span>(dens_test, <span class="at">X=</span>df_rdd<span class="sc">$</span>audit_score,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">title=</span><span class="st">"Density test: checking for bunching at the 70-point cutoff"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">xlabel=</span><span class="st">"Audit score"</span>, <span class="at">ylabel=</span><span class="st">"Density"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">xlabel=</span><span class="st">"Audit score"</span>, <span class="at">ylabel=</span><span class="st">"Density"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
 <p><img src="figs/rdd-density-test-1.svg" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$Estl
-Call: lpdensity
-
-Sample size                                      677
-Polynomial order for point estimation    (p=)    2
-Order of derivative estimated            (v=)    1
-Polynomial order for confidence interval (q=)    3
-Kernel function                                  triangular
-Scaling factor                                   0.564637197664721
-Bandwidth method                                 user provided
-
-Use summary(...) to show estimates.
-
-$Estr
-Call: lpdensity
-
-Sample size                                      523
-Polynomial order for point estimation    (p=)    2
-Order of derivative estimated            (v=)    1
-Polynomial order for confidence interval (q=)    3
-Kernel function                                  triangular
-Scaling factor                                   0.436196830692244
-Bandwidth method                                 user provided
-
-Use summary(...) to show estimates.
-
-$Estplot</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/rdd-density-test-2.svg" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -584,16 +550,16 @@ $Estplot</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>env_rdd <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_rdd, <span class="dv">0</span> <span class="sc">+</span> <span class="fl">0.01</span><span class="sc">*</span>(audit_score<span class="sc">-</span>cutoff)<span class="sc">/</span><span class="dv">10</span>, <span class="dv">1</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rdd_env <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>env_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Covariate balance — env. concern should NOT jump at the threshold:</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>env_rdd <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_rdd, <span class="dv">0</span> <span class="sc">+</span> <span class="fl">0.01</span><span class="sc">*</span>(audit_score<span class="sc">-</span>cutoff)<span class="sc">/</span><span class="dv">10</span>, <span class="dv">1</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>rdd_env <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>env_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Covariate balance — env. concern should NOT jump at the threshold:</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Covariate balance — env. concern should NOT jump at the threshold:</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rdd_env)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rdd_env)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sharp RD estimates using local polynomial regression.
@@ -620,6 +586,7 @@ Unique Obs.                     677          523
 =====================================================================</code></pre>
 </div>
 </div>
+<p>The covariate continuity test is the RDD’s randomisation check — conceptually identical to the balance tables you ran in Module 2 before analysing experimental data. In an experiment, balance across pre-treatment covariates is a consequence of random assignment; here it must be demonstrated empirically as evidence that the threshold is not systematically sorting units on unobserved characteristics.</p>
 </section>
 </section>
 <section id="sec-rdd-estimate" class="level2" data-number="17.4">
@@ -627,16 +594,16 @@ Unique Obs.                     677          523
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace y= with your outcome variable, x= with your running</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    variable, and c= with your cutoff value. Both y and x must be numeric vectors</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    of the same length with no missing values at the cutoff.</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: rdrobust() selects bandwidth automatically (MSE-optimal rule);</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    you can override with h= to specify a fixed bandwidth, or kernel= to change</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    from the default triangular kernel (options: "epanechnikov", "uniform").</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    The default uses local linear regression on each side; p=2 switches to</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    local quadratic (more flexible, higher variance).</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>rdd_est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rdd_est)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace y= with your outcome variable, x= with your running</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    variable, and c= with your cutoff value. Both y and x must be numeric vectors</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    of the same length with no missing values at the cutoff.</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: rdrobust() selects bandwidth automatically (MSE-optimal rule);</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    you can override with h= to specify a fixed bandwidth, or kernel= to change</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    from the default triangular kernel (options: "epanechnikov", "uniform").</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    The default uses local linear regression on each side; p=2 switches to</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    local quadratic (more flexible, higher variance).</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>rdd_est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rdd_est)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sharp RD estimates using local polynomial regression.
@@ -664,13 +631,13 @@ Unique Obs.                     677          523
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: in the summary output, look at "Conventional" coef for the point</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    estimate and "Robust" CI for the bias-corrected confidence interval —</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    use the Robust CI for inference. Also note the automatically chosen</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    bandwidth (h) and effective sample size on each side of the cutoff.</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rdplot</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"RDD estimate: causal effect of sustainability badge on WTP"</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x.label=</span><span class="st">"Audit Score"</span>, <span class="at">y.label=</span><span class="st">"WTP ($)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: in the summary output, look at "Conventional" coef for the point</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    estimate and "Robust" CI for the bias-corrected confidence interval —</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    use the Robust CI for inference. Also note the automatically chosen</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    bandwidth (h) and effective sample size on each side of the cutoff.</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rdplot</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"RDD estimate: causal effect of sustainability badge on WTP"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x.label=</span><span class="st">"Audit Score"</span>, <span class="at">y.label=</span><span class="st">"WTP ($)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -683,32 +650,32 @@ Unique Obs.                     677          523
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: adjust the bandwidth grid c(5,8,10,15,20,25,30) to be</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    meaningful in your running variable's units — e.g., if your score runs</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    0–1000, sensible bandwidths might be c(25,50,75,100,150,200).</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    Keep the grid symmetric around the MSE-optimal h chosen by rdrobust() above.</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: h=bw fixes the bandwidth; est$coef["Conventional",1] is the</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    point estimate; est$se["Robust",1] is the bias-corrected robust SE.</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>bw_results <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>), <span class="cf">function</span>(bw) {</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff, <span class="at">h=</span>bw)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">bandwidth=</span>bw, <span class="at">estimate=</span>est<span class="sc">$</span>coef[<span class="st">"Conventional"</span>,<span class="dv">1</span>], <span class="at">se=</span>est<span class="sc">$</span>se[<span class="st">"Robust"</span>,<span class="dv">1</span>])</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: estimates should be roughly flat across bandwidths — large swings</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#    indicate sensitivity to bandwidth choice (a red flag). If estimates collapse</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    at very narrow bandwidths, the effective N is too small for precision.</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>bw_results <span class="sc">|&gt;</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se) <span class="sc">|&gt;</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>bandwidth, <span class="at">y=</span>estimate, <span class="at">ymin=</span>lo, <span class="at">ymax=</span>hi)) <span class="sc">+</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span>true_jump, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey40"</span>, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha=</span><span class="fl">0.15</span>, <span class="at">fill=</span>clr_eco) <span class="sc">+</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour=</span>clr_eco, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">colour=</span>clr_eco, <span class="at">size=</span><span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">5.5</span>, <span class="at">y=</span>true_jump<span class="fl">+0.05</span>, <span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"True = $%.2f"</span>, true_jump),</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Bandwidth (audit score units)"</span>, <span class="at">y=</span><span class="st">"Estimated badge effect ($)"</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"RDD estimates stable across bandwidths h = 5 to 30"</span>,</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Instability would indicate sensitivity to bandwidth — a red flag"</span>) <span class="sc">+</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: adjust the bandwidth grid c(5,8,10,15,20,25,30) to be</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    meaningful in your running variable's units — e.g., if your score runs</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    0–1000, sensible bandwidths might be c(25,50,75,100,150,200).</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    Keep the grid symmetric around the MSE-optimal h chosen by rdrobust() above.</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: h=bw fixes the bandwidth; est$coef["Conventional",1] is the</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    point estimate; est$se["Robust",1] is the bias-corrected robust SE.</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>bw_results <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>), <span class="cf">function</span>(bw) {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>df_rdd<span class="sc">$</span>WTP_rdd, <span class="at">x=</span>df_rdd<span class="sc">$</span>audit_score, <span class="at">c=</span>cutoff, <span class="at">h=</span>bw)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">bandwidth=</span>bw, <span class="at">estimate=</span>est<span class="sc">$</span>coef[<span class="st">"Conventional"</span>,<span class="dv">1</span>], <span class="at">se=</span>est<span class="sc">$</span>se[<span class="st">"Robust"</span>,<span class="dv">1</span>])</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: estimates should be roughly flat across bandwidths — large swings</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#    indicate sensitivity to bandwidth choice (a red flag). If estimates collapse</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    at very narrow bandwidths, the effective N is too small for precision.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>bw_results <span class="sc">|&gt;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se) <span class="sc">|&gt;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>bandwidth, <span class="at">y=</span>estimate, <span class="at">ymin=</span>lo, <span class="at">ymax=</span>hi)) <span class="sc">+</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span>true_jump, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey40"</span>, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha=</span><span class="fl">0.15</span>, <span class="at">fill=</span>clr_eco) <span class="sc">+</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour=</span>clr_eco, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">colour=</span>clr_eco, <span class="at">size=</span><span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">5.5</span>, <span class="at">y=</span>true_jump<span class="fl">+0.05</span>, <span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"True = $%.2f"</span>, true_jump),</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Bandwidth (audit score units)"</span>, <span class="at">y=</span><span class="st">"Estimated badge effect ($)"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"RDD estimates stable across bandwidths h = 5 to 30"</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Instability would indicate sensitivity to bandwidth — a red flag"</span>) <span class="sc">+</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>

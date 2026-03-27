@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -456,6 +456,8 @@ window.Quarto = {
 <li><strong>The <em>b</em>-path can be estimated on the wrong data</strong> — if outliers inflate the apparent slope between M and Y, <span class="math inline">\(\hat{b}\)</span> is too large, and so is <span class="math inline">\(\hat{a} \times \hat{b}\)</span>. ROBMED addresses this.</li>
 <li><strong>The <em>b</em>-path can be estimated on the wrong model</strong> — if an unobserved variable <span class="math inline">\(U^*\)</span> drives both M and Y, the OLS <span class="math inline">\(\hat{b}\)</span> picks up the <span class="math inline">\(U^*\)</span> signal as if it were causal M→Y. No regression method alone can fix this; Imai’s sensitivity analysis quantifies how severe the problem would need to be to explain away the result.</li>
 </ol>
+<p><strong>A Module 1 failure mode:</strong> There is a third, often overlooked failure mode — <strong>measurement error in M</strong>. If <em>perceived sustainability</em> is measured as a single noisy item rather than a well-validated multi-item scale (Module 1 — reliability, CFA, convergent validity), the <span class="math inline">\(\hat{a}\)</span> path is attenuated (like any regression coefficient on a mismeasured predictor) and the <span class="math inline">\(\hat{b}\)</span> path is biased as well, because M carries both signal and noise into the Y regression. The practical implication: investing in high-quality mediator measurement at the design stage (multi-item constructs, established scales, pilot reliability checks) is not just good practice — it is a precondition for trustworthy mediation estimates. A large ACME from a single-item mediator may be entirely an artifact of differential measurement error.</p>
+<p><strong>A Module 2 connection:</strong> Mediation analysis is typically conducted on experimental data where X is randomised (as in Scenarios 1–3 here). This randomisation satisfies the <em>a</em>-path assumption (no confounding of X→M). But randomisation does <em>not</em> satisfy the <em>b</em>-path assumption — M is not randomised, so the M→Y step faces all the observational identification challenges of Part 2 of this module. The sensitivity parameter <span class="math inline">\(\rho^*\)</span> below is a direct quantification of how much M–Y confounding would be needed to nullify the ACME, just as power analysis in Module 2 quantified how much sampling error could explain an apparent effect.</p>
 </div>
 </div>
 <section id="sec-med-dags" class="level2" data-number="19.1">
@@ -1201,7 +1203,7 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.4.0 (2024-04-24)
 Platform: x86_64-pc-linux-gnu
-Running under: Ubuntu 24.04.4 LTS
+Running under: Ubuntu 24.04.3 LTS
 
 Matrix products: default
 BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
