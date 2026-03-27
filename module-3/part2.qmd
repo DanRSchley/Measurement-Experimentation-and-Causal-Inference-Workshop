@@ -751,16 +751,19 @@ m_ps_mis1 <- matchit(treat ~ env + price_sens + income,
 m_ps_mis2 <- matchit(treat ~ env + price_sens + income + env:price_sens,
                      data=df_obs, method="nearest", distance="logit")
 
-# ── Correctly specified: includes env² and env×income matching the true DGP.
+# ── Correctly specified: includes env×income matching the true PS DGP.
+#    Note: env² appears in the *outcome* model (Y0), NOT in the true PS —
+#    adding env_sq to the PS formula would distort it (both high and low env
+#    get inflated scores, producing non-monotonic PS and bad matches).
 #    All treated units are matched; the quality of each match is high because
 #    the PS correctly ranks who is likely to buy eco-labelled coffee.
-m_ps_cor  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_ps_cor  <- matchit(treat ~ env + price_sens + income + env_income,
                      data=df_obs, method="nearest", distance="logit")
 
 results_psm_spec <- map_dfr(
   list("1. Logit — main effects only\n(misspecified)"               = m_ps_mis1,
        "2. Logit + env×price_sens\n(wrong interaction)"             = m_ps_mis2,
-       "3. Logit + env² + env×income\n(correctly specified)"        = m_ps_cor),
+       "3. Logit + env×income\n(correctly specified)"               = m_ps_cor),
   function(m) {
     d   <- match.data(m)
     est <- lm(Y_obs ~ treat, data=d, weights=weights) |>
@@ -821,24 +824,25 @@ With the correctly-specified PS in hand, the remaining design choices — match 
 
 ```{r psm-matching-approaches, fig.height=5.5, fig.width=10}
 #| code-summary: "▶ Compare 1:1, 1:3, 1:5, with-replacement, and full matching (correct PS)"
-# ── All approaches use the correctly-specified PS (env² + env×income).
+# ── All approaches use the correctly-specified PS (env×income interaction;
+#    note env² is in the outcome model, NOT in the true PS).
 #    The variation illustrates the bias–variance trade-off in matching design,
 #    not PS misspecification.
 # ── YOUR DATA: keep the same PS formula throughout; change method=, ratio=,
 #    and replace= to explore the design space for your application.
 
 # 1:1 nearest-neighbour without replacement (baseline)
-m_11  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_11  <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="nearest", distance="logit",
                  ratio=1, replace=FALSE, caliper=0.15, std.caliper=TRUE)
 
 # 1:3 nearest-neighbour without replacement (more controls, wider caliper tolerated)
-m_13  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_13  <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="nearest", distance="logit",
                  ratio=3, replace=FALSE, caliper=0.15, std.caliper=TRUE)
 
 # 1:5 nearest-neighbour without replacement
-m_15  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_15  <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="nearest", distance="logit",
                  ratio=5, replace=FALSE, caliper=0.15, std.caliper=TRUE)
 
@@ -846,13 +850,13 @@ m_15  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
 # treated units; improves per-pair quality but inflates SE if uncorrected
 # ── NOTE: SEs after with-replacement matching require robust/clustered
 #    corrections (Abadie-Imbens); the naive lm() SE used here is illustrative.
-m_wr  <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_wr  <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="nearest", distance="logit",
                  ratio=1, replace=TRUE, caliper=0.15, std.caliper=TRUE)
 
 # Full matching — every observation assigned to a subclass; no data discarded
 # Targets ATT among treated units using subclass weights
-m_ful <- matchit(treat ~ env + price_sens + income + env_sq + env_income,
+m_ful <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="full", distance="logit")
 
 results_psm_approach <- map_dfr(
