@@ -855,9 +855,9 @@ The ATE is the expectation of the ITE across the entire target population — th
 
 In practice, homogeneity is almost never plausible. The ITE histogram above makes this plain: effects range from negative to strongly positive. **This means the ATE answers a different question than the ITE.** The ATE is the right estimand for population-level policy decisions — "should supermarkets mandate eco-labels on all products?" — because its answer applies in aggregate even when individual effects vary wildly. But it is a poor guide to predicting any individual consumer's response, because it averages over enormous heterogeneity.
 
-**Why the ATE is still the gold standard for experiments:** A randomised trial makes treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE *without* assuming homogeneity. The experiment recovers the ATE honestly; it is the *subsequent inference* from ATE to individual effect that requires the homogeneity assumption.
+**Why the ATE is still the gold standard for experiments:** In a randomised trial, random assignment makes the treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE *without* assuming homogeneity. The experiment recovers the ATE honestly; it is the *subsequent inference* from ATE to individual effect that requires the homogeneity assumption.
 
-In a **randomised experiment**, random assignment makes the treated and control groups exchangeable, so a simple difference in group means is unbiased for the ATE.
+That said, the exchangeability assumption is more fragile than it appears — and more fragile than is often acknowledged. Random assignment guarantees balance *in expectation* across infinite replications, but any single study can produce unlucky covariate imbalance. More importantly, the behavioural conditions for exchangeability extend beyond the draw of assignment: if participants in the treatment condition behave differently because they *know* they are treated — through demand characteristics, Hawthorne effects, or awareness of experimental purpose — or if the sample differs systematically from the target population, then the observed mean difference estimates something other than the population ATE. Module 2 explored these threats in detail: the design features that protect exchangeability (pre-registration, cover stories, unobtrusive measures, stimulus sampling, representative recruitment) are precisely what make an ATE estimate credible rather than merely randomised.
 
 ```{r ate-rct}
 treat_rct <- rbinom(N, 1, 0.5)
@@ -883,7 +883,7 @@ The CATE partitions the population by pre-treatment characteristics $X$ and esti
 
 **What CATE still assumes — and why the gap to ITE remains:**
 
-1. **You have measured the right moderators.** You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer's specific shopping occasion or the brand's existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup's true effect.
+1. **You have measured the right moderators — and measured them well.** You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer's specific shopping occasion or the brand's existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup's true effect. But even when you *have* collected the right moderator, measurement quality matters enormously: a construct that suffers from discriminant validity failures, cross-group non-invariance, or systematic response bias (see Module 1) produces distorted CATE estimates even if the causal heterogeneity is real. A CATE model built on "environmental concern" items that actually blend concern with general pro-social identity will attribute the wrong heterogeneity to the wrong mechanism. The entire CATE machinery is predicated on the measurement infrastructure being sound.
 
 2. **Correct functional form when extrapolating.** Estimating CATE for a continuous moderator (e.g., environmental concern score) requires assuming a relationship between the moderator and the treatment effect — linearity, correct interactions, no omitted non-linearities. Even a well-estimated linear CATE model will give wrong predictions for individuals whose true effect relationship is non-linear.
 
@@ -930,7 +930,7 @@ Each estimand below targets a *different slice* of the ITE distribution — and 
 **Local Average Treatment Effect (LATE):** The ITT scaled by the first-stage compliance rate (the Wald estimator). This recovers the average ITE *for compliers only* — those who take the treatment because they were assigned to, not because they always would have. The LATE is the right estimand when you care about the policy lever of assignment, and it rests on two additional assumptions beyond randomisation:
 
 - **Monotonicity:** No defiers. Every unit's probability of taking treatment is weakly *higher* under assignment ($D_i(1) \geq D_i(0)$ for all $i$). This rules out consumers who deliberately avoid eco-labels when stores promote them.
-- **Exclusion restriction:** Assignment $Z$ affects the outcome *only through* take-up $D$ — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails.
+- **Exclusion restriction:** Assignment $Z$ affects the outcome *only through* take-up $D$ — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails. This is a structural version of the manipulation validity problem from Module 2: just as a laboratory manipulation can inadvertently activate demand characteristics or alter the psychological context beyond the intended treatment, an instrument can influence outcomes through channels the researcher neither intended nor anticipated. The same design rigour that Module 2 prescribed for protecting internal validity — careful operationalisation, manipulation checks, ruling out alternative accounts of the treatment — applies equally to establishing that an instrument is truly excludable.
 
 Even with these assumptions satisfied, LATE still describes an *average* over compliers' ITEs, requiring within-complier homogeneity to predict any individual complier's response.
 
@@ -1012,10 +1012,5 @@ tibble(
        subtitle="ATT > ATE > ATC: consumers who seek eco-labels respond more strongly to them") +
   theme_mod3()
 ```
-
-::: {.callout-warning}
-## Connection to Module 2
-Module 2's permutation test estimated the **ITT** — comparing all participants assigned to the eco-label condition against all assigned to control, regardless of whether they actually processed the label. In a well-controlled lab study, ITT ≈ ATE. In field settings — where consumers scroll past labels or ignore shelf information — the distinction matters greatly.
-:::
 
 ---
