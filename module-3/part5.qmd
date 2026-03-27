@@ -163,10 +163,10 @@ X     <- rbinom(N_med, 1, 0.5)   # eco-label (1 = exposed to label)
 #    eco_label (or your treatment name), perc_sust (your mediator), WTP (outcome).
 
 # True parameters (Scenarios 1 & 2)
-a_true    <- 0.50   # eco_label → perc_sust
-b_true    <- 0.55   # perc_sust → WTP
+a_true    <- 0.80   # eco_label → perc_sust  (strong a-path)
+b_true    <- 0.75   # perc_sust → WTP        (strong b-path)
 c_prime   <- 0.30   # eco_label → WTP (direct path)
-ACME_true <- a_true * b_true   # 0.275
+ACME_true <- a_true * b_true   # 0.600  (large → needs big ρ to nullify → ROBUST)
 # ── YOUR DATA: in real data you do NOT know a_true or b_true; these are set
 #    here only for ground-truth evaluation. With real data, run the
 #    run_mediation_triple() function directly on your data frame.
@@ -199,11 +199,13 @@ df_s2  <- data.frame(eco_label = X, perc_sust = M_s2, WTP = Y_s2)
 # ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────
 # U* drives both perc_sust and WTP; there is NO causal M → Y path
 # OLS and ROBMED both find spurious ACME (Type I error) because they cannot
-# separate causal M→Y from U-induced M–Y correlation
-# Imai's medsens() reveals the finding's fragility via a small critical ρ*
+# separate causal M→Y from U-induced M–Y correlation.
+# U* coefficients are deliberately modest (0.28, 0.32) so the induced residual
+# correlation ρ ≈ 0.22 — Imai's medsens() correctly identifies this low ρ* as
+# FRAGILE, in sharp contrast to Scenario 1's ρ* ≈ 0.80.
 U      <- rnorm(N_med, 0, 1)
-M_s3   <- a_true * X + 0.60 * U + rnorm(N_med, 0, 0.55)
-Y_s3   <- c_prime * X + 0.65 * U + rnorm(N_med, 0, 0.55)   # no M_s3 term!
+M_s3   <- a_true * X + 0.28 * U + rnorm(N_med, 0, 0.55)
+Y_s3   <- c_prime * X + 0.32 * U + rnorm(N_med, 0, 0.55)   # no M_s3 term!
 df_s3  <- data.frame(eco_label = X, perc_sust = M_s3, WTP = Y_s3)
 ACME_true_s3 <- 0   # no causal M → Y
 # ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —
@@ -314,7 +316,7 @@ tibble(
 
 ## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
 
-Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
+Twelve percent of participants show large, **correlated** deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.75, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.
 
 ::: {.callout-note}
 ## Why correlated outliers inflate the *b*-path specifically
@@ -442,23 +444,30 @@ crit_rho_s1 <- safe_crit_rho(sens_s1)
 crit_rho_s3 <- safe_crit_rho(sens_s3)
 
 fmt_rho <- function(x) if (is.na(x)) "> 1.0" else sprintf("%.2f", x)
-cat(sprintf("Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding\n",
-            fmt_rho(crit_rho_s1)))
+cat(sprintf("Scenario 1 (true ACME = %.3f): critical ρ* ≈ %s  → ROBUST finding\n",
+            ACME_true, fmt_rho(crit_rho_s1)))
 cat(sprintf("Scenario 3 (true ACME = 0):     critical ρ* ≈ %s  → FRAGILE finding\n",
             fmt_rho(crit_rho_s3)))
 cat("\nSmaller ρ* = less confounding is needed to explain away the result.\n")
 
 # Build tidy sensitivity curves using only the guaranteed $rho and $d0 fields
+lbl_s1 <- sprintf("Scenario 1: Clean data (true ACME = %.3f)", ACME_true)
+lbl_s3 <- "Scenario 3: M\u2013Y confounded (true ACME = 0)"
+
 sens_df <- bind_rows(
   data.frame(rho      = sens_s1$rho,
              ACME     = sens_s1$d0,
-             Scenario = "Scenario 1: Clean data (true ACME = 0.275)",
+             Scenario = lbl_s1,
              stringsAsFactors = FALSE),
   data.frame(rho      = sens_s3$rho,
              ACME     = sens_s3$d0,
-             Scenario = "Scenario 3: M\u2013Y confounded (true ACME = 0)",
+             Scenario = lbl_s3,
              stringsAsFactors = FALSE)
 )
+
+# y-annotation positions scale with the ACME range
+y_robust  <-  ACME_true * 0.30   # ~30% of way up from zero
+y_fragile <- -ACME_true * 0.30   # ~30% of way down from zero
 
 ggplot(sens_df, aes(x = rho, y = ACME, colour = Scenario)) +
   geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.9) +
@@ -469,7 +478,7 @@ ggplot(sens_df, aes(x = rho, y = ACME, colour = Scenario)) +
                    colour = clr_eco, linewidth = 0.9),
         geom_vline(xintercept = -crit_rho_s1, linetype = "dashed",
                    colour = clr_eco, linewidth = 0.9),
-        annotate("text", x = crit_rho_s1 + 0.03, y = 0.18,
+        annotate("text", x = crit_rho_s1 + 0.03, y = y_robust,
                  label = sprintf("\u03c1*\u2248%s\n(ROBUST)", fmt_rho(crit_rho_s1)),
                  hjust = 0, size = 3.0, colour = clr_eco, fontface = "bold")
       ) } +
@@ -479,13 +488,12 @@ ggplot(sens_df, aes(x = rho, y = ACME, colour = Scenario)) +
                    colour = clr_ctrl, linewidth = 0.9),
         geom_vline(xintercept = -crit_rho_s3, linetype = "dashed",
                    colour = clr_ctrl, linewidth = 0.9),
-        annotate("text", x = crit_rho_s3 + 0.03, y = -0.22,
+        annotate("text", x = crit_rho_s3 + 0.03, y = y_fragile,
                  label = sprintf("\u03c1*\u2248%s\n(FRAGILE)", fmt_rho(crit_rho_s3)),
                  hjust = 0, size = 3.0, colour = clr_ctrl, fontface = "bold")
       ) } +
   scale_colour_manual(
-    values = c("Scenario 1: Clean data (true ACME = 0.275)" = clr_eco,
-               "Scenario 3: M\u2013Y confounded (true ACME = 0)"  = clr_ctrl)) +
+    values = setNames(c(clr_eco, clr_ctrl), c(lbl_s1, lbl_s3))) +
   labs(x       = expression(paste("Sensitivity parameter ", rho,
                                   "  (correlation between M- and Y-equation residuals)")),
        y       = "ACME (indirect effect)",
