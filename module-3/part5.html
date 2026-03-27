@@ -486,10 +486,10 @@ window.Quarto = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    eco_label (or your treatment name), perc_sust (your mediator), WTP (outcome).</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters (Scenarios 1 &amp; 2)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>a_true    <span class="ot">&lt;-</span> <span class="fl">0.50</span>   <span class="co"># eco_label → perc_sust</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>b_true    <span class="ot">&lt;-</span> <span class="fl">0.55</span>   <span class="co"># perc_sust → WTP</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>a_true    <span class="ot">&lt;-</span> <span class="fl">0.80</span>   <span class="co"># eco_label → perc_sust  (strong a-path)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>b_true    <span class="ot">&lt;-</span> <span class="fl">0.75</span>   <span class="co"># perc_sust → WTP        (strong b-path)</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>c_prime   <span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># eco_label → WTP (direct path)</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ACME_true <span class="ot">&lt;-</span> a_true <span class="sc">*</span> b_true   <span class="co"># 0.275</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ACME_true <span class="ot">&lt;-</span> a_true <span class="sc">*</span> b_true   <span class="co"># 0.600  (large → needs big ρ to nullify → ROBUST)</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: in real data you do NOT know a_true or b_true; these are set</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    here only for ground-truth evaluation. With real data, run the</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    run_mediation_triple() function directly on your data frame.</span></span>
@@ -522,19 +522,21 @@ window.Quarto = {
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># U* drives both perc_sust and WTP; there is NO causal M → Y path</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS and ROBMED both find spurious ACME (Type I error) because they cannot</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># separate causal M→Y from U-induced M–Y correlation</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Imai's medsens() reveals the finding's fragility via a small critical ρ*</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>U      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>M_s3   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.60</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>Y_s3   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.65</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)   <span class="co"># no M_s3 term!</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>df_s3  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s3, <span class="at">WTP =</span> Y_s3)</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>ACME_true_s3 <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># no causal M → Y</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co">#    an unmeasured variable (e.g., prior eco-engagement, health consciousness)</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">#    drives both your mediator and outcome. Always run medsens() on your real</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#    data and report the critical ρ* alongside the ACME estimate.</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"N = %d  |  Treatment rate = %.0f%%</span><span class="sc">\n</span><span class="st">"</span>, N_med, <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(X)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># separate causal M→Y from U-induced M–Y correlation.</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># U* coefficients are deliberately modest (0.28, 0.32) so the induced residual</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation ρ ≈ 0.22 — Imai's medsens() correctly identifies this low ρ* as</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># FRAGILE, in sharp contrast to Scenario 1's ρ* ≈ 0.80.</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>U      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>M_s3   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.28</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Y_s3   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.32</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)   <span class="co"># no M_s3 term!</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>df_s3  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s3, <span class="at">WTP =</span> Y_s3)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>ACME_true_s3 <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># no causal M → Y</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#    an unmeasured variable (e.g., prior eco-engagement, health consciousness)</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#    drives both your mediator and outcome. Always run medsens() on your real</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#    data and report the critical ρ* alongside the ACME estimate.</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"N = %d  |  Treatment rate = %.0f%%</span><span class="sc">\n</span><span class="st">"</span>, N_med, <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(X)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>N = 350  |  Treatment rate = 50%</code></pre>
@@ -545,7 +547,7 @@ window.Quarto = {
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            ACME_true, a_true, b_true, c_prime))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenarios 1 &amp; 2: true ACME = 0.275  (a=0.50, b=0.55, c'=0.30)</code></pre>
+<pre><code>Scenarios 1 &amp; 2: true ACME = 0.600  (a=0.80, b=0.75, c'=0.30)</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded</summary>
@@ -627,7 +629,7 @@ window.Quarto = {
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            res_s1<span class="sc">$</span>ols_est, res_s1<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenario 1 — OLS: 0.272  ROBMED: 0.254  (truth = 0.275)</code></pre>
+<pre><code>Scenario 1 — OLS: 0.594  ROBMED: 0.567  (truth = 0.600)</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
@@ -635,7 +637,7 @@ window.Quarto = {
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>            res_s2<span class="sc">$</span>ols_est, res_s2<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenario 2 — OLS: 0.391  ROBMED: 0.275  (truth = 0.275)</code></pre>
+<pre><code>Scenario 2 — OLS: 0.926  ROBMED: 0.596  (truth = 0.600)</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
@@ -643,7 +645,7 @@ window.Quarto = {
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>            res_s3<span class="sc">$</span>ols_est, res_s3<span class="sc">$</span>rob_est, ACME_true_s3))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenario 3 — OLS: 0.296  ROBMED: 0.304  (truth = 0.000 [no M→Y path])</code></pre>
+<pre><code>Scenario 3 — OLS: 0.165  ROBMED: 0.183  (truth = 0.000 [no M→Y path])</code></pre>
 </div>
 </div>
 </section>
@@ -653,7 +655,7 @@ window.Quarto = {
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Scenario 1 — Clean normal data | true ACME = 0.275 | N = 350</caption>
+<caption>Scenario 1 — Clean normal data | true ACME = 0.6 | N = 350</caption>
 <colgroup>
 <col style="width: 26%">
 <col style="width: 20%">
@@ -675,26 +677,26 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS delta method</td>
-<td style="text-align: left;">a=0.511, b=0.532</td>
-<td style="text-align: right;">0.272</td>
-<td style="text-align: center;">[0.186, 0.358]</td>
-<td style="text-align: right;">-0.003</td>
+<td style="text-align: left;">a=0.811, b=0.732</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: center;">[0.467, 0.720]</td>
+<td style="text-align: right;">-0.006</td>
 <td style="text-align: center;">On target</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ROBMED (MM-estimator)</td>
 <td style="text-align: left;">– (robust MM)</td>
-<td style="text-align: right;">0.254</td>
-<td style="text-align: center;">[0.174, 0.345]</td>
-<td style="text-align: right;">-0.021</td>
+<td style="text-align: right;">0.567</td>
+<td style="text-align: center;">[0.449, 0.697]</td>
+<td style="text-align: right;">-0.033</td>
 <td style="text-align: center;">On target</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Imai (quasi-Bayes)</td>
 <td style="text-align: left;">– (uses OLS)</td>
-<td style="text-align: right;">0.273</td>
-<td style="text-align: center;">[0.194, 0.368]</td>
-<td style="text-align: right;">-0.002</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: center;">[0.478, 0.731]</td>
+<td style="text-align: right;">-0.006</td>
 <td style="text-align: center;">On target</td>
 </tr>
 </tbody>
@@ -704,7 +706,7 @@ window.Quarto = {
 </section>
 <section id="sec-med-outliers" class="level2" data-number="19.5">
 <h2 data-number="19.5" class="anchored" data-anchor-id="sec-med-outliers"><span class="header-section-number">19.5</span> Scenario 2: Large Outliers — ROBMED’s Advantage</h2>
-<p>Twelve percent of participants show large, <strong>correlated</strong> deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.55, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.</p>
+<p>Twelve percent of participants show large, <strong>correlated</strong> deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.75, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -723,7 +725,7 @@ window.Quarto = {
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Scenario 2 — 12% correlated outlier contamination | true ACME = 0.275 | N = 350</caption>
+<caption>Scenario 2 — 12% correlated outlier contamination | true ACME = 0.600 | N = 350</caption>
 <colgroup>
 <col style="width: 19%">
 <col style="width: 17%">
@@ -745,26 +747,26 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS delta method</td>
-<td style="text-align: left;">1.398 (true = 0.55)</td>
-<td style="text-align: right;">0.391</td>
-<td style="text-align: center;">[-0.410, 1.192]</td>
-<td style="text-align: right;">+0.116</td>
+<td style="text-align: left;">1.598 (true = 0.75)</td>
+<td style="text-align: right;">0.926</td>
+<td style="text-align: center;">[0.010, 1.842]</td>
+<td style="text-align: right;">+0.326</td>
 <td style="text-align: left;">✖ Inflated — outliers pull b-path up</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ROBMED (MM-estimator)</td>
-<td style="text-align: left;">0.984 (true = 0.55)</td>
-<td style="text-align: right;">0.275</td>
-<td style="text-align: center;">[0.188, 0.368]</td>
-<td style="text-align: right;">+0.000</td>
+<td style="text-align: left;">1.028 (true = 0.75)</td>
+<td style="text-align: right;">0.596</td>
+<td style="text-align: center;">[0.465, 0.732]</td>
+<td style="text-align: right;">-0.004</td>
 <td style="text-align: left;">✓ Robust — outliers down-weighted</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Imai (quasi-Bayes)</td>
-<td style="text-align: left;">1.398 (true = 0.55)</td>
-<td style="text-align: right;">0.411</td>
-<td style="text-align: center;">[-0.464, 1.205]</td>
-<td style="text-align: right;">+0.136</td>
+<td style="text-align: left;">1.598 (true = 0.75)</td>
+<td style="text-align: right;">0.949</td>
+<td style="text-align: center;">[-0.045, 1.858]</td>
+<td style="text-align: right;">+0.349</td>
 <td style="text-align: left;">✖ Inflated — uses OLS internally</td>
 </tr>
 </tbody>
@@ -809,26 +811,26 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS delta method</td>
-<td style="text-align: left;">0.524 (true = 0.00)</td>
-<td style="text-align: right;">0.296</td>
-<td style="text-align: center;">[0.192, 0.400]</td>
-<td style="text-align: right;">+0.296</td>
+<td style="text-align: left;">0.197 (true = 0.00)</td>
+<td style="text-align: right;">0.165</td>
+<td style="text-align: center;">[0.083, 0.248]</td>
+<td style="text-align: right;">+0.165</td>
 <td style="text-align: left;">✖ Type I error — spurious mediation</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ROBMED (MM-estimator)</td>
-<td style="text-align: left;">0.539 (true = 0.00)</td>
-<td style="text-align: right;">0.304</td>
-<td style="text-align: center;">[0.203, 0.422]</td>
-<td style="text-align: right;">+0.304</td>
+<td style="text-align: left;">0.218 (true = 0.00)</td>
+<td style="text-align: right;">0.183</td>
+<td style="text-align: center;">[0.093, 0.275]</td>
+<td style="text-align: right;">+0.183</td>
 <td style="text-align: left;">✖ Type I error — U* not outlier-based</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Imai (quasi-Bayes)</td>
-<td style="text-align: left;">0.524 (true = 0.00)</td>
-<td style="text-align: right;">0.298</td>
-<td style="text-align: center;">[0.203, 0.415]</td>
-<td style="text-align: right;">+0.298</td>
+<td style="text-align: left;">0.197 (true = 0.00)</td>
+<td style="text-align: right;">0.164</td>
+<td style="text-align: center;">[0.081, 0.250]</td>
+<td style="text-align: right;">+0.164</td>
 <td style="text-align: left;">✖ Type I error — see ρ* below</td>
 </tr>
 </tbody>
@@ -873,11 +875,11 @@ window.Quarto = {
 <span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>crit_rho_s3 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s3)</span>
 <span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>fmt_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="fu">is.na</span>(x)) <span class="st">"&gt; 1.0"</span> <span class="cf">else</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, x)</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 (true ACME = 0.275): critical ρ* ≈ %s  → ROBUST finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>            <span class="fu">fmt_rho</span>(crit_rho_s1)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 (true ACME = %.3f): critical ρ* ≈ %s  → ROBUST finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>            ACME_true, <span class="fu">fmt_rho</span>(crit_rho_s1)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenario 1 (true ACME = 0.275): critical ρ* ≈ 0.50  → ROBUST finding</code></pre>
+<pre><code>Scenario 1 (true ACME = 0.600): critical ρ* ≈ 0.60  → ROBUST finding</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
@@ -885,7 +887,7 @@ window.Quarto = {
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">fmt_rho</span>(crit_rho_s3)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Scenario 3 (true ACME = 0):     critical ρ* ≈ 0.55  → FRAGILE finding</code></pre>
+<pre><code>Scenario 3 (true ACME = 0):     critical ρ* ≈ 0.25  → FRAGILE finding</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
@@ -898,52 +900,58 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <details class="code-fold">
 <summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build tidy sensitivity curves using only the guaranteed $rho and $d0 fields</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sens_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s1<span class="sc">$</span>rho,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s1<span class="sc">$</span>d0,</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> <span class="st">"Scenario 1: Clean data (true ACME = 0.275)"</span>,</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s3<span class="sc">$</span>rho,</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s3<span class="sc">$</span>d0,</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> <span class="st">"Scenario 3: M\u2013Y confounded (true ACME = 0)"</span>,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sens_df, <span class="fu">aes</span>(<span class="at">x =</span> rho, <span class="at">y =</span> ACME, <span class="at">colour =</span> Scenario)) <span class="sc">+</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.4</span>) <span class="sc">+</span></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s1))</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s1 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> <span class="fl">0.18</span>,</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(ROBUST)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s1)),</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_eco, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s3))</span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s3 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> <span class="sc">-</span><span class="fl">0.22</span>,</span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(FRAGILE)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s3)),</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_ctrl, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Scenario 1: Clean data (true ACME = 0.275)"</span> <span class="ot">=</span> clr_eco,</span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Scenario 3: M\u2013Y confounded (true ACME = 0)"</span>  <span class="ot">=</span> clr_ctrl)) <span class="sc">+</span></span>
-<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x       =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Sensitivity parameter "</span>, rho,</span>
-<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"  (correlation between M- and Y-equation residuals)"</span>)),</span>
-<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>       <span class="at">y       =</span> <span class="st">"ACME (indirect effect)"</span>,</span>
-<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour  =</span> <span class="cn">NULL</span>,</span>
-<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">title   =</span> <span class="st">"Imai sensitivity: how much confounding would nullify the ACME?"</span>,</span>
-<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"\u03c1* = critical value at which ACME crosses zero"</span>,</span>
-<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"  \u2014  smaller \u03c1* = more fragile result"</span>)) <span class="sc">+</span></span>
-<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>() <span class="sc">+</span></span>
-<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>lbl_s1 <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Scenario 1: Clean data (true ACME = %.3f)"</span>, ACME_true)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>lbl_s3 <span class="ot">&lt;-</span> <span class="st">"Scenario 3: M\u2013Y confounded (true ACME = 0)"</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>sens_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s1<span class="sc">$</span>rho,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s1<span class="sc">$</span>d0,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> lbl_s1,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s3<span class="sc">$</span>rho,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s3<span class="sc">$</span>d0,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> lbl_s3,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># y-annotation positions scale with the ACME range</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>y_robust  <span class="ot">&lt;-</span>  ACME_true <span class="sc">*</span> <span class="fl">0.30</span>   <span class="co"># ~30% of way up from zero</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>y_fragile <span class="ot">&lt;-</span> <span class="sc">-</span>ACME_true <span class="sc">*</span> <span class="fl">0.30</span>   <span class="co"># ~30% of way down from zero</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sens_df, <span class="fu">aes</span>(<span class="at">x =</span> rho, <span class="at">y =</span> ACME, <span class="at">colour =</span> Scenario)) <span class="sc">+</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.4</span>) <span class="sc">+</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s1))</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s1 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> y_robust,</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(ROBUST)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s1)),</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_eco, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s3))</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s3 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> y_fragile,</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(FRAGILE)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s3)),</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_ctrl, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">setNames</span>(<span class="fu">c</span>(clr_eco, clr_ctrl), <span class="fu">c</span>(lbl_s1, lbl_s3))) <span class="sc">+</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x       =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Sensitivity parameter "</span>, rho,</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"  (correlation between M- and Y-equation residuals)"</span>)),</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">y       =</span> <span class="st">"ACME (indirect effect)"</span>,</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour  =</span> <span class="cn">NULL</span>,</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">title   =</span> <span class="st">"Imai sensitivity: how much confounding would nullify the ACME?"</span>,</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"\u03c1* = critical value at which ACME crosses zero"</span>,</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"  \u2014  smaller \u03c1* = more fragile result"</span>)) <span class="sc">+</span></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>() <span class="sc">+</span></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -965,8 +973,8 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <div class="callout-body-container callout-body">
 <p>Both Scenario 1 and Scenario 3 produce a <em>statistically significant</em> ACME from OLS — they look equally convincing at face value. The sensitivity analysis reveals very different levels of trust:</p>
 <ul>
-<li><strong>Scenario 1 (clean)</strong>: ACME reaches zero only at <span class="math inline">\(\rho^* \approx\)</span> 0.50. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is <strong>robust</strong>.</li>
-<li><strong>Scenario 3 (confounded)</strong>: ACME crosses zero at <span class="math inline">\(\rho^* \approx\)</span> 0.55. Only modest confounding is enough to nullify the result. The “significant” ACME is <strong>fragile</strong> — correctly so, since the true ACME is 0.</li>
+<li><strong>Scenario 1 (clean)</strong>: ACME reaches zero only at <span class="math inline">\(\rho^* \approx\)</span> 0.60. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is <strong>robust</strong>.</li>
+<li><strong>Scenario 3 (confounded)</strong>: ACME crosses zero at <span class="math inline">\(\rho^* \approx\)</span> 0.25. Only modest confounding is enough to nullify the result. The “significant” ACME is <strong>fragile</strong> — correctly so, since the true ACME is 0.</li>
 </ul>
 <p><strong>The Imai advantage is not a better point estimate</strong> (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the <em>sensitivity analysis itself</em> — an honest diagnostic that Baron–Kenny completely omits. A finding that reports both the ROBMED estimate and a large ρ* from <code>medsens()</code> is far more credible than one that does neither.</p>
 </div>
