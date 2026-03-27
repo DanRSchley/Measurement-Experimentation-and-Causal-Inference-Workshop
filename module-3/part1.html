@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -1268,8 +1268,8 @@ True ITE SD = 0.967</code></pre>
 <p>The ATE is the expectation of the ITE across the entire target population — the answer to “what would happen on average if this treatment were applied to everyone?”</p>
 <p><strong>The assumption needed to use ATE as a proxy for ITE:</strong> <strong>Treatment effect homogeneity</strong> — the belief that every unit responds the same way (<span class="math inline">\(\tau_i = \tau\)</span> for all <span class="math inline">\(i\)</span>). If the eco-label added exactly the same WTP boost to every consumer, the ATE and every ITE would be identical, and knowing the ATE would fully characterise all individual responses.</p>
 <p>In practice, homogeneity is almost never plausible. The ITE histogram above makes this plain: effects range from negative to strongly positive. <strong>This means the ATE answers a different question than the ITE.</strong> The ATE is the right estimand for population-level policy decisions — “should supermarkets mandate eco-labels on all products?” — because its answer applies in aggregate even when individual effects vary wildly. But it is a poor guide to predicting any individual consumer’s response, because it averages over enormous heterogeneity.</p>
-<p><strong>Why the ATE is still the gold standard for experiments:</strong> A randomised trial makes treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE <em>without</em> assuming homogeneity. The experiment recovers the ATE honestly; it is the <em>subsequent inference</em> from ATE to individual effect that requires the homogeneity assumption.</p>
-<p>In a <strong>randomised experiment</strong>, random assignment makes the treated and control groups exchangeable, so a simple difference in group means is unbiased for the ATE.</p>
+<p><strong>Why the ATE is still the gold standard for experiments:</strong> In a randomised trial, random assignment makes the treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE <em>without</em> assuming homogeneity. The experiment recovers the ATE honestly; it is the <em>subsequent inference</em> from ATE to individual effect that requires the homogeneity assumption.</p>
+<p>That said, the exchangeability assumption is more fragile than it appears — and more fragile than is often acknowledged. Random assignment guarantees balance <em>in expectation</em> across infinite replications, but any single study can produce unlucky covariate imbalance. More importantly, the behavioural conditions for exchangeability extend beyond the draw of assignment: if participants in the treatment condition behave differently because they <em>know</em> they are treated — through demand characteristics, Hawthorne effects, or awareness of experimental purpose — or if the sample differs systematically from the target population, then the observed mean difference estimates something other than the population ATE. Module 2 explored these threats in detail: the design features that protect exchangeability (pre-registration, cover stories, unobtrusive measures, stimulus sampling, representative recruitment) are precisely what make an ATE estimate credible rather than merely randomised.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1317,7 +1317,7 @@ True ITE SD = 0.967</code></pre>
 <p><strong>What CATE relaxes:</strong> The global homogeneity assumption. CATE allows different <em>types</em> of consumers to respond differently; it only requires homogeneity <em>within</em> each subgroup (everyone with the same covariate profile <span class="math inline">\(x\)</span> is assumed to respond identically to their group’s average).</p>
 <p><strong>What CATE still assumes — and why the gap to ITE remains:</strong></p>
 <ol type="1">
-<li><p><strong>You have measured the right moderators.</strong> You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer’s specific shopping occasion or the brand’s existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup’s true effect.</p></li>
+<li><p><strong>You have measured the right moderators — and measured them well.</strong> You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer’s specific shopping occasion or the brand’s existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup’s true effect. But even when you <em>have</em> collected the right moderator, measurement quality matters enormously: a construct that suffers from discriminant validity failures, cross-group non-invariance, or systematic response bias (see Module 1) produces distorted CATE estimates even if the causal heterogeneity is real. A CATE model built on “environmental concern” items that actually blend concern with general pro-social identity will attribute the wrong heterogeneity to the wrong mechanism. The entire CATE machinery is predicated on the measurement infrastructure being sound.</p></li>
 <li><p><strong>Correct functional form when extrapolating.</strong> Estimating CATE for a continuous moderator (e.g., environmental concern score) requires assuming a relationship between the moderator and the treatment effect — linearity, correct interactions, no omitted non-linearities. Even a well-estimated linear CATE model will give wrong predictions for individuals whose true effect relationship is non-linear.</p></li>
 <li><p><strong>Within-cell homogeneity.</strong> Even if you carve out fine-grained cells, predicting an <em>individual’s</em> response from their cell’s CATE still assumes every person in that cell responds identically to the cell average. As cells get finer this becomes a stronger claim about fewer people, eventually reducing to the same problem as the ITE itself.</p></li>
 </ol>
@@ -1396,7 +1396,7 @@ True ITE SD = 0.967</code></pre>
 <p><strong>Local Average Treatment Effect (LATE):</strong> The ITT scaled by the first-stage compliance rate (the Wald estimator). This recovers the average ITE <em>for compliers only</em> — those who take the treatment because they were assigned to, not because they always would have. The LATE is the right estimand when you care about the policy lever of assignment, and it rests on two additional assumptions beyond randomisation:</p>
 <ul>
 <li><strong>Monotonicity:</strong> No defiers. Every unit’s probability of taking treatment is weakly <em>higher</em> under assignment (<span class="math inline">\(D_i(1) \geq D_i(0)\)</span> for all <span class="math inline">\(i\)</span>). This rules out consumers who deliberately avoid eco-labels when stores promote them.</li>
-<li><strong>Exclusion restriction:</strong> Assignment <span class="math inline">\(Z\)</span> affects the outcome <em>only through</em> take-up <span class="math inline">\(D\)</span> — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails.</li>
+<li><strong>Exclusion restriction:</strong> Assignment <span class="math inline">\(Z\)</span> affects the outcome <em>only through</em> take-up <span class="math inline">\(D\)</span> — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails. This is a structural version of the manipulation validity problem from Module 2: just as a laboratory manipulation can inadvertently activate demand characteristics or alter the psychological context beyond the intended treatment, an instrument can influence outcomes through channels the researcher neither intended nor anticipated. The same design rigour that Module 2 prescribed for protecting internal validity — careful operationalisation, manipulation checks, ruling out alternative accounts of the treatment — applies equally to establishing that an instrument is truly excludable.</li>
 </ul>
 <p>Even with these assumptions satisfied, LATE still describes an <em>average</em> over compliers’ ITEs, requiring within-complier homogeneity to predict any individual complier’s response.</p>
 <p><strong>ATT and ATC:</strong> The average treatment effect for units that <em>did</em> (ATT) or <em>did not</em> (ATC) actually receive the treatment. Because treatment receipt may be self-selected — consumers who seek out eco-labels are likely those who care most about sustainability and therefore respond most strongly — ATT <span class="math inline">\(\neq\)</span> ATE <span class="math inline">\(\neq\)</span> ATC. Translating from ATT to ITE for a specific treated unit requires assuming that unit is representative of the treated group, which is a homogeneity claim within the treated subpopulation.</p>
@@ -1589,19 +1589,6 @@ True ITE SD = 0.967</code></pre>
 <p><img src="figs/estimands-plot-1.svg" class="img-fluid figure-img" width="768"></p>
 </figure>
 </div>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Connection to Module 2
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Module 2’s permutation test estimated the <strong>ITT</strong> — comparing all participants assigned to the eco-label condition against all assigned to control, regardless of whether they actually processed the label. In a well-controlled lab study, ITT ≈ ATE. In field settings — where consumers scroll past labels or ignore shelf information — the distinction matters greatly.</p>
 </div>
 </div>
 <hr>
