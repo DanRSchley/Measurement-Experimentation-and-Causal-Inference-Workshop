@@ -846,6 +846,14 @@ tibble(
 
 ## Individual Treatment Effects (ITE) {#sec-ite}
 
+The **individual treatment effect** for person $i$ is:
+
+$$\tau_i = Y_i(1) - Y_i(0)$$
+
+This is the *only* truly assumption-free definition of causality: it is the effect *on this person*, *in this moment*, caused by *this treatment*. Did the eco-label change **this consumer's** willingness to pay? That is the ITE.
+
+The ITE is simultaneously the most interpretable estimand and the one we can *never* directly observe — because every person appears in only one condition at one point in time. The histogram below shows the true ITE distribution that exists in reality but is entirely invisible to any researcher. Notice how wide it is: some consumers gain over $2 in WTP from seeing the label; others gain nothing; a few are actually put off by it. This heterogeneity is the central fact that all other estimands must grapple with.
+
 ```{r ite-distribution, fig.height=4.5, fig.width=9}
 #| code-summary: "▶ Plot the distribution of individual treatment effects"
 tibble(ITE=ITE,
@@ -866,6 +874,14 @@ tibble(ITE=ITE,
 
 $$\text{ATE} = E[\tau_i] = E[Y_i(1) - Y_i(0)]$$
 
+The ATE is the expectation of the ITE across the entire target population — the answer to "what would happen on average if this treatment were applied to everyone?"
+
+**The assumption needed to use ATE as a proxy for ITE:** **Treatment effect homogeneity** — the belief that every unit responds the same way ($\tau_i = \tau$ for all $i$). If the eco-label added exactly the same WTP boost to every consumer, the ATE and every ITE would be identical, and knowing the ATE would fully characterise all individual responses.
+
+In practice, homogeneity is almost never plausible. The ITE histogram above makes this plain: effects range from negative to strongly positive. **This means the ATE answers a different question than the ITE.** The ATE is the right estimand for population-level policy decisions — "should supermarkets mandate eco-labels on all products?" — because its answer applies in aggregate even when individual effects vary wildly. But it is a poor guide to predicting any individual consumer's response, because it averages over enormous heterogeneity.
+
+**Why the ATE is still the gold standard for experiments:** A randomised trial makes treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE *without* assuming homogeneity. The experiment recovers the ATE honestly; it is the *subsequent inference* from ATE to individual effect that requires the homogeneity assumption.
+
 In a **randomised experiment**, random assignment makes the treated and control groups exchangeable, so a simple difference in group means is unbiased for the ATE.
 
 ```{r ate-rct}
@@ -883,6 +899,22 @@ lm(Y_obs ~ treat, data=df_rct) |> tidy() |>
 ```
 
 ## Conditional Average Treatment Effect (CATE) {#sec-cate}
+
+$$\text{CATE}(x) = E[\tau_i \mid X_i = x]$$
+
+The CATE partitions the population by pre-treatment characteristics $X$ and estimates a separate average treatment effect within each subgroup. The eco-label may add \$1.40 WTP for consumers with high environmental concern but only \$0.15 for low-concern consumers — the ATE buries this story.
+
+**What CATE relaxes:** The global homogeneity assumption. CATE allows different *types* of consumers to respond differently; it only requires homogeneity *within* each subgroup (everyone with the same covariate profile $x$ is assumed to respond identically to their group's average).
+
+**What CATE still assumes — and why the gap to ITE remains:**
+
+1. **You have measured the right moderators.** You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer's specific shopping occasion or the brand's existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup's true effect.
+
+2. **Correct functional form when extrapolating.** Estimating CATE for a continuous moderator (e.g., environmental concern score) requires assuming a relationship between the moderator and the treatment effect — linearity, correct interactions, no omitted non-linearities. Even a well-estimated linear CATE model will give wrong predictions for individuals whose true effect relationship is non-linear.
+
+3. **Within-cell homogeneity.** Even if you carve out fine-grained cells, predicting an *individual's* response from their cell's CATE still assumes every person in that cell responds identically to the cell average. As cells get finer this becomes a stronger claim about fewer people, eventually reducing to the same problem as the ITE itself.
+
+The plot below shows CATE estimates versus the (unobservable) true CATEs across four environmental concern bins. The estimates track the truth well here — but each bar still summarises a distribution of individual effects within the bin.
 
 ```{r cate-by-subgroup, fig.height=4.5, fig.width=9}
 df_rct |>
@@ -904,6 +936,46 @@ df_rct |>
 ```
 
 ## Compliance, ITT, LATE, ATT, and ATC {#sec-late}
+
+When the treatment of interest cannot be directly assigned — only *encouraged* — the population stratifies into four **compliance types** based on how each unit would respond to assignment under both conditions:
+
+| Type | $D_i(Z{=}0)$ | $D_i(Z{=}1)$ | Description |
+|---|---|---|---|
+| **Complier** | 0 | 1 | Takes treatment only when assigned |
+| **Always-taker** | 1 | 1 | Takes treatment regardless |
+| **Never-taker** | 0 | 0 | Never takes treatment |
+| **Defier** | 1 | 0 | Takes treatment only when *not* assigned |
+
+In the eco-label context: a store may be assigned to display eco-labels ($Z=1$), but individual consumers may or may not actually look at them ($D=1$). Consumers who would read *any* label they see are always-takers; those who read the label only because the store displays it prominently are compliers; those who never engage with shelf labels are never-takers.
+
+Each estimand below targets a *different slice* of the ITE distribution — and each translation back to the ITE requires different assumptions:
+
+**Intent-to-treat (ITT):** The effect of *assignment* to the treatment condition regardless of actual receipt. In an imperfect-compliance world, ITT underestimates the ATE by a factor equal to the compliance rate, because some assigned units are not actually treated. ITT is the most conservative and assumption-light estimand here, but it answers the wrong question if you care about the treatment's biological or psychological mechanism rather than the logistical reality of assignment.
+
+**Local Average Treatment Effect (LATE):** The ITT scaled by the first-stage compliance rate (the Wald estimator). This recovers the average ITE *for compliers only* — those who take the treatment because they were assigned to, not because they always would have. The LATE is the right estimand when you care about the policy lever of assignment, and it rests on two additional assumptions beyond randomisation:
+
+- **Monotonicity:** No defiers. Every unit's probability of taking treatment is weakly *higher* under assignment ($D_i(1) \geq D_i(0)$ for all $i$). This rules out consumers who deliberately avoid eco-labels when stores promote them.
+- **Exclusion restriction:** Assignment $Z$ affects the outcome *only through* take-up $D$ — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails.
+
+Even with these assumptions satisfied, LATE still describes an *average* over compliers' ITEs, requiring within-complier homogeneity to predict any individual complier's response.
+
+**ATT and ATC:** The average treatment effect for units that *did* (ATT) or *did not* (ATC) actually receive the treatment. Because treatment receipt may be self-selected — consumers who seek out eco-labels are likely those who care most about sustainability and therefore respond most strongly — ATT $\neq$ ATE $\neq$ ATC. Translating from ATT to ITE for a specific treated unit requires assuming that unit is representative of the treated group, which is a homogeneity claim within the treated subpopulation.
+
+::: {.callout-note}
+## The chain of assumptions back to ITE
+
+Every estimand is a different answer to a different version of the causal question. The further you move from the population-wide ATE toward more targeted estimands, the more specific the claim — but also the more assumptions required to bridge back to the individual level:
+
+| Estimand | Population | Additional assumption(s) to reach ITE |
+|---|---|---|
+| **ATE** | All units | Treatment effect homogeneity |
+| **CATE** | Subgroup $X = x$ | Correct moderator specification; within-cell homogeneity |
+| **LATE** | Compliers | Monotonicity; exclusion restriction; within-complier homogeneity |
+| **ATT** | Treated units | Representativeness of the treated for the target individual |
+| **ATC** | Control units | Representativeness of controls for the target individual |
+
+None of these estimands *is* the ITE. All of them are averages over a group of individuals. The ITE is the only true unit-level causal effect, and it is the only one that requires no assumptions about other units — but it is also the only one we can never observe. Applied causal inference is the art of choosing the estimand whose assumptions are most defensible given your design and question, while being explicit that a gap always remains between your estimate and the individual-level effect that treatment ultimately acts upon.
+:::
 
 ```{r compliance-dgs}
 set.seed(2024)
