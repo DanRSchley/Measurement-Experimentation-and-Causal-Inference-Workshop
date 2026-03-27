@@ -153,9 +153,8 @@ dag_states = {
 //   expX — X is experimentally manipulated       → X is exogenous: no arrows INTO X
 //           (removes xm=2,3 and xy=2,3)
 //   med  — mediation analysis (indirect effect)  → requires X-M link (xm≠0) AND M-Y
-//           link (my≠0). Pure mediation (med alone): also enforces no direct X-Y
-//           (xy=0). Partial mediation (med + reg both active): reg already demands
-//           xy≠0, so the xy=0 constraint is relaxed — both buttons stay satisfiable.
+//           link (my≠0) AND no direct X-Y link (xy=0). Always pure mediation.
+//           Med and Reg are mutually exclusive: Reg requires xy≠0, Med requires xy=0.
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
   const any = v => v > 0;               // any connection at all
@@ -168,9 +167,7 @@ function dagConsistent(s, active) {
     if (t === "reg" && !(any(xy) && any(my))) return false; // direct X-Y and M-Y required
     if (t === "med") {
       if (!any(xm) || !any(my)) return false;               // X-M and M-Y links required
-      // Enforce no direct X-Y (pure mediation) unless reg is also active —
-      // if reg is active it already requires xy≠0, so partial mediation applies.
-      if (!active.includes("reg") && xy !== 0) return false;
+      if (xy !== 0) return false;                            // no direct X-Y link (pure mediation)
     }
   }
   return true;
