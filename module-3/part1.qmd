@@ -153,8 +153,9 @@ dag_states = {
 //   expX — X is experimentally manipulated       → X is exogenous: no arrows INTO X
 //           (removes xm=2,3 and xy=2,3)
 //   med  — mediation analysis (indirect effect)  → requires X-M link (xm≠0) AND M-Y
-//           link (my≠0) AND no direct X-Y link (xy=0). Always pure mediation.
-//           Med and Reg are mutually exclusive: Reg requires xy≠0, Med requires xy=0.
+//           link (my≠0). Enforces no direct X-Y (xy=0) — pure mediation — unless
+//           Reg is also active, in which case xy≠0 is already required by Reg and
+//           the combination represents partial mediation (both paths present).
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
   const any = v => v > 0;               // any connection at all
@@ -167,7 +168,10 @@ function dagConsistent(s, active) {
     if (t === "reg" && !(any(xy) && any(my))) return false; // direct X-Y and M-Y required
     if (t === "med") {
       if (!any(xm) || !any(my)) return false;               // X-M and M-Y links required
-      if (xy !== 0) return false;                            // no direct X-Y link (pure mediation)
+      // Pure mediation: no direct X-Y link. But if Regression is also active it
+      // already requires xy≠0 (direct effect found), so the combination represents
+      // partial mediation — relax xy=0 to keep the button set satisfiable.
+      if (!active.includes("reg") && xy !== 0) return false;
     }
   }
   return true;
