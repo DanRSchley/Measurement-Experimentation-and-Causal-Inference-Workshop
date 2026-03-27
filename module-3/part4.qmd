@@ -170,6 +170,10 @@ $$\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_
 **Reading the plot above:** The two lines run nearly parallel from 2018–2021 (same slope, constant gap). After 2022 the Dutch line separates from the Belgian. DiD attributes that separation — roughly \$0.70 — to the eco-label law, *after* subtracting whatever movement Belgium showed over the same period (which would have happened anyway).
 
 **What makes this assumption fail?** Anything that makes Dutch and Belgian stores diverge *for reasons unrelated to the law* — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.
+
+**The parallel trends assumption and Module 2:** Parallel trends is to DiD what exchangeability is to experimentation. In Module 2, you saw that even carefully randomised experiments can fail exchangeability — attrition, demand effects, and differential compliance all erode it. In DiD, parallel trends is unverifiable for the post-treatment period (we never observe what Dutch stores would have done without the law). Pre-treatment trend tests provide *some* diagnostic evidence, but just as a successful manipulation check does not *prove* the exclusion restriction (Module 2), clean pre-trends do not *prove* that post-treatment trends would have remained parallel. It is an assumption, not a result.
+
+**A Module 1 parallel:** Fixed effects eliminate time-invariant confounders — but only if the *measurement* of the outcome variable is consistent across time and units. If the WTP question wording, scale, or survey protocol changes between periods (a measurement artefact from Module 1), the DiD estimate conflates treatment effects with measurement change. In practice, always verify that outcome measurement is held constant across waves.
 :::
 
 ## Two-Way Fixed Effects (TWFE) {#sec-did-twfe}
@@ -317,6 +321,8 @@ Parallel trends are **not directly testable** — you never observe what Dutch s
 
 1. **Too few pre-treatment periods.** Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.
 2. **You collect whatever data exists.** Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.
+
+**The Module 2 power connection:** In Module 2, you saw how underpowered studies inflate apparent effect sizes — only the most extreme estimates cross the significance threshold, leading to an inflated published literature. The same logic applies here in reverse: a pre-trend test with only two pre-periods has low power to *detect* a violation, so a non-significant result tells you very little. A failure to find pre-trend divergence with few observations is not evidence that trends were parallel — it is evidence that your test had insufficient power to catch the divergence that may have been there. This is one reason Callaway–Sant'Anna and other modern DiD estimators require researchers to be explicit about the number of clean pre-periods available.
 
 ::: {.callout-important}
 ## What the pre-trend test does — and does not — establish

@@ -129,6 +129,10 @@ The **ACME** (Average Causal Mediation Effect) is the product $a \times b$. It h
 
 1. **The *b*-path can be estimated on the wrong data** — if outliers inflate the apparent slope between M and Y, $\hat{b}$ is too large, and so is $\hat{a} \times \hat{b}$. ROBMED addresses this.
 2. **The *b*-path can be estimated on the wrong model** — if an unobserved variable $U^*$ drives both M and Y, the OLS $\hat{b}$ picks up the $U^*$ signal as if it were causal M→Y. No regression method alone can fix this; Imai's sensitivity analysis quantifies how severe the problem would need to be to explain away the result.
+
+**A Module 1 failure mode:** There is a third, often overlooked failure mode — **measurement error in M**. If *perceived sustainability* is measured as a single noisy item rather than a well-validated multi-item scale (Module 1 — reliability, CFA, convergent validity), the $\hat{a}$ path is attenuated (like any regression coefficient on a mismeasured predictor) and the $\hat{b}$ path is biased as well, because M carries both signal and noise into the Y regression. The practical implication: investing in high-quality mediator measurement at the design stage (multi-item constructs, established scales, pilot reliability checks) is not just good practice — it is a precondition for trustworthy mediation estimates. A large ACME from a single-item mediator may be entirely an artifact of differential measurement error.
+
+**A Module 2 connection:** Mediation analysis is typically conducted on experimental data where X is randomised (as in Scenarios 1–3 here). This randomisation satisfies the *a*-path assumption (no confounding of X→M). But randomisation does *not* satisfy the *b*-path assumption — M is not randomised, so the M→Y step faces all the observational identification challenges of Part 2 of this module. The sensitivity parameter $\rho^*$ below is a direct quantification of how much M–Y confounding would be needed to nullify the ACME, just as power analysis in Module 2 quantified how much sampling error could explain an apparent effect.
 :::
 
 ## Causal Structures {#sec-med-dags}

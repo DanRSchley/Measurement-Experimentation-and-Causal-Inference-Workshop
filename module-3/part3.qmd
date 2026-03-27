@@ -121,7 +121,11 @@ Imagine two products with audit scores of 69 and 71. They have almost identical 
 
 This local near-randomness is what makes the jump causal. It is equivalent to a mini natural experiment: products just above and just below 70 are exchangeable in every way except for badge receipt. The jump in WTP at that threshold is therefore attributable *entirely* to the badge.
 
-**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently.
+**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently. This LATE is conceptually identical to the LATE from Part 1 of this module — both arise because the causal estimate is anchored to a specific sub-population (compliers near the threshold) rather than the full population.
+
+**A Module 2 connection:** The "as-good-as-random near the cutoff" logic is local randomisation — a naturally occurring version of the randomised experiment studied in Module 2. The same assumption that makes experiments valid (exchangeability of treated and control) holds here, but only locally. In Module 2, randomisation made exchangeability a design guarantee; here, it is an *empirical claim* that must be verified through the diagnostics below.
+
+**A Module 1 connection:** The running variable itself is a measurement. If audit scores are measured with substantial error — auditors apply different standards, or scores reflect lobbying as much as sustainability — then the near-threshold units may *not* be as similar as assumed. Measurement error in the running variable biases the RDD estimate toward zero (attenuation at the boundary) and inflates the apparent smoothness of pre-cutoff trends. This is the causal-inference analogue of the reliability problem in Module 1: a noisy ruler undermines the precision of every inference drawn from it.
 
 **A practical check to run first**: If brands can game the audit score to land just above 70, the "as-good-as-random" assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.
 :::
@@ -182,9 +186,9 @@ summary(dens_test)
 # ── CHECK: look at the p-value in the summary output; p > .05 is required for
 #    the no-manipulation assumption; also inspect the density plot for visible
 #    bunching or a gap immediately around the cutoff.
-rdplotdensity(dens_test, X=df_rdd$audit_score,
+invisible(rdplotdensity(dens_test, X=df_rdd$audit_score,
               title="Density test: checking for bunching at the 70-point cutoff",
-              xlabel="Audit score", ylabel="Density")
+              xlabel="Audit score", ylabel="Density"))
 ```
 
 A significant p-value signals that brands are gaming audit scores to land just above 70. With our simulated uniform running variable, the density is continuous.
@@ -197,6 +201,8 @@ rdd_env <- rdrobust(y=env_rdd, x=df_rdd$audit_score, c=cutoff)
 cat("Covariate balance — env. concern should NOT jump at the threshold:\n")
 summary(rdd_env)
 ```
+
+The covariate continuity test is the RDD's randomisation check — conceptually identical to the balance tables you ran in Module 2 before analysing experimental data. In an experiment, balance across pre-treatment covariates is a consequence of random assignment; here it must be demonstrated empirically as evidence that the threshold is not systematically sorting units on unobserved characteristics.
 
 ## Estimating the RDD Effect {#sec-rdd-estimate}
 

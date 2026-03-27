@@ -12,7 +12,7 @@ if (!requireNamespace("synthdid", quietly = TRUE))
 pkgs <- c(
   "tidyverse", "broom", "knitr", "patchwork",
   "conflicted",
-  "MatchIt", "WeightIt", "cobalt",
+  "MatchIt", "WeightIt", "cobalt", "optmatch",
   "rdrobust", "rddensity",
   "did",
   "mediation", "robmed",
@@ -112,6 +112,14 @@ The code blocks throughout this section contain inline annotations explaining **
 
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables"></iframe>
 
+::: {.callout-note}
+## The thread from Module 2: exchangeability, now without randomisation
+
+Every method in this section is trying to achieve the same thing as a randomised experiment — but without actually randomising. In Module 2 you saw that randomisation achieves **exchangeability**: treated and control groups are, in expectation, identical on every measured and unmeasured covariate. The methods here — regression adjustment, IPW, matching, doubly-robust estimation — all attempt to restore exchangeability *after the fact*, using only the measured covariates. Module 2 showed that even inside a well-designed experiment, exchangeability is more fragile than it looks (demand effects, attrition, compliance failures). In observational designs, the gap between "we measured a lot of covariates" and "we have achieved exchangeability" is far larger and entirely unverifiable. Every assumption below is a bet that the measured set is complete.
+
+Module 1 raised the same issue from a different angle: if covariates are measured with error — if environmental concern is a noisy proxy for true eco-mindedness — then even conditioning on the observed score leaves residual confounding from the measurement error. Poor construct validity (Module 1) directly undermines the conditional independence assumption (Module 3). Getting the covariates right, in both selection and measurement quality, is a prerequisite for all the methods that follow.
+:::
+
 ## Heckman Selection Models {#sec-heckman}
 
 ::: {.callout-warning}
@@ -131,6 +139,8 @@ The Heckman model works **only** if you have a valid **instrument for selection*
 **A further technical requirement:** the instrument should be **continuous** (or at least multi-valued). A binary instrument (e.g., reminder email yes/no) creates only a handful of unique covariate combinations in Stage 1, making the inverse Mills ratio (IMR) nearly a step-function of treatment — which causes severe collinearity in Stage 2 and destabilizes the coefficient estimates.
 
 Always report the first-stage F-statistic (or probit z-score) for the instrument as evidence of its relevance. **Notice the irony:** the statistical fix for a broken exclusion restriction (Heckman) itself requires an exclusion restriction. The problems multiply as Y becomes more complex.
+
+**The exclusion restriction and Module 2:** In Module 2, the exclusion restriction surfaced in a different guise — the idea that a randomised nudge or manipulation affects the outcome *only through* the intended treatment path. There, the manipulation check was your practical tool for verifying this. Here, the same logic applies but there is no experimental lever to check: you must argue, on substantive grounds, that your instrument (e.g., the financial incentive) has no plausible direct route to WTP. Module 2's emphasis on careful manipulation design is precisely what makes Heckman instruments credible in practice — an instrument that was *designed* to shift participation without affecting evaluation is far more defensible than one selected post-hoc from available observational data.
 :::
 
 **The problem:** suppose eco-label study participants were recruited via an environmental blog (self-selection). People who click through are systematically more environmentally conscious. The treatment effect you estimate confounds "eco-label response" with "environmentally conscious person response."
@@ -605,6 +615,8 @@ This is the most consequential choice and it is almost entirely driven by *theor
 ## The fundamental rule of variable selection for PSM
 
 A variable should enter the PS model if and only if it is a pre-treatment cause of treatment assignment — **and** you are not certain it is causally downstream of the treatment. When in doubt about a variable's position in the DAG, include it; the cost of accidentally including a near-irrelevant covariate (slightly inflated variance) is lower than the cost of omitting a true confounder (bias that is undetectable from the data).
+
+**A Module 1 reminder:** including a covariate is only as good as its measurement. A construct measured with poor reliability or low construct validity (Module 1 — HTMT, CFA fit, convergent validity) acts partly as a noise variable. Conditioning on a noisy proxy for the true confounder leaves residual bias proportional to the measurement error. Perfect adjustment for a badly measured covariate is not possible; improving measurement quality at the design stage is more valuable than any estimation trick applied after the fact.
 :::
 
 ---
