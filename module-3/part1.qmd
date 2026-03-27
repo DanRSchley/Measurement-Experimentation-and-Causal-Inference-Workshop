@@ -300,19 +300,27 @@ dagGrid = {
     .style("display", "block").style("overflow", "visible")
     .style("font-family", "system-ui, -apple-system, sans-serif");
 
-  // Arrowhead markers — one normal, one faded
+  // Arrowhead markers — end (normal/faded) + start (auto-start-reverse for ↔)
   svg.append("defs").html(`
-    <marker id="dah"  viewBox="0 0 8 8" refX="6" refY="4"
+    <marker id="dah"   viewBox="0 0 8 8" refX="6" refY="4"
             markerWidth="5" markerHeight="5" orient="auto">
       <path d="M0,1 L0,7 L8,4 z" fill="#374151"/>
     </marker>
-    <marker id="dahf" viewBox="0 0 8 8" refX="6" refY="4"
+    <marker id="dahf"  viewBox="0 0 8 8" refX="6" refY="4"
             markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,1 L0,7 L8,4 z" fill="#d1d5db"/>
+    </marker>
+    <marker id="dah-s"  viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,1 L0,7 L8,4 z" fill="#374151"/>
+    </marker>
+    <marker id="dahf-s" viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse">
       <path d="M0,1 L0,7 L8,4 z" fill="#d1d5db"/>
     </marker>
   `);
 
-  // Draw a single directed arrow from (ax,ay) to (bx,by) with perpendicular offset
+  // Draw a single directed arrow from (ax,ay) to (bx,by)
   function putArrow(g, ax, ay, bx, by, off, faded) {
     const dx = bx - ax, dy = by - ay;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -324,6 +332,19 @@ dagGrid = {
       .attr("stroke", faded ? "#d1d5db" : "#374151")
       .attr("stroke-width", faded ? 1.1 : 1.4)
       .attr("marker-end", `url(#${faded ? "dahf" : "dah"})`);
+  }
+  // Draw a bidirectional arrow — one line, arrowheads at both ends
+  function putBiArrow(g, ax, ay, bx, by, faded) {
+    const dx = bx - ax, dy = by - ay;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    g.append("line")
+      .attr("x1", ax + ux * APAD).attr("y1", ay + uy * APAD)
+      .attr("x2", bx - ux * APAD).attr("y2", by - uy * APAD)
+      .attr("stroke", faded ? "#d1d5db" : "#374151")
+      .attr("stroke-width", faded ? 1.1 : 1.4)
+      .attr("marker-start", `url(#${faded ? "dahf-s" : "dah-s"})`)
+      .attr("marker-end",   `url(#${faded ? "dahf"   : "dah"})`);
   }
 
   // Draw one cell at position (cx, cy) in group g
@@ -341,24 +362,15 @@ dagGrid = {
     // XM arrows
     if (s.xm === 1) putArrow(gc, NX[0],NX[1], NM[0],NM[1], 0, f);
     if (s.xm === 2) putArrow(gc, NM[0],NM[1], NX[0],NX[1], 0, f);
-    if (s.xm === 3) {
-      putArrow(gc, NX[0],NX[1], NM[0],NM[1], 3.5, f);
-      putArrow(gc, NM[0],NM[1], NX[0],NX[1], 3.5, f);
-    }
+    if (s.xm === 3) putBiArrow(gc, NX[0],NX[1], NM[0],NM[1], f);
     // MY arrows
     if (s.my === 1) putArrow(gc, NM[0],NM[1], NY[0],NY[1], 0, f);
     if (s.my === 2) putArrow(gc, NY[0],NY[1], NM[0],NM[1], 0, f);
-    if (s.my === 3) {
-      putArrow(gc, NM[0],NM[1], NY[0],NY[1], 3.5, f);
-      putArrow(gc, NY[0],NY[1], NM[0],NM[1], 3.5, f);
-    }
+    if (s.my === 3) putBiArrow(gc, NM[0],NM[1], NY[0],NY[1], f);
     // XY arrows
     if (s.xy === 1) putArrow(gc, NX[0],NX[1], NY[0],NY[1], 0, f);
     if (s.xy === 2) putArrow(gc, NY[0],NY[1], NX[0],NX[1], 0, f);
-    if (s.xy === 3) {
-      putArrow(gc, NX[0],NX[1], NY[0],NY[1], 4, f);
-      putArrow(gc, NY[0],NY[1], NX[0],NX[1], 4, f);
-    }
+    if (s.xy === 3) putBiArrow(gc, NX[0],NX[1], NY[0],NY[1], f);
 
     // Node circles + labels
     const ns = f ? "#d1d5db" : "#374151";
@@ -616,12 +628,20 @@ dagGrid2 = {
     .style("font-family", "system-ui, -apple-system, sans-serif");
 
   svg.append("defs").html(`
-    <marker id="dah2"  viewBox="0 0 8 8" refX="6" refY="4"
+    <marker id="dah2"   viewBox="0 0 8 8" refX="6" refY="4"
             markerWidth="5" markerHeight="5" orient="auto">
       <path d="M0,1 L0,7 L8,4 z" fill="#374151"/>
     </marker>
-    <marker id="dahf2" viewBox="0 0 8 8" refX="6" refY="4"
+    <marker id="dahf2"  viewBox="0 0 8 8" refX="6" refY="4"
             markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,1 L0,7 L8,4 z" fill="#d1d5db"/>
+    </marker>
+    <marker id="dah2-s"  viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,1 L0,7 L8,4 z" fill="#374151"/>
+    </marker>
+    <marker id="dahf2-s" viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse">
       <path d="M0,1 L0,7 L8,4 z" fill="#d1d5db"/>
     </marker>
   `);
@@ -635,6 +655,18 @@ dagGrid2 = {
       .attr("stroke", faded ? "#d1d5db" : "#374151")
       .attr("stroke-width", faded ? 1.1 : 1.4)
       .attr("marker-end", `url(#${faded ? "dahf2" : "dah2"})`);
+  }
+  // Bidirectional: one line, arrowheads at both ends
+  function putBiArrow2(g, ax, ay, bx, by, faded) {
+    const dx = bx-ax, dy = by-ay, len = Math.sqrt(dx*dx+dy*dy)||1;
+    const ux = dx/len, uy = dy/len;
+    g.append("line")
+      .attr("x1", ax+ux*APAD).attr("y1", ay+uy*APAD)
+      .attr("x2", bx-ux*APAD).attr("y2", by-uy*APAD)
+      .attr("stroke", faded ? "#d1d5db" : "#374151")
+      .attr("stroke-width", faded ? 1.1 : 1.4)
+      .attr("marker-start", `url(#${faded ? "dahf2-s" : "dah2-s"})`)
+      .attr("marker-end",   `url(#${faded ? "dahf2"   : "dah2"})`);
   }
 
   // Interpolate white → blue-200 (#bfdbfe) based on fraction t ∈ [0,1]
@@ -661,13 +693,13 @@ dagGrid2 = {
     // XMY arrows
     if (s.xm===1) putArrow2(gc, NX[0],NX[1], NM[0],NM[1], 0, f);
     if (s.xm===2) putArrow2(gc, NM[0],NM[1], NX[0],NX[1], 0, f);
-    if (s.xm===3) { putArrow2(gc,NX[0],NX[1],NM[0],NM[1],3.5,f); putArrow2(gc,NM[0],NM[1],NX[0],NX[1],3.5,f); }
+    if (s.xm===3) putBiArrow2(gc, NX[0],NX[1], NM[0],NM[1], f);
     if (s.my===1) putArrow2(gc, NM[0],NM[1], NY[0],NY[1], 0, f);
     if (s.my===2) putArrow2(gc, NY[0],NY[1], NM[0],NM[1], 0, f);
-    if (s.my===3) { putArrow2(gc,NM[0],NM[1],NY[0],NY[1],3.5,f); putArrow2(gc,NY[0],NY[1],NM[0],NM[1],3.5,f); }
+    if (s.my===3) putBiArrow2(gc, NM[0],NM[1], NY[0],NY[1], f);
     if (s.xy===1) putArrow2(gc, NX[0],NX[1], NY[0],NY[1], 0, f);
     if (s.xy===2) putArrow2(gc, NY[0],NY[1], NX[0],NX[1], 0, f);
-    if (s.xy===3) { putArrow2(gc,NX[0],NX[1],NY[0],NY[1],4,f); putArrow2(gc,NY[0],NY[1],NX[0],NX[1],4,f); }
+    if (s.xy===3) putBiArrow2(gc, NX[0],NX[1], NY[0],NY[1], f);
 
     // XMY node circles
     const ns = f ? "#d1d5db" : "#374151";
