@@ -451,6 +451,333 @@ dagGrid = {
 }
 ```
 
+### What if There Is an Unobserved Confounder? {#sec-confounded}
+
+The exercise above assumed no hidden variables. Now introduce **U** — an unobserved variable that may have arrows to X, M, and/or Y but is never measured. No research tool can constrain U directly.
+
+Each of the three U-pairs (U–X, U–M, U–Y) can be absent, forward, backward, or bidirectional — 4³ = **64 U configurations** for every one of the 64 X–M–Y structures, giving **4,096 total states**. Rather than draw all 4,096 cells, the grid below preserves the familiar 64 X–M–Y layout. Each cell's **blue shading** encodes how many of the 64 U configurations remain consistent with your findings: deeper blue = U is highly ambiguous for that structure; pale = almost no U configuration survives; crossed out = the X–M–Y structure is ruled out for *every* possible U configuration. The small dashed circle labelled **U** in each cell is a reminder that the confounder is always present but unobserved.
+
+Notice in particular: pressing **Manipulate X** eliminates U→X (since X is now exogenous), but U's connections to M and Y remain entirely free — experimental control of X does not eliminate unmeasured confounding of the M–Y path.
+
+```{ojs}
+//| echo: false
+// ── Consistency logic for confounded model ─────────────────────────────────
+// Six pairs: xm, my, xy (same as before) plus ux (U,X), um (U,M), uy (U,Y)
+// Arrow codes: 0=none, 1=A→B, 2=A←B, 3=A↔B
+//
+//   reg2  — regression Y ~ X + M     → any(xy) AND any(my); U unconstrained
+//   expX2 — manipulate X             → X exogenous: xm≠2,3; xy≠2,3; ux≠2,3
+//   med2  — mediation X→M→Y          → xm≠0, my≠0, xy=0 (unless reg2 active)
+dagConsistent2 = (s, active) => {
+  const { xm, my, xy, ux, um, uy } = s;
+  const any = v => v > 0;
+  if (active.includes("expX2") && (xm===2||xm===3||xy===2||xy===3||ux===2||ux===3)) return false;
+  for (const t of active) {
+    if (t === "reg2" && !(any(xy) && any(my))) return false;
+    if (t === "med2") {
+      if (!any(xm) || !any(my)) return false;
+      if (!active.includes("reg2") && xy !== 0) return false;
+    }
+  }
+  return true;
+}
+```
+
+```{ojs}
+//| echo: false
+// Count how many of the 64 U configurations (ux, um, uy) are consistent
+// for a fixed (xm, my, xy) state given the active button set.
+countUConfigs = (xmyState, active) => {
+  let n = 0;
+  for (let ux = 0; ux < 4; ux++)
+    for (let um = 0; um < 4; um++)
+      for (let uy = 0; uy < 4; uy++)
+        if (dagConsistent2({...xmyState, ux, um, uy}, active)) n++;
+  return n;
+}
+```
+
+```{ojs}
+//| echo: false
+// ── Tool buttons (confounded model) ────────────────────────────────────────
+viewof activeTools2 = {
+  const TOOLS = [
+    { id:"reg2",  cat:"Regression", label:"Regression Y ~ X + M",  sub:"Both X and M directly predict Y (xy≠0 and my≠0)" },
+    { id:"expX2", cat:"Experiment", label:"Manipulate X",           sub:"X is exogenous — removes arrows into X, including U→X" },
+    { id:"med2",  cat:"Mediation",  label:"X → M → Y  indirect",   sub:"X–M and M–Y links required; pure mediation removes direct X–Y" },
+  ];
+  const ICONS = { Regression:"📊", Experiment:"🧪", Mediation:"⛓️" };
+  const active = new Set();
+  const buttons = [];
+
+  const wrap = document.createElement("div");
+  Object.assign(wrap.style, {
+    border:"1px solid #e2e8f0", borderRadius:"10px", padding:"16px 18px",
+    background:"#f8fafc", margin:"16px 0"
+  });
+
+  const hdr = document.createElement("div");
+  Object.assign(hdr.style, { display:"flex", justifyContent:"space-between",
+    alignItems:"center", marginBottom:"12px" });
+  const title = document.createElement("span");
+  title.style.cssText = "font-weight:700;font-size:14px;color:#0f172a;";
+  title.innerHTML = `🛠️ Research Tools &nbsp;<span style="font-weight:400;color:#64748b;font-size:12px;">— U is always present but unobserved; no tool constrains it</span>`;
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "↺ Reset All";
+  resetBtn.style.cssText = "padding:5px 12px;border-radius:6px;border:1px solid #94a3b8;background:#fff;cursor:pointer;font-size:12px;color:#475569;";
+  hdr.appendChild(title); hdr.appendChild(resetBtn);
+  wrap.appendChild(hdr);
+
+  const cats = [...new Set(TOOLS.map(t => t.cat))];
+  cats.forEach(cat => {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;align-items:center;";
+    const catLbl = document.createElement("span");
+    catLbl.style.cssText = "font-size:11px;color:#94a3b8;min-width:80px;";
+    catLbl.textContent = `${ICONS[cat]} ${cat}`;
+    row.appendChild(catLbl);
+    TOOLS.filter(t => t.cat === cat).forEach(t => {
+      const b = document.createElement("button");
+      b.style.cssText = "padding:7px 13px;border-radius:18px;border:2px solid #cbd5e1;background:#fff;cursor:pointer;font-size:12px;color:#334155;transition:all 0.15s;line-height:1.4;text-align:left;";
+      b.innerHTML = `<strong>${t.label}</strong><br><span style="font-size:10px;color:#94a3b8;">${t.sub}</span>`;
+      b.onclick = () => {
+        if (active.has(t.id)) {
+          active.delete(t.id);
+          b.style.background = "#fff"; b.style.borderColor = "#cbd5e1"; b.style.color = "#334155";
+        } else {
+          active.add(t.id);
+          b.style.background = "#dc2626"; b.style.borderColor = "#dc2626"; b.style.color = "#fff";
+        }
+        wrap.value = [...active];
+        wrap.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      buttons.push(b);
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+  });
+
+  resetBtn.onclick = () => {
+    active.clear();
+    buttons.forEach(b => {
+      b.style.background = "#fff"; b.style.borderColor = "#cbd5e1"; b.style.color = "#334155";
+    });
+    wrap.value = [];
+    wrap.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+
+  wrap.value = [];
+  return wrap;
+}
+```
+
+```{ojs}
+//| echo: false
+// ── Status counter (out of 4096) ────────────────────────────────────────────
+dagStatusBar2 = {
+  let total = 0;
+  for (let xm = 0; xm < 4; xm++)
+    for (let my = 0; my < 4; my++)
+      for (let xy = 0; xy < 4; xy++)
+        total += countUConfigs({xm, my, xy}, activeTools2);
+  const pct = Math.round(total / 4096 * 100);
+  const bar = document.createElement("div");
+  Object.assign(bar.style, {
+    display:"flex", alignItems:"center", gap:"12px",
+    padding:"10px 16px", borderRadius:"8px", margin:"6px 0",
+    background: total === 4096 ? "#f0fdf4" : total <= 192 ? "#f0fdf4" : "#fff7ed",
+    border: `1px solid ${total === 4096 ? "#bbf7d0" : total <= 192 ? "#bbf7d0" : "#fed7aa"}`,
+    fontSize:"13px"
+  });
+  const color = total <= 192 ? "#16a34a" : total <= 1024 ? "#d97706" : "#dc2626";
+  const msg = total === 4096
+    ? "Apply tools above to begin eliminating structures."
+    : `${4096 - total} state combinations eliminated — <strong style="color:#b45309">${total} remain consistent (${pct}%)</strong>.`;
+  bar.innerHTML = `
+    <span style="font-size:22px;">🎯</span>
+    <span>
+      <strong style="color:${color};font-size:18px;">${total}</strong>
+      <span style="color:#475569;"> / 4,096 states consistent</span>
+      &nbsp;&nbsp;<span style="color:#6b7280;font-size:12px;">${msg}</span>
+    </span>`;
+  return bar;
+}
+```
+
+```{ojs}
+//| echo: false
+// ── Confounded DAG grid ─────────────────────────────────────────────────────
+// Same 64-cell XMY layout as dagGrid. Cell background shading encodes the
+// count of consistent U configurations (0–64): deeper blue = more U ambiguity.
+// A small dashed "U" node (top-right of each cell) marks the unobserved variable.
+dagGrid2 = {
+  const W = 86, H = 70, GAP = 4;
+  const NX = [15, 58], NY = [71, 58], NM = [43, 12];
+  const NU = [76, 9];          // U node: small dashed circle, top-right corner
+  const NR = 9, NRU = 6, APAD = 10;
+
+  const LPAD = 58, SGAP = 16;
+  const SHEAD = 26, CHEAD = 16;
+  const secW = 4 * (W + GAP) - GAP;
+  const secH = 4 * (H + GAP) - GAP;
+  const totalW = LPAD + 2 * secW + SGAP + 4;
+  const totalH = 2 * (SHEAD + CHEAD + secH) + SGAP + 32; // extra 32 for legend
+
+  const svg = d3.create("svg")
+    .attr("width", totalW).attr("height", totalH)
+    .style("display", "block").style("overflow", "visible")
+    .style("font-family", "system-ui, -apple-system, sans-serif");
+
+  svg.append("defs").html(`
+    <marker id="dah2"  viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,1 L0,7 L8,4 z" fill="#374151"/>
+    </marker>
+    <marker id="dahf2" viewBox="0 0 8 8" refX="6" refY="4"
+            markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,1 L0,7 L8,4 z" fill="#d1d5db"/>
+    </marker>
+  `);
+
+  function putArrow2(g, ax, ay, bx, by, off, faded) {
+    const dx = bx-ax, dy = by-ay, len = Math.sqrt(dx*dx+dy*dy)||1;
+    const ux = dx/len, uy = dy/len, ox = -uy*off, oy = ux*off;
+    g.append("line")
+      .attr("x1", ax+ux*APAD+ox).attr("y1", ay+uy*APAD+oy)
+      .attr("x2", bx-ux*APAD+ox).attr("y2", by-uy*APAD+oy)
+      .attr("stroke", faded ? "#d1d5db" : "#374151")
+      .attr("stroke-width", faded ? 1.1 : 1.4)
+      .attr("marker-end", `url(#${faded ? "dahf2" : "dah2"})`);
+  }
+
+  // Interpolate white → blue-200 (#bfdbfe) based on fraction t ∈ [0,1]
+  function uFill(count) {
+    if (count === 0) return "rgba(220,38,38,0.07)";
+    const t = count / 64;
+    return `rgb(${Math.round(255+t*(191-255))},${Math.round(255+t*(219-255))},255)`;
+  }
+  function uStroke(count) {
+    if (count === 0) return "rgba(220,38,38,0.28)";
+    const t = count / 64;
+    return `rgb(${Math.round(255+t*(147-255))},${Math.round(255+t*(197-255))},253)`;
+  }
+
+  function drawCell2(g, s, count, cx, cy) {
+    const gc = g.append("g").attr("transform", `translate(${cx},${cy})`);
+    const f = count === 0;
+
+    gc.append("rect")
+      .attr("width", W).attr("height", H).attr("rx", 4)
+      .attr("fill", uFill(count)).attr("stroke", uStroke(count))
+      .attr("stroke-width", 0.8);
+
+    // XMY arrows
+    if (s.xm===1) putArrow2(gc, NX[0],NX[1], NM[0],NM[1], 0, f);
+    if (s.xm===2) putArrow2(gc, NM[0],NM[1], NX[0],NX[1], 0, f);
+    if (s.xm===3) { putArrow2(gc,NX[0],NX[1],NM[0],NM[1],3.5,f); putArrow2(gc,NM[0],NM[1],NX[0],NX[1],3.5,f); }
+    if (s.my===1) putArrow2(gc, NM[0],NM[1], NY[0],NY[1], 0, f);
+    if (s.my===2) putArrow2(gc, NY[0],NY[1], NM[0],NM[1], 0, f);
+    if (s.my===3) { putArrow2(gc,NM[0],NM[1],NY[0],NY[1],3.5,f); putArrow2(gc,NY[0],NY[1],NM[0],NM[1],3.5,f); }
+    if (s.xy===1) putArrow2(gc, NX[0],NX[1], NY[0],NY[1], 0, f);
+    if (s.xy===2) putArrow2(gc, NY[0],NY[1], NX[0],NX[1], 0, f);
+    if (s.xy===3) { putArrow2(gc,NX[0],NX[1],NY[0],NY[1],4,f); putArrow2(gc,NY[0],NY[1],NX[0],NX[1],4,f); }
+
+    // XMY node circles
+    const ns = f ? "#d1d5db" : "#374151";
+    const nf = f ? "#f9fafb" : "#ffffff";
+    const tf = f ? "#9ca3af" : "#111827";
+    [[NX,"X"],[NY,"Y"],[NM,"M"]].forEach(([pos,lbl]) => {
+      gc.append("circle").attr("cx",pos[0]).attr("cy",pos[1]).attr("r",NR)
+        .attr("fill",nf).attr("stroke",ns).attr("stroke-width",1.5);
+      gc.append("text").attr("x",pos[0]).attr("y",pos[1]+4)
+        .attr("text-anchor","middle").attr("font-size",10).attr("font-weight","700")
+        .attr("fill",tf).text(lbl);
+    });
+
+    // U node — dashed, unobserved
+    gc.append("circle").attr("cx",NU[0]).attr("cy",NU[1]).attr("r",NRU)
+      .attr("fill", f ? "#f9fafb" : "#f8fafc")
+      .attr("stroke", f ? "#d1d5db" : "#94a3b8")
+      .attr("stroke-width",1.2).attr("stroke-dasharray","2.5 1.5");
+    gc.append("text").attr("x",NU[0]).attr("y",NU[1]+3.5)
+      .attr("text-anchor","middle").attr("font-size",7).attr("font-weight","600")
+      .attr("fill", f ? "#d1d5db" : "#94a3b8").text("U");
+
+    // U-count badge bottom-right
+    if (!f) {
+      gc.append("text").attr("x",W-3).attr("y",H-3)
+        .attr("text-anchor","end").attr("font-size",7).attr("fill","#64748b")
+        .text(`${count}/64`);
+    }
+
+    // Red cross for ruled-out
+    if (f) {
+      gc.append("line").attr("x1",5).attr("y1",5).attr("x2",W-5).attr("y2",H-5)
+        .attr("stroke","rgba(220,38,38,0.28)").attr("stroke-width",1.5);
+      gc.append("line").attr("x1",W-5).attr("y1",5).attr("x2",5).attr("y2",H-5)
+        .attr("stroke","rgba(220,38,38,0.28)").attr("stroke-width",1.5);
+    }
+  }
+
+  const XY_TITLES = ["X — Y  (no direct link)", "X → Y", "X ← Y", "X ↔ Y"];
+  const XY_COLORS = ["#334155","#1d4ed8","#7c3aed","#0e7490"];
+  const XM_LABELS = ["X—M: —","X→M","M→X","X↔M"];
+  const MY_LABELS = ["—","M→Y","Y→M","M↔Y"];
+
+  [0,1,2,3].forEach((xyVal, si) => {
+    const sCol = si % 2, sRow = Math.floor(si/2);
+    const ox = LPAD + sCol*(secW+SGAP);
+    const oy = sRow*(SHEAD+CHEAD+secH+SGAP);
+
+    svg.append("rect").attr("x",ox).attr("y",oy).attr("width",secW).attr("height",SHEAD-2)
+      .attr("rx",4).attr("fill",XY_COLORS[xyVal]);
+    svg.append("text").attr("x",ox+secW/2).attr("y",oy+17)
+      .attr("text-anchor","middle").attr("fill","white")
+      .attr("font-size",12).attr("font-weight","700").text(XY_TITLES[xyVal]);
+
+    for (let my = 0; my < 4; my++) {
+      svg.append("text")
+        .attr("x", ox+my*(W+GAP)+W/2).attr("y", oy+SHEAD+CHEAD-3)
+        .attr("text-anchor","middle").attr("font-size",8.5).attr("fill","#64748b")
+        .text(MY_LABELS[my]);
+    }
+    for (let xm = 0; xm < 4; xm++) {
+      const cy = oy+SHEAD+CHEAD+xm*(H+GAP);
+      svg.append("text").attr("x",ox-5).attr("y",cy+H/2+4)
+        .attr("text-anchor","end").attr("font-size",8.5).attr("fill","#64748b")
+        .text(XM_LABELS[xm]);
+      for (let my = 0; my < 4; my++) {
+        const cx = ox+my*(W+GAP);
+        drawCell2(svg, {xm, my, xy:xyVal}, countUConfigs({xm,my,xy:xyVal}, activeTools2), cx, cy);
+      }
+    }
+  });
+
+  // Color legend
+  const legY = totalH - 20;
+  const legX = LPAD;
+  svg.append("text").attr("x",legX).attr("y",legY)
+    .attr("font-size",8).attr("fill","#64748b").text("U configs consistent:");
+  for (let i = 0; i <= 8; i++) {
+    const t = i/8;
+    svg.append("rect")
+      .attr("x", legX+130+i*16).attr("y",legY-10).attr("width",15).attr("height",10).attr("rx",2)
+      .attr("fill",`rgb(${Math.round(255+t*(191-255))},${Math.round(255+t*(219-255))},255)`);
+  }
+  svg.append("text").attr("x",legX+128).attr("y",legY)
+    .attr("text-anchor","end").attr("font-size",7.5).attr("fill","#94a3b8").text("0");
+  svg.append("text").attr("x",legX+130+9*16+2).attr("y",legY)
+    .attr("font-size",7.5).attr("fill","#94a3b8").text("64");
+
+  svg.append("text")
+    .attr("transform",`translate(8,${(totalH-32)/2}) rotate(-90)`)
+    .attr("text-anchor","middle").attr("font-size",10).attr("fill","#94a3b8")
+    .text("← XM relationship (rows within each section) →");
+
+  return svg.node();
+}
+```
+
 ---
 
 ## The Fundamental Problem of Causal Inference {#sec-fundamental}
