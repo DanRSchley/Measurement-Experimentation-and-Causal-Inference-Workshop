@@ -147,32 +147,34 @@ dag_states = {
 // Tool logic (each button represents a POSITIVE finding that rules out
 // structures that cannot produce that result):
 //
-//   reg  — regression Y ~ X + M, both significant → requires direct X-Y link (xy≠0)
-//           AND direct M-Y link (my≠0). Does NOT require an X-M link — X and M can
-//           be uncorrelated orthogonal predictors.
-//   expX — X is experimentally manipulated       → X is exogenous: no arrows INTO X
-//           (removes xm=2,3 and xy=2,3)
-//   med  — mediation analysis (indirect effect)  → requires X-M link (xm≠0) AND M-Y
-//           link (my≠0). Enforces no direct X-Y (xy=0) — pure mediation — unless
-//           Reg is also active, in which case xy≠0 is already required by Reg and
-//           the combination represents partial mediation (both paths present).
+//   regDX — regression Y~X+M: X IS significant  → my≠0; xy≠0
+//            (overridden if medD0 also active — mediation supersedes regression)
+//   regD0 — regression Y~X+M: X NOT significant → my≠0; xy=0
+//            (overridden if medDX also active — mediation supersedes regression)
+//   expX  — X experimentally manipulated         → X exogenous: xm≠2,3; xy≠2,3
+//   medDX — mediation, partial (direct ≠ 0)      → xm≠0; my≠0; xy≠0 (always enforced)
+//   medD0 — mediation, pure   (direct = 0)       → xm≠0; my≠0; xy=0 (always enforced)
+//
+// Mediation supersedes regression on the xy constraint: if medD0 is active,
+// regDX's xy≠0 requirement is waived; if medDX is active, regD0's xy=0 is waived.
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
-  const any = v => v > 0;               // any connection at all
+  const any = v => v > 0;
 
-  // Experimental manipulation of X makes it exogenous: no arrows into X.
-  // Rules out M→X (xm=2), X↔M (xm=3), Y→X (xy=2), X↔Y (xy=3).
+  // X exogenous when manipulated: no arrows into X
   if (active.includes("expX") && (xm === 2 || xm === 3 || xy === 2 || xy === 3)) return false;
 
   for (const t of active) {
-    if (t === "reg" && !(any(xy) && any(my))) return false; // direct X-Y and M-Y required
-    if (t === "med") {
-      if (!any(xm) || !any(my)) return false;               // X-M and M-Y links required
-      // Pure mediation: no direct X-Y link. But if Regression is also active it
-      // already requires xy≠0 (direct effect found), so the combination represents
-      // partial mediation — relax xy=0 to keep the button set satisfiable.
-      if (!active.includes("reg") && xy !== 0) return false;
+    if (t === "regDX") {                                      // X→Y direct effect found
+      if (!any(my)) return false;
+      if (!active.includes("medD0") && !any(xy)) return false; // medD0 supersedes
     }
+    if (t === "regD0") {                                      // no X→Y direct effect
+      if (!any(my)) return false;
+      if (!active.includes("medDX") && xy !== 0) return false; // medDX supersedes
+    }
+    if (t === "medDX" && !(any(xm) && any(my) && any(xy))) return false; // partial mediation
+    if (t === "medD0" && !(any(xm) && any(my) && xy === 0)) return false; // pure mediation
   }
   return true;
 }
@@ -183,9 +185,11 @@ function dagConsistent(s, active) {
 // ── Tool buttons ───────────────────────────────────────────────────────────────
 viewof activeTools = {
   const TOOLS = [
-    { id:"reg",  cat:"Regression", label:"Regression Y ~ X + M",  sub:"Both X and M directly predict Y (xy≠0 and my≠0)" },
-    { id:"expX", cat:"Experiment", label:"Manipulate X",           sub:"X is exogenous — removes all arrows into X" },
-    { id:"med",  cat:"Mediation",  label:"X → M → Y  indirect",   sub:"X–M and M–Y links required; pure mediation removes direct X–Y" },
+    { id:"regDX", cat:"Regression", label:"Regression: X→Y effect",       sub:"X has a direct effect on Y (xy≠0); M also predicts Y" },
+    { id:"regD0", cat:"Regression", label:"Regression: no X→Y effect",    sub:"X has no direct effect on Y (xy=0); M predicts Y" },
+    { id:"expX",  cat:"Experiment", label:"Manipulate X",                  sub:"X is exogenous — removes all arrows into X" },
+    { id:"medDX", cat:"Mediation",  label:"Mediation: partial (direct≠0)", sub:"X→M→Y indirect path plus direct X→Y effect" },
+    { id:"medD0", cat:"Mediation",  label:"Mediation: pure (direct=0)",    sub:"X→M→Y indirect path only; no direct X→Y" },
   ];
   const ICONS = { Regression:"📊", Experiment:"🧪", Mediation:"⛓️" };
   const active = new Set();
@@ -465,19 +469,27 @@ Notice in particular: pressing **Manipulate X** eliminates U→X (since X is now
 // Six pairs: xm, my, xy (same as before) plus ux (U,X), um (U,M), uy (U,Y)
 // Arrow codes: 0=none, 1=A→B, 2=A←B, 3=A↔B
 //
-//   reg2  — regression Y ~ X + M     → any(xy) AND any(my); U unconstrained
-//   expX2 — manipulate X             → X exogenous: xm≠2,3; xy≠2,3; ux≠2,3
-//   med2  — mediation X→M→Y          → xm≠0, my≠0, xy=0 (unless reg2 active)
+//   regDX2 — regression: X IS significant    → my≠0; xy≠0 (overridden by medD02)
+//   regD02 — regression: X NOT significant   → my≠0; xy=0 (overridden by medDX2)
+//   expX2  — manipulate X                    → X exogenous: xm≠2,3; xy≠2,3; ux≠2,3
+//   medDX2 — mediation, partial (direct≠0)   → xm≠0; my≠0; xy≠0 (always enforced)
+//   medD02 — mediation, pure   (direct=0)    → xm≠0; my≠0; xy=0 (always enforced)
+// Mediation supersedes regression on the xy constraint (same rule as sim 1).
 dagConsistent2 = (s, active) => {
   const { xm, my, xy, ux, um, uy } = s;
   const any = v => v > 0;
   if (active.includes("expX2") && (xm===2||xm===3||xy===2||xy===3||ux===2||ux===3)) return false;
   for (const t of active) {
-    if (t === "reg2" && !(any(xy) && any(my))) return false;
-    if (t === "med2") {
-      if (!any(xm) || !any(my)) return false;
-      if (!active.includes("reg2") && xy !== 0) return false;
+    if (t === "regDX2") {
+      if (!any(my)) return false;
+      if (!active.includes("medD02") && !any(xy)) return false;
     }
+    if (t === "regD02") {
+      if (!any(my)) return false;
+      if (!active.includes("medDX2") && xy !== 0) return false;
+    }
+    if (t === "medDX2" && !(any(xm) && any(my) && any(xy))) return false;
+    if (t === "medD02" && !(any(xm) && any(my) && xy === 0)) return false;
   }
   return true;
 }
@@ -502,9 +514,11 @@ countUConfigs = (xmyState, active) => {
 // ── Tool buttons (confounded model) ────────────────────────────────────────
 viewof activeTools2 = {
   const TOOLS = [
-    { id:"reg2",  cat:"Regression", label:"Regression Y ~ X + M",  sub:"Both X and M directly predict Y (xy≠0 and my≠0)" },
-    { id:"expX2", cat:"Experiment", label:"Manipulate X",           sub:"X is exogenous — removes arrows into X, including U→X" },
-    { id:"med2",  cat:"Mediation",  label:"X → M → Y  indirect",   sub:"X–M and M–Y links required; pure mediation removes direct X–Y" },
+    { id:"regDX2", cat:"Regression", label:"Regression: X→Y effect",       sub:"X has a direct effect on Y (xy≠0); M also predicts Y" },
+    { id:"regD02", cat:"Regression", label:"Regression: no X→Y effect",    sub:"X has no direct effect on Y (xy=0); M predicts Y" },
+    { id:"expX2",  cat:"Experiment", label:"Manipulate X",                  sub:"X is exogenous — removes arrows into X, including U→X" },
+    { id:"medDX2", cat:"Mediation",  label:"Mediation: partial (direct≠0)", sub:"X→M→Y indirect path plus direct X→Y effect" },
+    { id:"medD02", cat:"Mediation",  label:"Mediation: pure (direct=0)",    sub:"X→M→Y indirect path only; no direct X→Y" },
   ];
   const ICONS = { Regression:"📊", Experiment:"🧪", Mediation:"⛓️" };
   const active = new Set();
