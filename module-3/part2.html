@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bfff994a28a292786ff1d445aaa1244d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -1312,68 +1312,74 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 </section>
 <section id="putting-it-together-ps-model-specification-matters-most" class="level3" data-number="16.8.9">
 <h3 data-number="16.8.9" class="anchored" data-anchor-id="putting-it-together-ps-model-specification-matters-most"><span class="header-section-number">16.8.9</span> Putting it together: PS model specification matters most</h3>
-<p>The chart below demonstrates that of all the decisions above, getting the PS model specification right dominates all others. We compare a misspecified logit (main effects only) against a model that correctly captures the <code>env × income</code> interaction driving treatment in our DGP.</p>
+<p>The chart below demonstrates that getting the PS model specification right is the single most consequential decision. To isolate the effect of specification quality alone, <strong>no calipers are used here</strong> — calipers are a separate design choice (covered in the matching design section below) that drops different units across models and muddies the comparison. Three models are compared: one that simply misses the key interaction, one that adds an interaction but on the <em>wrong</em> covariate pair, and one correctly specified model.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Compare misspecified vs.&nbsp;correctly specified PS models</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace treat ~ ... with your treatment indicator and</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    pre-treatment covariates. Try multiple PS formulas and check whether</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    estimates shift — sensitivity across specifications is a red flag.</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: distance="logit" / "probit" selects the PS model family;</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    caliper (in SD units when std.caliper=TRUE) discards pairs whose PS</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    difference exceeds the threshold, preventing poor matches.</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Misspecified: logit with only main effects (misses env:income interaction)</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>m_ps_mis1 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income,</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Misspecified: probit + poly(env,2) — adds flexibility but still misses</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    the env:income interaction that actually drives treatment assignment</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>m_ps_mis2 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> <span class="fu">poly</span>(env,<span class="dv">2</span>) <span class="sc">+</span> price_sens <span class="sc">+</span> income,</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"probit"</span>,</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">caliper=</span><span class="fl">0.15</span>, <span class="at">std.caliper=</span><span class="cn">TRUE</span>)</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Correctly specified: logit with env² and env×income matching the true DGP</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>m_ps_cor  <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>,</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>                     <span class="at">caliper=</span><span class="fl">0.15</span>, <span class="at">std.caliper=</span><span class="cn">TRUE</span>)</span>
+<summary>▶ Compare misspecified vs.&nbsp;correctly specified PS models (no caliper)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── No calipers in this chunk — we want PS model quality alone to drive</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    differences. Calipers drop different units across models and conflate</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    specification quality with estimand shifts. For comparing specifications,</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    match all treated units and let the PS estimate quality determine bias.</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace treat ~ ... with your treatment indicator and</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    pre-treatment covariates. Vary only the formula; keep method="nearest"</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    and no caliper so that specification quality is the sole variable.</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Misspecified 1: main effects only — misses the env×income interaction</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">#    entirely. High env + high income consumers get the same predicted PS as</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">#    high env + low income consumers, creating systematically bad matches.</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>m_ps_mis1 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Misspecified 2: adds an interaction, but on the WRONG pair (env×price_sens</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    instead of env×income). Price sensitivity has a negative effect on PS</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co">#    (-0.32), so env×price_sens pulls predictions in the wrong direction for</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">#    highly eco-conscious but price-sensitive consumers — biased differently</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">#    from model 1 but still structurally wrong.</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>m_ps_mis2 <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env<span class="sc">:</span>price_sens,</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
 <span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>results_psm_spec <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"1. Logit — main effects only</span><span class="sc">\n</span><span class="st">(misspecified)"</span>          <span class="ot">=</span> m_ps_mis1,</span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>       <span class="st">"2. Probit + poly(env,2) + caliper</span><span class="sc">\n</span><span class="st">(misspecified)"</span>     <span class="ot">=</span> m_ps_mis2,</span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>       <span class="st">"3. Logit + env² + env×income + caliper</span><span class="sc">\n</span><span class="st">(correct PS)"</span>  <span class="ot">=</span> m_ps_cor),</span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) {</span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    d   <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m)</span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    est <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>d, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
-<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>)</span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">estimate=</span>est<span class="sc">$</span>estimate, <span class="at">se=</span>est<span class="sc">$</span>std.error,</span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_matched=</span><span class="fu">nrow</span>(d[d<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>,]))</span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">.id=</span><span class="st">"PS model"</span></span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>results_psm_spec <span class="sc">|&gt;</span></span>
-<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se,</span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N retained</span><span class="st">`</span><span class="ot">=</span>n_matched,</span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>         <span class="at">correct =</span> <span class="fu">str_detect</span>(<span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="st">"correct"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span><span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="at">x=</span>estimate, <span class="at">xmin=</span>lo, <span class="at">xmax=</span>hi,</span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour=</span>correct, <span class="at">shape=</span>correct)) <span class="sc">+</span></span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATT_true_obs, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span>clr_eco,  <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATE_true_obs, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span>clr_ctrl, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"N=%d"</span>, <span class="st">`</span><span class="at">N retained</span><span class="st">`</span>), <span class="at">x=</span>hi<span class="fl">+0.04</span>), <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>) <span class="sc">+</span></span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATT_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">3.45</span>,</span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATT"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_eco) <span class="sc">+</span></span>
-<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATE_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">3.1</span>,</span>
-<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATE"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_ctrl) <span class="sc">+</span></span>
-<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="st">"grey50"</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="st">"#b45309"</span>),</span>
-<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
-<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="dv">16</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="dv">18</span>),</span>
-<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
-<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"ATT estimate — eco-label WTP premium ($)"</span>, <span class="at">y=</span><span class="cn">NULL</span>,</span>
-<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour=</span><span class="cn">NULL</span>, <span class="at">shape=</span><span class="cn">NULL</span>,</span>
-<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Misspecifying the PS model produces substantial bias"</span>,</span>
-<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"The misspecified logit misses the env×income interaction — both misspecified models overshoot the true ATT"</span>) <span class="sc">+</span></span>
-<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Correctly specified: includes env² and env×income matching the true DGP.</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="co">#    All treated units are matched; the quality of each match is high because</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="co">#    the PS correctly ranks who is likely to buy eco-labelled coffee.</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>m_ps_cor  <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_sq <span class="sc">+</span> env_income,</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>results_psm_spec <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"1. Logit — main effects only</span><span class="sc">\n</span><span class="st">(misspecified)"</span>               <span class="ot">=</span> m_ps_mis1,</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>       <span class="st">"2. Logit + env×price_sens</span><span class="sc">\n</span><span class="st">(wrong interaction)"</span>             <span class="ot">=</span> m_ps_mis2,</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>       <span class="st">"3. Logit + env² + env×income</span><span class="sc">\n</span><span class="st">(correctly specified)"</span>        <span class="ot">=</span> m_ps_cor),</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) {</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    d   <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    est <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>d, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>)</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">estimate=</span>est<span class="sc">$</span>estimate, <span class="at">se=</span>est<span class="sc">$</span>std.error,</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_matched=</span><span class="fu">nrow</span>(d[d<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>,]))</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">.id=</span><span class="st">"PS model"</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>results_psm_spec <span class="sc">|&gt;</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se,</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N retained</span><span class="st">`</span><span class="ot">=</span>n_matched,</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>         <span class="at">correct =</span> <span class="fu">str_detect</span>(<span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="st">"correctly"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span><span class="st">`</span><span class="at">PS model</span><span class="st">`</span>, <span class="at">x=</span>estimate, <span class="at">xmin=</span>lo, <span class="at">xmax=</span>hi,</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour=</span>correct, <span class="at">shape=</span>correct)) <span class="sc">+</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATT_true_obs, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span>clr_eco,  <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATE_true_obs, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span>clr_ctrl, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"N=%d"</span>, <span class="st">`</span><span class="at">N retained</span><span class="st">`</span>), <span class="at">x=</span>hi<span class="fl">+0.04</span>), <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATT_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">3.45</span>,</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATT"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_eco) <span class="sc">+</span></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATE_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">3.1</span>,</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATE"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">colour=</span>clr_ctrl) <span class="sc">+</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="st">"grey50"</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="st">"#b45309"</span>),</span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"FALSE"</span><span class="ot">=</span><span class="dv">16</span>,<span class="st">"TRUE"</span><span class="ot">=</span><span class="dv">18</span>),</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Misspecified PS"</span>,<span class="st">"Correctly specified PS"</span>)) <span class="sc">+</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"ATT estimate — eco-label WTP premium ($)"</span>, <span class="at">y=</span><span class="cn">NULL</span>,</span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour=</span><span class="cn">NULL</span>, <span class="at">shape=</span><span class="cn">NULL</span>,</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"PS model specification determines whether matching recovers the true ATT"</span>,</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"No calipers: all treated units matched — differences driven solely by PS model quality"</span>) <span class="sc">+</span></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1383,7 +1389,25 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 </div>
 </div>
 </div>
-<p>Notice that the misspecified models do not merely add noise around the true ATT — they systematically <em>overshoot</em> it. The reason is structural: the <code>env × income</code> interaction means the most environmentally conscious <em>and</em> wealthiest consumers have especially high treatment probabilities <em>and</em> especially high baseline WTP. A PS model that misses this interaction assigns these consumers too low a probability of treatment, so they are matched to controls who are actually quite different in unmeasured ways. The matched sample is contaminated by selection on the very dimension the model failed to capture.</p>
+<p>The two misspecified models land in different places but both miss the true ATT, for distinct structural reasons:</p>
+<ul>
+<li><p><strong>Model 1 (main effects only):</strong> Treats high-env + high-income consumers identically to high-env + low-income consumers in PS space. These two groups have very different true treatment probabilities (because of the <code>env×income</code> interaction), so the model matches high-env + high-income treated units to controls who share the same env level but not the same income. The matched controls have systematically lower true PS — and lower baseline WTP — overstating the eco-label effect.</p></li>
+<li><p><strong>Model 2 (wrong interaction — <code>env×price_sens</code>):</strong> Adds interaction complexity but on the wrong pairing. Since price sensitivity has a <em>negative</em> PS coefficient (−0.32), the <code>env×price_sens</code> term suppresses PS estimates for high-env + price-sensitive consumers — a group that exists but is not the structural driver of selection. The model distorts the PS surface in the wrong direction, producing a different pattern of bad matches.</p></li>
+<li><p><strong>Model 3 (correct):</strong> The <code>env×income</code> term correctly captures who is most likely to buy eco-labelled coffee (high env <em>and</em> high income), so matched controls are genuinely comparable to treated units across both dimensions. The ATT estimate lands near the true ATT.</p></li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Why adding a caliper to misspecified models does not fix the problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A caliper prevents the <em>worst</em> individual matches (pairs that differ by more than X SDs in estimated PS), but it cannot fix the underlying structural error. With a misspecified PS, “close in estimated PS space” does not mean “close in true PS space.” The caliper removes some outlier pairs but the systematic directional bias from the wrong functional form remains — and an added side-effect is that the caliper drops different sets of treated units across models, making a clean apples-to-apples comparison impossible.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1394,7 +1418,7 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A matched sample from the misspecified logit will show excellent marginal balance — similar means on <code>env</code>, <code>income</code>, and <code>price_sens</code> across groups. But <code>env × income</code> (a covariate not explicitly in the balance check) will still be badly imbalanced. <strong>Always check interaction terms and polynomial terms in your Love plot</strong>, not just the main effects you put in the PS model.</p>
+<p>A matched sample from the misspecified logit will show excellent <em>marginal</em> balance — similar means on <code>env</code>, <code>income</code>, and <code>price_sens</code> across groups. But <code>env × income</code> (not explicitly checked) will still be badly imbalanced. <strong>Always inspect interaction terms and polynomial terms in your Love plot</strong>, not just the main effects you included in the PS model.</p>
 </div>
 </div>
 </section>
