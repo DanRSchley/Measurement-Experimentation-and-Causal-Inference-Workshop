@@ -12,7 +12,7 @@ if (!requireNamespace("synthdid", quietly = TRUE))
 pkgs <- c(
   "tidyverse", "broom", "knitr", "patchwork",
   "conflicted",
-  "MatchIt", "WeightIt", "cobalt", "optmatch",
+  "MatchIt", "WeightIt", "cobalt",
   "rdrobust", "rddensity",
   "did",
   "mediation", "robmed",
@@ -640,7 +640,7 @@ Regardless of the estimator, always check: (a) overlap histograms (both groups s
 
 ---
 
-### Decision 3: Nearest-neighbour greedy vs. optimal vs. full matching
+### Decision 3: Nearest-neighbour greedy vs. optimal vs. subclassification
 
 Once you have PS estimates in hand, how do you form the matched pairs?
 
@@ -648,7 +648,7 @@ Once you have PS estimates in hand, how do you form the matched pairs?
 
 **Optimal matching** solves a global assignment problem: it finds the set of pairs that minimises *total* within-pair distance across all treated units simultaneously. This produces better average balance than greedy NN at no extra data cost, but requires more computation and the `optmatch` package in R.
 
-**Full matching** assigns *every* observation — treated and control — to a matched subclass, with a variable number of controls per treated unit. No data is ever discarded. This is the most statistically efficient approach because all observations contribute to the estimate, and it targets the ATE (not just the ATT) when treated and control units are both matched. The outcome analysis uses subclass weights rather than a simple mean difference. Full matching is particularly useful when the treated group is a small fraction of the sample.
+**Subclassification** divides the estimated PS range into *K* strata and compares treated and control units within each stratum. Every observation is retained — no data is ever discarded — and the ATT is estimated by weighting each stratum's estimate by the number of treated units it contains. Subclassification is straightforward to implement and interpret, and it illustrates how PS-based adjustment can proceed without any pair-matching at all.
 
 **Coarsened exact matching (CEM)** temporarily coarsens each covariate into bins, performs exact matching within those coarsened cells, then uses the original values for outcome estimation. It gives iron-clad balance on each covariate (within the chosen bin width) and does not rely on a PS model at all. The cost is that many treated units may be discarded if no control falls in the same coarsened cell.
 
@@ -818,12 +818,12 @@ A caliper prevents the *worst* individual matches (pairs that differ by more tha
 A matched sample from the misspecified logit will show excellent *marginal* balance — similar means on `env`, `income`, and `price_sens` across groups. But `env × income` (not explicitly checked) will still be badly imbalanced. **Always inspect interaction terms and polynomial terms in your Love plot**, not just the main effects you included in the PS model.
 :::
 
-### Matching design trade-offs: 1:1 vs. 1:k vs. full matching
+### Matching design trade-offs: 1:1 vs. 1:k vs. subclassification
 
 With the correctly-specified PS in hand, the remaining design choices — match ratio and procedure — trade bias against variance. All five approaches below use the same PS formula; what differs is how the matched sample is constructed.
 
 ```{r psm-matching-approaches, fig.height=5.5, fig.width=10}
-#| code-summary: "▶ Compare 1:1, 1:3, 1:5, with-replacement, and full matching (correct PS)"
+#| code-summary: "▶ Compare 1:1, 1:3, 1:5, with-replacement, and subclassification (correct PS)"
 # ── All approaches use the correctly-specified PS (env×income interaction;
 #    note env² is in the outcome model, NOT in the true PS).
 #    The variation illustrates the bias–variance trade-off in matching design,
@@ -854,17 +854,18 @@ m_wr  <- matchit(treat ~ env + price_sens + income + env_income,
                  data=df_obs, method="nearest", distance="logit",
                  ratio=1, replace=TRUE, caliper=0.15, std.caliper=TRUE)
 
-# Full matching — every observation assigned to a subclass; no data discarded
-# Targets ATT among treated units using subclass weights
-m_ful <- matchit(treat ~ env + price_sens + income + env_income,
-                 data=df_obs, method="full", distance="logit")
+# Subclassification — PS range divided into K subclasses; all units retained
+# Estimates ATT by weighting subclass estimates by treated-unit counts
+m_sub <- matchit(treat ~ env + price_sens + income + env_income,
+                 data=df_obs, method="subclass", distance="logit",
+                 subclass=5)
 
 results_psm_approach <- map_dfr(
   list("1:1 without replacement\n(caliper 0.15 SD)"  = m_11,
        "1:3 without replacement\n(caliper 0.15 SD)"  = m_13,
        "1:5 without replacement\n(caliper 0.15 SD)"  = m_15,
        "1:1 with replacement\n(caliper 0.15 SD)"     = m_wr,
-       "Full matching\n(all units used)"              = m_ful),
+       "Subclassification\n(5 PS strata)"            = m_sub),
   function(m) {
     d   <- match.data(m)
     est <- lm(Y_obs ~ treat, data=d, weights=weights) |>
@@ -887,11 +888,11 @@ results_psm_approach |>
            label="True ATT", hjust=0, size=3.3, colour=clr_eco) +
   labs(x="ATT estimate — eco-label WTP premium ($)", y=NULL,
        title="All five approaches use the correctly specified PS — what varies is the matching design",
-       subtitle="With-replacement and full matching use more data; 1:1 without replacement keeps the cleanest pairs") +
+       subtitle="With-replacement and subclassification use more data; 1:1 without replacement keeps the cleanest pairs") +
   theme_mod3()
 ```
 
-The key takeaway: **once the PS is correctly specified, the matching design choices affect precision more than they affect bias**. With-replacement matching and full matching typically use more of the data and therefore yield narrower confidence intervals, but they require more care in outcome analysis (correct SE formulas for with-replacement; subclass weights for full matching). For exploratory work, 1:1 without replacement plus a caliper is the cleanest starting point.
+The key takeaway: **once the PS is correctly specified, the matching design choices affect precision more than they affect bias**. With-replacement matching and subclassification typically use more of the data and therefore yield narrower confidence intervals, but they require more care in outcome analysis (correct SE formulas for with-replacement; subclass weights for subclassification). For exploratory work, 1:1 without replacement plus a caliper is the cleanest starting point.
 
 ```{r covariate-balance, fig.height=5.5, fig.width=9}
 #| code-summary: "▶ Love plot: balance before and after correctly-specified PSM"

@@ -20,7 +20,7 @@ dir.create("figs", recursive = TRUE, showWarnings = FALSE)
 #| code-summary: "▶ Load required packages"
 # Uncomment to install if needed:
 # install.packages(c("lavaan", "semTools", "MASS", "ggplot2",
-#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
+#                    "dplyr", "tidyr", "corrplot", "psych", "knitr", "lmtest",
 #                    "mclust", "dbscan"))
 
 library(lavaan)       # CFA and SEM (Parts 1 and 3)
@@ -30,6 +30,7 @@ library(ggplot2)      # Visualizations (all parts)
 library(dplyr)        # Data manipulation (all parts)
 library(tidyr)        # Data reshaping (Parts 2 and 3)
 library(corrplot)     # Correlation heatmap (Part 1)
+library(psych)        # EFA (Part 1)
 library(knitr)        # Nicely formatted tables (all parts)
 library(lmtest)       # Breusch-Pagan heteroskedasticity test (Part 2)
 library(mclust)       # Gaussian mixture models / latent class analysis (Part 4)
@@ -310,7 +311,173 @@ The HTMT ratio formalises exactly this comparison. If within-scale and between-s
 ---
 
 
-## Method 1: HTMT Analysis
+## Factor Analysis and Convergent Validity {#sec-factor-analysis}
+
+Visual inspection of the correlation heatmap gives a first diagnostic pass. Before turning to formal discriminant validity tests, we need to establish **convergent validity** more formally — confirming that items designed to measure the same construct actually cluster together as theory predicts. Factor analysis is the primary tool for this.
+
+Factor analysis starts from the same classical test theory logic introduced at the beginning of this section: each observed item score is a noisy reflection of a latent construct plus error. Factor analysis inverts the question — given the pattern of correlations among many observed items, it estimates how many latent constructs (factors) are needed to explain those correlations, and how strongly each item loads on each factor.
+
+Two related approaches are used at different stages of scale development:
+
+- **Exploratory Factor Analysis (EFA):** Lets the data reveal the latent structure with minimal constraints. EFA is your first look — use it to check whether the factor structure you expected actually emerges before committing to a specific confirmatory model.
+- **Confirmatory Factor Analysis (CFA):** Tests a specific, theory-driven structure. You specify which items should load on which factors; CFA evaluates how well that constrained model fits the data and reports formal fit indices.
+
+Both tools answer the same convergent validity question: *do the items meant to measure the same construct actually cluster together?*
+
+### Exploratory Factor Analysis
+
+EFA begins with no assumptions about which items belong to which factor. Two diagnostics guide how many factors to retain:
+
+**Eigenvalues** measure how much total item variance each factor explains. The **Kaiser criterion** (eigenvalue > 1.0) is a rough rule of thumb: factors that explain more variance than a single observed item are worth retaining.
+
+**Parallel analysis** is more rigorous: it compares observed eigenvalues to eigenvalues extracted from random data with the same dimensions. Retain only factors where the observed eigenvalue clearly exceeds the random baseline — those factors are capturing real structure, not chance variation.
+
+```{r efa-parallel, fig.height=5, fig.width=8}
+#| code-summary: "▶ Scree plot with parallel analysis"
+# fa.parallel() overlays observed eigenvalues on eigenvalues from 200 randomly
+# generated datasets of the same size. Points where the observed line (solid)
+# sits clearly above the random baseline (dashed) indicate real factors.
+fa.parallel(
+  items_df,
+  fa          = "fa",    # factor analysis (not principal components)
+  fm          = "ml",    # maximum likelihood extraction
+  n.iter      = 200,     # random datasets for the parallel baseline
+  main        = "Scree Plot with Parallel Analysis",
+  show.legend = TRUE
+)
+```
+
+::: {.callout-note}
+## Reading the scree plot
+
+- **Solid line / triangles**: eigenvalues from your actual data
+- **Dashed line**: eigenvalues from randomly generated data with no factor structure
+
+Retain the number of factors where the solid line is *clearly above* the dashed line. Where the two lines meet or cross, the factor is explaining no more than chance variation.
+
+**What to expect here:** With 11 items designed as 3 distinct constructs, we hope to see the plot clearly suggest 3 factors. But because EC and GPI are simulated with a 0.93 correlation, the data may only clearly support 2 factors — treating EC and GPI as an undifferentiated block. That ambiguity between 2 and 3 factors is itself a warning signal about discriminant validity.
+:::
+
+Now run the EFA requesting 3 factors. Because psychological constructs measured in the same survey are typically correlated with each other, we use **oblique rotation** (`rotate = "oblimin"`), which allows the extracted factors to correlate — a more realistic assumption than the orthogonality imposed by varimax.
+
+```{r efa-loadings}
+#| code-summary: "▶ EFA with 3 factors (oblique rotation)"
+efa_fit <- fa(
+  items_df,
+  nfactors = 3,           # number of factors to extract
+  rotate   = "oblimin",   # oblique rotation — allows correlated factors
+  fm       = "ml",        # maximum likelihood estimation
+  scores   = "regression"
+)
+
+# Print loadings; values below 0.30 suppressed to highlight the pattern
+print(loadings(efa_fit), cutoff = 0.30, sort = FALSE)
+```
+
+::: {.callout-note}
+## How to read the EFA loadings table
+
+Each row is an item; each column is a factor. A loading shows how strongly that item is associated with that factor — values above **0.40** are typically considered meaningful, values above **0.70** are strong.
+
+**Signs of good convergent validity:** All EC items (EC1–EC4) load strongly on the same factor, all GPI items on a *different* factor, and all BA items on a third factor.
+
+**What to watch for here:** Because EC and GPI are simulated with a 0.93 latent correlation, the EFA may not cleanly separate them. GPI items may show substantial loadings on the same factor as EC items — a pattern called *cross-loading*. This is the factor-analytic signature of discriminant validity failure, and it directly foreshadows what HTMT and DVI will quantify in the next section.
+:::
+
+```{r efa-variance-table}
+#| code-summary: "▶ Variance explained by each factor"
+efa_var <- data.frame(
+  Factor      = paste0("Factor ", 1:3),
+  SS_Loadings = round(efa_fit$Vaccounted["SS loadings",     ], 3),
+  Prop_Var    = round(efa_fit$Vaccounted["Proportion Var",  ], 3),
+  Cum_Var     = round(efa_fit$Vaccounted["Cumulative Var",  ], 3)
+)
+kable(efa_var,
+      col.names = c("Factor", "SS Loadings",
+                    "Proportion of Variance", "Cumulative Variance"),
+      caption   = "EFA: variance explained by each factor")
+```
+
+### Confirmatory Factor Analysis for Convergent Validity
+
+EFA is exploratory — it finds factors, but does not test whether a *specific* theoretically motivated structure fits. CFA imposes the structure you designed: EC items load only on EC, GPI items only on GPI, BA items only on BA — no cross-loadings permitted. The question is how well this constrained model fits the observed data.
+
+**Key fit indices:**
+
+| Index | What it measures | Good fit |
+|---|---|---|
+| **CFI** (Comparative Fit Index) | How much better the model fits than a null model | ≥ 0.95 |
+| **TLI** (Tucker–Lewis Index) | Similar to CFI; penalises model complexity | ≥ 0.95 |
+| **RMSEA** | Absolute discrepancy per degree of freedom | ≤ 0.06 |
+| **SRMR** | Average residual correlation across all item pairs | ≤ 0.08 |
+
+**Standardised factor loadings** are the central convergent validity evidence. Each loading tells you how strongly an item reflects its intended latent construct — values above **0.50** are acceptable; above **0.70** indicate strong item–construct correspondence.
+
+```{r cfa-convergent}
+#| code-summary: "▶ CFA: test the hypothesised 3-factor structure"
+cfa_model_conv <- '
+  EC  =~ EC1 + EC2 + EC3 + EC4
+  GPI =~ GPI1 + GPI2 + GPI3 + GPI4
+  BA  =~ BA1  + BA2  + BA3
+'
+
+# std.lv = TRUE: fixes factor variances to 1 so loadings and factor
+# correlations are directly interpretable on a standardised scale
+fit_conv <- cfa(cfa_model_conv, data = items_df, std.lv = TRUE)
+summary(fit_conv, fit.measures = TRUE, standardized = TRUE)
+```
+
+```{r cfa-std-loadings}
+#| code-summary: "▶ Standardised factor loadings table"
+std_loads <- standardizedSolution(fit_conv) |>
+  filter(op == "=~") |>
+  select(lhs, rhs, est.std, se, pvalue) |>
+  mutate(across(where(is.numeric), \(x) round(x, 3)))
+
+kable(std_loads,
+      col.names = c("Construct", "Item", "Std. Loading", "SE", "p-value"),
+      caption   = "CFA standardised factor loadings — convergent validity evidence")
+```
+
+```{r cfa-fit-table}
+#| code-summary: "▶ Fit indices summary"
+fi <- fitMeasures(fit_conv,
+      c("cfi","tli","rmsea","rmsea.ci.lower","rmsea.ci.upper","srmr"))
+
+fit_summary <- data.frame(
+  Index     = c("CFI","TLI","RMSEA","RMSEA 90% CI","SRMR"),
+  Value     = c(round(fi["cfi"],  3),
+                round(fi["tli"],  3),
+                round(fi["rmsea"],3),
+                paste0("[", round(fi["rmsea.ci.lower"],3),
+                       ", ", round(fi["rmsea.ci.upper"],3), "]"),
+                round(fi["srmr"], 3)),
+  Benchmark = c("≥ 0.95","≥ 0.95","≤ 0.06","—","≤ 0.08")
+)
+kable(fit_summary,
+      col.names = c("Fit Index","Value","Good Fit Benchmark"),
+      caption   = "CFA model fit indices")
+```
+
+::: {.callout-warning}
+## What the CFA results reveal — a two-part story
+
+**Good news — convergent validity:** The standardised loadings for EC, GPI, and BA items are all strong (> 0.70). Each item reliably reflects its intended construct. The items cohere within each scale as theory predicted.
+
+**Emerging problem — discriminant validity preview:** Now look at the factor correlations in the `summary()` output (the `~~` rows under `Standardized`). The correlation between the EC and GPI factors is very high — close to 0.93. Strong within-scale loadings on *nearly identical latent factors* is the hallmark of discriminant validity failure.
+
+This reveals the key insight: **convergent validity and discriminant validity are distinct assessments that can give opposite verdicts simultaneously.** Items can hang together strongly within each scale (good convergent validity) while those scales themselves remain statistically indistinguishable from each other (poor discriminant validity). The next section quantifies exactly how severe this problem is using formal discriminant validity tests.
+:::
+
+
+---
+
+
+## Discriminant Validity Testing Methods {#sec-dv-methods}
+
+The factor analysis above established that items converge well within their intended scales. The question now is whether those scales can be *distinguished from each other* — discriminant validity. Two formal methods are available for multi-item Likert scales.
+
+### Method 1: HTMT Analysis
 
 ### What HTMT Measures
 
@@ -451,7 +618,7 @@ ggplot(htmt_pairs, aes(x = reorder(pair, -htmt), y = htmt, fill = label)) +
 ---
 
 
-## Method 2: The DVI Method (Pieters et al., 2025)
+### Method 2: The DVI Method (Pieters et al., 2025)
 
 ### Why We Need Something More
 
@@ -746,10 +913,7 @@ kable(
 :::
 
 
----
-
-
-## Comparing the Two Methods
+### Comparing the Two Methods
 
 ### Side-by-Side Summary
 
@@ -812,10 +976,240 @@ A marketing effect that appears on a GPI scale which fails discriminant validity
 The HTMT and DVI approaches covered here are the current best practice for multi-item Likert scales, but other methods exist:
 
 - **Average Variance Extracted (AVE) criterion (Fornell & Larcker, 1981):** Compare the square root of each construct's AVE against its inter-construct correlations. Widely used but has known limitations — the criterion is often too lenient, and AVE itself is sensitive to the number of items. The Fornell–Larcker criterion was the dominant approach before HTMT.
-- **Confirmatory Factor Analysis (CFA) model comparison:** Fit a constrained model where φ = 1 (constructs are the same) and compare fit to the unconstrained model using a likelihood ratio test. A significant difference supports discriminant validity.
-- **Exploratory Factor Analysis (EFA):** In earlier-stage scale development, EFA can reveal whether items from two intended scales load on separate factors or cross-load, signaling discriminant validity problems before formal CFA.
 - **Multitrait-multimethod (MTMM) analysis (Campbell & Fiske, 1959):** The classical approach — measure multiple traits using multiple methods and examine the pattern of convergent and discriminant correlations. Resource-intensive but gold standard for construct validation.
 - **Network psychometrics:** Gaussian graphical models (GGMs) can reveal the partial correlation structure among items, making discriminant validity failures visible as dense cross-scale connections.
+
+
+---
+
+
+## Validity Testing for Non-Likert Data {#sec-nonlikert}
+
+### The Same Classical Test Theory Logic Applies to Every Data Type
+
+The classical test theory equation introduced at the start of this section — observed score = true score + error — is not a property of Likert scales. It is a property of *measurement itself*. Every datum, regardless of format, carries both signal and noise, and that noise is not always random.
+
+A 5-point Likert response of "4" might reflect a true belief of 3 plus a 1-point upward nudge from a positively framed question. A willingness-to-pay (WTP) response of \$20 might reflect a true utility of \$15 plus \$5 of upward error from luxury packaging that inflated perceived market price. A text response of "fine" carries very different true sentiment depending on whether the speaker is British, exasperated, or genuinely content. In every case, the observed signal blends multiple latent sources:
+
+$$X_\text{observed} = T_\text{true construct} + \lambda \cdot T_\text{other construct} + \varepsilon_\text{random}$$
+
+The discriminant validity failure mode is identical regardless of measurement format: the $\lambda$ term is non-zero, meaning the observed measure is blending the construct you care about with something else. What changes across data types is not the *problem* but the *tools available to diagnose it*. HTMT and DVI are specifically designed for multi-item Likert scales and do not directly apply to WTP, binary choice, or open-ended text. But the question they answer — *is this measure specific enough to support meaningful causal inference?* — applies universally.
+
+::: {.callout-important}
+## The core constraint for non-Likert data
+
+For non-Likert outcomes, we typically have fewer off-the-shelf statistical tests. This makes **critical thinking about the data-generating process** the most valuable diagnostic tool. Before running any model, ask: *what else, besides my intended construct, could plausibly move this observed measure?* If you can identify more than one or two credible alternatives, discriminant validity is a genuine concern.
+:::
+
+### Willingness to Pay Data {#sec-wtp}
+
+**The measurement problem:** WTP is intended to capture a respondent's *personal utility* for a product — how much value they derive from owning or using it. But WTP responses also reflect *perceived market price*: some respondents answer the question "how much is this worth in the market?" more than "how much is this worth to *me*?" These two latent sources — utility and price belief — are conceptually distinct but empirically entangled in the single observed number.
+
+$$X_\text{WTP} = T_\text{eco utility} + \lambda \cdot T_\text{perceived price} + \varepsilon$$
+
+In our green marketing scenario, suppose each participant gives open-ended WTP for six eco-cleaning products. Products 1–3 are evaluated in plain packaging; products 4–6 are presented with luxury metallic packaging — a cue that should raise perceived market price without changing the actual eco-utility of the product. If WTP for the luxury-packaged products rises sharply while independent liking ratings and forced-choice preferences barely move, your WTP measure is not purely measuring utility. It is blending utility with price beliefs — exactly the same failure mode as Likert scale items bleeding across construct boundaries.
+
+```{r wtp-setup}
+#| code-summary: "▶ Simulate WTP data: eco utility vs. perceived price confound"
+set.seed(2025)
+N_wtp <- 300
+
+# Two latent constructs
+eco_utility  <- rnorm(N_wtp, 0, 1)
+# Price belief correlated with utility: eco-conscious consumers expect eco products to cost more
+price_belief <- 0.40 * eco_utility + rnorm(N_wtp, 0, sqrt(1 - 0.40^2))
+
+# Products 1–3: plain packaging — WTP driven primarily by eco utility
+# Products 4–6: luxury packaging — WTP also inflated by price belief
+# Log-scale WTP ensures positive values and stabilises variance (currency is right-skewed)
+wtp_df <- data.frame(
+  plain1 = round(exp(3.0 + 0.70 * eco_utility + 0.15 * price_belief + rnorm(N_wtp, 0, 0.30))),
+  plain2 = round(exp(3.0 + 0.72 * eco_utility + 0.12 * price_belief + rnorm(N_wtp, 0, 0.30))),
+  plain3 = round(exp(3.0 + 0.68 * eco_utility + 0.18 * price_belief + rnorm(N_wtp, 0, 0.30))),
+  lux4   = round(exp(3.0 + 0.40 * eco_utility + 0.60 * price_belief + rnorm(N_wtp, 0, 0.30))),
+  lux5   = round(exp(3.0 + 0.38 * eco_utility + 0.62 * price_belief + rnorm(N_wtp, 0, 0.30))),
+  lux6   = round(exp(3.0 + 0.42 * eco_utility + 0.58 * price_belief + rnorm(N_wtp, 0, 0.30)))
+)
+log_wtp_df <- as.data.frame(log(wtp_df))
+colnames(log_wtp_df) <- paste0("log_", names(wtp_df))
+
+cat("Mean WTP by packaging type:\n")
+cat(sprintf("  Plain packaging (products 1–3): $%.1f\n", mean(unlist(wtp_df[,1:3]))))
+cat(sprintf("  Luxury packaging (products 4–6): $%.1f\n", mean(unlist(wtp_df[,4:6]))))
+```
+
+#### Convergent Validity of WTP: EFA on Log-WTP Judgments
+
+Just as we ran EFA on Likert items to check whether items measuring the same construct cluster together, we can run EFA on multiple WTP judgments for products within the same category. The logic is identical: if WTP responses for plain-packaged products are driven by the same latent eco-utility factor, they should load together. If the luxury-packaged products tap a different latent source (price belief), they should load on a separate factor.
+
+```{r wtp-efa, fig.height=4.5, fig.width=8}
+#| code-summary: "▶ EFA on log-WTP: do plain and luxury products cluster separately?"
+wtp_efa <- fa(log_wtp_df, nfactors = 2, rotate = "oblimin", fm = "ml")
+print(loadings(wtp_efa), cutoff = 0.30)
+```
+
+::: {.callout-note}
+## What the WTP-EFA reveals
+
+If the EFA cleanly separates plain-packaging products (loading on Factor 1) from luxury-packaging products (loading on Factor 2), the two sets of WTP responses are being driven by different latent sources. That split is the discriminant validity failure made visible in factor-analytic terms — the same pattern as EC and GPI items cross-loading on the same factor in the Likert analysis.
+:::
+
+#### Discriminant Validity of WTP: Comparing Latent Models
+
+For Likert scales, HTMT and DVI are the formal discriminant validity tests. For WTP, the equivalent is **confirmatory model comparison**: fit competing CFA models that differ in how many latent sources of variance they assume, and evaluate which fits the data better.
+
+```{r wtp-cfa-models}
+#| code-summary: "▶ CFA model comparison: 1-factor vs. 2-factor WTP"
+# Model 1: All six WTP products driven by a single latent utility construct
+wtp_1f <- '
+  utility =~ log_plain1 + log_plain2 + log_plain3 +
+             log_lux4   + log_lux5   + log_lux6
+'
+
+# Model 2: Two latent sources — eco utility (plain) and price-inflated utility (luxury)
+wtp_2f <- '
+  eco_util  =~ log_plain1 + log_plain2 + log_plain3
+  price_wtp =~ log_lux4   + log_lux5   + log_lux6
+'
+
+fit_wtp_1f <- cfa(wtp_1f, data = log_wtp_df, std.lv = TRUE)
+fit_wtp_2f <- cfa(wtp_2f, data = log_wtp_df, std.lv = TRUE)
+
+fi_1f <- fitMeasures(fit_wtp_1f, c("cfi","rmsea","srmr"))
+fi_2f <- fitMeasures(fit_wtp_2f, c("cfi","rmsea","srmr"))
+
+wtp_compare <- data.frame(
+  Model   = c("1-factor (single utility construct)",
+               "2-factor (eco utility + price belief)"),
+  CFI     = round(c(fi_1f["cfi"],   fi_2f["cfi"]),   3),
+  RMSEA   = round(c(fi_1f["rmsea"], fi_2f["rmsea"]), 3),
+  SRMR    = round(c(fi_1f["srmr"],  fi_2f["srmr"]),  3)
+)
+kable(wtp_compare,
+      col.names = c("Model","CFI","RMSEA","SRMR"),
+      caption   = "WTP model comparison: fit indices")
+
+# Likelihood ratio test
+print(lavTestLRT(fit_wtp_1f, fit_wtp_2f))
+```
+
+::: {.callout-warning}
+## Reading the WTP model comparison
+
+If the 2-factor model fits substantially better than the 1-factor model (higher CFI, lower RMSEA and SRMR; significant likelihood ratio test), the data are telling you that plain-packaging and luxury-packaging WTP are not measuring the same latent construct. Your WTP measure is blending utility with price beliefs — a discriminant validity failure.
+
+The interpretive consequence is identical to the Likert case: if a green marketing treatment raises WTP, you cannot cleanly claim it raised eco-utility. The effect may instead reflect that the treatment made the product seem more premium or expensive. The ambiguity comes from measurement contamination, not from the manipulation itself.
+:::
+
+#### Two Sharp Validity Checks Without a Full Model
+
+When a full CFA comparison is not feasible, two targeted checks provide strong discriminant validity evidence and map directly onto the Likert logic:
+
+**Known-groups test** *(analogue of checking whether EC and GPI diverge in expected directions)*: Groups with high genuine eco-utility — self-identified environmental activists, members of eco-certification organisations — should show higher WTP for *plain*-packaged eco products. But they should show similar WTP to non-activists for *luxury*-packaged products if the luxury cue is moving price beliefs rather than utility. If the groups converge on luxury WTP while diverging on plain WTP, the plain-packaging measure is more construct-valid.
+
+**Experimental falsification** *(analogue of the manipulation check in scale development)*: Manipulate something that should move price beliefs but not utility — luxury packaging, an inflated "RRP" anchor, a prestige brand cue. If WTP shifts significantly more than liking ratings or forced-choice preferences in response to this manipulation, WTP is contaminated by the price-belief dimension. This is the direct WTP analogue of an EC item cross-loading onto the GPI factor: the measure moves for the wrong reason.
+
+::: {.callout-tip}
+## The MTMM principle for WTP
+
+The gold standard is a **multitrait-multimethod (MTMM)** design — the same framework introduced earlier in this section for Likert scales. Collect multiple measures of eco-utility across multiple methods: open-ended WTP, liking ratings on a Likert scale, pairwise forced choice, an incentivised BDM-auction bid, or observed purchase. Convergent validity holds when the same eco-utility construct shows up consistently across methods. Discriminant validity holds when eco-utility measures are more similar to each other than to measures of a different construct (e.g., perceived market price, brand prestige). The methods differ from the Likert context; the principle is the same.
+:::
+
+### Textual Data {#sec-text}
+
+**The measurement problem:** "Fine" means something very different depending on context. In a British customer review, "fine" typically signals mild disappointment; in an American survey, neutrality; written under time pressure, disengagement. The word carries measurement error that is not random — it is structured by dialect, pragmatic convention, and respondent state. In CTT terms:
+
+$$X_\text{text response} = T_\text{intended construct} + \lambda \cdot T_\text{context / register / fatigue} + \varepsilon$$
+
+When you extract a "green purchase intention" signal from open-ended text, you need to be confident that signal is *specific* to purchase intention and not merely general environmental rhetoric, brand enthusiasm, or survey-response acquiescence. The $\lambda$ contamination problem is as real for text as it is for a Likert scale — it is simply harder to see, because the "items" are words and phrases rather than numbered responses.
+
+**The factor analysis analogy:** Topic modeling (LDA, STM) is to text what factor analysis is to Likert items. Both infer latent structure from observed indicators: in factor analysis the indicators are item scores; in topic modeling they are words and documents. Both ask: *how many underlying dimensions are needed to explain the co-occurrence pattern?* And both can be used to assess whether the constructs they uncover are specific enough to support causal claims.
+
+In our green marketing scenario, suppose participants also wrote brief open-ended responses — what stood out about the product, whether and why they would consider buying it, and their overall brand impression. You fit a 3-topic STM model hoping to recover EC-text, GPI-text, and BA-text dimensions. The convergent and discriminant validity questions are then:
+
+- **Convergent validity:** Does the GPI-text topic score correlate most strongly with the GPI Likert scale, and less strongly with EC and BA? Does EC-text converge with EC-Likert?
+- **Discriminant validity:** Is the GPI-text topic's vocabulary *distinct* from the EC-text topic's vocabulary? Or is the supposed purchase-intention topic simply dominated by environmental language — "sustainable," "eco," "planet" — that belongs to the EC dimension?
+
+```{r text-mtmm}
+#| code-summary: "▶ MTMM correlations: text topics vs. Likert scales (two scenarios)"
+# In practice you would:
+#   1. Collect open-ended responses
+#   2. Fit a 3-topic STM: stm(documents, vocab, K=3, prevalence=~condition, data=meta)
+#   3. Extract per-participant topic proportions (the theta matrix)
+#   4. Correlate theta columns with the corresponding Likert scale scores
+
+# Below we simulate what those MTMM correlations look like
+# under two scenarios: clean validity vs. discriminant validity failure
+
+set.seed(42)
+ec_score  <- rowMeans(df[, c("EC1","EC2","EC3","EC4")])
+gpi_score <- rowMeans(df[, c("GPI1","GPI2","GPI3","GPI4")])
+ba_score  <- rowMeans(df[, c("BA1","BA2","BA3")])
+
+# Scenario A: text topics cleanly recover the three intended constructs
+ec_text_A  <- 0.65 * ec_score  + 0.10 * gpi_score + 0.05 * ba_score + rnorm(400, 0, 0.5)
+gpi_text_A <- 0.10 * ec_score  + 0.62 * gpi_score + 0.08 * ba_score + rnorm(400, 0, 0.5)
+ba_text_A  <- 0.08 * ec_score  + 0.07 * gpi_score + 0.60 * ba_score + rnorm(400, 0, 0.5)
+
+# Scenario B: GPI-text is dominated by environmental language (EC-contaminated)
+ec_text_B  <- 0.65 * ec_score  + 0.10 * gpi_score + 0.05 * ba_score + rnorm(400, 0, 0.5)
+gpi_text_B <- 0.58 * ec_score  + 0.20 * gpi_score + 0.07 * ba_score + rnorm(400, 0, 0.5) # ← failure
+ba_text_B  <- 0.08 * ec_score  + 0.07 * gpi_score + 0.60 * ba_score + rnorm(400, 0, 0.5)
+
+# MTMM correlation tables (text rows × Likert columns)
+mtmm_A <- round(cor(
+  data.frame(EC_Likert=ec_score, GPI_Likert=gpi_score, BA_Likert=ba_score,
+             EC_text=ec_text_A, GPI_text=gpi_text_A, BA_text=ba_text_A)
+)[4:6, 1:3], 2)
+
+mtmm_B <- round(cor(
+  data.frame(EC_Likert=ec_score, GPI_Likert=gpi_score, BA_Likert=ba_score,
+             EC_text=ec_text_B, GPI_text=gpi_text_B, BA_text=ba_text_B)
+)[4:6, 1:3], 2)
+
+cat("Scenario A — Good discriminant validity (text topics recover constructs cleanly):\n")
+print(mtmm_A)
+cat("\nScenario B — Discriminant validity failure (GPI-text bleeds into EC):\n")
+print(mtmm_B)
+```
+
+::: {.callout-note}
+## Reading the MTMM table
+
+Each row is a text-derived measure; each column is a Likert-based measure. **Diagonal entries** (EC-text vs. EC-Likert, GPI-text vs. GPI-Likert) are **convergent validity correlations** — they should be the highest value in each row. **Off-diagonal entries** are **discriminant validity checks** — they should be noticeably lower.
+
+**Scenario A (valid):** GPI-text correlates most strongly with GPI-Likert and clearly less with EC-Likert. The text topic is specific to purchase intention.
+
+**Scenario B (failure):** GPI-text correlates almost as strongly with EC-Likert as with GPI-Likert. The topic model has identified a "purchase intention" topic dominated by environmental language. A treatment effect on this text-based GPI measure would be uninterpretable — you cannot tell whether the ad increased willingness to buy, or simply increased environmental-concern rhetoric in the responses.
+:::
+
+Beyond MTMM correlations, two diagnostics are specific to topic models and map directly onto the Likert validity logic:
+
+**Topic exclusivity** *(analogue of item specificity in scale development)*: Does each topic use *distinctive* vocabulary, or do the EC-text and GPI-text topics share most of their high-probability words? In STM, the FREX metric combines exclusivity (words distinctive to this topic) with frequency (words common enough to matter). Low exclusivity for the GPI topic means its vocabulary is not separable from EC — the text analogue of GPI items cross-loading on the EC factor.
+
+**Topic correlations** *(analogue of the factor correlation φ)*: STM's `topicCorr()` estimates correlations among topic proportions across respondents — the direct text analogue of the latent factor correlation in CFA. If the EC-text and GPI-text topic scores correlate at 0.93 across respondents, the discriminant validity failure is quantitatively the same as φ = 0.93 between the latent EC and GPI factors. If you were to apply the Pieters et al. DVI logic: when the topic correlation approaches 1.0, and neither topic can rise above that correlation in terms of how coherently it appears across documents, discriminant validity has failed in exactly the same formal sense.
+
+::: {.callout-warning}
+## The interpretive warning — same as Likert scales
+
+In Scenario B, the GPI-text topic is dominated by environmental language. A treatment effect on this measure is not cleanly interpretable as an effect on purchase intention — it may equally reflect that the eco-friendly ad prompted more environmental concern language in the responses. This is precisely the same ambiguity as the Likert GPI scale failing discriminant validity from EC.
+
+**The data type changed. The problem did not.**
+:::
+
+::: {.callout-tip}
+## Summary: validity assessment across data types
+
+| | Likert scales | WTP | Text |
+|---|---|---|---|
+| **Convergent validity** | EFA loadings, CFA fit, α | EFA/CFA on log-WTP | Text–Likert MTMM correlations |
+| **Discriminant validity** | HTMT, DVI | CFA model comparison, falsification | Topic exclusivity, topic correlations |
+| **Gold standard design** | MTMM across methods | MTMM (WTP + liking + choice) | MTMM (text + Likert + behavior) |
+| **Key failure mode** | EC–GPI cross-loading | Price belief contamination | Environmental language in GPI topic |
+| **Interpretive consequence** | Effect reflects EC and/or GPI | Effect reflects utility and/or price | Effect reflects concern and/or intention |
+
+Regardless of data type, the critical thinking question is always the same: *what else, besides my intended construct, could plausibly cause this observed measure to move?*
+:::
 
 
 ---
