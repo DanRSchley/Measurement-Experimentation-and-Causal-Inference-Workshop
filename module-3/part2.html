@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -76,10 +76,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d8ff52461800deebe8811e947f989ee1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -369,14 +369,14 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#decision-1-which-variables-belong-in-the-ps-model" id="toc-decision-1-which-variables-belong-in-the-ps-model" class="nav-link" data-scroll-target="#decision-1-which-variables-belong-in-the-ps-model"><span class="header-section-number">16.8.1</span> Decision 1: Which variables belong in the PS model?</a></li>
   <li><a href="#decision-2-how-to-estimate-the-ps" id="toc-decision-2-how-to-estimate-the-ps" class="nav-link" data-scroll-target="#decision-2-how-to-estimate-the-ps"><span class="header-section-number">16.8.2</span> Decision 2: How to estimate the PS?</a></li>
-  <li><a href="#decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-full-matching" id="toc-decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-full-matching" class="nav-link" data-scroll-target="#decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-full-matching"><span class="header-section-number">16.8.3</span> Decision 3: Nearest-neighbour greedy vs.&nbsp;optimal vs.&nbsp;full matching</a></li>
+  <li><a href="#decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-subclassification" id="toc-decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-subclassification" class="nav-link" data-scroll-target="#decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-subclassification"><span class="header-section-number">16.8.3</span> Decision 3: Nearest-neighbour greedy vs.&nbsp;optimal vs.&nbsp;subclassification</a></li>
   <li><a href="#decision-4-how-many-controls-per-treated-unit-match-ratio" id="toc-decision-4-how-many-controls-per-treated-unit-match-ratio" class="nav-link" data-scroll-target="#decision-4-how-many-controls-per-treated-unit-match-ratio"><span class="header-section-number">16.8.4</span> Decision 4: How many controls per treated unit (match ratio)?</a></li>
   <li><a href="#decision-5-matching-with-or-without-replacement" id="toc-decision-5-matching-with-or-without-replacement" class="nav-link" data-scroll-target="#decision-5-matching-with-or-without-replacement"><span class="header-section-number">16.8.5</span> Decision 5: Matching with or without replacement?</a></li>
   <li><a href="#decision-6-should-you-use-a-caliper" id="toc-decision-6-should-you-use-a-caliper" class="nav-link" data-scroll-target="#decision-6-should-you-use-a-caliper"><span class="header-section-number">16.8.6</span> Decision 6: Should you use a caliper?</a></li>
   <li><a href="#decision-7-how-do-you-check-whether-matching-worked" id="toc-decision-7-how-do-you-check-whether-matching-worked" class="nav-link" data-scroll-target="#decision-7-how-do-you-check-whether-matching-worked"><span class="header-section-number">16.8.7</span> Decision 7: How do you check whether matching worked?</a></li>
   <li><a href="#decision-8-what-do-you-do-after-matching" id="toc-decision-8-what-do-you-do-after-matching" class="nav-link" data-scroll-target="#decision-8-what-do-you-do-after-matching"><span class="header-section-number">16.8.8</span> Decision 8: What do you do after matching?</a></li>
   <li><a href="#putting-it-together-ps-model-specification-matters-most" id="toc-putting-it-together-ps-model-specification-matters-most" class="nav-link" data-scroll-target="#putting-it-together-ps-model-specification-matters-most"><span class="header-section-number">16.8.9</span> Putting it together: PS model specification matters most</a></li>
-  <li><a href="#matching-design-trade-offs-11-vs.-1k-vs.-full-matching" id="toc-matching-design-trade-offs-11-vs.-1k-vs.-full-matching" class="nav-link" data-scroll-target="#matching-design-trade-offs-11-vs.-1k-vs.-full-matching"><span class="header-section-number">16.8.10</span> Matching design trade-offs: 1:1 vs.&nbsp;1:k vs.&nbsp;full matching</a></li>
+  <li><a href="#matching-design-trade-offs-11-vs.-1k-vs.-subclassification" id="toc-matching-design-trade-offs-11-vs.-1k-vs.-subclassification" class="nav-link" data-scroll-target="#matching-design-trade-offs-11-vs.-1k-vs.-subclassification"><span class="header-section-number">16.8.10</span> Matching design trade-offs: 1:1 vs.&nbsp;1:k vs.&nbsp;subclassification</a></li>
   </ul></li>
   <li><a href="#sec-doubly-robust" id="toc-sec-doubly-robust" class="nav-link" data-scroll-target="#sec-doubly-robust"><span class="header-section-number">16.9</span> Doubly Robust Estimation</a></li>
   <li><a href="#sec-sec2-comparison" id="toc-sec-sec2-comparison" class="nav-link" data-scroll-target="#sec-sec2-comparison"><span class="header-section-number">16.10</span> How Well Do All Section 2 Methods Recover the True ATE?</a></li>
@@ -1240,12 +1240,12 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 <p>Regardless of the estimator, always check: (a) overlap histograms (both groups should have support across the full PS range), and (b) standardised mean differences after matching (see Decision 7).</p>
 <hr>
 </section>
-<section id="decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-full-matching" class="level3" data-number="16.8.3">
-<h3 data-number="16.8.3" class="anchored" data-anchor-id="decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-full-matching"><span class="header-section-number">16.8.3</span> Decision 3: Nearest-neighbour greedy vs.&nbsp;optimal vs.&nbsp;full matching</h3>
+<section id="decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-subclassification" class="level3" data-number="16.8.3">
+<h3 data-number="16.8.3" class="anchored" data-anchor-id="decision-3-nearest-neighbour-greedy-vs.-optimal-vs.-subclassification"><span class="header-section-number">16.8.3</span> Decision 3: Nearest-neighbour greedy vs.&nbsp;optimal vs.&nbsp;subclassification</h3>
 <p>Once you have PS estimates in hand, how do you form the matched pairs?</p>
 <p><strong>Greedy nearest-neighbour (NN)</strong> is the default in most software. Each treated unit is paired with the closest available control, sequentially. It is fast and intuitive, but “closest available” deteriorates as the pool of unused controls shrinks — units matched later may be poor matches, and the order of processing affects the result.</p>
 <p><strong>Optimal matching</strong> solves a global assignment problem: it finds the set of pairs that minimises <em>total</em> within-pair distance across all treated units simultaneously. This produces better average balance than greedy NN at no extra data cost, but requires more computation and the <code>optmatch</code> package in R.</p>
-<p><strong>Full matching</strong> assigns <em>every</em> observation — treated and control — to a matched subclass, with a variable number of controls per treated unit. No data is ever discarded. This is the most statistically efficient approach because all observations contribute to the estimate, and it targets the ATE (not just the ATT) when treated and control units are both matched. The outcome analysis uses subclass weights rather than a simple mean difference. Full matching is particularly useful when the treated group is a small fraction of the sample.</p>
+<p><strong>Subclassification</strong> divides the estimated PS range into <em>K</em> strata and compares treated and control units within each stratum. Every observation is retained — no data is ever discarded — and the ATT is estimated by weighting each stratum’s estimate by the number of treated units it contains. Subclassification is straightforward to implement and interpret, and it illustrates how PS-based adjustment can proceed without any pair-matching at all.</p>
 <p><strong>Coarsened exact matching (CEM)</strong> temporarily coarsens each covariate into bins, performs exact matching within those coarsened cells, then uses the original values for outcome estimation. It gives iron-clad balance on each covariate (within the chosen bin width) and does not rely on a PS model at all. The cost is that many treated units may be discarded if no control falls in the same coarsened cell.</p>
 <hr>
 </section>
@@ -1425,12 +1425,12 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 </div>
 </div>
 </section>
-<section id="matching-design-trade-offs-11-vs.-1k-vs.-full-matching" class="level3" data-number="16.8.10">
-<h3 data-number="16.8.10" class="anchored" data-anchor-id="matching-design-trade-offs-11-vs.-1k-vs.-full-matching"><span class="header-section-number">16.8.10</span> Matching design trade-offs: 1:1 vs.&nbsp;1:k vs.&nbsp;full matching</h3>
+<section id="matching-design-trade-offs-11-vs.-1k-vs.-subclassification" class="level3" data-number="16.8.10">
+<h3 data-number="16.8.10" class="anchored" data-anchor-id="matching-design-trade-offs-11-vs.-1k-vs.-subclassification"><span class="header-section-number">16.8.10</span> Matching design trade-offs: 1:1 vs.&nbsp;1:k vs.&nbsp;subclassification</h3>
 <p>With the correctly-specified PS in hand, the remaining design choices — match ratio and procedure — trade bias against variance. All five approaches below use the same PS formula; what differs is how the matched sample is constructed.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Compare 1:1, 1:3, 1:5, with-replacement, and full matching (correct PS)</summary>
+<summary>▶ Compare 1:1, 1:3, 1:5, with-replacement, and subclassification (correct PS)</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── All approaches use the correctly-specified PS (env×income interaction;</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    note env² is in the outcome model, NOT in the true PS).</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    The variation illustrates the bias–variance trade-off in matching design,</span></span>
@@ -1461,41 +1461,42 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 <span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"nearest"</span>, <span class="at">distance=</span><span class="st">"logit"</span>,</span>
 <span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ratio=</span><span class="dv">1</span>, <span class="at">replace=</span><span class="cn">TRUE</span>, <span class="at">caliper=</span><span class="fl">0.15</span>, <span class="at">std.caliper=</span><span class="cn">TRUE</span>)</span>
 <span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Full matching — every observation assigned to a subclass; no data discarded</span></span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Targets ATT among treated units using subclass weights</span></span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>m_ful <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_income,</span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"full"</span>, <span class="at">distance=</span><span class="st">"logit"</span>)</span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>results_psm_approach <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"1:1 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_11,</span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:3 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_13,</span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:5 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_15,</span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:1 with replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>     <span class="ot">=</span> m_wr,</span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>       <span class="st">"Full matching</span><span class="sc">\n</span><span class="st">(all units used)"</span>              <span class="ot">=</span> m_ful),</span>
-<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) {</span>
-<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>    d   <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m)</span>
-<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>    est <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>d, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
-<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>)</span>
-<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">estimate=</span>est<span class="sc">$</span>estimate, <span class="at">se=</span>est<span class="sc">$</span>std.error,</span>
-<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_matched=</span><span class="fu">sum</span>(d<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>))</span>
-<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">.id=</span><span class="st">"Approach"</span></span>
-<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>results_psm_approach <span class="sc">|&gt;</span></span>
-<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se,</span>
-<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N treated</span><span class="st">`</span><span class="ot">=</span>n_matched,</span>
-<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>         <span class="at">Approach=</span><span class="fu">fct_inorder</span>(Approach)) <span class="sc">|&gt;</span></span>
-<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span>Approach, <span class="at">x=</span>estimate, <span class="at">xmin=</span>lo, <span class="at">xmax=</span>hi)) <span class="sc">+</span></span>
-<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATT_true_obs, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span>clr_eco, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">colour=</span><span class="st">"#16a085"</span>, <span class="at">size=</span><span class="fl">0.85</span>) <span class="sc">+</span></span>
-<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"N treated=%d"</span>, <span class="st">`</span><span class="at">N treated</span><span class="st">`</span>), <span class="at">x=</span>hi<span class="fl">+0.04</span>),</span>
-<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.1</span>) <span class="sc">+</span></span>
-<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATT_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">5.45</span>,</span>
-<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATT"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.3</span>, <span class="at">colour=</span>clr_eco) <span class="sc">+</span></span>
-<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"ATT estimate — eco-label WTP premium ($)"</span>, <span class="at">y=</span><span class="cn">NULL</span>,</span>
-<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"All five approaches use the correctly specified PS — what varies is the matching design"</span>,</span>
-<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"With-replacement and full matching use more data; 1:1 without replacement keeps the cleanest pairs"</span>) <span class="sc">+</span></span>
-<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Subclassification — PS range divided into K subclasses; all units retained</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimates ATT by weighting subclass estimates by treated-unit counts</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>m_sub <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat <span class="sc">~</span> env <span class="sc">+</span> price_sens <span class="sc">+</span> income <span class="sc">+</span> env_income,</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span>df_obs, <span class="at">method=</span><span class="st">"subclass"</span>, <span class="at">distance=</span><span class="st">"logit"</span>,</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>                 <span class="at">subclass=</span><span class="dv">5</span>)</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>results_psm_approach <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"1:1 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_11,</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:3 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_13,</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:5 without replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>  <span class="ot">=</span> m_15,</span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>       <span class="st">"1:1 with replacement</span><span class="sc">\n</span><span class="st">(caliper 0.15 SD)"</span>     <span class="ot">=</span> m_wr,</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>       <span class="st">"Subclassification</span><span class="sc">\n</span><span class="st">(5 PS strata)"</span>            <span class="ot">=</span> m_sub),</span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) {</span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>    d   <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m)</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>    est <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_obs <span class="sc">~</span> treat, <span class="at">data=</span>d, <span class="at">weights=</span>weights) <span class="sc">|&gt;</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tidy</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"treat"</span>)</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">estimate=</span>est<span class="sc">$</span>estimate, <span class="at">se=</span>est<span class="sc">$</span>std.error,</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_matched=</span><span class="fu">sum</span>(d<span class="sc">$</span>treat<span class="sc">==</span><span class="dv">1</span>))</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">.id=</span><span class="st">"Approach"</span></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>results_psm_approach <span class="sc">|&gt;</span></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lo=</span>estimate<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">hi=</span>estimate<span class="fl">+1.96</span><span class="sc">*</span>se,</span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">N treated</span><span class="st">`</span><span class="ot">=</span>n_matched,</span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>         <span class="at">Approach=</span><span class="fu">fct_inorder</span>(Approach)) <span class="sc">|&gt;</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span>Approach, <span class="at">x=</span>estimate, <span class="at">xmin=</span>lo, <span class="at">xmax=</span>hi)) <span class="sc">+</span></span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>ATT_true_obs, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span>clr_eco, <span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">colour=</span><span class="st">"#16a085"</span>, <span class="at">size=</span><span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"N treated=%d"</span>, <span class="st">`</span><span class="at">N treated</span><span class="st">`</span>), <span class="at">x=</span>hi<span class="fl">+0.04</span>),</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.1</span>) <span class="sc">+</span></span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>ATT_true_obs<span class="fl">+0.015</span>, <span class="at">y=</span><span class="fl">5.45</span>,</span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"True ATT"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.3</span>, <span class="at">colour=</span>clr_eco) <span class="sc">+</span></span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"ATT estimate — eco-label WTP premium ($)"</span>, <span class="at">y=</span><span class="cn">NULL</span>,</span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"All five approaches use the correctly specified PS — what varies is the matching design"</span>,</span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"With-replacement and subclassification use more data; 1:1 without replacement keeps the cleanest pairs"</span>) <span class="sc">+</span></span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1505,7 +1506,7 @@ Matching (Mahalanobis, 1:1 NN) est.   = 1.358</code></pre>
 </div>
 </div>
 </div>
-<p>The key takeaway: <strong>once the PS is correctly specified, the matching design choices affect precision more than they affect bias</strong>. With-replacement matching and full matching typically use more of the data and therefore yield narrower confidence intervals, but they require more care in outcome analysis (correct SE formulas for with-replacement; subclass weights for full matching). For exploratory work, 1:1 without replacement plus a caliper is the cleanest starting point.</p>
+<p>The key takeaway: <strong>once the PS is correctly specified, the matching design choices affect precision more than they affect bias</strong>. With-replacement matching and subclassification typically use more of the data and therefore yield narrower confidence intervals, but they require more care in outcome analysis (correct SE formulas for with-replacement; subclass weights for subclassification). For exploratory work, 1:1 without replacement plus a caliper is the cleanest starting point.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Love plot: balance before and after correctly-specified PSM</summary>
