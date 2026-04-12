@@ -366,6 +366,7 @@ window.Quarto = {
   <li><a href="#assumption-2-covariate-continuity" id="toc-assumption-2-covariate-continuity" class="nav-link" data-scroll-target="#assumption-2-covariate-continuity"><span class="header-section-number">17.3.2</span> Assumption 2: Covariate Continuity</a></li>
   </ul></li>
   <li><a href="#sec-rdd-estimate" id="toc-sec-rdd-estimate" class="nav-link" data-scroll-target="#sec-rdd-estimate"><span class="header-section-number">17.4</span> Estimating the RDD Effect</a></li>
+  <li><a href="#sec-checklist-part3-m3" id="toc-sec-checklist-part3-m3" class="nav-link" data-scroll-target="#sec-checklist-part3-m3"><span class="header-section-number">17.5</span> Researcher Checklist: Regression Discontinuity Design</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -723,6 +724,63 @@ Unique Obs.                     677          523
 </div>
 </div>
 <hr>
+</section>
+<section id="sec-checklist-part3-m3" class="level2" data-number="17.5">
+<h2 data-number="17.5" class="anchored" data-anchor-id="sec-checklist-part3-m3"><span class="header-section-number">17.5</span> Researcher Checklist: Regression Discontinuity Design</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Verifying the quasi-random assignment mechanism
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is the running variable continuous and measured with noise near the threshold?</strong> RDD identification relies on units near the cutoff being locally similar — this requires that exact control of the running variable is impossible. If firms or individuals can precisely manipulate their score to land just above the threshold, the design is invalid.</label></li>
+<li><label><input type="checkbox"><strong>Did you run a McCrary density test</strong> (or <code>rddensity</code> in R) to check for bunching just above the threshold? A significant density discontinuity at the cutoff is evidence of manipulation — firms are gaming their way into certification, destroying the quasi-random assignment near the cutoff.</label></li>
+<li><label><input type="checkbox"><strong>Did you test for balance on pre-treatment covariates just above and below the threshold?</strong> Run RDD regressions using pre-treatment characteristics (size, age, prior sales) as the outcome. Significant discontinuities in pre-determined variables at the cutoff suggest self-selection — the “local randomization” assumption is violated.</label></li>
+<li><label><input type="checkbox"><strong>Is the threshold externally set and known only after the fact?</strong> A threshold that was publicly announced long before the certification date gives firms time to optimize their score, increasing the risk of manipulation. A threshold set retrospectively (e.g., based on the median score in a given year) is harder to game.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Choosing and validating the specification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Did you try multiple bandwidth choices</strong> and check whether the point estimate is stable? Sensitivity plots (estimate as a function of h) are the standard diagnostic. If the estimate changes dramatically as h narrows from the MSE-optimal bandwidth, the design relies on extrapolating far from the cutoff — a red flag.</label></li>
+<li><label><input type="checkbox"><strong>Did you try multiple polynomial degrees</strong> (linear, quadratic) and check robustness? Overfitting with higher-degree polynomials far from the cutoff can produce spurious discontinuities at the threshold. Local linear fits with MSE-optimal bandwidths are the current methodological consensus.</label></li>
+<li><label><input type="checkbox"><strong>Did you run placebo discontinuity tests at artificial cutoffs</strong> (e.g., at 60 and 80)? Significant discontinuities at non-threshold values suggest your outcome is changing systematically across the running variable in ways that are not caused by the treatment.</label></li>
+<li><label><input type="checkbox"><strong>Is your outcome variable measured cleanly near the threshold?</strong> A poorly measured outcome Y will have noisier estimates near the cutoff, widening confidence intervals and potentially producing spurious pattern — revisit Module 1 measurement quality for Y.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Interpreting the estimand
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Are you aware that RDD identifies a LATE — the average treatment effect for units near the cutoff?</strong> Products with audit scores near 70 are not representative of all products. The eco-certification effect for borderline products may be larger or smaller than the effect for products that clearly qualify or clearly do not. Do not generalize the RDD estimate beyond the neighborhood of the threshold without additional evidence.</label></li>
+<li><label><input type="checkbox"><strong>Is the LATE theoretically interesting for your research question?</strong> If your question is about the average effect across all certified products, RDD gives you the wrong estimand — consider matching or IPW instead. If your question is about the marginal effect of certification on borderline products, RDD is exactly right.</label></li>
+<li><label><input type="checkbox"><strong>What is the effect of the certification on the certifying <em>process</em>?</strong> RDD identifies the causal effect of crossing the threshold, which includes both the signal of certification (the eco-label on the product) and any behavioral changes the certification process induces in the firm. Can you separate these two pathways?</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Is the threshold in my setting truly a discontinuity that creates local quasi-random assignment — or can units near the cutoff systematically manipulate their position, destroying the identification strategy?</em></p>
 
 
 </section>

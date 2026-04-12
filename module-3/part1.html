@@ -371,6 +371,7 @@ window.Quarto = {
   <li><a href="#sec-ate" id="toc-sec-ate" class="nav-link" data-scroll-target="#sec-ate"><span class="header-section-number">16.4</span> Average Treatment Effect (ATE)</a></li>
   <li><a href="#sec-cate" id="toc-sec-cate" class="nav-link" data-scroll-target="#sec-cate"><span class="header-section-number">16.5</span> Conditional Average Treatment Effect (CATE)</a></li>
   <li><a href="#sec-late" id="toc-sec-late" class="nav-link" data-scroll-target="#sec-late"><span class="header-section-number">16.6</span> Compliance, ITT, LATE, ATT, and ATC</a></li>
+  <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1"><span class="header-section-number">16.7</span> Researcher Checklist: What Is a Causal Effect?</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -1624,6 +1625,69 @@ True ITE SD = 0.967</code></pre>
 </div>
 </div>
 <hr>
+</section>
+<section id="sec-checklist-part1" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="sec-checklist-part1"><span class="header-section-number">16.7</span> Researcher Checklist: What Is a Causal Effect?</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Defining the causal question precisely
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>What is the unit of analysis, and what is the treatment?</strong> A causal effect is always defined for a specific treatment applied to a specific unit. Vague treatments (“exposure to sustainable marketing”) produce vague causal claims.</label></li>
+<li><label><input type="checkbox"><strong>What is the counterfactual?</strong> For each unit, what would Y have been under the alternative treatment? The fundamental problem of causal inference is that you can only observe one potential outcome per unit. What assumption are you making about the unobserved potential outcome?</label></li>
+<li><label><input type="checkbox"><strong>Which estimand are you targeting: ATE, ATT, ATC, LATE, ITT, or CATE?</strong></label>
+<ul>
+<li><em>ATE</em>: Average effect across all units — requires strong overlap (common support)</li>
+<li><em>ATT</em>: Average effect for the treated — appropriate when you care about the self-selected group</li>
+<li><em>LATE</em>: Local average effect for compliers at a threshold — what RDD estimates</li>
+<li><em>ITT</em>: Intent-to-treat effect for assigned units — appropriate when compliance is imperfect</li>
+<li>The right estimand depends on the policy question, not on which estimand is easiest to identify.</li>
+</ul></li>
+<li><label><input type="checkbox"><strong>Have you drawn the causal DAG for your setting?</strong> The DAG determines which variables are confounders (must be conditioned on), colliders (must not be conditioned on), and mediators (conditioned on or not depending on whether you want total or direct effects).</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Ruling out alternative causal structures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>What tools do you have to rule out reverse causality</strong> (Y → X rather than X → Y)? Temporal ordering, randomization, and instrumental variables are the three main sources of evidence.</label></li>
+<li><label><input type="checkbox"><strong>What tools do you have to rule out confounding</strong> (a third variable Z → X and Z → Y)? If the association between X and Y persists after conditioning on all common causes in your DAG, confounding is eliminated.</label></li>
+<li><label><input type="checkbox"><strong>What tools do you have to rule out spurious correlation</strong> (X and Y correlated only through a common cause, no direct effect)? Zero partial correlations after conditioning on the confounder would rule this out.</label></li>
+<li><label><input type="checkbox"><strong>Is there any combination of methodological evidence</strong> (randomization + prior literature + correlational pattern + theory) that rules out enough alternative structures to support a causal claim? Causal inference is a deductive process of elimination — each piece of evidence narrows the possibility space.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Heterogeneity and generalization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is the treatment effect likely to be homogeneous or heterogeneous across units?</strong> If heterogeneous, a single average estimand (ATE or ATT) may be misleading — report CATE by theoretically meaningful subgroups.</label></li>
+<li><label><input type="checkbox"><strong>Does your estimand match the practical question you want to answer?</strong> An ATT tells you the average effect on people who actually received (or sought out) the treatment — this may be the most policy-relevant estimand if you are evaluating a program that already exists, but the wrong one if you are planning to extend the program to non-seekers.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Have I specified my causal question precisely enough to identify the right estimand, map the right DAG, and choose the method that recovers the causal effect I actually need?</em></p>
 
 
 </section>

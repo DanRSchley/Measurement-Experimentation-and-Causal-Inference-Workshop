@@ -380,6 +380,7 @@ window.Quarto = {
   <li><a href="#completely-random-assignment-the-baseline" id="toc-completely-random-assignment-the-baseline" class="nav-link" data-scroll-target="#completely-random-assignment-the-baseline"><span class="header-section-number">15.1</span> Completely Random Assignment — The Baseline</a></li>
   <li><a href="#stratified-blocked-random-assignment" id="toc-stratified-blocked-random-assignment" class="nav-link" data-scroll-target="#stratified-blocked-random-assignment"><span class="header-section-number">15.2</span> Stratified (Blocked) Random Assignment</a></li>
   <li><a href="#clustered-random-assignment" id="toc-clustered-random-assignment" class="nav-link" data-scroll-target="#clustered-random-assignment"><span class="header-section-number">15.3</span> Clustered Random Assignment</a></li>
+  <li><a href="#sec-checklist-part4" id="toc-sec-checklist-part4" class="nav-link" data-scroll-target="#sec-checklist-part4"><span class="header-section-number">15.4</span> Researcher Checklist: Experimental Design Strategies</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -1339,6 +1340,63 @@ window.Quarto = {
 </div>
 </div>
 <hr>
+</section>
+<section id="sec-checklist-part4" class="level2" data-number="15.4">
+<h2 data-number="15.4" class="anchored" data-anchor-id="sec-checklist-part4"><span class="header-section-number">15.4</span> Researcher Checklist: Experimental Design Strategies</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Choosing the right design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>How many independent variables does your theory require?</strong> If your theory involves an interaction (e.g., “eco-label effects are stronger for high-income consumers”), a simple A/B design cannot test it — you need at least a 2×2 factorial.</label></li>
+<li><label><input type="checkbox"><strong>Can you afford a fully crossed factorial design?</strong> If not, consider a Latin square, which tests all main effects with far fewer conditions — but sacrifices the ability to estimate interactions. Make this trade-off explicitly, not by default.</label></li>
+<li><label><input type="checkbox"><strong>Is a between-subjects or within-subjects design more appropriate?</strong> Within-subjects designs are more powerful (they remove between-person variance) but carry carryover and demand characteristic risks. Identify which threat is more severe for your construct.</label></li>
+<li><label><input type="checkbox"><strong>How many stimuli are you using per condition?</strong> A single advertisement, brand, or scenario is a single draw from a stimulus space. If you want to generalize beyond that stimulus, use multiple stimuli and treat stimulus as a random effect.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Stimulus sampling and generalization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Have you thought about which stimulus features are theoretically fixed and which are incidental?</strong> The eco-label’s <em>presence</em> is theoretically relevant; the specific font, color, and image used are incidental. Your conclusion should generalize beyond the specific stimulus you used.</label></li>
+<li><label><input type="checkbox"><strong>Did you use at least 3–5 stimulus exemplars per condition?</strong> Wells &amp; Windschitl (1999) show that single-stimulus studies produce non-replicable results when the effect depends on idiosyncratic features of the stimulus.</label></li>
+<li><label><input type="checkbox"><strong>If you used a single stimulus, have you acknowledged the limitation?</strong> A single-stimulus study demonstrates that the effect exists for <em>that specific stimulus</em>, not that the effect generalizes to the construct.</label></li>
+<li><label><input type="checkbox"><strong>Have you considered a metastudy design</strong> (Simonsohn et al., 2025)? Running several independent mini-experiments with different stimulus exemplars gives direct evidence of effect generalizability across the stimulus space.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connection to Module 1 measurement and Module 3 causal inference
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Does your design allow you to test the causal mechanism (mediator)?</strong> A design that only shows X → Y cannot distinguish a direct effect from an indirect one. If theory specifies a mechanism M, the design should include measurement of M.</label></li>
+<li><label><input type="checkbox"><strong>Are there natural variations in your setting that resemble a quasi-experiment</strong> (a policy change, a threshold, a staggered rollout)? These can provide causal identification without random assignment — covered in Module 3.</label></li>
+<li><label><input type="checkbox"><strong>Have you pre-registered the design</strong> including factorial structure, planned comparisons, and the analysis plan? Design registration prevents the degrees of freedom associated with post-hoc re-specification of which interaction or cell comparison to report.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Does my experimental design give me the statistical power to detect the effect I care about, the structural coverage to test the mechanism I theorize, and the stimulus breadth to generalize beyond a single exemplar?</em></p>
 
 
 </section>

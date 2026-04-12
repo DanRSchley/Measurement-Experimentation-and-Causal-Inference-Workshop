@@ -368,7 +368,7 @@ window.Quarto = {
   <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison"><span class="header-section-number">19.8</span> Comprehensive Bias Comparison Across All Scenarios</a></li>
   <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2"><span class="header-section-number">19.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
   <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table"><span class="header-section-number">19.10</span> Summary of Methods</a></li>
-  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session Info</a></li>
+  <li><a href="#sec-checklist-part5-m3" id="toc-sec-checklist-part5-m3" class="nav-link" data-scroll-target="#sec-checklist-part5-m3"><span class="header-section-number">19.11</span> Researcher Checklist: Causal Mediation Analysis</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1201,8 +1201,79 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 <hr>
 </section>
-<section id="session-info" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="session-info">Session Info</h2>
+<section id="sec-checklist-part5-m3" class="level2" data-number="19.11">
+<h2 data-number="19.11" class="anchored" data-anchor-id="sec-checklist-part5-m3"><span class="header-section-number">19.11</span> Researcher Checklist: Causal Mediation Analysis</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Establishing the mediation structure
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is the temporal ordering established?</strong> Treatment X must precede mediator M, which must precede outcome Y. Cross-sectional designs where all three are measured simultaneously cannot establish mediation — they can only test an association consistent with the hypothesized pathway.</label></li>
+<li><label><input type="checkbox"><strong>Is the mediator M a genuine intermediate variable in the causal chain</strong>, or is it a proxy for a latent variable that also affects Y through other channels? A mediator that shares variance with Y through unmeasured pathways (M→Y confounding) violates sequential ignorability.</label></li>
+<li><label><input type="checkbox"><strong>Have you drawn the DAG for the full mediation system?</strong> The DAG should show: X → M → Y (the hypothesized path), X → Y (the direct path), and any plausible confounders of M → Y. Confounders of the M → Y path are the most common source of mediation analysis failure.</label></li>
+<li><label><input type="checkbox"><strong>Is there a plausible reverse pathway M → X</strong> or <strong>M ← U → Y</strong> that your design cannot rule out? If yes, the indirect effect estimate is biased even under correct model specification.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Testing the sequential ignorability assumption
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Can you argue that there are no unmeasured confounders of the M → Y relationship?</strong> Sequential ignorability requires that, conditional on treatment X and baseline covariates, M is as-good-as-randomly assigned. This is the mediation analog of the exchangeability assumption from Module 2, Part 3 — and just as difficult to verify.</label></li>
+<li><label><input type="checkbox"><strong>Did you run Imai’s sensitivity analysis</strong> (<code>mediation::sensitivity()</code>)? The critical ρ* tells you the magnitude of residual M→Y confounding that would reduce the ACME to zero. Report ρ* alongside the point estimate.</label></li>
+<li><label><input type="checkbox"><strong>Is your ρ* large or small?</strong> A large ρ* (e.g., &gt; 0.50) means the mediation result is robust to substantial unmeasured confounding. A small ρ* (e.g., &lt; 0.20) means even a modest confound would explain away the indirect effect — treat the result as fragile and interpret it cautiously.</label></li>
+<li><label><input type="checkbox"><strong>Have you measured all plausible confounders of the M → Y path?</strong> These are variables that affect both the mediator level and the outcome independently of the mediator. The more you measure and control for, the more plausible sequential ignorability becomes — and the larger ρ* will be.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Measurement quality for the mediator
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is your mediator M measured reliably?</strong> Measurement error in M (attenuation bias) will understate the a-path (X → M) coefficient, compressing the indirect effect toward zero even when the true pathway is strong. Apply the correction from Module 1: if the reliability of M is known (Cronbach’s α), correct the a-path coefficient by dividing by √α.</label></li>
+<li><label><input type="checkbox"><strong>Is the mediator discriminantly valid from the outcome?</strong> If M and Y are measured on overlapping scales that fail discriminant validity testing (Module 1, Case 1), the mediation analysis is picking up measurement contamination — not a genuine causal pathway. Test HTMT(M, Y) before running the mediation.</label></li>
+<li><label><input type="checkbox"><strong>Did you run ROBMED</strong> (<code>robmed</code> package) alongside the standard mediation model? ROBMED down-weights outliers in the data before estimating the indirect effect. If the ROBMED and standard ACME estimates differ substantially, outliers in the M or Y distribution are distorting the b-path (M → Y) coefficient.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reporting and interpretation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Did you report the ACME (indirect effect), the ADE (direct effect), and the total effect</strong> with bootstrap confidence intervals for all three? Reporting only the indirect effect without the direct effect makes it impossible to evaluate whether mediation is partial or full.</label></li>
+<li><label><input type="checkbox"><strong>Did you report the proportion mediated</strong> (ACME / total effect)? A large ACME paired with a large ADE indicates partial mediation — the treatment operates through multiple pathways simultaneously. A large ACME with a near-zero ADE indicates full mediation — the treatment’s effect is entirely channeled through M.</label></li>
+<li><label><input type="checkbox"><strong>Have you distinguished statistical mediation from theoretical mechanism?</strong> Statistical mediation (a significant indirect effect) is consistent with, but does not prove, a causal mechanism. It is also consistent with a common cause of M and Y that was not controlled for. Report the sensitivity analysis to quantify this ambiguity.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Is there a credible causal chain X → M → Y — with M genuinely causing Y rather than merely correlated with Y through an unmeasured common cause — and is the mediator measured reliably enough and discriminantly validly enough to detect this pathway if it exists?</em></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1236,13 +1307,13 @@ other attached packages:
 [13] rddensity_2.6     rdrobust_3.0.0    cobalt_4.6.2      WeightIt_1.6.0   
 [17] MatchIt_4.7.2     conflicted_1.2.0  patchwork_1.3.2   knitr_1.51       
 [21] broom_1.0.12      lubridate_1.9.5   forcats_1.0.1     stringr_1.6.0    
-[25] dplyr_1.2.1       purrr_1.2.1       readr_2.2.0       tidyr_1.3.2      
+[25] dplyr_1.2.1       purrr_1.2.2       readr_2.2.0       tidyr_1.3.2      
 [29] tibble_3.3.1      ggplot2_4.0.2     tidyverse_2.0.0  
 
 loaded via a namespace (and not attached):
   [1] RColorBrewer_1.1-3   rstudioapi_0.18.0    jsonlite_2.0.0      
   [4] magrittr_2.0.5       farver_2.1.2         nloptr_2.2.1        
-  [7] rmarkdown_2.31       vctrs_0.7.2          memoise_2.0.1       
+  [7] rmarkdown_2.31       vctrs_0.7.3          memoise_2.0.1       
  [10] minqa_1.2.8          base64enc_0.1-6      htmltools_0.5.9     
  [13] Formula_1.2-5        pROC_1.19.0.1        caret_7.0-1         
  [16] parallelly_1.46.1    htmlwidgets_1.6.4    plyr_1.8.9          

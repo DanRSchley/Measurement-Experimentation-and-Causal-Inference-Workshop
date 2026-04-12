@@ -368,6 +368,7 @@ window.Quarto = {
   <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</a></li>
   <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
   </ul></li>
+  <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3"><span class="header-section-number">18.7</span> Researcher Checklist: Difference-in-Differences</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1038,9 +1039,67 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 </div>
 </div>
 <hr>
-
-
 </section>
+</section>
+<section id="sec-checklist-part4-m3" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="sec-checklist-part4-m3"><span class="header-section-number">18.7</span> Researcher Checklist: Difference-in-Differences</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Evaluating the parallel trends assumption
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Did you plot pre-treatment trends for treated and control groups</strong> and verify visually that they move together before the treatment? This is the most important diagnostic for DiD.</label></li>
+<li><label><input type="checkbox"><strong>Did you run a pre-treatment event study</strong> (including “leads” — placebo lags in the pre-period) to test whether the treated group was already diverging before the treatment? Significant pre-trend coefficients are direct evidence of a parallel trends violation.</label></li>
+<li><label><input type="checkbox"><strong>How many pre-treatment periods do you have?</strong> With 1–2 pre-periods, the event study has very low power to detect violations. Be honest about this limitation — a passing pre-trend test with 2 pre-periods provides weak evidence.</label></li>
+<li><label><input type="checkbox"><strong>Is the parallel trends assumption theoretically defensible?</strong> Why would treated and control units have followed the same trend absent the treatment? Identify what makes them comparable (similar industry, similar market, similar regulatory environment) and what makes them potentially different (self-selection into treatment).</label></li>
+<li><label><input type="checkbox"><strong>Are there contemporaneous events that affected treated but not control units?</strong> Any policy, shock, or trend that hits the treated group during the treatment period — but not the control group — will be absorbed into the DiD coefficient, biasing your estimate. List all plausible confounders and check whether they align with the treatment timing.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Design and specification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is there a “clean” control group that was genuinely unaffected by the treatment?</strong> Control units that were indirectly affected by the treatment (e.g., through competitive spillovers) violate the SUTVA (Stable Unit Treatment Value Assumption) — their outcomes were altered by the treatment, making them invalid counterfactuals.</label></li>
+<li><label><input type="checkbox"><strong>Is treatment timing staggered (different units treated at different times)?</strong> Staggered DiD with a standard two-way fixed effects model can produce biased estimates when treatment effects are heterogeneous across cohorts. Use Callaway-Sant’Anna (2021) or Sun-Abraham (2021) estimators designed for staggered rollouts.</label></li>
+<li><label><input type="checkbox"><strong>Did you include unit and time fixed effects?</strong> Unit FEs remove time-invariant unit characteristics; time FEs remove common time trends. Both are required for a valid DiD estimate.</label></li>
+<li><label><input type="checkbox"><strong>Have you run robustness checks with different control groups?</strong> If your estimate depends critically on which units serve as controls, investigate why — it suggests the parallel trends assumption holds for some comparison pairs but not others.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Sensitivity and reporting
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Did you run Rambachan &amp; Roth’s HonestDiD sensitivity analysis?</strong> This asks: how large a pre-trend violation would be needed to overturn your conclusion? Report the answer — it gives readers a concrete sense of how robust the result is.</label></li>
+<li><label><input type="checkbox"><strong>Did you cluster standard errors at the appropriate level?</strong> Standard errors in DiD should be clustered at the unit level (the level at which treatment was assigned) to account for serial correlation within units over time. Under-clustering produces overconfident inference.</label></li>
+<li><label><input type="checkbox"><strong>Have you checked for treatment effect heterogeneity across units and time?</strong> An average DiD estimate can mask large positive effects in some units and near-zero or negative effects in others. Event study coefficients that grow (or shrink) over the post-treatment window suggest dynamic treatment effects that a single coefficient cannot capture.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Is there a credible control group — one that would have followed the same trend as the treated group absent the treatment — and do I have enough pre-treatment data to test this assumption with reasonable power?</em></p>
+
+
 </section>
 
 </main> <!-- /main -->

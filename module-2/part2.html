@@ -341,6 +341,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#alternative-lda-topic-modeling-unsupervised-discovery" id="toc-alternative-lda-topic-modeling-unsupervised-discovery" class="nav-link" data-scroll-target="#alternative-lda-topic-modeling-unsupervised-discovery"><span class="header-section-number">12.5.2</span> Alternative: LDA Topic Modeling (Unsupervised Discovery)</a></li>
   <li><a href="#from-text-to-numbers-measuring-and-modeling-the-nomological-net" id="toc-from-text-to-numbers-measuring-and-modeling-the-nomological-net" class="nav-link" data-scroll-target="#from-text-to-numbers-measuring-and-modeling-the-nomological-net"><span class="header-section-number">12.5.3</span> From Text to Numbers: Measuring and Modeling the Nomological Net</a></li>
   </ul></li>
+  <li><a href="#sec-checklist-part2" id="toc-sec-checklist-part2" class="nav-link" data-scroll-target="#sec-checklist-part2"><span class="header-section-number">12.6</span> Researcher Checklist: The Exclusion Restriction</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -2036,10 +2037,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <hr>
-
-
 </section>
 </section>
+</section>
+<section id="sec-checklist-part2" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="sec-checklist-part2"><span class="header-section-number">12.6</span> Researcher Checklist: The Exclusion Restriction</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Designing the manipulation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Does your manipulation vary only the theoretically intended construct?</strong> Write down every feature of the treatment condition that differs from the control condition. Each difference is a potential violation of the exclusion restriction.</label></li>
+<li><label><input type="checkbox"><strong>Is each additional feature <em>theoretically independent</em> of the construct you are studying?</strong> A manipulation that changes eco-label, packaging quality, and premium price signals simultaneously is not testing the eco-label — it is testing a bundle.</label></li>
+<li><label><input type="checkbox"><strong>Can you create a “process” control condition</strong> that holds all features constant except the theoretically relevant one? If not, your treatment is confounded by design.</label></li>
+<li><label><input type="checkbox"><strong>Did you pilot-test the manipulation</strong> using open-ended responses (asking what participants noticed or thought about)? Pilot text will reveal which features of the treatment are psychologically active beyond the intended mechanism.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Diagnosing exclusion restriction violations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Does the manipulation check for the intended mechanism stay significant when you control for the alternative mechanisms you measured?</strong> If controlling for perceived quality eliminates the eco-label manipulation check effect, the manipulation was working mostly through quality signals, not sustainability beliefs.</label></li>
+<li><label><input type="checkbox"><strong>Have you measured all plausible mediating mechanisms activated by your treatment?</strong> Unmeasured active mechanisms are exclusion restriction violations you cannot detect. Use a nomological net scan (open-ended pilot text, existing literature) to enumerate all pathways before data collection.</label></li>
+<li><label><input type="checkbox"><strong>If the treatment effect disappears after controlling for an alternative mediator</strong>, is this because that variable is the true causal mechanism, or because your treatment is confounded with it? This distinction requires clear theoretical reasoning — and potentially a factorial design to disentangle them.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connection to Module 1 discriminant validity and Module 3 mediation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is the exclusion restriction for your treatment the experimental analog of discriminant validity for your scale?</strong> In both cases, the observable (treatment / scale score) picks up variance from multiple latent constructs simultaneously. Apply the same discipline: map the latent constructs affected before running the study.</label></li>
+<li><label><input type="checkbox"><strong>If your treatment has multiple active pathways, is decomposing them theoretically important?</strong> A manipulation that works through eco-beliefs, quality perception, and price anchoring simultaneously tells you little about which mechanism to strengthen or suppress. Module 3, Part 5 (mediation analysis) shows how to decompose the total effect into component pathways.</label></li>
+<li><label><input type="checkbox"><strong>Have you considered a factorial design to isolate the mechanism?</strong> If Pathway A and Pathway B are both active, a 2×2 design varying each independently can test which carries the effect — without needing a single-mechanism manipulation.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this part: Does my manipulation do one thing theoretically — or does it do several things at once, making my coefficient an uninterpretable mixture of multiple causal pathways?</em></p>
+<hr>
+
+
 </section>
 </section>
 

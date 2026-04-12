@@ -339,6 +339,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-3-the-sensitivity-test" id="toc-step-3-the-sensitivity-test" class="nav-link" data-scroll-target="#step-3-the-sensitivity-test"><span class="header-section-number">5.6</span> Step 3: The Sensitivity Test</a></li>
   <li><a href="#summary-what-ovb-teaches-us" id="toc-summary-what-ovb-teaches-us" class="nav-link" data-scroll-target="#summary-what-ovb-teaches-us"><span class="header-section-number">5.7</span> Summary: What OVB Teaches Us</a></li>
   <li><a href="#other-methods-for-diagnosing-endogeneity-and-ovb" id="toc-other-methods-for-diagnosing-endogeneity-and-ovb" class="nav-link" data-scroll-target="#other-methods-for-diagnosing-endogeneity-and-ovb"><span class="header-section-number">5.8</span> Other Methods for Diagnosing Endogeneity and OVB</a></li>
+  <li><a href="#sec-checklist-case2" id="toc-sec-checklist-case2" class="nav-link" data-scroll-target="#sec-checklist-case2"><span class="header-section-number">5.9</span> Researcher Checklist: Omitted Variable Bias</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -754,6 +755,63 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 <li><strong>Panel data fixed effects:</strong> If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.</li>
 </ul>
 <hr>
+</section>
+<section id="sec-checklist-case2" class="level2" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="sec-checklist-case2"><span class="header-section-number">5.9</span> Researcher Checklist: Omitted Variable Bias</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Before running your regression
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Have you enumerated the plausible omitted variables?</strong> For each predictor X, list every variable that (a) affects Y and (b) is correlated with X. These are the OVB threats. The OVB formula tells you: Bias = β_omitted × r(X, omitted).</label></li>
+<li><label><input type="checkbox"><strong>What sign and magnitude does each OVB threat carry?</strong> If you know the sign of both the omitted variable’s effect on Y and its correlation with X, you can predict the direction of the bias — and often reason about whether your estimate is inflated or deflated.</label></li>
+<li><label><input type="checkbox"><strong>Have you measured all the major confounders you can?</strong> Every observed confounder you include in the regression eliminates its OVB contribution. The residual threat is only from the confounders you could not or did not measure.</label></li>
+<li><label><input type="checkbox"><strong>Is there a theoretical “third variable” that explains the correlation between X and Y without X causing Y?</strong> If yes, that variable must be in the model or identified as an acknowledged limitation.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Diagnosing OVB after estimation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Do your residuals show a fan (heteroskedasticity) or clustering pattern?</strong> Fan-shaped residuals, or residuals that cluster by an observable category, are diagnostic of a missing variable that stratifies the relationship.</label></li>
+<li><label><input type="checkbox"><strong>Did you run a Breusch-Pagan test for heteroskedasticity?</strong> A significant result suggests the variance of Y depends on something not in the model — often an omitted variable.</label></li>
+<li><label><input type="checkbox"><strong>How sensitive is your main coefficient to the addition of proxy variables?</strong> If adding a plausible proxy variable (e.g., a correlated but imperfect measure of the confounder) substantially changes the main coefficient, OVB is likely present. If the coefficient is stable, OVB is less severe.</label></li>
+<li><label><input type="checkbox"><strong>Have you applied Oster’s (2019) sensitivity analysis?</strong> It asks how strong the relationship between the omitted variable and X would need to be — relative to the relationship between included controls and X — to fully explain away your estimated coefficient. This quantifies “how worried should I be?” without requiring an instrument.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connection to other module concepts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is your predictor X a scale score from Module 1?</strong> If that scale has discriminant validity failures, the OVB from the contaminating construct is baked into X — controlling for it directly would require separating X into its component constructs using CFA.</label></li>
+<li><label><input type="checkbox"><strong>Is your study observational rather than experimental?</strong> If so, consider whether any of the Module 3 methods (propensity score matching, regression discontinuity, difference-in-differences) are applicable to your research design and would provide cleaner identification.</label></li>
+<li><label><input type="checkbox"><strong>If your study is experimental but the manipulation check and the DV are measured on the same scale</strong>, consider whether discriminant invalidity between them creates a form of within-experiment OVB — the manipulation may be picking up the DV itself.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this case: Is the association I estimated between X and Y a causal effect of X on Y, or is it partially (or fully) a reflection of a third variable that affects both?</em></p>
 
 
 </section>

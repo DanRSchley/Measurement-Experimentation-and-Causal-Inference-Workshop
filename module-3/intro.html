@@ -298,6 +298,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link" data-scroll-target="#learning-goals"><span class="header-section-number">14.2</span> Learning Goals</a></li>
   <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">14.3</span> Recommended Reading</a></li>
   <li><a href="#what-this-tutorial-is-about" id="toc-what-this-tutorial-is-about" class="nav-link" data-scroll-target="#what-this-tutorial-is-about">What This Tutorial Is About</a></li>
+  <li><a href="#sec-checklist-m3-intro" id="toc-sec-checklist-m3-intro" class="nav-link" data-scroll-target="#sec-checklist-m3-intro"><span class="header-section-number">14.4</span> Researcher Checklist: Module 3 Overview — Causal Identification</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -475,6 +476,63 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 <hr>
+</section>
+<section id="sec-checklist-m3-intro" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="sec-checklist-m3-intro"><span class="header-section-number">14.4</span> Researcher Checklist: Module 3 Overview — Causal Identification</h2>
+<p>Use these questions before selecting a causal inference method. The choice of method must be driven by the structure of your data, not by which method produces the most favorable result.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Specifying the causal question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>What is the causal estimand you want to recover?</strong> Write down whether you want the ATE (effect on everyone), ATT (effect on those who received treatment), LATE (effect near a threshold), or CATE (effect for a subgroup). Different estimands require different methods and different assumptions.</label></li>
+<li><label><input type="checkbox"><strong>Have you drawn the DAG (directed acyclic graph) for your setting?</strong> A DAG forces you to make your causal assumptions explicit before choosing an estimator. It shows which variables are confounders, which are colliders, and which paths need to be blocked.</label></li>
+<li><label><input type="checkbox"><strong>What is the source of identifying variation?</strong> Every causal claim requires a source of variation that is as-good-as-random conditional on some assumption. What is yours: randomization, a natural threshold, a policy rollout, a matched comparison?</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Evaluating the identifying assumptions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>What is the core assumption your chosen method requires?</strong> Write it down explicitly (conditional independence, local randomization at a cutoff, parallel trends, sequential ignorability). This is the assumption that if violated, invalidates your causal claim.</label></li>
+<li><label><input type="checkbox"><strong>Can you test the assumption empirically, even partially?</strong> Most identifying assumptions have testable implications (balance tests, pre-trends, density tests, placebo regressions). Run every test that applies to your setting.</label></li>
+<li><label><input type="checkbox"><strong>What would a violation of the identifying assumption look like in your data?</strong> Anticipate the failure mode — if you cannot describe what a violation would look like, you have not thought carefully enough about the assumption.</label></li>
+<li><label><input type="checkbox"><strong>Is your claim robust to plausible violations?</strong> Report a sensitivity analysis (e.g., Oster bounds for selection on observables, HonestDiD for parallel trends, ρ* for mediation confounding) that quantifies how large a violation would need to be to overturn your conclusions.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connecting to upstream decisions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Is your outcome Y measured well?</strong> All the causal methods in this module recover causal effects on <em>measured Y</em> — but if Y is contaminated by discriminant invalidity (Module 1, Case 1), non-invariant (Case 3), or bounded (Case 6), the method will recover the causal effect on the <em>flawed measurement</em>, not on the true construct.</label></li>
+<li><label><input type="checkbox"><strong>Were there selection-relevant confounders that should have been measured but were not?</strong> If you cannot include a covariate in your PS model or DiD regression because it was not collected, the identifying assumption is violated on that dimension.</label></li>
+<li><label><input type="checkbox"><strong>Is the treatment well-defined?</strong> If the treatment manipulates multiple constructs simultaneously (Module 2, Part 2), the causal effect you identify conflates all the active pathways — use mediation analysis (Part 5) to decompose them.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for Module 3: Do I have a credible source of as-good-as-random variation that lets me isolate the causal effect of my treatment on my outcome — and can I demonstrate that the identifying assumptions hold well enough to trust the result?</em></p>
 
 
 </section>

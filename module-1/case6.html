@@ -334,6 +334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-problem-in-plain-language" id="toc-the-problem-in-plain-language" class="nav-link active" data-scroll-target="#the-problem-in-plain-language"><span class="header-section-number">8.1</span> The Problem in Plain Language</a></li>
   <li><a href="#interactive-simulator-see-the-bias-in-real-time" id="toc-interactive-simulator-see-the-bias-in-real-time" class="nav-link" data-scroll-target="#interactive-simulator-see-the-bias-in-real-time"><span class="header-section-number">8.2</span> Interactive Simulator: See the Bias in Real Time</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8.3</span> References</a></li>
+  <li><a href="#sec-checklist-case6" id="toc-sec-checklist-case6" class="nav-link" data-scroll-target="#sec-checklist-case6"><span class="header-section-number">8.4</span> Researcher Checklist: Systematic Measurement Error on Bounded Scales</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -709,6 +710,64 @@ Figure&nbsp;8.1: Gray filled area = true (untruncated) distribution — what sco
 <p>Ester, M., Kriegel, H.-P., Sander, J., &amp; Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. <em>Proceedings of the 2nd International Conference on Knowledge Discovery and Data Mining</em> (KDD-96), 226–231.</p>
 <p>Venables, W. N., &amp; Ripley, B. D. (2002). <em>Modern applied statistics with S</em> (4th ed.). Springer.</p>
 <p>Wooldridge, J. M. (2010). <em>Econometric analysis of cross section and panel data</em> (2nd ed.). MIT Press.</p>
+<hr>
+</section>
+<section id="sec-checklist-case6" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="sec-checklist-case6"><span class="header-section-number">8.4</span> Researcher Checklist: Systematic Measurement Error on Bounded Scales</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Diagnosing potential truncation bias
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Are any of your variables measured on bounded scales</strong> (1–7 Likert, 0–100 slider, 0–100% probability, binary)? If yes, truncation bias is a potential concern for group comparisons.</label></li>
+<li><label><input type="checkbox"><strong>Do the distributions of your scale variables cluster near the upper or lower bound?</strong> Histograms piling up at 7 (on a 7-point scale) or near 100 (on a 0–100 slider) signal active ceiling effects; piling at 1 signals floor effects.</label></li>
+<li><label><input type="checkbox"><strong>Do the experimental groups differ in their proximity to the bounds?</strong> If the treatment group is already close to the ceiling in a pre-test, any post-test improvement will be mechanically smaller — not because the treatment was less effective, but because the scale ran out of room.</label></li>
+<li><label><input type="checkbox"><strong>Is the variability in your scale lower in one group than another?</strong> Truncation compresses variance as well as mean — groups near a bound show smaller standard deviations, which distorts standardized effect size calculations (Cohen’s d becomes inflated when both groups are near the same bound).</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Choosing the right estimator
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>If ceiling or floor effects are present, have you considered a Tobit regression</strong> that explicitly models censoring at the bounds? Tobit recovers the latent (uncensored) mean difference rather than the observed truncated difference.</label></li>
+<li><label><input type="checkbox"><strong>For proportions or bounded continuous data (0–1), have you applied a logit or arc-sine transformation</strong> before computing means and running regressions? These transformations pull the scale toward linearity near the bounds.</label></li>
+<li><label><input type="checkbox"><strong>Have you tested whether your treatment effect estimate is sensitive to the scale bounds</strong> by running the analysis on the subset of participants who were not at ceiling on a pre-measure? If the effect vanishes in this restricted sample, truncation is driving the main result.</label></li>
+<li><label><input type="checkbox"><strong>If using a Likert scale for a manipulation check</strong>, a non-significant manipulation check could reflect ceiling effects on the MC scale rather than a weak manipulation — check the distribution before concluding the manipulation failed.</label></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Design-level prevention
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Did you pilot-test the scale range for your population?</strong> If participants in a pilot consistently score at the top of a 7-point scale, consider using a wider scale or a continuous slider for the main study.</label></li>
+<li><label><input type="checkbox"><strong>Could a relative judgment design avoid the problem entirely?</strong> Asking participants to compare options (conjoint, willingness-to-pay in a choice context) sidesteps absolute scale bounds.</label></li>
+<li><label><input type="checkbox"><strong>When reporting group comparisons on bounded scales, have you stated means in both raw scale units and as percentages of the available range?</strong> This helps readers assess proximity to bounds and evaluate the plausibility of further improvement.</label></li>
+</ul>
+</div>
+</div>
+<p><em>The central question for this case: Could the group differences I observe on a bounded scale be partially or entirely explained by differential proximity to the ceiling or floor — rather than genuine differences in the underlying construct?</em></p>
 <hr>
 
 
