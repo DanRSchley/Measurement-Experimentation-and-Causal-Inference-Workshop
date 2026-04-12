@@ -420,3 +420,32 @@ If either fails, the null distribution we construct by shuffling labels does not
 **The act of randomization is what makes exchangeability plausible.** Which brings us to Parts 2 and 3.
 
 ---
+
+## Researcher Checklist: What Does a P-Value Mean? {#sec-checklist-part1}
+
+::: {.callout-note}
+## Interpreting the p-value correctly
+
+- [ ] **Can you state what your p-value means in a single sentence without using the word "probability" incorrectly?** The correct interpretation: "If the null hypothesis were true, the probability of observing a test statistic at least as extreme as mine is p." It does not mean "the probability the null is true" or "the probability the effect is real."
+- [ ] **Does your p-value test the thing you care about?** A significant t-test tells you the means differ in your sample — it does not tell you the effect is theoretically meaningful, replicable, or practically important. Report the effect size (Cohen's d, η²) alongside the p-value.
+- [ ] **Did you compute a two-sided or one-sided p-value?** If one-sided, the directional prediction must have been registered before data collection, not selected after seeing which direction the data went.
+- [ ] **Is the "null world" you are testing actually the right null?** For many theoretical predictions, the interesting question is not "is the effect exactly zero?" but "is the effect larger than some theoretically meaningful threshold?" Consider equivalence testing (TOST) if you want to rule out practically significant effects.
+:::
+
+::: {.callout-note}
+## The three ingredients — are they present?
+
+- [ ] **Same data-generating process in both conditions?** If your two conditions differ in more than the intended treatment (see Part 2 on the exclusion restriction), the null distribution built by permuting labels is not valid.
+- [ ] **Exchangeability under H0?** Did randomization achieve approximate independence between treatment and all potential confounders (see Part 3)? If not, the permutation null distribution is constructed under a false assumption.
+- [ ] **Pre-specified test statistic?** Did you choose the test statistic and analysis before seeing the data? Post-hoc selection of the test that gives p < 0.05 among several alternatives inflates the false-positive rate dramatically.
+:::
+
+::: {.callout-note}
+## Effect size and practical significance
+
+- [ ] **Have you reported the raw effect size in meaningful units** (e.g., $$\Delta WTP = \$0.80$$, not just d = 0.53)?
+- [ ] **Is the effect large enough to matter substantively?** Statistical significance with N = 800 can be achieved for effects far too small to have theoretical or managerial relevance. Apply the "smallest effect size of interest" (SESOI) criterion.
+- [ ] **Did you report the confidence interval alongside the p-value?** A 95% CI that spans from near-zero to large reveals more about uncertainty than p = 0.03 alone.
+:::
+
+*The central question for this part: Is a p < 0.05 result in this study strong evidence against the null — or does it depend on assumptions about data generation, exchangeability, and analysis specification that may not hold?*

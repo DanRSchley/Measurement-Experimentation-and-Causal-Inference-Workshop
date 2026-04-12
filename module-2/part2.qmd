@@ -1187,3 +1187,34 @@ Every concept in this tutorial maps directly onto a concept from Module 1:
 :::
 
 ---
+
+## Researcher Checklist: The Exclusion Restriction {#sec-checklist-part2}
+
+::: {.callout-note}
+## Designing the manipulation
+
+- [ ] **Does your manipulation vary only the theoretically intended construct?** Write down every feature of the treatment condition that differs from the control condition. Each difference is a potential violation of the exclusion restriction.
+- [ ] **Is each additional feature *theoretically independent* of the construct you are studying?** A manipulation that changes eco-label, packaging quality, and premium price signals simultaneously is not testing the eco-label — it is testing a bundle.
+- [ ] **Can you create a "process" control condition** that holds all features constant except the theoretically relevant one? If not, your treatment is confounded by design.
+- [ ] **Did you pilot-test the manipulation** using open-ended responses (asking what participants noticed or thought about)? Pilot text will reveal which features of the treatment are psychologically active beyond the intended mechanism.
+:::
+
+::: {.callout-note}
+## Diagnosing exclusion restriction violations
+
+- [ ] **Does the manipulation check for the intended mechanism stay significant when you control for the alternative mechanisms you measured?** If controlling for perceived quality eliminates the eco-label manipulation check effect, the manipulation was working mostly through quality signals, not sustainability beliefs.
+- [ ] **Have you measured all plausible mediating mechanisms activated by your treatment?** Unmeasured active mechanisms are exclusion restriction violations you cannot detect. Use a nomological net scan (open-ended pilot text, existing literature) to enumerate all pathways before data collection.
+- [ ] **If the treatment effect disappears after controlling for an alternative mediator**, is this because that variable is the true causal mechanism, or because your treatment is confounded with it? This distinction requires clear theoretical reasoning — and potentially a factorial design to disentangle them.
+:::
+
+::: {.callout-note}
+## Connection to Module 1 discriminant validity and Module 3 mediation
+
+- [ ] **Is the exclusion restriction for your treatment the experimental analog of discriminant validity for your scale?** In both cases, the observable (treatment / scale score) picks up variance from multiple latent constructs simultaneously. Apply the same discipline: map the latent constructs affected before running the study.
+- [ ] **If your treatment has multiple active pathways, is decomposing them theoretically important?** A manipulation that works through eco-beliefs, quality perception, and price anchoring simultaneously tells you little about which mechanism to strengthen or suppress. Module 3, Part 5 (mediation analysis) shows how to decompose the total effect into component pathways.
+- [ ] **Have you considered a factorial design to isolate the mechanism?** If Pathway A and Pathway B are both active, a 2×2 design varying each independently can test which carries the effect — without needing a single-mechanism manipulation.
+:::
+
+*The central question for this part: Does my manipulation do one thing theoretically — or does it do several things at once, making my coefficient an uninterpretable mixture of multiple causal pathways?*
+
+---

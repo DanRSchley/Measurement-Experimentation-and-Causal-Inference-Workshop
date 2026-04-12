@@ -244,3 +244,35 @@ Venables, W. N., & Ripley, B. D. (2002). *Modern applied statistics with S* (4th
 Wooldridge, J. M. (2010). *Econometric analysis of cross section and panel data* (2nd ed.). MIT Press.
 
 ---
+
+## Researcher Checklist: Systematic Measurement Error on Bounded Scales {#sec-checklist-case6}
+
+::: {.callout-note}
+## Diagnosing potential truncation bias
+
+- [ ] **Are any of your variables measured on bounded scales** (1–7 Likert, 0–100 slider, 0–100% probability, binary)? If yes, truncation bias is a potential concern for group comparisons.
+- [ ] **Do the distributions of your scale variables cluster near the upper or lower bound?** Histograms piling up at 7 (on a 7-point scale) or near 100 (on a 0–100 slider) signal active ceiling effects; piling at 1 signals floor effects.
+- [ ] **Do the experimental groups differ in their proximity to the bounds?** If the treatment group is already close to the ceiling in a pre-test, any post-test improvement will be mechanically smaller — not because the treatment was less effective, but because the scale ran out of room.
+- [ ] **Is the variability in your scale lower in one group than another?** Truncation compresses variance as well as mean — groups near a bound show smaller standard deviations, which distorts standardized effect size calculations (Cohen's d becomes inflated when both groups are near the same bound).
+:::
+
+::: {.callout-note}
+## Choosing the right estimator
+
+- [ ] **If ceiling or floor effects are present, have you considered a Tobit regression** that explicitly models censoring at the bounds? Tobit recovers the latent (uncensored) mean difference rather than the observed truncated difference.
+- [ ] **For proportions or bounded continuous data (0–1), have you applied a logit or arc-sine transformation** before computing means and running regressions? These transformations pull the scale toward linearity near the bounds.
+- [ ] **Have you tested whether your treatment effect estimate is sensitive to the scale bounds** by running the analysis on the subset of participants who were not at ceiling on a pre-measure? If the effect vanishes in this restricted sample, truncation is driving the main result.
+- [ ] **If using a Likert scale for a manipulation check**, a non-significant manipulation check could reflect ceiling effects on the MC scale rather than a weak manipulation — check the distribution before concluding the manipulation failed.
+:::
+
+::: {.callout-note}
+## Design-level prevention
+
+- [ ] **Did you pilot-test the scale range for your population?** If participants in a pilot consistently score at the top of a 7-point scale, consider using a wider scale or a continuous slider for the main study.
+- [ ] **Could a relative judgment design avoid the problem entirely?** Asking participants to compare options (conjoint, willingness-to-pay in a choice context) sidesteps absolute scale bounds.
+- [ ] **When reporting group comparisons on bounded scales, have you stated means in both raw scale units and as percentages of the available range?** This helps readers assess proximity to bounds and evaluate the plausibility of further improvement.
+:::
+
+*The central question for this case: Could the group differences I observe on a bounded scale be partially or entirely explained by differential proximity to the ceiling or floor — rather than genuine differences in the underlying construct?*
+
+---

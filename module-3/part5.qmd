@@ -839,7 +839,43 @@ tibble(
 
 ---
 
-## Session Info {.unnumbered}
+## Researcher Checklist: Causal Mediation Analysis {#sec-checklist-part5-m3}
+
+::: {.callout-note}
+## Establishing the mediation structure
+
+- [ ] **Is the temporal ordering established?** Treatment X must precede mediator M, which must precede outcome Y. Cross-sectional designs where all three are measured simultaneously cannot establish mediation — they can only test an association consistent with the hypothesized pathway.
+- [ ] **Is the mediator M a genuine intermediate variable in the causal chain**, or is it a proxy for a latent variable that also affects Y through other channels? A mediator that shares variance with Y through unmeasured pathways (M→Y confounding) violates sequential ignorability.
+- [ ] **Have you drawn the DAG for the full mediation system?** The DAG should show: X → M → Y (the hypothesized path), X → Y (the direct path), and any plausible confounders of M → Y. Confounders of the M → Y path are the most common source of mediation analysis failure.
+- [ ] **Is there a plausible reverse pathway M → X** or **M ← U → Y** that your design cannot rule out? If yes, the indirect effect estimate is biased even under correct model specification.
+:::
+
+::: {.callout-note}
+## Testing the sequential ignorability assumption
+
+- [ ] **Can you argue that there are no unmeasured confounders of the M → Y relationship?** Sequential ignorability requires that, conditional on treatment X and baseline covariates, M is as-good-as-randomly assigned. This is the mediation analog of the exchangeability assumption from Module 2, Part 3 — and just as difficult to verify.
+- [ ] **Did you run Imai's sensitivity analysis** (`mediation::sensitivity()`)? The critical ρ* tells you the magnitude of residual M→Y confounding that would reduce the ACME to zero. Report ρ* alongside the point estimate.
+- [ ] **Is your ρ* large or small?** A large ρ* (e.g., > 0.50) means the mediation result is robust to substantial unmeasured confounding. A small ρ* (e.g., < 0.20) means even a modest confound would explain away the indirect effect — treat the result as fragile and interpret it cautiously.
+- [ ] **Have you measured all plausible confounders of the M → Y path?** These are variables that affect both the mediator level and the outcome independently of the mediator. The more you measure and control for, the more plausible sequential ignorability becomes — and the larger ρ* will be.
+:::
+
+::: {.callout-note}
+## Measurement quality for the mediator
+
+- [ ] **Is your mediator M measured reliably?** Measurement error in M (attenuation bias) will understate the a-path (X → M) coefficient, compressing the indirect effect toward zero even when the true pathway is strong. Apply the correction from Module 1: if the reliability of M is known (Cronbach's α), correct the a-path coefficient by dividing by √α.
+- [ ] **Is the mediator discriminantly valid from the outcome?** If M and Y are measured on overlapping scales that fail discriminant validity testing (Module 1, Case 1), the mediation analysis is picking up measurement contamination — not a genuine causal pathway. Test HTMT(M, Y) before running the mediation.
+- [ ] **Did you run ROBMED** (`robmed` package) alongside the standard mediation model? ROBMED down-weights outliers in the data before estimating the indirect effect. If the ROBMED and standard ACME estimates differ substantially, outliers in the M or Y distribution are distorting the b-path (M → Y) coefficient.
+:::
+
+::: {.callout-note}
+## Reporting and interpretation
+
+- [ ] **Did you report the ACME (indirect effect), the ADE (direct effect), and the total effect** with bootstrap confidence intervals for all three? Reporting only the indirect effect without the direct effect makes it impossible to evaluate whether mediation is partial or full.
+- [ ] **Did you report the proportion mediated** (ACME / total effect)? A large ACME paired with a large ADE indicates partial mediation — the treatment operates through multiple pathways simultaneously. A large ACME with a near-zero ADE indicates full mediation — the treatment's effect is entirely channeled through M.
+- [ ] **Have you distinguished statistical mediation from theoretical mechanism?** Statistical mediation (a significant indirect effect) is consistent with, but does not prove, a causal mechanism. It is also consistent with a common cause of M and Y that was not controlled for. Report the sensitivity analysis to quantify this ambiguity.
+:::
+
+*The central question for this part: Is there a credible causal chain X → M → Y — with M genuinely causing Y rather than merely correlated with Y through an unmeasured common cause — and is the mediator measured reliably enough and discriminantly validly enough to detect this pathway if it exists?*
 
 ```{r session-info}
 sessionInfo()

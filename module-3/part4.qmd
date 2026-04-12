@@ -570,3 +570,34 @@ type1_pt |>
 :::
 
 ---
+
+## Researcher Checklist: Difference-in-Differences {#sec-checklist-part4-m3}
+
+::: {.callout-note}
+## Evaluating the parallel trends assumption
+
+- [ ] **Did you plot pre-treatment trends for treated and control groups** and verify visually that they move together before the treatment? This is the most important diagnostic for DiD.
+- [ ] **Did you run a pre-treatment event study** (including "leads" — placebo lags in the pre-period) to test whether the treated group was already diverging before the treatment? Significant pre-trend coefficients are direct evidence of a parallel trends violation.
+- [ ] **How many pre-treatment periods do you have?** With 1–2 pre-periods, the event study has very low power to detect violations. Be honest about this limitation — a passing pre-trend test with 2 pre-periods provides weak evidence.
+- [ ] **Is the parallel trends assumption theoretically defensible?** Why would treated and control units have followed the same trend absent the treatment? Identify what makes them comparable (similar industry, similar market, similar regulatory environment) and what makes them potentially different (self-selection into treatment).
+- [ ] **Are there contemporaneous events that affected treated but not control units?** Any policy, shock, or trend that hits the treated group during the treatment period — but not the control group — will be absorbed into the DiD coefficient, biasing your estimate. List all plausible confounders and check whether they align with the treatment timing.
+:::
+
+::: {.callout-note}
+## Design and specification
+
+- [ ] **Is there a "clean" control group that was genuinely unaffected by the treatment?** Control units that were indirectly affected by the treatment (e.g., through competitive spillovers) violate the SUTVA (Stable Unit Treatment Value Assumption) — their outcomes were altered by the treatment, making them invalid counterfactuals.
+- [ ] **Is treatment timing staggered (different units treated at different times)?** Staggered DiD with a standard two-way fixed effects model can produce biased estimates when treatment effects are heterogeneous across cohorts. Use Callaway-Sant'Anna (2021) or Sun-Abraham (2021) estimators designed for staggered rollouts.
+- [ ] **Did you include unit and time fixed effects?** Unit FEs remove time-invariant unit characteristics; time FEs remove common time trends. Both are required for a valid DiD estimate.
+- [ ] **Have you run robustness checks with different control groups?** If your estimate depends critically on which units serve as controls, investigate why — it suggests the parallel trends assumption holds for some comparison pairs but not others.
+:::
+
+::: {.callout-note}
+## Sensitivity and reporting
+
+- [ ] **Did you run Rambachan & Roth's HonestDiD sensitivity analysis?** This asks: how large a pre-trend violation would be needed to overturn your conclusion? Report the answer — it gives readers a concrete sense of how robust the result is.
+- [ ] **Did you cluster standard errors at the appropriate level?** Standard errors in DiD should be clustered at the unit level (the level at which treatment was assigned) to account for serial correlation within units over time. Under-clustering produces overconfident inference.
+- [ ] **Have you checked for treatment effect heterogeneity across units and time?** An average DiD estimate can mask large positive effects in some units and near-zero or negative effects in others. Event study coefficients that grow (or shrink) over the post-treatment window suggest dynamic treatment effects that a single coefficient cannot capture.
+:::
+
+*The central question for this part: Is there a credible control group — one that would have followed the same trend as the treated group absent the treatment — and do I have enough pre-treatment data to test this assumption with reasonable power?*

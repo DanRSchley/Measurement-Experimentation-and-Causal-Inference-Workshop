@@ -779,3 +779,33 @@ Every concept in this module is a direct extension of Module 1, applied to the t
 :::
 
 ---
+
+## Researcher Checklist: Experimental Design Strategies {#sec-checklist-part4}
+
+::: {.callout-note}
+## Choosing the right design
+
+- [ ] **How many independent variables does your theory require?** If your theory involves an interaction (e.g., "eco-label effects are stronger for high-income consumers"), a simple A/B design cannot test it — you need at least a 2×2 factorial.
+- [ ] **Can you afford a fully crossed factorial design?** If not, consider a Latin square, which tests all main effects with far fewer conditions — but sacrifices the ability to estimate interactions. Make this trade-off explicitly, not by default.
+- [ ] **Is a between-subjects or within-subjects design more appropriate?** Within-subjects designs are more powerful (they remove between-person variance) but carry carryover and demand characteristic risks. Identify which threat is more severe for your construct.
+- [ ] **How many stimuli are you using per condition?** A single advertisement, brand, or scenario is a single draw from a stimulus space. If you want to generalize beyond that stimulus, use multiple stimuli and treat stimulus as a random effect.
+:::
+
+::: {.callout-note}
+## Stimulus sampling and generalization
+
+- [ ] **Have you thought about which stimulus features are theoretically fixed and which are incidental?** The eco-label's *presence* is theoretically relevant; the specific font, color, and image used are incidental. Your conclusion should generalize beyond the specific stimulus you used.
+- [ ] **Did you use at least 3–5 stimulus exemplars per condition?** Wells & Windschitl (1999) show that single-stimulus studies produce non-replicable results when the effect depends on idiosyncratic features of the stimulus.
+- [ ] **If you used a single stimulus, have you acknowledged the limitation?** A single-stimulus study demonstrates that the effect exists for *that specific stimulus*, not that the effect generalizes to the construct.
+- [ ] **Have you considered a metastudy design** (Simonsohn et al., 2025)? Running several independent mini-experiments with different stimulus exemplars gives direct evidence of effect generalizability across the stimulus space.
+:::
+
+::: {.callout-note}
+## Connection to Module 1 measurement and Module 3 causal inference
+
+- [ ] **Does your design allow you to test the causal mechanism (mediator)?** A design that only shows X → Y cannot distinguish a direct effect from an indirect one. If theory specifies a mechanism M, the design should include measurement of M.
+- [ ] **Are there natural variations in your setting that resemble a quasi-experiment** (a policy change, a threshold, a staggered rollout)? These can provide causal identification without random assignment — covered in Module 3.
+- [ ] **Have you pre-registered the design** including factorial structure, planned comparisons, and the analysis plan? Design registration prevents the degrees of freedom associated with post-hoc re-specification of which interaction or cell comparison to report.
+:::
+
+*The central question for this part: Does my experimental design give me the statistical power to detect the effect I care about, the structural coverage to test the mechanism I theorize, and the stimulus breadth to generalize beyond a single exemplar?*

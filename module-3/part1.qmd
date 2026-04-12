@@ -1046,3 +1046,37 @@ tibble(
 ```
 
 ---
+
+## Researcher Checklist: What Is a Causal Effect? {#sec-checklist-part1}
+
+::: {.callout-note}
+## Defining the causal question precisely
+
+- [ ] **What is the unit of analysis, and what is the treatment?** A causal effect is always defined for a specific treatment applied to a specific unit. Vague treatments ("exposure to sustainable marketing") produce vague causal claims.
+- [ ] **What is the counterfactual?** For each unit, what would Y have been under the alternative treatment? The fundamental problem of causal inference is that you can only observe one potential outcome per unit. What assumption are you making about the unobserved potential outcome?
+- [ ] **Which estimand are you targeting: ATE, ATT, ATC, LATE, ITT, or CATE?**
+  - *ATE*: Average effect across all units — requires strong overlap (common support)
+  - *ATT*: Average effect for the treated — appropriate when you care about the self-selected group
+  - *LATE*: Local average effect for compliers at a threshold — what RDD estimates
+  - *ITT*: Intent-to-treat effect for assigned units — appropriate when compliance is imperfect
+  - The right estimand depends on the policy question, not on which estimand is easiest to identify.
+- [ ] **Have you drawn the causal DAG for your setting?** The DAG determines which variables are confounders (must be conditioned on), colliders (must not be conditioned on), and mediators (conditioned on or not depending on whether you want total or direct effects).
+:::
+
+::: {.callout-note}
+## Ruling out alternative causal structures
+
+- [ ] **What tools do you have to rule out reverse causality** (Y → X rather than X → Y)? Temporal ordering, randomization, and instrumental variables are the three main sources of evidence.
+- [ ] **What tools do you have to rule out confounding** (a third variable Z → X and Z → Y)? If the association between X and Y persists after conditioning on all common causes in your DAG, confounding is eliminated.
+- [ ] **What tools do you have to rule out spurious correlation** (X and Y correlated only through a common cause, no direct effect)? Zero partial correlations after conditioning on the confounder would rule this out.
+- [ ] **Is there any combination of methodological evidence** (randomization + prior literature + correlational pattern + theory) that rules out enough alternative structures to support a causal claim? Causal inference is a deductive process of elimination — each piece of evidence narrows the possibility space.
+:::
+
+::: {.callout-note}
+## Heterogeneity and generalization
+
+- [ ] **Is the treatment effect likely to be homogeneous or heterogeneous across units?** If heterogeneous, a single average estimand (ATE or ATT) may be misleading — report CATE by theoretically meaningful subgroups.
+- [ ] **Does your estimand match the practical question you want to answer?** An ATT tells you the average effect on people who actually received (or sought out) the treatment — this may be the most policy-relevant estimand if you are evaluating a program that already exists, but the wrong one if you are planning to extend the program to non-seekers.
+:::
+
+*The central question for this part: Have I specified my causal question precisely enough to identify the right estimand, map the right DAG, and choose the method that recovers the causal effect I actually need?*

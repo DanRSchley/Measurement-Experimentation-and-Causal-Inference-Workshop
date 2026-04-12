@@ -35,7 +35,7 @@ set.seed(2025)
 ::: {.callout-warning}
 ## The central message of Part 3
 
-**Never assume that random assignment has achieved actual randomization.** Random assignment is a *procedure* — clicking "Randomize" in Qualtrics, running `sample()` in R. Actual randomization is a *property* — treatment is orthogonal to all potential confounders in the data-generating process. The procedure does not guarantee the property. Whether it does depends on (1) how complex your outcome variable Y is and (2) how many participants you have. This section develops the gap between the two and equips you to evaluate — not assume — whether randomization succeeded.
+**Never assume that random assignment has achieved actual randomization.** Random assignment is a *procedure* — clicking "Randomize" in Qualtrics, running `sample()` in R. What that procedure is supposed to deliver is **exchangeability** — the latent property that treatment and control groups are interchangeable with respect to every potential cause of Y, so that any difference in outcomes can be attributed solely to the treatment. The procedure does not guarantee the property. Whether it does depends on (1) how complex your outcome variable Y is and (2) how many participants you have. This section develops the gap between the two and equips you to evaluate — not assume — whether exchangeability was achieved.
 :::
 
 ## The Measurement Analogy: Observable vs. Latent
@@ -54,18 +54,18 @@ The observable is what you can see. The latent construct is what you actually wa
 | | In Randomization |
 |---|---|
 | **Observable (indicator)** | Pressing "Randomize" in Qualtrics, running `sample()` in R, using a random number table |
-| **Latent construct** | The property of *true independence*: treatment assignment is orthogonal to ALL potential confounders |
+| **Latent construct** | **Exchangeability** — the property that treatment and control groups are interchangeable with respect to all potential causes of Y; no systematic pre-existing difference remains between conditions |
 
-Just as a 7-point scale can *look* like it measures Green Purchase Intention while actually reflecting Environmental Concern, a randomization *procedure* can look random (you clicked the button — the observable is there) while failing to achieve true independence (the latent property).
+Just as a 7-point scale can *look* like it measures Green Purchase Intention while actually reflecting Environmental Concern, a randomization *procedure* can look random (you clicked the button — the observable is there) while failing to achieve **exchangeability** — the latent property that the groups truly have no pre-existing differences on anything that affects Y.
 
 ::: {.callout-important}
 ## The construct validity question for randomization
 
 Ask yourself the question from Module 1, applied to your treatment variable:
 
-> **"Does your observable act of randomization have construct validity as an indicator of latent randomization?"**
+> **"Does your observable act of randomization have construct validity as an indicator of latent exchangeability?"**
 
-The answer depends entirely on **how complex the outcome variable Y is that you are trying to study.** We will now build the intuition for why.
+Exchangeability is not checked by confirming that a randomization algorithm was run — it must be *verified empirically*. Its validity depends entirely on **how complex the outcome variable Y is** and how many participants you have. We will now build the intuition for why.
 :::
 
 ## A Concrete Anchor: The Playing Cards Analogy
@@ -154,16 +154,20 @@ The analogy to experiments maps directly:
 
 **The key takeaway:** just as a larger deck needs more shuffles to achieve randomness, a more complex outcome variable Y needs more observations to achieve true independence between treatment and all potential confounders.
 
-## The Exchangeability Assumption: When It Holds and When It Doesn't
+## Exchangeability: The Latent Property Random Assignment Is Supposed to Deliver
 
-The permutation logic in Part 1 rested on **exchangeability**: the assignment of participants to conditions could have been any other permutation without changing the distributional properties of the data.
+The permutation logic in Part 1 rested on **exchangeability**: if treatment had no effect, we could have assigned any participant to either condition without changing what we would observe. In formal terms, exchangeability means:
 
-Exchangeability holds when treatment assignment is truly independent of all potential causes of Y. In practice, researchers **assume** this is achieved by the act of randomization — but you should **never** make this assumption without empirical verification. Consider the gap:
+$$Y^{(0)}, Y^{(1)} \perp\!\!\!\perp T$$
+
+That is, potential outcomes (what Y would be under control, what Y would be under treatment) are independent of which condition a participant actually received. This is the statistical expression of "the groups have no pre-existing differences that matter."
+
+Exchangeability holds when treatment assignment is truly independent of all potential causes of Y. In practice, researchers **assume** this is achieved by the act of randomization — but you should **never** make this assumption without empirical verification. The gap between the observable and the latent is stark:
 
 - **What the researcher observes:** Qualtrics assigned participants to conditions using a random number generator. ✓
-- **What the researcher needs (latent):** Treatment assignment is uncorrelated with *all* potential causal antecedents of Y — every dimension, every subdimension, every latent mediator in the entire data-generating process. ?
+- **What the researcher needs (latent):** Exchangeability — treatment assignment is uncorrelated with *all* potential causal antecedents of Y — every dimension, every subdimension, every latent moderator in the entire data-generating process. ?
 
-Whether the observable achieves the latent property depends on two things:
+Whether the randomization procedure achieves the exchangeability property depends on two things:
 1. How many antecedents Y has (the complexity of the construct)
 2. How many participants you have (the sample size)
 
@@ -379,6 +383,47 @@ In the coffee WTP context (SD ≈ $1.50):
 - r = 0.20 with β = 0.8 SD: bias ≈ 0.16 SD ≈ **$0.24** — now as large as a small true effect
 - r = 0.40 with β = 1.0 SD → bias ≈ 0.40 SD ≈ **$0.60** — larger than many published effects
 - r = 0.60 with β = 1.0 SD → bias ≈ 0.60 SD ≈ **$0.90** — could reverse the sign of your treatment estimate entirely
+
+### A Violation of Exchangeability Is Omitted Variable Bias
+
+Before turning to sample size requirements, it is worth being precise about what a violation of exchangeability actually is — because the answer connects directly to **Module 1, Case 2** on omitted variable bias.
+
+Recall the OVB formula. When a variable C is omitted from a regression, the estimated effect of treatment T is:
+
+$$\hat{\beta}_T = \beta_T + \underbrace{\beta_C \cdot r_{T,C}}_{\text{omitted variable bias}}$$
+
+where $\beta_C$ is C's true effect on Y and $r_{T,C}$ is the correlation between T and C. In a well-designed experiment, randomization drives $r_{T,C} \approx 0$ for every confounder C — making the OVB term vanish by construction. When exchangeability fails — when treatment assignment becomes accidentally correlated with some confounder — $r_{T,C} \neq 0$, and OVB enters the experimental estimate through exactly the same channel as in observational research.
+
+**A concrete example.** Suppose your eco-label WTP study recruited participants through an environmental forum, creating a systematic imbalance on environmental values:
+
+| Group | High env. values (%) | Baseline WTP |
+|---|---|---|
+| Control (N = 95) | 38% | $4.20 |
+| Eco-label (N = 105) | 61% | — |
+
+This imbalance corresponds to r(T, env\_values) ≈ 0.23. Environmental values have a direct positive effect on WTP of β ≈ 0.8 SD (≈ $1.20) even without any eco-label stimulus present.
+
+**What you observe:** Eco-label group mean WTP = $5.50, control mean = $4.20. **Observed difference = $1.30.**
+
+**The bias:** $\beta_C \cdot r_{T,C} = 1.20 \times 0.23 \approx \$0.28$.
+
+**True eco-label effect:** $1.30 − $0.28 = **$1.02** — your estimate is inflated by roughly 27%.
+
+The groups are no longer exchangeable. You are not comparing "eco-label vs. no eco-label" — you are comparing "eco-label + environmentally minded participants" against "no eco-label + less environmentally minded participants." The imbalance on environmental values correlates with WTP *independently* of the eco-label, injecting bias into what was supposed to be a clean experimental estimate.
+
+::: {.callout-tip}
+## Reading the direction of bias from the balance table
+
+Because the bias formula is $\beta_C \cdot r_{T,C}$, you can reason about direction and magnitude for any confounder you measured:
+
+- **Treated group has more of a positive confounder** (r > 0, β > 0): bias **inflates** the treatment estimate — your effect looks larger than it is
+- **Treated group has less of a positive confounder** (r < 0, β > 0): bias **deflates** the estimate — your effect looks smaller than it is
+- **Confounder has a negative effect on Y** (β < 0): these directions flip
+
+For confounders you did *not* measure, the direction is unknown — which is why preventing imbalance through design (blocked randomization, large N) is always preferable to correcting for it post hoc.
+:::
+
+This connection is not incidental. It is the reason why the entire framework for evaluating randomization in this section is built around $r_{\max}$: that tolerance parameter *is* the limit you are placing on permissible OVB. A looser $r_{\max}$ allows more OVB to enter through treatment-covariate correlations; a stricter one requires more observations to achieve.
 
 ### Required N for Approximate Orthogonality
 
@@ -1066,5 +1111,41 @@ As we developed in detail in Section 2.5 (*What's in X? What's in Y?*), open-end
 **The key insight from Section 2.5 bears repeating here:** without the complete mediator list, the treatment coefficient in a regression is an uninterpretable mixture of all active pathways. With the list, you gain a structural identification strategy: decompose the total treatment effect into its component channels using the measured mediators.
 
 The complete structural modeling demonstration — quantitative mediator scoring, parallel mediation, SEM with latent factors, and DGP recovery comparison — is developed step by step in **Section 2.5** above, where it serves as the practical illustration of how to handle exclusion restriction violations once the nomological net has been mapped.
+
+---
+
+## Researcher Checklist: Random Assignment and Exchangeability {#sec-checklist-part3}
+
+::: {.callout-note}
+## Before you collect data — design phase
+
+- [ ] **How complex is your outcome Y?** Estimate D — the number of meaningful antecedents of Y. More dimensions = harder to randomize cleanly = larger N required.
+- [ ] **What effective $r_{\max}$ does your planned N deliver?** Use the formula $N \approx (z_{1-\alpha/2D} / r_{\max})^2$ or the table in Section 3.4. Know the implied tolerance before running the study, not after.
+- [ ] **Have you pre-mapped the construct?** Use Module 1's toolkit (CFA, discriminant validity checks, pilot text analysis) to enumerate the sub-dimensions of Y. Every identified dimension is a covariate you can block on or check balance for.
+- [ ] **Did you plan blocked (stratified) randomization on key antecedents of Y?** Blocking on pre-measured characteristics guarantees balance on those dimensions regardless of N.
+- [ ] **Is your recruitment strategy introducing systematic selection?** Forum-based, convenience, or opt-in samples can produce treatment-correlated samples before a single randomization is run. Consider whether your recruitment channel correlates with antecedents of Y.
+:::
+
+::: {.callout-note}
+## After you collect data — verification phase
+
+- [ ] **Did you run a balance table** reporting mean (or proportion) of every measured covariate by condition, with a significance test for each?
+- [ ] **Did you produce a Love plot** with standardized mean differences (|SMD| < 0.10 is the conventional threshold)?
+- [ ] **Did you run an omnibus randomization test** (logistic regression predicting treatment from all covariates)? A significant LRT or R² > 0.05 is a red flag.
+- [ ] **Do any imbalanced covariates predict Y?** If a covariate is both imbalanced (r > 0.10) and a meaningful predictor of Y (β > 0.3 SD), estimate the implied OVB using $\beta_C \cdot r_{T,C}$ and assess whether it materially changes your conclusions.
+- [ ] **Are your balance checks confined to observable covariates?** Explicitly acknowledge the limitation: unmeasured antecedents of Y cannot be verified. State which dimensions remain unverified and why you believe they are not correlated with assignment.
+- [ ] **Is your experiment operating at the intended $r_{\max}$?** If not (e.g., a balance check flags imbalance), acknowledge that your exchangeability assumption is violated on that dimension and that your estimated treatment effect carries OVB of at least $\beta_C \cdot r_{T,C}$.
+:::
+
+::: {.callout-note}
+## Interpreting results — reporting phase
+
+- [ ] **Have you reported the balance table in the paper?** This is not optional. A claim of causal identification requires showing that exchangeability was achieved (or naming the residual threat if it wasn't).
+- [ ] **Does your effective $r_{\max}$ match the complexity of Y?** A broad attitude construct requires a stricter $r_{\max}$ (lower tolerance) because individual confounders each have larger β effects — verify that your sample size was adequate for the construct, not just for the treatment effect.
+- [ ] **Did your study achieve exchangeability on the dimensions that matter most** (those with the largest β on Y)? Even if most balance tests pass, failure on a high-β dimension is the most dangerous case.
+- [ ] **If exchangeability is only partial, have you considered ANCOVA adjustment?** Including imbalanced covariates as controls in the outcome model recovers the OVB-corrected estimate — but only for the covariates you measured.
+:::
+
+*The central diagnostic question for this section: Exchangeability is the latent construct; randomization is just the observable. Is there enough evidence — from your balance checks, your sample size, and your construct mapping — to conclude that the observable validly reflects the latent property for your specific outcome Y?*
 
 ---

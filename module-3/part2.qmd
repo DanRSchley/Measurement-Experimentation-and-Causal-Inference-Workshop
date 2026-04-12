@@ -1080,3 +1080,33 @@ bind_rows(synth_ts, treated_ts) |>
 ```
 
 ---
+
+## Researcher Checklist: Selection on Observables — PSM, IPW, and Matching {#sec-checklist-part2-m3}
+
+::: {.callout-note}
+## Justifying the identifying assumption
+
+- [ ] **Can you make a credible theoretical argument for conditional independence?** The core assumption — that treatment is as-good-as-random conditional on your observed covariates — is not testable in general. You must argue *theoretically* that you have measured all the relevant confounders. List them explicitly.
+- [ ] **Are there important confounders you could not measure?** Acknowledge them by name and reason about the likely direction of the residual bias using the OVB formula from Module 1, Case 2: Bias = β_C × r(T, C).
+- [ ] **Did you include only pre-treatment covariates in the PS model?** Post-treatment variables (mediators, outcome proxies) should never be in the PS model — conditioning on them opens collider bias and blocks the causal pathway you want to estimate.
+- [ ] **Does your sample have sufficient common support?** Overlap requires that for every value of covariates in the treated group, there are comparable control units. Check the PS distribution by treatment status — units with PS near 0 or 1 are in regions of poor overlap and should be flagged or trimmed.
+:::
+
+::: {.callout-note}
+## PS model specification
+
+- [ ] **Is the PS model correctly specified?** The DGP determines which covariates and interactions belong in the PS model. Including irrelevant predictors dilutes the PS estimate; omitting relevant predictors introduces bias. Use prior theory and simulation (if possible) to guide specification.
+- [ ] **Did you check covariate balance *after* matching?** A Love plot with standardized mean differences (|SMD| < 0.10 for all covariates) is the standard diagnostic. Matching achieves balance on the PS, but it may not achieve balance on individual covariates — check both.
+- [ ] **Did you assess sensitivity to the choice of matching method?** Compare 1:1 NN matching, 1:k matching, with- and without-replacement, and subclassification. If the ATT estimate is stable across these choices, the result is robust to matching design. If it swings wildly, investigate why.
+- [ ] **Are you targeting the right estimand?** NN matching without replacement naturally estimates ATT (because all treated units are kept). Subclassification and IPW can target ATE. Be explicit about which you want.
+:::
+
+::: {.callout-note}
+## Sensitivity and robustness
+
+- [ ] **Have you considered Rosenbaum bounds** to assess sensitivity to unmeasured confounding? The bounds ask: how large would the treatment-assignment odds ratio need to be for an unmeasured confounder to explain away your result?
+- [ ] **Did you report doubly-robust estimates alongside matching estimates?** DR estimation (combining outcome regression + IPW) is consistent if *either* the PS model or the outcome model is correctly specified — providing extra protection against one type of misspecification.
+- [ ] **Is the exclusion restriction satisfied for any selection model (Heckman)?** An exclusion restriction instrument must predict selection into treatment but have no direct effect on the outcome. Weak instruments produce near-collinear selection and outcome equations that give highly unstable estimates.
+:::
+
+*The central question for this part: Have I measured all the confounders that drive both selection into treatment and the outcome — and is there enough overlap in the PS distribution that treated and control units can be meaningfully compared?*

@@ -434,3 +434,32 @@ LOF + DBSCAN and robust regression are practical entry points. The broader toolk
 
 
 ---
+
+## Researcher Checklist: Outlier Detection and Robust Estimation {#sec-checklist-case5}
+
+::: {.callout-note}
+## Identifying outliers
+
+- [ ] **Did you check for multivariate outliers** (LOF, Mahalanobis distance), not just univariate extremes? An observation can be perfectly normal on any one variable while being highly unusual in the joint distribution.
+- [ ] **Is the LOF score meaningfully elevated (> 2)?** LOF scores just above 1.0 indicate typical observations. Scores > 2 suggest moderate isolation; scores > 3 suggest severe isolation. Use the score as a continuous measure of outlierness rather than a binary flag.
+- [ ] **Did you visualize the outliers in feature space** to understand *why* they are unusual? A scatter plot overlaid with LOF scores often reveals a interpretable cluster of unusual observations.
+- [ ] **Are the outliers concentrated in a specific subgroup** (high-purchase-frequency consumers, a particular market, a specific day/session)? Clustered outliers are often a distinct population (see Case 4), not noise.
+:::
+
+::: {.callout-note}
+## Distinguishing noise from signal
+
+- [ ] **Can you provide a substantive explanation for each major outlier?** Observations with a clear data quality reason (survey response time < 30 seconds, duplicate IP address, nonsense open-ended response) warrant removal with documentation. Substantively extreme observations (genuinely very high WTP, extreme green values) should be retained and analyzed with robust methods.
+- [ ] **Did you run the analysis both with and without the flagged outliers?** Report both. If the conclusions differ materially, the outliers are doing analytical work and the reader needs to know.
+- [ ] **Did you run robust regression (MASS::rlm) alongside OLS?** If the robust and OLS coefficients agree closely, outliers are not driving your estimates. If they diverge substantially, OLS is compromised.
+:::
+
+::: {.callout-note}
+## Reporting and sensitivity
+
+- [ ] **Did you report your outlier detection procedure and decision rule** transparently? Opaque deletion practices ("we removed 3 outliers") without stating the rule raise replicability concerns.
+- [ ] **If you removed outliers, did you report what the results look like with them included?** Reviewers will ask; pre-empt the question.
+- [ ] **Are your standard errors appropriate for the remaining data?** Even after outlier removal, if heteroskedasticity remains (fan-shaped residuals), use sandwich/HC standard errors or cluster robust SEs.
+:::
+
+*The central question for this case: Are my outliers measurement artifacts to be corrected, genuine extreme members of my target population to be retained, or a distinct population whose theoretical interpretation differs from the main sample?*
