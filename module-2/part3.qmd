@@ -1114,38 +1114,15 @@ The complete structural modeling demonstration — quantitative mediator scoring
 
 ---
 
-## Researcher Checklist: Random Assignment and Exchangeability {#sec-checklist-part3}
+## Researcher Checklist: Exchangeability {#sec-checklist-part3}
 
 ::: {.callout-note}
-## Before you collect data — design phase
+## Key questions about your randomization
 
-- [ ] **How complex is your outcome Y?** Estimate D — the number of meaningful antecedents of Y. More dimensions = harder to randomize cleanly = larger N required.
-- [ ] **What effective $r_{\max}$ does your planned N deliver?** Use the formula $N \approx (z_{1-\alpha/2D} / r_{\max})^2$ or the table in Section 3.4. Know the implied tolerance before running the study, not after.
-- [ ] **Have you pre-mapped the construct?** Use Module 1's toolkit (CFA, discriminant validity checks, pilot text analysis) to enumerate the sub-dimensions of Y. Every identified dimension is a covariate you can block on or check balance for.
-- [ ] **Did you plan blocked (stratified) randomization on key antecedents of Y?** Blocking on pre-measured characteristics guarantees balance on those dimensions regardless of N.
-- [ ] **Is your recruitment strategy introducing systematic selection?** Forum-based, convenience, or opt-in samples can produce treatment-correlated samples before a single randomization is run. Consider whether your recruitment channel correlates with antecedents of Y.
+- [ ] **Did you verify exchangeability empirically, not just procedurally?** Running a randomization algorithm is the observable. Exchangeability — no pre-existing group differences on any cause of Y — is the latent property you need. Report a balance table; don't just assert that you randomized.
+- [ ] **What is the effective $r_{\max}$ your sample size delivers?** With N = 80 and D = 10 antecedents of Y, you are operating at r_max ≈ 0.31. Any confounder with β > 0.5 SD on Y can inject 0.15 SD of OVB — check whether that is acceptable.
+- [ ] **Do any imbalanced covariates predict Y?** Imbalance is only dangerous when the imbalanced variable also affects the outcome. Estimate the implied OVB: $\hat{\text{bias}} = \hat{\beta}_C \cdot r_{T,C}$.
+- [ ] **Is your Y narrow or broad?** Broader constructs have more antecedents and require larger samples or blocked randomization to achieve exchangeability. A power calculation based on effect size alone does not account for this.
 :::
-
-::: {.callout-note}
-## After you collect data — verification phase
-
-- [ ] **Did you run a balance table** reporting mean (or proportion) of every measured covariate by condition, with a significance test for each?
-- [ ] **Did you produce a Love plot** with standardized mean differences (|SMD| < 0.10 is the conventional threshold)?
-- [ ] **Did you run an omnibus randomization test** (logistic regression predicting treatment from all covariates)? A significant LRT or R² > 0.05 is a red flag.
-- [ ] **Do any imbalanced covariates predict Y?** If a covariate is both imbalanced (r > 0.10) and a meaningful predictor of Y (β > 0.3 SD), estimate the implied OVB using $\beta_C \cdot r_{T,C}$ and assess whether it materially changes your conclusions.
-- [ ] **Are your balance checks confined to observable covariates?** Explicitly acknowledge the limitation: unmeasured antecedents of Y cannot be verified. State which dimensions remain unverified and why you believe they are not correlated with assignment.
-- [ ] **Is your experiment operating at the intended $r_{\max}$?** If not (e.g., a balance check flags imbalance), acknowledge that your exchangeability assumption is violated on that dimension and that your estimated treatment effect carries OVB of at least $\beta_C \cdot r_{T,C}$.
-:::
-
-::: {.callout-note}
-## Interpreting results — reporting phase
-
-- [ ] **Have you reported the balance table in the paper?** This is not optional. A claim of causal identification requires showing that exchangeability was achieved (or naming the residual threat if it wasn't).
-- [ ] **Does your effective $r_{\max}$ match the complexity of Y?** A broad attitude construct requires a stricter $r_{\max}$ (lower tolerance) because individual confounders each have larger β effects — verify that your sample size was adequate for the construct, not just for the treatment effect.
-- [ ] **Did your study achieve exchangeability on the dimensions that matter most** (those with the largest β on Y)? Even if most balance tests pass, failure on a high-β dimension is the most dangerous case.
-- [ ] **If exchangeability is only partial, have you considered ANCOVA adjustment?** Including imbalanced covariates as controls in the outcome model recovers the OVB-corrected estimate — but only for the covariates you measured.
-:::
-
-*The central diagnostic question for this section: Exchangeability is the latent construct; randomization is just the observable. Is there enough evidence — from your balance checks, your sample size, and your construct mapping — to conclude that the observable validly reflects the latent property for your specific outcome Y?*
 
 ---

@@ -1352,33 +1352,13 @@ A high Cronbach's alpha confirms your items are consistently measuring *somethin
 
 ---
 
-## Researcher Checklist: Convergent and Discriminant Validity {#sec-checklist-case1}
+## Researcher Checklist: Discriminant Validity {#sec-checklist-case1}
 
 ::: {.callout-note}
-## Factor structure and convergent validity
+## Key questions before using your scales
 
-- [ ] **Did you run a parallel analysis or scree plot** to determine the number of factors to retain, rather than defaulting to eigenvalue > 1?
-- [ ] **Do all items load primarily on their intended factor** (standardized loading ≥ 0.70) and weakly on all other factors (cross-loading < 0.30)?
-- [ ] **Is the factor correlation (φ) between any two constructs below 0.85?** A correlation above this threshold is a strong signal of discriminant validity failure.
-- [ ] **Is HTMT below 0.85 for all construct pairs** (strict criterion)? Below 0.90 at minimum (lenient criterion)?
-- [ ] **Does HTMT exceed any factor correlation?** If so, that pair warrants closer scrutiny — the HTMT corrects for attenuation while the factor correlation does not.
-- [ ] **If using CFA, do fit indices meet conventional thresholds?** CFI/TLI ≥ 0.95, RMSEA ≤ 0.06, SRMR ≤ 0.08.
+- [ ] **Does each measured scale correspond to a single latent dimension?** Items should load strongly on one factor and weakly on all others (cross-loadings < 0.30).
+- [ ] **Do you have evidence that your constructs are empirically distinct?** HTMT < 0.85 for all construct pairs is the standard threshold. A high Cronbach's alpha does not answer this question.
+- [ ] **If HTMT is high, is the problem in the items or in the theory?** High cross-loadings mean the items are contaminated; a high factor correlation may mean the constructs are theoretically redundant.
+- [ ] **Will discriminant validity failure bias your downstream analysis?** Two discriminantly-invalid predictors in the same regression produce unstable coefficients. A mediator that overlaps with the outcome inflates indirect effects.
 :::
-
-::: {.callout-note}
-## Diagnosing failure
-
-- [ ] **If discriminant validity fails, is it contamination or overlap?** Contamination means one scale picks up genuine variance from the adjacent construct (fix: remove offending items). Overlap means the constructs are theoretically redundant (fix: reconsider the theoretical distinction).
-- [ ] **Which items have the highest cross-loadings?** These are the measurement problem — they capture multiple constructs simultaneously. Consider removing or rewording them.
-- [ ] **Does the failure worsen in a specific sample subgroup?** (e.g., participants high in social desirability, or from cultures with different response styles). This would suggest a measurement invariance problem (see Case 3) rather than pure discriminant validity failure.
-:::
-
-::: {.callout-note}
-## Consequences for downstream analysis
-
-- [ ] **If you include two discriminantly-invalid scales in the same regression,** are you aware that their coefficients will be highly unstable due to near-collinearity? Consider creating a difference score, running separate regressions, or using SEM with correlated factors.
-- [ ] **If a scale is used as a mediator**, discriminant invalidity between the mediator and outcome (or between the mediator and treatment) can artifactually inflate or suppress the indirect effect. This is the measurement analog of the M→Y confounding problem in Module 3 mediation analysis.
-- [ ] **Have you reported HTMT values in your paper?** This is now expected by top journals. Reporting alpha alone is insufficient evidence of construct validity.
-:::
-
-*The central question for this case: Is each construct I am measuring genuinely distinct from the other constructs I am measuring — or am I treating one construct as two, or two constructs as one?*

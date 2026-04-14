@@ -432,31 +432,12 @@ The configural → metric → scalar sequence using lavaan is the standard appro
 ## Researcher Checklist: Measurement Invariance {#sec-checklist-case3}
 
 ::: {.callout-note}
-## Testing the sequence
+## Key questions before comparing groups
 
-- [ ] **Did you test configural invariance first** (same factor structure across groups)? If configural invariance fails, the construct is being measured as a fundamentally different thing in the two groups — no further comparison is meaningful.
-- [ ] **Did metric invariance hold** (same factor loadings)? If not, the unit of the latent scale differs across groups — differences in factor variances or covariances cannot be compared.
-- [ ] **Did scalar invariance hold** (same item intercepts)? If not, items have shifted baselines across groups — comparisons of latent means are invalid without further investigation.
-- [ ] **Which specific items drove the non-invariance?** Use modification indices and expected parameter change (EPC) statistics to identify the problem items. Are they conceptually interpretable as items that might shift in meaning across groups?
-- [ ] **Is partial scalar invariance sufficient for your research question?** If at least two items per factor are invariant, you can free the non-invariant intercepts and still compare latent means — but you must acknowledge the caveat.
+- [ ] **Does your scale measure the same construct in the same way across all groups you compare?** Any cross-group comparison of means assumes scalar invariance — equal loadings and equal item intercepts.
+- [ ] **Did you test the full invariance sequence?** Configural → metric → scalar. Skipping directly to scalar is methodologically incomplete and may hide loading-level problems.
+- [ ] **If scalar invariance fails, which items are the problem?** Non-invariant intercepts mean those items have a systematic baseline shift across groups — the comparison absorbs that shift as if it were a construct difference.
+- [ ] **Could the treatment itself have caused non-invariance?** An intervention that changes how participants interpret items will inflate treatment effects through intercept shifts, not just through genuine construct change.
 :::
-
-::: {.callout-note}
-## Interpreting non-invariance
-
-- [ ] **Is the non-invariance at the loading level (metric) or intercept level (scalar)?** Loading non-invariance means the construct is differently *weighted* across groups. Intercept non-invariance means items have a systematic baseline shift — often response style (acquiescence, social desirability) rather than genuine construct differences.
-- [ ] **Does the non-invariant item describe something that could plausibly shift in meaning across cultures, age groups, or experimental conditions?** If yes, the non-invariance may reflect genuine conceptual variance — consider revising the item or theoretical framework. If no, it may reflect response artefact.
-- [ ] **If you are studying a treatment effect on a scale, did you check whether the treatment itself caused the non-invariance?** An intervention that changes how participants interpret scale items — not just their construct level — will inflate apparent treatment effects via intercept shifts.
-:::
-
-::: {.callout-note}
-## Consequences for comparisons
-
-- [ ] **Are you comparing latent means or observed means?** Observed mean comparisons are valid only under full scalar invariance. Latent mean comparisons under partial invariance require freeing non-invariant intercepts in the CFA.
-- [ ] **Are your comparison groups defined by the experiment or by a demographic?** Experimental groups may show non-invariance because the treatment shifts item interpretation — this is a manipulation check problem as much as a measurement problem.
-- [ ] **Have you reported the invariance test sequence and results in your paper?** Simply stating that a scale was used across groups without invariance evidence is methodologically incomplete for any publication making between-group comparisons.
-:::
-
-*The central question for this case: When I compare scale scores across groups, am I sure I am comparing the same construct — or could the scale be measuring slightly different things in each group?*
 
 ---

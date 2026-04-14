@@ -562,34 +562,15 @@ Gaussian mixture models (mclust) are the continuous-variable analogue of latent 
 
 ---
 
-## Researcher Checklist: Latent Subgroups and Hidden Heterogeneity {#sec-checklist-case4}
+## Researcher Checklist: Latent Subgroups {#sec-checklist-case4}
 
 ::: {.callout-note}
-## Detecting subgroups
+## Key questions before pooling your sample
 
-- [ ] **Does the distribution of your key outcome variable show multimodality, unusual kurtosis, or heavy tails?** These are the simplest signals of latent class structure. A unimodal, roughly normal distribution is reassuring; bimodal or flat distributions warrant investigation.
-- [ ] **Did you plot the relationship between your predictor X and outcome Y at the individual level?** If the scatter shows two distinct clouds — one with a positive slope and one with a flat or negative slope — that is a textbook signal of latent heterogeneity.
-- [ ] **Did you test multiple numbers of latent classes** (K = 1, 2, 3, 4) and compare BIC? The best-fitting K with BIC is the most defensible choice; also check entropy (classification certainty) and class size (classes with fewer than 5% of observations are often statistical artifacts).
-- [ ] **Do the latent class profiles make theoretical sense?** A statistically significant latent class should have a coherent substantive interpretation — what kind of person or unit does each class represent?
+- [ ] **Is your sample actually a single population?** Bimodal distributions, scatterplots with two distinct clouds, or an effect that vanishes in a within-group analysis are all signals that you are pooling distinct types.
+- [ ] **Does your main effect replicate within subgroups?** If the relationship between X and Y disappears or reverses when you condition on a third variable, you have a Simpson's Paradox — the aggregate association is not the causal one.
+- [ ] **Do the latent classes you find make theoretical sense?** A statistically-identified class is only useful if you can say what kind of person or unit it represents and why they behave differently.
+- [ ] **In an experiment:** are treatment effects heterogeneous across subgroups? A null average effect can hide large positive effects for one class and large negative effects for another.
 :::
-
-::: {.callout-note}
-## Checking for Simpson's Paradox
-
-- [ ] **Does your main effect replicate within each latent class?** The defining diagnostic for Simpson's Paradox is that the aggregate relationship between X and Y reverses or disappears when you condition on a third variable (here, class membership).
-- [ ] **If you found a positive aggregate correlation but weak within-class correlations**, ask what the classes are correlated with. If class membership predicts both X and Y, it is a confounder — and the aggregate association is spurious.
-- [ ] **Is the direction of the within-class relationship theoretically consistent** with your causal theory? A within-class analysis that reverses the aggregate correlation demands a theoretical explanation, not just a statistical one.
-- [ ] **In an experimental context**: check whether treatment effect sizes are heterogeneous across classes. A non-significant average treatment effect can mask large positive effects for one class and large negative effects for another.
-:::
-
-::: {.callout-note}
-## Consequences and reporting
-
-- [ ] **If latent subgroups exist, which analysis level is theoretically meaningful?** Aggregate, within-class, or both? Reporting only the aggregate when subgroups exist is misleading if the subgroup structure is theoretically interpretable.
-- [ ] **Did you check whether your latent classes correspond to known theoretical segments** (e.g., price-sensitive vs. values-driven consumers)? If they do, consider replacing the unsupervised GMM with a theoretically motivated moderated regression using the known segmentation variable.
-- [ ] **Are your classes stable across different N, random seeds, and slightly different model specifications?** Fragile class solutions (BIC differences < 2, very small classes) should be treated as exploratory rather than confirmatory.
-:::
-
-*The central question for this case: Is my sample a single population for which one model applies — or a mixture of distinct populations whose different behaviors are obscured when analyzed together?*
 
 ---

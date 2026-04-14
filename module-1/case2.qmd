@@ -274,29 +274,10 @@ Several of the methods below are covered in depth in **Module 3: Causal Inferenc
 ## Researcher Checklist: Omitted Variable Bias {#sec-checklist-case2}
 
 ::: {.callout-note}
-## Before running your regression
+## Key questions before interpreting your regression
 
-- [ ] **Have you enumerated the plausible omitted variables?** For each predictor X, list every variable that (a) affects Y and (b) is correlated with X. These are the OVB threats. The OVB formula tells you: Bias = β_omitted × r(X, omitted).
-- [ ] **What sign and magnitude does each OVB threat carry?** If you know the sign of both the omitted variable's effect on Y and its correlation with X, you can predict the direction of the bias — and often reason about whether your estimate is inflated or deflated.
-- [ ] **Have you measured all the major confounders you can?** Every observed confounder you include in the regression eliminates its OVB contribution. The residual threat is only from the confounders you could not or did not measure.
-- [ ] **Is there a theoretical "third variable" that explains the correlation between X and Y without X causing Y?** If yes, that variable must be in the model or identified as an acknowledged limitation.
+- [ ] **Can you name the most plausible omitted variable in your regression?** For each predictor, identify what variable (a) affects Y and (b) correlates with X. That is your primary OVB threat.
+- [ ] **What direction is the bias?** The sign of the bias is the sign of β_omitted × r(X, omitted). Knowing the direction tells you whether your estimate is inflated or deflated.
+- [ ] **Does your coefficient change meaningfully when you add a proxy for the omitted variable?** Instability is evidence of OVB. Stability is reassuring but not proof.
+- [ ] **Do your residuals show a fan pattern or cluster by group?** This is the clearest visual diagnostic for a missing structuring variable.
 :::
-
-::: {.callout-note}
-## Diagnosing OVB after estimation
-
-- [ ] **Do your residuals show a fan (heteroskedasticity) or clustering pattern?** Fan-shaped residuals, or residuals that cluster by an observable category, are diagnostic of a missing variable that stratifies the relationship.
-- [ ] **Did you run a Breusch-Pagan test for heteroskedasticity?** A significant result suggests the variance of Y depends on something not in the model — often an omitted variable.
-- [ ] **How sensitive is your main coefficient to the addition of proxy variables?** If adding a plausible proxy variable (e.g., a correlated but imperfect measure of the confounder) substantially changes the main coefficient, OVB is likely present. If the coefficient is stable, OVB is less severe.
-- [ ] **Have you applied Oster's (2019) sensitivity analysis?** It asks how strong the relationship between the omitted variable and X would need to be — relative to the relationship between included controls and X — to fully explain away your estimated coefficient. This quantifies "how worried should I be?" without requiring an instrument.
-:::
-
-::: {.callout-note}
-## Connection to other module concepts
-
-- [ ] **Is your predictor X a scale score from Module 1?** If that scale has discriminant validity failures, the OVB from the contaminating construct is baked into X — controlling for it directly would require separating X into its component constructs using CFA.
-- [ ] **Is your study observational rather than experimental?** If so, consider whether any of the Module 3 methods (propensity score matching, regression discontinuity, difference-in-differences) are applicable to your research design and would provide cleaner identification.
-- [ ] **If your study is experimental but the manipulation check and the DV are measured on the same scale**, consider whether discriminant invalidity between them creates a form of within-experiment OVB — the manipulation may be picking up the DV itself.
-:::
-
-*The central question for this case: Is the association I estimated between X and Y a causal effect of X on Y, or is it partially (or fully) a reflection of a third variable that affects both?*
