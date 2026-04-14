@@ -346,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#in-experimental-designs-a-subtler-version" id="toc-in-experimental-designs-a-subtler-version" class="nav-link" data-scroll-target="#in-experimental-designs-a-subtler-version"><span class="header-section-number">7.8.2</span> In Experimental Designs: A Subtler Version</a></li>
   </ul></li>
   <li><a href="#other-methods-for-detecting-latent-subgroups" id="toc-other-methods-for-detecting-latent-subgroups" class="nav-link" data-scroll-target="#other-methods-for-detecting-latent-subgroups"><span class="header-section-number">7.9</span> Other Methods for Detecting Latent Subgroups</a></li>
-  <li><a href="#sec-checklist-case4" id="toc-sec-checklist-case4" class="nav-link" data-scroll-target="#sec-checklist-case4"><span class="header-section-number">7.10</span> Researcher Checklist: Latent Subgroups and Hidden Heterogeneity</a></li>
+  <li><a href="#sec-checklist-case4" id="toc-sec-checklist-case4" class="nav-link" data-scroll-target="#sec-checklist-case4"><span class="header-section-number">7.10</span> Researcher Checklist: Latent Subgroups</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -1116,61 +1116,25 @@ Figure&nbsp;7.1: Scatter plot of manipulation check vs.&nbsp;DV. Solid lines = w
 <hr>
 </section>
 <section id="sec-checklist-case4" class="level2" data-number="7.10">
-<h2 data-number="7.10" class="anchored" data-anchor-id="sec-checklist-case4"><span class="header-section-number">7.10</span> Researcher Checklist: Latent Subgroups and Hidden Heterogeneity</h2>
+<h2 data-number="7.10" class="anchored" data-anchor-id="sec-checklist-case4"><span class="header-section-number">7.10</span> Researcher Checklist: Latent Subgroups</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Detecting subgroups
+<span class="screen-reader-only">Note</span>Key questions before pooling your sample
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Does the distribution of your key outcome variable show multimodality, unusual kurtosis, or heavy tails?</strong> These are the simplest signals of latent class structure. A unimodal, roughly normal distribution is reassuring; bimodal or flat distributions warrant investigation.</label></li>
-<li><label><input type="checkbox"><strong>Did you plot the relationship between your predictor X and outcome Y at the individual level?</strong> If the scatter shows two distinct clouds — one with a positive slope and one with a flat or negative slope — that is a textbook signal of latent heterogeneity.</label></li>
-<li><label><input type="checkbox"><strong>Did you test multiple numbers of latent classes</strong> (K = 1, 2, 3, 4) and compare BIC? The best-fitting K with BIC is the most defensible choice; also check entropy (classification certainty) and class size (classes with fewer than 5% of observations are often statistical artifacts).</label></li>
-<li><label><input type="checkbox"><strong>Do the latent class profiles make theoretical sense?</strong> A statistically significant latent class should have a coherent substantive interpretation — what kind of person or unit does each class represent?</label></li>
+<li><label><input type="checkbox"><strong>Is your sample actually a single population?</strong> Bimodal distributions, scatterplots with two distinct clouds, or an effect that vanishes in a within-group analysis are all signals that you are pooling distinct types.</label></li>
+<li><label><input type="checkbox"><strong>Does your main effect replicate within subgroups?</strong> If the relationship between X and Y disappears or reverses when you condition on a third variable, you have a Simpson’s Paradox — the aggregate association is not the causal one.</label></li>
+<li><label><input type="checkbox"><strong>Do the latent classes you find make theoretical sense?</strong> A statistically-identified class is only useful if you can say what kind of person or unit it represents and why they behave differently.</label></li>
+<li><label><input type="checkbox"><strong>In an experiment:</strong> are treatment effects heterogeneous across subgroups? A null average effect can hide large positive effects for one class and large negative effects for another.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Checking for Simpson’s Paradox
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Does your main effect replicate within each latent class?</strong> The defining diagnostic for Simpson’s Paradox is that the aggregate relationship between X and Y reverses or disappears when you condition on a third variable (here, class membership).</label></li>
-<li><label><input type="checkbox"><strong>If you found a positive aggregate correlation but weak within-class correlations</strong>, ask what the classes are correlated with. If class membership predicts both X and Y, it is a confounder — and the aggregate association is spurious.</label></li>
-<li><label><input type="checkbox"><strong>Is the direction of the within-class relationship theoretically consistent</strong> with your causal theory? A within-class analysis that reverses the aggregate correlation demands a theoretical explanation, not just a statistical one.</label></li>
-<li><label><input type="checkbox"><strong>In an experimental context</strong>: check whether treatment effect sizes are heterogeneous across classes. A non-significant average treatment effect can mask large positive effects for one class and large negative effects for another.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Consequences and reporting
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>If latent subgroups exist, which analysis level is theoretically meaningful?</strong> Aggregate, within-class, or both? Reporting only the aggregate when subgroups exist is misleading if the subgroup structure is theoretically interpretable.</label></li>
-<li><label><input type="checkbox"><strong>Did you check whether your latent classes correspond to known theoretical segments</strong> (e.g., price-sensitive vs.&nbsp;values-driven consumers)? If they do, consider replacing the unsupervised GMM with a theoretically motivated moderated regression using the known segmentation variable.</label></li>
-<li><label><input type="checkbox"><strong>Are your classes stable across different N, random seeds, and slightly different model specifications?</strong> Fragile class solutions (BIC differences &lt; 2, very small classes) should be treated as exploratory rather than confirmatory.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for this case: Is my sample a single population for which one model applies — or a mixture of distinct populations whose different behaviors are obscured when analyzed together?</em></p>
 <hr>
 
 

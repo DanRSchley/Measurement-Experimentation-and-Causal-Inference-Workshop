@@ -391,7 +391,7 @@ window.Quarto = {
   <li><a href="#what-you-can-do-before-data-collection" id="toc-what-you-can-do-before-data-collection" class="nav-link" data-scroll-target="#what-you-can-do-before-data-collection"><span class="header-section-number">13.9.1</span> What you can do before data collection</a></li>
   <li><a href="#what-you-can-do-after-data-collection" id="toc-what-you-can-do-after-data-collection" class="nav-link" data-scroll-target="#what-you-can-do-after-data-collection"><span class="header-section-number">13.9.2</span> What you can do after data collection</a></li>
   </ul></li>
-  <li><a href="#sec-checklist-part3" id="toc-sec-checklist-part3" class="nav-link" data-scroll-target="#sec-checklist-part3"><span class="header-section-number">13.10</span> Researcher Checklist: Random Assignment and Exchangeability</a></li>
+  <li><a href="#sec-checklist-part3" id="toc-sec-checklist-part3" class="nav-link" data-scroll-target="#sec-checklist-part3"><span class="header-section-number">13.10</span> Researcher Checklist: Exchangeability</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -2049,65 +2049,25 @@ window.Quarto = {
 </section>
 </section>
 <section id="sec-checklist-part3" class="level2" data-number="13.10">
-<h2 data-number="13.10" class="anchored" data-anchor-id="sec-checklist-part3"><span class="header-section-number">13.10</span> Researcher Checklist: Random Assignment and Exchangeability</h2>
+<h2 data-number="13.10" class="anchored" data-anchor-id="sec-checklist-part3"><span class="header-section-number">13.10</span> Researcher Checklist: Exchangeability</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Before you collect data — design phase
+<span class="screen-reader-only">Note</span>Key questions about your randomization
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>How complex is your outcome Y?</strong> Estimate D — the number of meaningful antecedents of Y. More dimensions = harder to randomize cleanly = larger N required.</label></li>
-<li><label><input type="checkbox"><strong>What effective <span class="math inline">\(r_{\max}\)</span> does your planned N deliver?</strong> Use the formula <span class="math inline">\(N \approx (z_{1-\alpha/2D} / r_{\max})^2\)</span> or the table in Section 3.4. Know the implied tolerance before running the study, not after.</label></li>
-<li><label><input type="checkbox"><strong>Have you pre-mapped the construct?</strong> Use Module 1’s toolkit (CFA, discriminant validity checks, pilot text analysis) to enumerate the sub-dimensions of Y. Every identified dimension is a covariate you can block on or check balance for.</label></li>
-<li><label><input type="checkbox"><strong>Did you plan blocked (stratified) randomization on key antecedents of Y?</strong> Blocking on pre-measured characteristics guarantees balance on those dimensions regardless of N.</label></li>
-<li><label><input type="checkbox"><strong>Is your recruitment strategy introducing systematic selection?</strong> Forum-based, convenience, or opt-in samples can produce treatment-correlated samples before a single randomization is run. Consider whether your recruitment channel correlates with antecedents of Y.</label></li>
+<li><label><input type="checkbox"><strong>Did you verify exchangeability empirically, not just procedurally?</strong> Running a randomization algorithm is the observable. Exchangeability — no pre-existing group differences on any cause of Y — is the latent property you need. Report a balance table; don’t just assert that you randomized.</label></li>
+<li><label><input type="checkbox"><strong>What is the effective <span class="math inline">\(r_{\max}\)</span> your sample size delivers?</strong> With N = 80 and D = 10 antecedents of Y, you are operating at r_max ≈ 0.31. Any confounder with β &gt; 0.5 SD on Y can inject 0.15 SD of OVB — check whether that is acceptable.</label></li>
+<li><label><input type="checkbox"><strong>Do any imbalanced covariates predict Y?</strong> Imbalance is only dangerous when the imbalanced variable also affects the outcome. Estimate the implied OVB: <span class="math inline">\(\hat{\text{bias}} = \hat{\beta}_C \cdot r_{T,C}\)</span>.</label></li>
+<li><label><input type="checkbox"><strong>Is your Y narrow or broad?</strong> Broader constructs have more antecedents and require larger samples or blocked randomization to achieve exchangeability. A power calculation based on effect size alone does not account for this.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>After you collect data — verification phase
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Did you run a balance table</strong> reporting mean (or proportion) of every measured covariate by condition, with a significance test for each?</label></li>
-<li><label><input type="checkbox"><strong>Did you produce a Love plot</strong> with standardized mean differences (|SMD| &lt; 0.10 is the conventional threshold)?</label></li>
-<li><label><input type="checkbox"><strong>Did you run an omnibus randomization test</strong> (logistic regression predicting treatment from all covariates)? A significant LRT or R² &gt; 0.05 is a red flag.</label></li>
-<li><label><input type="checkbox"><strong>Do any imbalanced covariates predict Y?</strong> If a covariate is both imbalanced (r &gt; 0.10) and a meaningful predictor of Y (β &gt; 0.3 SD), estimate the implied OVB using <span class="math inline">\(\beta_C \cdot r_{T,C}\)</span> and assess whether it materially changes your conclusions.</label></li>
-<li><label><input type="checkbox"><strong>Are your balance checks confined to observable covariates?</strong> Explicitly acknowledge the limitation: unmeasured antecedents of Y cannot be verified. State which dimensions remain unverified and why you believe they are not correlated with assignment.</label></li>
-<li><label><input type="checkbox"><strong>Is your experiment operating at the intended <span class="math inline">\(r_{\max}\)</span>?</strong> If not (e.g., a balance check flags imbalance), acknowledge that your exchangeability assumption is violated on that dimension and that your estimated treatment effect carries OVB of at least <span class="math inline">\(\beta_C \cdot r_{T,C}\)</span>.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Interpreting results — reporting phase
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Have you reported the balance table in the paper?</strong> This is not optional. A claim of causal identification requires showing that exchangeability was achieved (or naming the residual threat if it wasn’t).</label></li>
-<li><label><input type="checkbox"><strong>Does your effective <span class="math inline">\(r_{\max}\)</span> match the complexity of Y?</strong> A broad attitude construct requires a stricter <span class="math inline">\(r_{\max}\)</span> (lower tolerance) because individual confounders each have larger β effects — verify that your sample size was adequate for the construct, not just for the treatment effect.</label></li>
-<li><label><input type="checkbox"><strong>Did your study achieve exchangeability on the dimensions that matter most</strong> (those with the largest β on Y)? Even if most balance tests pass, failure on a high-β dimension is the most dangerous case.</label></li>
-<li><label><input type="checkbox"><strong>If exchangeability is only partial, have you considered ANCOVA adjustment?</strong> Including imbalanced covariates as controls in the outcome model recovers the OVB-corrected estimate — but only for the covariates you measured.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central diagnostic question for this section: Exchangeability is the latent construct; randomization is just the observable. Is there enough evidence — from your balance checks, your sample size, and your construct mapping — to conclude that the observable validly reflects the latent property for your specific outcome Y?</em></p>
 <hr>
 
 

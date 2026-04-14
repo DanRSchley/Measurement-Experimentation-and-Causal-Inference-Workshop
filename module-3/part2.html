@@ -381,7 +381,7 @@ window.Quarto = {
   <li><a href="#sec-doubly-robust" id="toc-sec-doubly-robust" class="nav-link" data-scroll-target="#sec-doubly-robust"><span class="header-section-number">16.9</span> Doubly Robust Estimation</a></li>
   <li><a href="#sec-sec2-comparison" id="toc-sec-sec2-comparison" class="nav-link" data-scroll-target="#sec-sec2-comparison"><span class="header-section-number">16.10</span> How Well Do All Section 2 Methods Recover the True ATE?</a></li>
   <li><a href="#sec-synth" id="toc-sec-synth" class="nav-link" data-scroll-target="#sec-synth"><span class="header-section-number">16.11</span> Synthetic Controls</a></li>
-  <li><a href="#sec-checklist-part2-m3" id="toc-sec-checklist-part2-m3" class="nav-link" data-scroll-target="#sec-checklist-part2-m3"><span class="header-section-number">16.12</span> Researcher Checklist: Selection on Observables — PSM, IPW, and Matching</a></li>
+  <li><a href="#sec-checklist-part2-m3" id="toc-sec-checklist-part2-m3" class="nav-link" data-scroll-target="#sec-checklist-part2-m3"><span class="header-section-number">16.12</span> Researcher Checklist: Selection on Observables</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1729,61 +1729,25 @@ DR/AIPW (correct)     = 0.428  (SE = 0.060)</code></pre>
 <hr>
 </section>
 <section id="sec-checklist-part2-m3" class="level2" data-number="16.12">
-<h2 data-number="16.12" class="anchored" data-anchor-id="sec-checklist-part2-m3"><span class="header-section-number">16.12</span> Researcher Checklist: Selection on Observables — PSM, IPW, and Matching</h2>
+<h2 data-number="16.12" class="anchored" data-anchor-id="sec-checklist-part2-m3"><span class="header-section-number">16.12</span> Researcher Checklist: Selection on Observables</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Justifying the identifying assumption
+<span class="screen-reader-only">Note</span>Key questions about your matching or weighting strategy
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Can you make a credible theoretical argument for conditional independence?</strong> The core assumption — that treatment is as-good-as-random conditional on your observed covariates — is not testable in general. You must argue <em>theoretically</em> that you have measured all the relevant confounders. List them explicitly.</label></li>
-<li><label><input type="checkbox"><strong>Are there important confounders you could not measure?</strong> Acknowledge them by name and reason about the likely direction of the residual bias using the OVB formula from Module 1, Case 2: Bias = β_C × r(T, C).</label></li>
-<li><label><input type="checkbox"><strong>Did you include only pre-treatment covariates in the PS model?</strong> Post-treatment variables (mediators, outcome proxies) should never be in the PS model — conditioning on them opens collider bias and blocks the causal pathway you want to estimate.</label></li>
-<li><label><input type="checkbox"><strong>Does your sample have sufficient common support?</strong> Overlap requires that for every value of covariates in the treated group, there are comparable control units. Check the PS distribution by treatment status — units with PS near 0 or 1 are in regions of poor overlap and should be flagged or trimmed.</label></li>
+<li><label><input type="checkbox"><strong>Have you measured all the confounders that drive both selection into treatment and the outcome?</strong> Conditional independence is the core assumption — it cannot be tested, only argued. Name the confounders explicitly and acknowledge any you could not measure.</label></li>
+<li><label><input type="checkbox"><strong>Is there sufficient overlap?</strong> Treated and control units with propensity scores near 0 or 1 have no good comparison group. Check the PS distributions by treatment status; units in regions of poor overlap should be trimmed or flagged.</label></li>
+<li><label><input type="checkbox"><strong>Does the PS model include only pre-treatment covariates?</strong> Including post-treatment variables (mediators, proxies for Y) blocks the causal pathway and biases the estimate.</label></li>
+<li><label><input type="checkbox"><strong>Did you verify covariate balance after matching?</strong> The goal is balance on individual covariates, not just on the PS. A Love plot with |SMD| &lt; 0.10 for all covariates is the standard check.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>PS model specification
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Is the PS model correctly specified?</strong> The DGP determines which covariates and interactions belong in the PS model. Including irrelevant predictors dilutes the PS estimate; omitting relevant predictors introduces bias. Use prior theory and simulation (if possible) to guide specification.</label></li>
-<li><label><input type="checkbox"><strong>Did you check covariate balance <em>after</em> matching?</strong> A Love plot with standardized mean differences (|SMD| &lt; 0.10 for all covariates) is the standard diagnostic. Matching achieves balance on the PS, but it may not achieve balance on individual covariates — check both.</label></li>
-<li><label><input type="checkbox"><strong>Did you assess sensitivity to the choice of matching method?</strong> Compare 1:1 NN matching, 1:k matching, with- and without-replacement, and subclassification. If the ATT estimate is stable across these choices, the result is robust to matching design. If it swings wildly, investigate why.</label></li>
-<li><label><input type="checkbox"><strong>Are you targeting the right estimand?</strong> NN matching without replacement naturally estimates ATT (because all treated units are kept). Subclassification and IPW can target ATE. Be explicit about which you want.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Sensitivity and robustness
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Have you considered Rosenbaum bounds</strong> to assess sensitivity to unmeasured confounding? The bounds ask: how large would the treatment-assignment odds ratio need to be for an unmeasured confounder to explain away your result?</label></li>
-<li><label><input type="checkbox"><strong>Did you report doubly-robust estimates alongside matching estimates?</strong> DR estimation (combining outcome regression + IPW) is consistent if <em>either</em> the PS model or the outcome model is correctly specified — providing extra protection against one type of misspecification.</label></li>
-<li><label><input type="checkbox"><strong>Is the exclusion restriction satisfied for any selection model (Heckman)?</strong> An exclusion restriction instrument must predict selection into treatment but have no direct effect on the outcome. Weak instruments produce near-collinear selection and outcome equations that give highly unstable estimates.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for this part: Have I measured all the confounders that drive both selection into treatment and the outcome — and is there enough overlap in the PS distribution that treated and control units can be meaningfully compared?</em></p>
 
 
 </section>

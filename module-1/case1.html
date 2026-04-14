@@ -405,7 +405,7 @@ window.Quarto = {
   <li><a href="#why-cronbachs-alpha-cannot-detect-discriminant-validity-failures" id="toc-why-cronbachs-alpha-cannot-detect-discriminant-validity-failures" class="nav-link" data-scroll-target="#why-cronbachs-alpha-cannot-detect-discriminant-validity-failures"><span class="header-section-number">5.2</span> Why Cronbach’s Alpha Cannot Detect Discriminant Validity Failures</a></li>
   <li><a href="#the-item-addition-problem-spearmanbrown" id="toc-the-item-addition-problem-spearmanbrown" class="nav-link" data-scroll-target="#the-item-addition-problem-spearmanbrown"><span class="header-section-number">5.3</span> The Item-Addition Problem (Spearman–Brown)</a></li>
   <li><a href="#interactive-simulator-reliability-vs.-discriminant-validity" id="toc-interactive-simulator-reliability-vs.-discriminant-validity" class="nav-link" data-scroll-target="#interactive-simulator-reliability-vs.-discriminant-validity"><span class="header-section-number">5.4</span> Interactive Simulator: Reliability vs.&nbsp;Discriminant Validity</a></li>
-  <li><a href="#sec-checklist-case1" id="toc-sec-checklist-case1" class="nav-link" data-scroll-target="#sec-checklist-case1"><span class="header-section-number">5.5</span> Researcher Checklist: Convergent and Discriminant Validity</a></li>
+  <li><a href="#sec-checklist-case1" id="toc-sec-checklist-case1" class="nav-link" data-scroll-target="#sec-checklist-case1"><span class="header-section-number">5.5</span> Researcher Checklist: Discriminant Validity</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -3114,62 +3114,25 @@ Figure&nbsp;5.1: Cronbach’s alpha climbs with each additional item (blue). HTM
 <hr>
 </section>
 <section id="sec-checklist-case1" class="level2" data-number="5.5">
-<h2 data-number="5.5" class="anchored" data-anchor-id="sec-checklist-case1"><span class="header-section-number">5.5</span> Researcher Checklist: Convergent and Discriminant Validity</h2>
+<h2 data-number="5.5" class="anchored" data-anchor-id="sec-checklist-case1"><span class="header-section-number">5.5</span> Researcher Checklist: Discriminant Validity</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Factor structure and convergent validity
+<span class="screen-reader-only">Note</span>Key questions before using your scales
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Did you run a parallel analysis or scree plot</strong> to determine the number of factors to retain, rather than defaulting to eigenvalue &gt; 1?</label></li>
-<li><label><input type="checkbox"><strong>Do all items load primarily on their intended factor</strong> (standardized loading ≥ 0.70) and weakly on all other factors (cross-loading &lt; 0.30)?</label></li>
-<li><label><input type="checkbox"><strong>Is the factor correlation (φ) between any two constructs below 0.85?</strong> A correlation above this threshold is a strong signal of discriminant validity failure.</label></li>
-<li><label><input type="checkbox"><strong>Is HTMT below 0.85 for all construct pairs</strong> (strict criterion)? Below 0.90 at minimum (lenient criterion)?</label></li>
-<li><label><input type="checkbox"><strong>Does HTMT exceed any factor correlation?</strong> If so, that pair warrants closer scrutiny — the HTMT corrects for attenuation while the factor correlation does not.</label></li>
-<li><label><input type="checkbox"><strong>If using CFA, do fit indices meet conventional thresholds?</strong> CFI/TLI ≥ 0.95, RMSEA ≤ 0.06, SRMR ≤ 0.08.</label></li>
+<li><label><input type="checkbox"><strong>Does each measured scale correspond to a single latent dimension?</strong> Items should load strongly on one factor and weakly on all others (cross-loadings &lt; 0.30).</label></li>
+<li><label><input type="checkbox"><strong>Do you have evidence that your constructs are empirically distinct?</strong> HTMT &lt; 0.85 for all construct pairs is the standard threshold. A high Cronbach’s alpha does not answer this question.</label></li>
+<li><label><input type="checkbox"><strong>If HTMT is high, is the problem in the items or in the theory?</strong> High cross-loadings mean the items are contaminated; a high factor correlation may mean the constructs are theoretically redundant.</label></li>
+<li><label><input type="checkbox"><strong>Will discriminant validity failure bias your downstream analysis?</strong> Two discriminantly-invalid predictors in the same regression produce unstable coefficients. A mediator that overlaps with the outcome inflates indirect effects.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Diagnosing failure
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>If discriminant validity fails, is it contamination or overlap?</strong> Contamination means one scale picks up genuine variance from the adjacent construct (fix: remove offending items). Overlap means the constructs are theoretically redundant (fix: reconsider the theoretical distinction).</label></li>
-<li><label><input type="checkbox"><strong>Which items have the highest cross-loadings?</strong> These are the measurement problem — they capture multiple constructs simultaneously. Consider removing or rewording them.</label></li>
-<li><label><input type="checkbox"><strong>Does the failure worsen in a specific sample subgroup?</strong> (e.g., participants high in social desirability, or from cultures with different response styles). This would suggest a measurement invariance problem (see Case 3) rather than pure discriminant validity failure.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Consequences for downstream analysis
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>If you include two discriminantly-invalid scales in the same regression,</strong> are you aware that their coefficients will be highly unstable due to near-collinearity? Consider creating a difference score, running separate regressions, or using SEM with correlated factors.</label></li>
-<li><label><input type="checkbox"><strong>If a scale is used as a mediator</strong>, discriminant invalidity between the mediator and outcome (or between the mediator and treatment) can artifactually inflate or suppress the indirect effect. This is the measurement analog of the M→Y confounding problem in Module 3 mediation analysis.</label></li>
-<li><label><input type="checkbox"><strong>Have you reported HTMT values in your paper?</strong> This is now expected by top journals. Reporting alpha alone is insufficient evidence of construct validity.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for this case: Is each construct I am measuring genuinely distinct from the other constructs I am measuring — or am I treating one construct as two, or two constructs as one?</em></p>
 
 
 </section>

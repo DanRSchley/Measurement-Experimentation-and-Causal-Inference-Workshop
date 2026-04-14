@@ -373,7 +373,7 @@ window.Quarto = {
   <li><a href="#how-big-an-effect-can-n-60-actually-detect" id="toc-how-big-an-effect-can-n-60-actually-detect" class="nav-link" data-scroll-target="#how-big-an-effect-can-n-60-actually-detect"><span class="header-section-number">11.5.1</span> How big an effect can N = 60 actually detect?</a></li>
   </ul></li>
   <li><a href="#the-assumptions-behind-every-p-value" id="toc-the-assumptions-behind-every-p-value" class="nav-link" data-scroll-target="#the-assumptions-behind-every-p-value"><span class="header-section-number">11.6</span> The Assumptions Behind Every P-value</a></li>
-  <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1"><span class="header-section-number">11.7</span> Researcher Checklist: What Does a P-Value Mean?</a></li>
+  <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1"><span class="header-section-number">11.7</span> Researcher Checklist: P-Values and Statistical Inference</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -955,60 +955,25 @@ window.Quarto = {
 <hr>
 </section>
 <section id="sec-checklist-part1" class="level2" data-number="11.7">
-<h2 data-number="11.7" class="anchored" data-anchor-id="sec-checklist-part1"><span class="header-section-number">11.7</span> Researcher Checklist: What Does a P-Value Mean?</h2>
+<h2 data-number="11.7" class="anchored" data-anchor-id="sec-checklist-part1"><span class="header-section-number">11.7</span> Researcher Checklist: P-Values and Statistical Inference</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Interpreting the p-value correctly
+<span class="screen-reader-only">Note</span>Key questions before reporting a p-value
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Can you state what your p-value means in a single sentence without using the word “probability” incorrectly?</strong> The correct interpretation: “If the null hypothesis were true, the probability of observing a test statistic at least as extreme as mine is p.” It does not mean “the probability the null is true” or “the probability the effect is real.”</label></li>
-<li><label><input type="checkbox"><strong>Does your p-value test the thing you care about?</strong> A significant t-test tells you the means differ in your sample — it does not tell you the effect is theoretically meaningful, replicable, or practically important. Report the effect size (Cohen’s d, η²) alongside the p-value.</label></li>
-<li><label><input type="checkbox"><strong>Did you compute a two-sided or one-sided p-value?</strong> If one-sided, the directional prediction must have been registered before data collection, not selected after seeing which direction the data went.</label></li>
-<li><label><input type="checkbox"><strong>Is the “null world” you are testing actually the right null?</strong> For many theoretical predictions, the interesting question is not “is the effect exactly zero?” but “is the effect larger than some theoretically meaningful threshold?” Consider equivalence testing (TOST) if you want to rule out practically significant effects.</label></li>
+<li><label><input type="checkbox"><strong>Do you know what your p-value is testing?</strong> It measures how surprising your data would be <em>if the null were true</em> — not the probability the effect is real, not the probability the null is true.</label></li>
+<li><label><input type="checkbox"><strong>Are the three ingredients in place?</strong> (1) The same data-generating process in both conditions. (2) Exchangeability under H₀ — groups are interchangeable if there is no effect. (3) A test statistic chosen before seeing the data. If any one fails, the p-value is invalid.</label></li>
+<li><label><input type="checkbox"><strong>Is your observed effect large enough to matter, not just to be significant?</strong> Report effect size in interpretable units alongside the p-value. Large samples produce significant p-values for trivially small effects.</label></li>
+<li><label><input type="checkbox"><strong>Did you pre-register the analysis?</strong> Any flexibility in stopping rules, exclusion criteria, or choice of test statistic inflates the false-positive rate beyond the nominal α.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>The three ingredients — are they present?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Same data-generating process in both conditions?</strong> If your two conditions differ in more than the intended treatment (see Part 2 on the exclusion restriction), the null distribution built by permuting labels is not valid.</label></li>
-<li><label><input type="checkbox"><strong>Exchangeability under H0?</strong> Did randomization achieve approximate independence between treatment and all potential confounders (see Part 3)? If not, the permutation null distribution is constructed under a false assumption.</label></li>
-<li><label><input type="checkbox"><strong>Pre-specified test statistic?</strong> Did you choose the test statistic and analysis before seeing the data? Post-hoc selection of the test that gives p &lt; 0.05 among several alternatives inflates the false-positive rate dramatically.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Effect size and practical significance
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Have you reported the raw effect size in meaningful units</strong> (e.g., <span class="math display">\[\Delta WTP = \$0.80\]</span>, not just d = 0.53)?</label></li>
-<li><label><input type="checkbox"><strong>Is the effect large enough to matter substantively?</strong> Statistical significance with N = 800 can be achieved for effects far too small to have theoretical or managerial relevance. Apply the “smallest effect size of interest” (SESOI) criterion.</label></li>
-<li><label><input type="checkbox"><strong>Did you report the confidence interval alongside the p-value?</strong> A 95% CI that spans from near-zero to large reveals more about uncertainty than p = 0.03 alone.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for this part: Is a p &lt; 0.05 result in this study strong evidence against the null — or does it depend on assumptions about data generation, exchangeability, and analysis specification that may not hold?</em></p>
 
 
 </section>

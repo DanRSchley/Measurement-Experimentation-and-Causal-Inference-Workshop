@@ -334,7 +334,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">2.3</span> Recommended Reading</a></li>
   <li><a href="#what-this-tutorial-is-about" id="toc-what-this-tutorial-is-about" class="nav-link" data-scroll-target="#what-this-tutorial-is-about"><span class="header-section-number">2.4</span> What This Tutorial Is About</a></li>
   <li><a href="#packages-needed" id="toc-packages-needed" class="nav-link" data-scroll-target="#packages-needed"><span class="header-section-number">2.5</span> Packages Needed</a></li>
-  <li><a href="#sec-checklist-m1-intro" id="toc-sec-checklist-m1-intro" class="nav-link" data-scroll-target="#sec-checklist-m1-intro"><span class="header-section-number">2.6</span> Researcher Checklist: Module 1 Overview — Is Your Measurement House in Order?</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -532,64 +531,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 <hr>
-</section>
-<section id="sec-checklist-m1-intro" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="sec-checklist-m1-intro"><span class="header-section-number">2.6</span> Researcher Checklist: Module 1 Overview — Is Your Measurement House in Order?</h2>
-<p>Use this checklist before moving on to hypothesis testing or causal analysis. Measurement problems that are not resolved here will corrupt every downstream inference.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Construct validity
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Have you specified the construct clearly before selecting or designing a scale?</strong> A construct that cannot be defined without reference to another construct (e.g., “green values minus price sensitivity”) may be theoretically under-specified.</label></li>
-<li><label><input type="checkbox"><strong>Does your scale have evidence of convergent validity?</strong> Do items within each scale correlate substantially with each other and load strongly on the intended factor (standardized loading &gt; 0.70)?</label></li>
-<li><label><input type="checkbox"><strong>Does your scale have evidence of discriminant validity?</strong> Is HTMT below 0.85 for all pairs of constructs? Are the factor correlations meaningfully below 1.0?</label></li>
-<li><label><input type="checkbox"><strong>Is there evidence for criterion validity?</strong> Does your construct predict outcomes it theoretically should, and fail to predict outcomes it theoretically should not?</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Structural integrity
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Measurement invariance:</strong> If you compare scale means across groups (experimental conditions, countries, demographic segments), have you tested configural, metric, and scalar invariance?</label></li>
-<li><label><input type="checkbox"><strong>Latent heterogeneity:</strong> Is your sample a single population, or a mixture? Have you checked for multimodal distributions or bimodal residuals that could indicate latent subgroups?</label></li>
-<li><label><input type="checkbox"><strong>Outliers:</strong> Have you examined multivariate outlier patterns (LOF, Mahalanobis distance) and assessed whether any outliers represent a theoretically distinct population rather than measurement error?</label></li>
-<li><label><input type="checkbox"><strong>Scale bounds:</strong> Are any of your variables measured on bounded scales (1–7 Likert, 0–100 sliders, binary) where ceiling or floor effects could create asymmetric truncation bias in comparisons?</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Regression readiness
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Omitted variable bias:</strong> For any regression involving your scale scores as predictors or outcomes, have you enumerated the plausible confounders and assessed the likely direction of any OVB?</label></li>
-<li><label><input type="checkbox"><strong>Are your predictors discriminantly valid from each other?</strong> If two predictors are discriminantly invalid (HTMT near 1.0), their regression coefficients are unreliable — the model cannot partition variance between them.</label></li>
-<li><label><input type="checkbox"><strong>Have you checked residual diagnostics?</strong> Fan-shaped residuals, non-linearities, and grouped residual clusters all suggest structural problems that pre-processing (log transformation, outlier removal, latent class splitting) should address before reporting coefficients.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for Module 1: Can you confidently say that what you measured is what you intended to measure — no more and no less — for all groups you want to compare?</em></p>
 
 
 </section>

@@ -339,7 +339,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-4-robust-regression-no-need-to-delete-outliers" id="toc-step-4-robust-regression-no-need-to-delete-outliers" class="nav-link" data-scroll-target="#step-4-robust-regression-no-need-to-delete-outliers"><span class="header-section-number">8.6</span> Step 4: Robust Regression — No Need to Delete Outliers</a></li>
   <li><a href="#checking-how-much-your-results-depend-on-outliers" id="toc-checking-how-much-your-results-depend-on-outliers" class="nav-link" data-scroll-target="#checking-how-much-your-results-depend-on-outliers"><span class="header-section-number">8.7</span> Checking How Much Your Results Depend on Outliers</a></li>
   <li><a href="#other-methods-for-outlier-detection-and-robust-estimation" id="toc-other-methods-for-outlier-detection-and-robust-estimation" class="nav-link" data-scroll-target="#other-methods-for-outlier-detection-and-robust-estimation"><span class="header-section-number">8.8</span> Other Methods for Outlier Detection and Robust Estimation</a></li>
-  <li><a href="#sec-checklist-case5" id="toc-sec-checklist-case5" class="nav-link" data-scroll-target="#sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outlier Detection and Robust Estimation</a></li>
+  <li><a href="#sec-checklist-case5" id="toc-sec-checklist-case5" class="nav-link" data-scroll-target="#sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outliers</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -989,60 +989,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 </section>
 <section id="sec-checklist-case5" class="level2" data-number="8.9">
-<h2 data-number="8.9" class="anchored" data-anchor-id="sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outlier Detection and Robust Estimation</h2>
+<h2 data-number="8.9" class="anchored" data-anchor-id="sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outliers</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Identifying outliers
+<span class="screen-reader-only">Note</span>Key questions before removing or ignoring extreme observations
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Did you check for multivariate outliers</strong> (LOF, Mahalanobis distance), not just univariate extremes? An observation can be perfectly normal on any one variable while being highly unusual in the joint distribution.</label></li>
-<li><label><input type="checkbox"><strong>Is the LOF score meaningfully elevated (&gt; 2)?</strong> LOF scores just above 1.0 indicate typical observations. Scores &gt; 2 suggest moderate isolation; scores &gt; 3 suggest severe isolation. Use the score as a continuous measure of outlierness rather than a binary flag.</label></li>
-<li><label><input type="checkbox"><strong>Did you visualize the outliers in feature space</strong> to understand <em>why</em> they are unusual? A scatter plot overlaid with LOF scores often reveals a interpretable cluster of unusual observations.</label></li>
-<li><label><input type="checkbox"><strong>Are the outliers concentrated in a specific subgroup</strong> (high-purchase-frequency consumers, a particular market, a specific day/session)? Clustered outliers are often a distinct population (see Case 4), not noise.</label></li>
+<li><label><input type="checkbox"><strong>Are your outliers noise, extreme-but-valid observations, or a distinct population?</strong> Each warrants a different response: removal (noise), robust estimation (extreme-but-valid), or separate analysis (distinct population).</label></li>
+<li><label><input type="checkbox"><strong>Do your main results hold under robust estimation?</strong> If OLS and robust regression diverge substantially, outliers are driving your estimates — that is a finding, not a nuisance.</label></li>
+<li><label><input type="checkbox"><strong>Have you checked for multivariate outliers, not just univariate extremes?</strong> An observation that is unremarkable on any single variable can still be highly unusual in the joint distribution.</label></li>
+<li><label><input type="checkbox"><strong>Are your outlier removal criteria pre-specified and reported?</strong> “We removed 3 outliers” without a stated rule is not replicable.</label></li>
 </ul>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Distinguishing noise from signal
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Can you provide a substantive explanation for each major outlier?</strong> Observations with a clear data quality reason (survey response time &lt; 30 seconds, duplicate IP address, nonsense open-ended response) warrant removal with documentation. Substantively extreme observations (genuinely very high WTP, extreme green values) should be retained and analyzed with robust methods.</label></li>
-<li><label><input type="checkbox"><strong>Did you run the analysis both with and without the flagged outliers?</strong> Report both. If the conclusions differ materially, the outliers are doing analytical work and the reader needs to know.</label></li>
-<li><label><input type="checkbox"><strong>Did you run robust regression (MASS::rlm) alongside OLS?</strong> If the robust and OLS coefficients agree closely, outliers are not driving your estimates. If they diverge substantially, OLS is compromised.</label></li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Reporting and sensitivity
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Did you report your outlier detection procedure and decision rule</strong> transparently? Opaque deletion practices (“we removed 3 outliers”) without stating the rule raise replicability concerns.</label></li>
-<li><label><input type="checkbox"><strong>If you removed outliers, did you report what the results look like with them included?</strong> Reviewers will ask; pre-empt the question.</label></li>
-<li><label><input type="checkbox"><strong>Are your standard errors appropriate for the remaining data?</strong> Even after outlier removal, if heteroskedasticity remains (fan-shaped residuals), use sandwich/HC standard errors or cluster robust SEs.</label></li>
-</ul>
-</div>
-</div>
-<p><em>The central question for this case: Are my outliers measurement artifacts to be corrected, genuine extreme members of my target population to be retained, or a distinct population whose theoretical interpretation differs from the main sample?</em></p>
 
 
 </section>
