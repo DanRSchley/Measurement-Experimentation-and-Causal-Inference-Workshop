@@ -882,11 +882,11 @@ ggplot(dv_summary, aes(x = prop_shared, y = t1_rate)) +
 ```{r med-discval-table, echo=FALSE}
 dv_summary |>
   transmute(
-    `% variance from \u03b7` = sprintf("%.0f%%", 100 * prop_shared),
-    `r(M, Y)`               = sprintf("%.2f", r_my),
-    `HTMT \u2248 r(M,Y)`   = sprintf("%.2f", r_my),
-    `Type I error`          = sprintf("%.0f%%", 100 * t1_rate),
-    `Relative to 5%`        = sprintf("%.1f\u00d7", t1_rate / 0.05)
+    `% variance from eta` = sprintf("%.0f%%", 100 * prop_shared),
+    `r(M, Y)`             = sprintf("%.2f", r_my),
+    `HTMT ~ r(M,Y)`       = sprintf("%.2f", r_my),
+    `Type I error`        = sprintf("%.0f%%", 100 * t1_rate),
+    `Relative to 5%`      = sprintf("%.1fx", t1_rate / 0.05)
   ) |>
   knitr::kable(
     caption = sprintf(
