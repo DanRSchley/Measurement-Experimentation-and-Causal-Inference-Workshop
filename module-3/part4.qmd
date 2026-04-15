@@ -699,7 +699,7 @@ sim_ov |>
     .groups = "drop"
   ) |>
   transmute(
-    `\u03b3 (omitted var. strength)` = sprintf("$%.2f", gamma),
+    `gamma (omitted var. strength)` = sprintf("$%.2f", gamma),
     `Expected DiD bias`  = `Expected bias`,
     `DiD Type I error`,
     `Pre-trend test power`= `Pre-test power`
