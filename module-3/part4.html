@@ -367,6 +367,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</a></li>
   <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
+  <li><a href="#sec-pt-ov-severity" id="toc-sec-pt-ov-severity" class="nav-link" data-scroll-target="#sec-pt-ov-severity"><span class="header-section-number">18.6.3</span> How an Unobserved Variable Inflates Type I Error</a></li>
   </ul></li>
   <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3"><span class="header-section-number">18.7</span> Researcher Checklist: Difference-in-Differences</a></li>
   </ul>
@@ -1036,6 +1037,180 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <li>Use <strong>Rambachan &amp; Roth’s (2023) <code>HonestDiD</code></strong> sensitivity analysis, which asks: <em>how large a pre-trend violation would be required to explain away your result?</em> This reframes the question from “is there a violation?” (often unknowable) to “how large a violation would matter?” (estimable and reportable)</li>
 <li>Treat a passing event study as weak evidence, not proof, of parallel trends</li>
 </ul>
+</div>
+</div>
+</section>
+<section id="sec-pt-ov-severity" class="level3" data-number="18.6.3">
+<h3 data-number="18.6.3" class="anchored" data-anchor-id="sec-pt-ov-severity"><span class="header-section-number">18.6.3</span> How an Unobserved Variable Inflates Type I Error</h3>
+<p>The previous simulation assumed a differential slope — a pre-existing divergence visible in pre-trend data. A more dangerous violation involves an <strong>unobserved time-varying variable</strong> that only appears post-treatment, making pre-trend tests completely blind to it.</p>
+<p><strong>The mechanism.</strong> Suppose eco-orientation of a store’s customer base (call it U) is unobserved. Dutch stores were already in more eco-conscious neighbourhoods — they have higher U. Post-2022, a global sustainability wave means U increasingly drives WTP everywhere: eco-conscious shoppers are willing to pay more for sustainable products regardless of labelling laws. Stores with higher U benefit disproportionately in the post-period — but not because of the Dutch law. <strong>True law effect = $0.</strong> Yet DiD attributes the U-driven post-period WTP gain to the law.</p>
+<p><strong>Why the pre-trend test is blind to this.</strong> U is a fixed store characteristic. Store fixed effects absorb U completely — so in pre-treatment periods, the Dutch–Belgian trend difference from U is zero. The violation only materialises in the post-period when U interacts with time. An event study with 100 pre-periods would show perfectly parallel pre-trends even as this confounder grows post-treatment.</p>
+<p><strong>The OVB connection.</strong> DiD bias ≈ γ × (Ē[U | Dutch] − Ē[U | Belgian]). With Dutch stores 1 SD higher in eco-orientation, bias ≈ γ × 1.0 = γ. This is the same formula as omitted variable bias from Module 1 — the coefficient on the omitted variable (γ) times its correlation with the treatment indicator.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Monte Carlo: Type I error vs.&nbsp;omitted variable strength γ (300 sims, 2 pre-periods)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>N_SIM_OV <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># γ: additional WTP per 1-SD unit of eco-orientation U in the post-period</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Dutch stores: E[U] = +0.5 SD; Belgian: E[U] = -0.5 SD</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected DiD bias ≈ γ × (0.5 − (−0.5)) = γ × 1.0 = γ</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>gamma_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.80</span>, <span class="at">by =</span> <span class="fl">0.10</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>pt_ov_one <span class="ot">&lt;-</span> <span class="cf">function</span>(gamma) {</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  years_ov <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2021</span>, <span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>)   <span class="co"># 2 pre, 3 post (modal setting)</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  T_ov     <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_OV, {</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># U_i: unobserved eco-orientation — researcher does not observe this</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    U_i <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_dutch_v,   <span class="sc">+</span><span class="fl">0.5</span>, <span class="dv">1</span>),   <span class="co"># Dutch stores: higher eco-orientation</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(n_belgian_v, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))    <span class="co"># Belgian: lower eco-orientation</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    fe  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    panel <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store =</span> <span class="fu">seq_len</span>(n_stores_v), <span class="at">year =</span> years_ov) <span class="sc">|&gt;</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">treated =</span> <span class="fu">as.integer</span>(store <span class="sc">&lt;=</span> n_dutch_v),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">post    =</span> <span class="fu">as.integer</span>(year <span class="sc">&gt;=</span> T_ov),</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">did     =</span> treated <span class="sc">*</span> post,</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">U       =</span> U_i[store],</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># U × post: the omitted confounder is only active post-treatment</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store FEs absorb U; year FEs absorb post; but U × post is not absorbed</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">WTP     =</span> <span class="fl">5.20</span> <span class="sc">+</span> fe[store] <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year <span class="sc">-</span> T_ov) <span class="sc">+</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                  gamma <span class="sc">*</span> U <span class="sc">*</span> post <span class="sc">+</span>        <span class="co"># omitted time-varying confounder</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Note: no did term — true law effect = $0</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># DiD estimate (TWFE)</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    fit_d  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> did <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year), <span class="at">data =</span> panel)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    pval_d <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coeftest</span>(fit_d, <span class="fu">vcovCL</span>(fit_d, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"did"</span>, <span class="dv">4</span>],</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-trend test in pre-periods only (should be blind to U × post)</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    pre      <span class="ot">&lt;-</span> panel[panel<span class="sc">$</span>post <span class="sc">==</span> <span class="dv">0</span>, ]</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    pre<span class="sc">$</span>yr_c <span class="ot">&lt;-</span> pre<span class="sc">$</span>year <span class="sc">-</span> <span class="fu">mean</span>(pre<span class="sc">$</span>year)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    fit_p    <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> treated <span class="sc">*</span> yr_c <span class="sc">+</span> <span class="fu">factor</span>(store), <span class="at">data =</span> pre)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    pval_p   <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coeftest</span>(fit_p, <span class="fu">vcovCL</span>(fit_p, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"treated:yr_c"</span>, <span class="dv">4</span>]</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(pval_d, pval_p)</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>  })  <span class="co"># 2 × N_SIM_OV matrix</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">gamma    =</span> gamma,</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>             <span class="at">did_pval =</span> mat[<span class="dv">1</span>, ],</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>             <span class="at">pre_pval =</span> mat[<span class="dv">2</span>, ])</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>sim_ov <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(gamma_grid, pt_ov_one)</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Omitted variable simulation: %d conditions × %d sims = %d total.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(gamma_grid), N_SIM_OV, <span class="fu">nrow</span>(sim_ov)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Omitted variable simulation: 9 conditions × 300 sims = 2700 total.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/pt-ov-plot-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>DiD Type I error from omitted variable U: 300 sims per condition, 2 pre-periods, true law effect = $0. Expected bias ≈ γ because Dutch and Belgian stores differ by 1 SD in U.</caption>
+<colgroup>
+<col style="width: 34%">
+<col style="width: 20%">
+<col style="width: 19%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">gamma (omitted var. strength)</th>
+<th style="text-align: left;">Expected DiD bias</th>
+<th style="text-align: left;">DiD Type I error</th>
+<th style="text-align: left;">Pre-trend test power</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">$0.00</td>
+<td style="text-align: left;">$0.00</td>
+<td style="text-align: left;">3%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">$0.10</td>
+<td style="text-align: left;">$0.10</td>
+<td style="text-align: left;">5%</td>
+<td style="text-align: left;">0%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">$0.20</td>
+<td style="text-align: left;">$0.20</td>
+<td style="text-align: left;">23%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">$0.30</td>
+<td style="text-align: left;">$0.30</td>
+<td style="text-align: left;">35%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">$0.40</td>
+<td style="text-align: left;">$0.40</td>
+<td style="text-align: left;">47%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">$0.50</td>
+<td style="text-align: left;">$0.50</td>
+<td style="text-align: left;">53%</td>
+<td style="text-align: left;">0%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">$0.60</td>
+<td style="text-align: left;">$0.60</td>
+<td style="text-align: left;">63%</td>
+<td style="text-align: left;">0%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">$0.70</td>
+<td style="text-align: left;">$0.70</td>
+<td style="text-align: left;">65%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">$0.80</td>
+<td style="text-align: left;">$0.80</td>
+<td style="text-align: left;">68%</td>
+<td style="text-align: left;">1%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The pre-trend test has zero power against this type of violation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The two lines tell the whole story. DiD Type I error rises steeply as γ increases — reaching near-certainty of a false positive when γ = 0.70 (a bias equal to the full true effect size from the main example). But the pre-trend test power <strong>stays flat at the nominal 5%</strong>. It never detects the violation regardless of how severe it becomes.</p>
+<p><strong>Why?</strong> Because U is a fixed store characteristic (captured by store FEs) with a post-period interaction. In pre-treatment periods, U’s influence is absorbed away. Only when U × post materialises after the treatment date does the confounder do damage — and by then, the event study has nothing left to test.</p>
+<p><strong>What this means for practice:</strong> Pre-trend tests are informative about one specific type of violation — pre-existing differential trends. They are completely uninformative about post-treatment-only confounders: macro shocks, secular trends in consumer attitudes, or any force that affects treated and control groups differently only after the treatment date. This is why theoretical justification for control group comparability is not a box-ticking exercise. Ask: <em>is there any mechanism — observable or not — that could have changed the Dutch–Belgian WTP gap post-2022 for reasons unrelated to the eco-label law?</em></p>
 </div>
 </div>
 <hr>

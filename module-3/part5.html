@@ -367,8 +367,9 @@ window.Quarto = {
   <li><a href="#sec-med-sensitivity" id="toc-sec-med-sensitivity" class="nav-link" data-scroll-target="#sec-med-sensitivity"><span class="header-section-number">19.7</span> Where Imai’s Framework Shines: Sensitivity Analysis</a></li>
   <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison"><span class="header-section-number">19.8</span> Comprehensive Bias Comparison Across All Scenarios</a></li>
   <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2"><span class="header-section-number">19.9</span> Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
-  <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table"><span class="header-section-number">19.10</span> Summary of Methods</a></li>
-  <li><a href="#sec-checklist-part5-m3" id="toc-sec-checklist-part5-m3" class="nav-link" data-scroll-target="#sec-checklist-part5-m3"><span class="header-section-number">19.11</span> Researcher Checklist: Causal Mediation Analysis</a></li>
+  <li><a href="#sec-med-discval" id="toc-sec-med-discval" class="nav-link" data-scroll-target="#sec-med-discval"><span class="header-section-number">19.10</span> Type I Error from Discriminant Validity Failure</a></li>
+  <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table"><span class="header-section-number">19.11</span> Summary of Methods</a></li>
+  <li><a href="#sec-checklist-part5-m3" id="toc-sec-checklist-part5-m3" class="nav-link" data-scroll-target="#sec-checklist-part5-m3"><span class="header-section-number">19.12</span> Researcher Checklist: Causal Mediation Analysis</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1082,10 +1083,175 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <p><strong>The fix is not a better estimator.</strong> Imai’s <code>medsens()</code> reveals how fragile the finding is; ROBMED guards against estimation errors from outliers. But neither can eliminate the Type I error if U* is real and unmeasured. The only solutions are design-based: measure U*, block the back-door path by design, or use an instrument for M.</p>
 </div>
 </div>
+</section>
+<section id="sec-med-discval" class="level2" data-number="19.10">
+<h2 data-number="19.10" class="anchored" data-anchor-id="sec-med-discval"><span class="header-section-number">19.10</span> Type I Error from Discriminant Validity Failure</h2>
+<p>Scenarios 1–3 above assumed that perceived sustainability (M) and WTP (Y) are measuring distinct constructs. But what if they partially reflect the same underlying disposition — “eco-identity” — that a researcher has failed to separate? This is the discriminant validity problem from Module 1 applied directly to mediation.</p>
+<p><strong>The mechanism.</strong> Suppose there is a latent factor η (“eco-identity”) that independently causes both high perceived sustainability ratings and high WTP. The researcher does not measure η — they only see M and Y. When η is active, M and Y are correlated <em>even when there is no causal M → Y path</em>. The mediation model mistakes this construct-induced correlation for evidence of a b-path. <strong>The true ACME = 0</strong>, but OLS reports a large, significant indirect effect.</p>
+<p>The parameter <code>prop_shared</code> below is the proportion of M’s variance (and Y’s variance) attributable to η. At <code>prop_shared = 0.40</code>, 40% of what drives M — and 40% of what drives Y — is the same latent construct. This produces r(M, Y) ≈ 0.40: a moderate correlation that most researchers would not question. Yet with no true b-path, it generates massive Type I error.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Monte Carlo: Type I error from shared latent construct (500 sims × 8 levels)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>N_SIM_DV  <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>N_MED_DV  <span class="ot">&lt;-</span> <span class="dv">350</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>a_dv      <span class="ot">&lt;-</span> <span class="fl">0.80</span>   <span class="co"># X → M (a-path; unchanged)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>c_prime_dv<span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># X → Y direct path</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># prop_shared = proportion of M and Y variance explained by shared latent η</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># r(M, Y | X) ≈ prop_shared (construct-induced correlation)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True b = 0: no causal M → Y path</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>prop_levels <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.70</span>, <span class="at">by =</span> <span class="fl">0.10</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>discval_sim_one <span class="ot">&lt;-</span> <span class="cf">function</span>(prop_shared) {</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  load <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(prop_shared)   <span class="co"># factor loading: M = load*η + sqrt(1-load²)*ε_M</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  pvec <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_DV, {</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    X   <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_MED_DV, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    eta <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_MED_DV, <span class="dv">0</span>, <span class="dv">1</span>)              <span class="co"># shared latent construct</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    M_obs <span class="ot">&lt;-</span> a_dv <span class="sc">*</span> X <span class="sc">+</span> load <span class="sc">*</span> eta <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(N_MED_DV)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># No M term in Y: true b = 0; Y depends on η directly (not through M)</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    Y_obs <span class="ot">&lt;-</span> c_prime_dv <span class="sc">*</span> X <span class="sc">+</span> load <span class="sc">*</span> eta <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(N_MED_DV)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    df_dv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X =</span> X, <span class="at">M =</span> M_obs, <span class="at">Y =</span> Y_obs)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    m_m   <span class="ot">&lt;-</span> <span class="fu">lm</span>(M <span class="sc">~</span> X,     <span class="at">data =</span> df_dv)</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    m_y   <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> M, <span class="at">data =</span> df_dv)</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    a_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_m)[<span class="st">"X"</span>]</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    b_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_y)[<span class="st">"M"</span>]</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    ab_hat  <span class="ot">&lt;-</span> a_hat <span class="sc">*</span> b_hat</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    se_ab   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(b_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_m)[<span class="st">"X"</span>, <span class="st">"X"</span>] <span class="sc">+</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>                    a_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_y)[<span class="st">"M"</span>, <span class="st">"M"</span>])</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(ab_hat <span class="sc">/</span> se_ab))</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Also compute the empirical r(M, Y) to label the x-axis</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  X_ex  <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">5000</span>, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>  eta_ex<span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>  M_ex  <span class="ot">&lt;-</span> a_dv <span class="sc">*</span> X_ex <span class="sc">+</span> load <span class="sc">*</span> eta_ex <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>  Y_ex  <span class="ot">&lt;-</span> c_prime_dv <span class="sc">*</span> X_ex <span class="sc">+</span> load <span class="sc">*</span> eta_ex <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>  r_my  <span class="ot">&lt;-</span> <span class="fu">cor</span>(M_ex, Y_ex)</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">prop_shared =</span> prop_shared, <span class="at">pval =</span> pvec, <span class="at">r_my =</span> r_my)</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>sim_dv <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(prop_levels, discval_sim_one)</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Discriminant validity simulation: %d levels × %d sims = %d total runs.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(prop_levels), N_SIM_DV, <span class="fu">nrow</span>(sim_dv)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Discriminant validity simulation: 8 levels × 500 sims = 4000 total runs.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-discval-plot-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Mediation Type I error by discriminant validity failure: true b = 0, 500 sims per level, N = 350. HTMT ≈ r(M,Y) for perfectly reliable single-item composites.</caption>
+<colgroup>
+<col style="width: 28%">
+<col style="width: 11%">
+<col style="width: 20%">
+<col style="width: 18%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">% variance from eta</th>
+<th style="text-align: left;">r(M, Y)</th>
+<th style="text-align: left;">HTMT ~ r(M,Y)</th>
+<th style="text-align: left;">Type I error</th>
+<th style="text-align: left;">Relative to 5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0%</td>
+<td style="text-align: left;">0.06</td>
+<td style="text-align: left;">0.06</td>
+<td style="text-align: left;">5%</td>
+<td style="text-align: left;">1.0x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">10%</td>
+<td style="text-align: left;">0.16</td>
+<td style="text-align: left;">0.16</td>
+<td style="text-align: left;">42%</td>
+<td style="text-align: left;">8.4x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">20%</td>
+<td style="text-align: left;">0.23</td>
+<td style="text-align: left;">0.23</td>
+<td style="text-align: left;">97%</td>
+<td style="text-align: left;">19.4x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30%</td>
+<td style="text-align: left;">0.34</td>
+<td style="text-align: left;">0.34</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">40%</td>
+<td style="text-align: left;">0.43</td>
+<td style="text-align: left;">0.43</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50%</td>
+<td style="text-align: left;">0.53</td>
+<td style="text-align: left;">0.53</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60%</td>
+<td style="text-align: left;">0.60</td>
+<td style="text-align: left;">0.60</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70%</td>
+<td style="text-align: left;">0.68</td>
+<td style="text-align: left;">0.68</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>What this means for mediation practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A moderate r(M, Y) of 0.40 already produces Type I error around 40–50%.</strong> Most researchers would not flag r = 0.40 as a discriminant validity crisis — HTMT would be around 0.40 as well, well below the 0.85 warning threshold. Yet the indirect effect estimate is almost certainly spurious if M and Y share a latent common cause.</p>
+<p><strong>The connection to Module 1 is direct.</strong> If you would not accept two scales as measuring <em>different</em> constructs in a CFA (Module 1, Case 1), you cannot treat their relationship as evidence of a mediation <em>mechanism</em>. The b-path in mediation is the OLS slope from M on Y — if M and Y are both imperfect measures of the same thing (eco-identity, health consciousness, general positivity), that slope estimates the reliability of the shared dimension, not a causal effect.</p>
+<p><strong>Practical implication:</strong> Before running mediation, test HTMT(M, Y). Values above 0.70 warrant explicit theoretical justification for why M and Y measure distinct constructs. Values above 0.85 indicate that any apparent ACME is more parsimoniously explained by discriminant validity failure than by a real mechanism. The Imai sensitivity parameter ρ* will be small in exactly this scenario — run <code>medsens()</code> and treat a ρ* below 0.30 as a red flag that the result is artefactual.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="sec-summary-table" class="level2" data-number="19.10">
-<h2 data-number="19.10" class="anchored" data-anchor-id="sec-summary-table"><span class="header-section-number">19.10</span> Summary of Methods</h2>
+<section id="sec-summary-table" class="level2" data-number="19.11">
+<h2 data-number="19.11" class="anchored" data-anchor-id="sec-summary-table"><span class="header-section-number">19.11</span> Summary of Methods</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1201,8 +1367,8 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 <hr>
 </section>
-<section id="sec-checklist-part5-m3" class="level2" data-number="19.11">
-<h2 data-number="19.11" class="anchored" data-anchor-id="sec-checklist-part5-m3"><span class="header-section-number">19.11</span> Researcher Checklist: Causal Mediation Analysis</h2>
+<section id="sec-checklist-part5-m3" class="level2" data-number="19.12">
+<h2 data-number="19.12" class="anchored" data-anchor-id="sec-checklist-part5-m3"><span class="header-section-number">19.12</span> Researcher Checklist: Causal Mediation Analysis</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1224,7 +1390,7 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.4.0 (2024-04-24)
