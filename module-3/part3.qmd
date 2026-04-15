@@ -274,48 +274,53 @@ When estimates collapse or swing wildly as $h$ changes, it usually means the pol
 
 The density test and covariate continuity checks are the right diagnostics — but how much Type I error accumulates before those tests catch the problem? Here we simulate a concrete manipulation scenario and track false-positive rates as gaming becomes more common.
 
-**The mechanism.** A brand's audit score contains measurement noise. Brands with genuinely strong environmental credentials that scored just below 70 are most motivated to appeal, re-submit, or subtly influence the audit to cross the threshold — they believe the badge will pay off commercially. These same high-credential brands attract eco-conscious shoppers, so their customers have naturally higher WTP. The result: just above 70 you get genuine 70+ scorers *plus* gaming high-quality brands; just below, only genuine sub-70 scorers. **The true badge effect is zero** — the jump is driven entirely by credential sorting, not the badge.
+**The mechanism.** Two variables matter here: (1) the *audit score* — what the running variable measures — and (2) latent *brand eco-credential strength* Z, an unobserved dimension reflecting the brand's genuine reputation, loyal customer base, and eco-marketing sophistication. Z is largely independent of the audit score (a firm can have strong green credentials yet score just below 70 due to measurement noise or procedural quirks). But Z does two things: it motivates gaming (high-Z firms near the threshold believe they deserve the badge and have the resources to appeal or re-submit) and it independently raises customer WTP (eco-conscious shoppers follow high-credential brands). **The true badge effect is zero.** After gaming, just above 70 contains genuine scorers (typical Z) *plus* gaming high-credential brands (high Z); just below, high-Z firms have departed, leaving a depleted, lower-Z pool. The RDD compares these two compositionally different groups and detects a WTP gap driven entirely by Z-sorting, not the badge.
 
 ```{r rdd-manipulation-mc, fig.height=5, fig.width=10}
 #| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (200 sims)"
 set.seed(2025)
 N_SIM_RDD   <- 200
-N_RDD_MC    <- 400
+N_RDD_MC    <- 500
 CUTOFF_MC   <- 70
-GAME_WINDOW <- 6    # firms within 6 pts below cutoff are "at risk" of gaming
+GAME_WINDOW <- 8    # firms within 8 pts below cutoff are at risk of gaming
 
 rdd_mc_one <- function(p_game) {
-  # replicate() returns a 2×N matrix; no strict-length requirement like vapply
   mat <- replicate(N_SIM_RDD, {
-    # True environmental quality; WTP tracks this, not the badge
-    true_qual  <- runif(N_RDD_MC, 30, 100)
-    # Observed audit score = true quality + measurement noise
-    audit      <- pmin(100, pmax(30, true_qual + rnorm(N_RDD_MC, 0, 4)))
+    # Z: latent brand eco-credential strength — the unobserved confounder
+    # Z is independent of the audit score but drives both gaming and WTP
+    Z <- rnorm(N_RDD_MC, 0, 1)
 
-    # High-quality firms just below the threshold push their score above 70
+    # Audit score reflects firm-level environmental performance,
+    # largely independent of brand reputation Z
+    qual_raw <- runif(N_RDD_MC, 30, 100)
+    audit    <- pmin(100, pmax(30, qual_raw + rnorm(N_RDD_MC, 0, 4)))
+
+    # High-credential firms (Z > 0) just below threshold game the audit score.
+    # After gaming they land just above 70 — with their high-Z WTP intact.
     near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
-    hi_qual    <- true_qual >= (CUTOFF_MC - GAME_WINDOW)
-    game_mask  <- near_below & hi_qual & (runif(N_RDD_MC) < p_game)
+    game_mask  <- near_below & (Z > 0) & (runif(N_RDD_MC) < p_game)
     audit[game_mask] <- pmin(100, audit[game_mask] +
-                               runif(sum(game_mask), 1, GAME_WINDOW))
+                               runif(sum(game_mask), 1, GAME_WINDOW + 2))
 
-    # Outcome: linear in true quality — badge has NO effect
-    WTP_mc <- 4.0 + 0.025 * (true_qual - CUTOFF_MC) + rnorm(N_RDD_MC, 0, 0.60)
+    # WTP driven entirely by brand credentials Z — badge has NO causal effect.
+    # Just-above post-gaming: surplus of high-Z firms. Just-below: deficit.
+    # RDD picks up the Z-induced WTP gap as a spurious badge effect.
+    WTP_mc <- 4.0 + 1.0 * Z + rnorm(N_RDD_MC, 0, 0.50)
     WTP_mc <- pmax(1, pmin(10, WTP_mc))
 
     rdd_p <- tryCatch({
       est <- rdrobust(y = WTP_mc, x = audit, c = CUTOFF_MC)
-      2 * pnorm(-abs(est$coef[1] / est$se[1]))  # [1] = Conventional; safe indexing
+      2 * pnorm(-abs(est$coef[1] / est$se[1]))
     }, error = function(e) NA_real_)
 
     dens_p <- tryCatch({
       rd <- rddensity(X = audit, c = CUTOFF_MC)
-      p  <- rd$test$p_jk          # works in rddensity >= 2.1
+      p  <- rd$test$p_jk
       if (is.null(p) || !is.finite(p)) 1.0 else as.numeric(p)[1]
-    }, error = function(e) 1.0)   # default 1.0: "test sees nothing" when it errors
+    }, error = function(e) 1.0)
 
     c(rdd_p, dens_p)
-  })  # mat is 2 × N_SIM_RDD
+  })
 
   data.frame(p_game    = p_game,
              rdd_pval  = mat[1, ],
@@ -324,7 +329,7 @@ rdd_mc_one <- function(p_game) {
 
 game_levels <- c(0, 0.10, 0.20, 0.30, 0.50, 0.70)
 sim_rdd_mc  <- map_dfr(game_levels, rdd_mc_one)
-cat(sprintf("RDD simulation complete: %d conditions × %d sims = %d total.\n",
+cat(sprintf("RDD simulation complete: %d conditions x %d sims = %d total.\n",
             length(game_levels), N_SIM_RDD, nrow(sim_rdd_mc)))
 ```
 
@@ -359,7 +364,7 @@ ggplot(rdd_mc_summary, aes(x = p_game * 100, y = Rate, colour = Metric, shape = 
     colour = NULL, shape = NULL,
     title  = "RDD Type I error from manipulation (true badge effect = $0)",
     subtitle = sprintf(
-      "High-credential firms near threshold push scores just above 70 — their customers have higher WTP regardless  |  %d sims per condition",
+      "High-credential brands (high Z) game into just-above 70; low-Z brands remain below — spurious WTP gap grows with gaming rate  |  %d sims per condition",
       N_SIM_RDD)
   ) +
   theme_mod3() +
