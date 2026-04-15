@@ -738,55 +738,74 @@ Unique Obs.                     677          523
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>N_RDD_MC    <span class="ot">&lt;-</span> <span class="dv">500</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>CUTOFF_MC   <span class="ot">&lt;-</span> <span class="dv">70</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>GAME_WINDOW <span class="ot">&lt;-</span> <span class="dv">10</span>   <span class="co"># brands within 10 pts below cutoff are eligible to game</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>rdd_mc_one <span class="ot">&lt;-</span> <span class="cf">function</span>(p_game) {</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_RDD, {</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Z: latent brand eco-reputation — the UNOBSERVED confounder.</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Z is independent of operational audit score but drives both gaming and WTP.</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_RDD_MC, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Audit scores clustered near cutoff: most brands are borderline.</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># A brand's score reflects operational compliance, NOT brand reputation (Z).</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    audit <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="dv">100</span>, <span class="fu">pmax</span>(<span class="dv">30</span>,</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">rnorm</span>(N_RDD_MC, <span class="at">mean =</span> <span class="dv">65</span>, <span class="at">sd =</span> <span class="dv">12</span>)))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>BW_RDD      <span class="ot">&lt;-</span> <span class="dv">10</span>   <span class="co"># fixed local-linear comparison window (±10 audit points)</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>rdd_mc_one <span class="ot">&lt;-</span> <span class="cf">function</span>(p_game) {</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_RDD, {</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Z: unobserved brand eco-reputation — the confounder.</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Z is INDEPENDENT of audit score but drives both gaming and WTP.</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_RDD_MC, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Audit scores clustered near the threshold (most brands are borderline).</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The audit measures operational compliance; brand reputation Z is separate.</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    audit <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="dv">100</span>, <span class="fu">pmax</span>(<span class="dv">30</span>, <span class="fu">rnorm</span>(N_RDD_MC, <span class="at">mean =</span> CUTOFF_MC <span class="sc">-</span> <span class="dv">3</span>, <span class="at">sd =</span> <span class="dv">9</span>)))</span>
 <span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># High-reputation brands (Z &gt; 0) just below the threshold game the audit.</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># They move to just above 70 — bringing their high-Z customer base with them.</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    near_below <span class="ot">&lt;-</span> audit <span class="sc">&gt;=</span> (CUTOFF_MC <span class="sc">-</span> GAME_WINDOW) <span class="sc">&amp;</span> audit <span class="sc">&lt;</span> CUTOFF_MC</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    game_mask  <span class="ot">&lt;-</span> near_below <span class="sc">&amp;</span> (Z <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">&amp;</span> (<span class="fu">runif</span>(N_RDD_MC) <span class="sc">&lt;</span> p_game)</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    audit[game_mask] <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="dv">100</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>                             audit[game_mask] <span class="sc">+</span> <span class="fu">runif</span>(<span class="fu">sum</span>(game_mask), <span class="dv">1</span>, <span class="dv">8</span>))</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># WTP is driven by brand eco-reputation Z alone — badge has NO causal effect.</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Beta_Z = 1.5: a 1-SD reputation advantage is worth $1.50 in WTP.</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Low idiosyncratic noise (SD = $0.30) so the Z signal dominates.</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Post-gaming: RDD sees a spurious WTP jump at 70 driven by Z-sorting, not badge.</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    WTP_mc <span class="ot">&lt;-</span> <span class="fl">5.5</span> <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> Z <span class="sc">+</span> <span class="fu">rnorm</span>(N_RDD_MC, <span class="dv">0</span>, <span class="fl">0.30</span>)</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    WTP_mc <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">1</span>, <span class="fu">pmin</span>(<span class="dv">10</span>, WTP_mc))</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    rdd_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>      est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y =</span> WTP_mc, <span class="at">x =</span> audit, <span class="at">c =</span> CUTOFF_MC)</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>      <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(est<span class="sc">$</span>coef[<span class="dv">1</span>] <span class="sc">/</span> est<span class="sc">$</span>se[<span class="dv">1</span>]))</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>)</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    dens_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>      rd <span class="ot">&lt;-</span> <span class="fu">rddensity</span>(<span class="at">X =</span> audit, <span class="at">c =</span> CUTOFF_MC)</span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>      p  <span class="ot">&lt;-</span> rd<span class="sc">$</span>test<span class="sc">$</span>p_jk</span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.null</span>(p) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is.finite</span>(p)) <span class="fl">1.0</span> <span class="cf">else</span> <span class="fu">as.numeric</span>(p)[<span class="dv">1</span>]</span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(rdd_p, dens_p)</span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">p_game    =</span> p_game,</span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>             <span class="at">rdd_pval  =</span> mat[<span class="dv">1</span>, ],</span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>             <span class="at">dens_pval =</span> mat[<span class="dv">2</span>, ])</span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>game_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.50</span>, <span class="fl">0.70</span>)</span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>sim_rdd_mc  <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(game_levels, rdd_mc_one)</span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"RDD simulation complete: %d conditions x %d sims = %d total.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(game_levels), N_SIM_RDD, <span class="fu">nrow</span>(sim_rdd_mc)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># High-reputation brands (Z &gt; 0) near threshold appeal/re-audit to cross.</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># cross_gap guarantees the brand actually crosses the threshold;</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># extra scatter places them just above 70 (in [70.5, 77.5]).</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    near_below <span class="ot">&lt;-</span> audit <span class="sc">&gt;=</span> (CUTOFF_MC <span class="sc">-</span> GAME_WINDOW) <span class="sc">&amp;</span> audit <span class="sc">&lt;</span> CUTOFF_MC</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    game_mask  <span class="ot">&lt;-</span> near_below <span class="sc">&amp;</span> (Z <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">&amp;</span> (<span class="fu">runif</span>(N_RDD_MC) <span class="sc">&lt;</span> p_game)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(game_mask)) {</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      cross_gap        <span class="ot">&lt;-</span> CUTOFF_MC <span class="sc">-</span> audit[game_mask] <span class="sc">+</span> <span class="fl">0.5</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      audit[game_mask] <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="dv">100</span>, audit[game_mask] <span class="sc">+</span> cross_gap <span class="sc">+</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">runif</span>(<span class="fu">sum</span>(game_mask), <span class="dv">0</span>, <span class="dv">7</span>))</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># WTP driven entirely by brand eco-reputation Z — true badge effect = $0.</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># After gaming: just-above 70 is flooded with high-Z brands (high WTP);</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># just-below is depleted of them. Local comparison picks up this</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Z-sorting as a spurious badge discontinuity.</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    WTP_mc <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">1</span>, <span class="fu">pmin</span>(<span class="dv">10</span>, <span class="fl">5.5</span> <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> Z <span class="sc">+</span> <span class="fu">rnorm</span>(N_RDD_MC, <span class="dv">0</span>, <span class="fl">0.30</span>)))</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Local linear RDD with a fixed ±BW_RDD window.</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># When WTP has no trend in audit score, rdrobust auto-selects a very wide</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># bandwidth, diluting the gaming signal across hundreds of unaffected</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># observations. A fixed narrow window keeps the comparison local enough</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># that the Z-sorted gamers constitute a substantial fraction of just-above.</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    D     <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(audit <span class="sc">&gt;=</span> CUTOFF_MC)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    in_bw <span class="ot">&lt;-</span> <span class="fu">abs</span>(audit <span class="sc">-</span> CUTOFF_MC) <span class="sc">&lt;=</span> BW_RDD</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    rdd_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sum</span>(in_bw) <span class="sc">&lt;</span> <span class="dv">10</span> <span class="sc">||</span> <span class="sc">!</span><span class="fu">any</span>(D[in_bw] <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">||</span> <span class="sc">!</span><span class="fu">any</span>(D[in_bw] <span class="sc">==</span> <span class="dv">1</span>)) {</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_real_</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>        df_bw <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y  =</span> WTP_mc[in_bw],</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>                            <span class="at">xc =</span> audit[in_bw] <span class="sc">-</span> CUTOFF_MC,</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>                            <span class="at">D  =</span> D[in_bw])</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>        m  <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> D <span class="sc">*</span> xc, <span class="at">data =</span> df_bw)</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>        sm <span class="ot">&lt;-</span> <span class="fu">summary</span>(m)<span class="sc">$</span>coefficients</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>        <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pt</span>(<span class="sc">-</span><span class="fu">abs</span>(sm[<span class="st">"D"</span>, <span class="st">"t value"</span>]), <span class="at">df =</span> m<span class="sc">$</span>df.residual)</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>)</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Density test: detects bunching of gamers just above the cutoff</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    dens_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>      rd <span class="ot">&lt;-</span> <span class="fu">rddensity</span>(<span class="at">X =</span> audit, <span class="at">c =</span> CUTOFF_MC)</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>      p  <span class="ot">&lt;-</span> rd<span class="sc">$</span>test<span class="sc">$</span>p_jk</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.null</span>(p) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is.finite</span>(p)) <span class="fl">1.0</span> <span class="cf">else</span> <span class="fu">as.numeric</span>(p)[<span class="dv">1</span>]</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(rdd_p, dens_p)</span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">p_game    =</span> p_game,</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>             <span class="at">rdd_pval  =</span> mat[<span class="dv">1</span>, ],</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>             <span class="at">dens_pval =</span> mat[<span class="dv">2</span>, ])</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>game_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.50</span>, <span class="fl">0.70</span>)</span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>sim_rdd_mc  <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(game_levels, rdd_mc_one)</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"RDD simulation complete: %d conditions x %d sims = %d total.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(game_levels), N_SIM_RDD, <span class="fu">nrow</span>(sim_rdd_mc)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>RDD simulation complete: 6 conditions x 200 sims = 1200 total.</code></pre>
@@ -804,7 +823,7 @@ Unique Obs.                     677          523
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>RDD simulation: 200 sims per condition, N = 500 products, true badge effect = $0. Gaming firms are high-credential brands near the threshold.</caption>
+<caption>RDD simulation: 200 sims per condition, N = 500 brands, local linear ±10 pts, true badge effect = $0. Gaming selects high-Z brands into just-above 70.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Gaming rate</th>
@@ -815,33 +834,33 @@ Unique Obs.                     677          523
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">0%</td>
-<td style="text-align: left;">7%</td>
-<td style="text-align: left;">4%</td>
+<td style="text-align: left;">6%</td>
+<td style="text-align: left;">5%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">10%</td>
-<td style="text-align: left;">8%</td>
-<td style="text-align: left;">3%</td>
+<td style="text-align: left;">9%</td>
+<td style="text-align: left;">2%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">20%</td>
-<td style="text-align: left;">7%</td>
-<td style="text-align: left;">4%</td>
+<td style="text-align: left;">12%</td>
+<td style="text-align: left;">6%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">30%</td>
-<td style="text-align: left;">7%</td>
-<td style="text-align: left;">3%</td>
+<td style="text-align: left;">37%</td>
+<td style="text-align: left;">13%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">50%</td>
-<td style="text-align: left;">11%</td>
-<td style="text-align: left;">10%</td>
+<td style="text-align: left;">70%</td>
+<td style="text-align: left;">24%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">70%</td>
-<td style="text-align: left;">11%</td>
-<td style="text-align: left;">9%</td>
+<td style="text-align: left;">96%</td>
+<td style="text-align: left;">40%</td>
 </tr>
 </tbody>
 </table>
