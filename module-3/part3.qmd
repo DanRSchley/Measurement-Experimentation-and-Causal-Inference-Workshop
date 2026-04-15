@@ -274,7 +274,9 @@ When estimates collapse or swing wildly as $h$ changes, it usually means the pol
 
 The density test and covariate continuity checks are the right diagnostics — but how much Type I error accumulates before those tests catch the problem? Here we simulate a concrete manipulation scenario and track false-positive rates as gaming becomes more common.
 
-**The mechanism.** Two variables matter here: (1) the *audit score* — what the running variable measures — and (2) latent *brand eco-credential strength* Z, an unobserved dimension reflecting the brand's genuine reputation, loyal customer base, and eco-marketing sophistication. Z is largely independent of the audit score (a firm can have strong green credentials yet score just below 70 due to measurement noise or procedural quirks). But Z does two things: it motivates gaming (high-Z firms near the threshold believe they deserve the badge and have the resources to appeal or re-submit) and it independently raises customer WTP (eco-conscious shoppers follow high-credential brands). **The true badge effect is zero.** After gaming, just above 70 contains genuine scorers (typical Z) *plus* gaming high-credential brands (high Z); just below, high-Z firms have departed, leaving a depleted, lower-Z pool. The RDD compares these two compositionally different groups and detects a WTP gap driven entirely by Z-sorting, not the badge.
+**The mechanism.** Two independent variables matter: (1) the *audit score* — operational compliance across energy use, waste, and supply chain — and (2) latent *brand eco-reputation* Z, an unobserved dimension reflecting genuine brand prestige and loyal eco-customer base. A brand can have strong reputation yet score just below 70: a complex supply chain, an unfamiliar auditor, or a borderline factory can drag the score down through measurement noise. Z does two things: it **motivates gaming** (high-reputation brands near the threshold believe they deserve the badge and have marketing resources to appeal, re-audit, or make cosmetic improvements) and it **independently drives WTP** (eco-conscious customers already follow high-reputation brands regardless of the badge). **The true badge effect is zero.**
+
+The bias accumulates via *compositional sorting*. Most brands in the sample are clustered around the cutoff (audit scores ~ N(65, 12) — many borderline brands, fewer extreme ones). After gaming, just above 70 is flooded with high-Z departures from just below; just below 70 is left depleted of those same high-Z brands. The RDD compares these compositionally distinct groups and interprets the Z-driven WTP gap as a badge effect.
 
 ```{r rdd-manipulation-mc, fig.height=5, fig.width=10}
 #| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (200 sims)"
@@ -282,30 +284,31 @@ set.seed(2025)
 N_SIM_RDD   <- 200
 N_RDD_MC    <- 500
 CUTOFF_MC   <- 70
-GAME_WINDOW <- 8    # firms within 8 pts below cutoff are at risk of gaming
+GAME_WINDOW <- 10   # brands within 10 pts below cutoff are eligible to game
 
 rdd_mc_one <- function(p_game) {
   mat <- replicate(N_SIM_RDD, {
-    # Z: latent brand eco-credential strength — the unobserved confounder
-    # Z is independent of the audit score but drives both gaming and WTP
+    # Z: latent brand eco-reputation — the UNOBSERVED confounder.
+    # Z is independent of operational audit score but drives both gaming and WTP.
     Z <- rnorm(N_RDD_MC, 0, 1)
 
-    # Audit score reflects firm-level environmental performance,
-    # largely independent of brand reputation Z
-    qual_raw <- runif(N_RDD_MC, 30, 100)
-    audit    <- pmin(100, pmax(30, qual_raw + rnorm(N_RDD_MC, 0, 4)))
+    # Audit scores clustered near cutoff: most brands are borderline.
+    # A brand's score reflects operational compliance, NOT brand reputation (Z).
+    audit <- pmin(100, pmax(30,
+                            rnorm(N_RDD_MC, mean = 65, sd = 12)))
 
-    # High-credential firms (Z > 0) just below threshold game the audit score.
-    # After gaming they land just above 70 — with their high-Z WTP intact.
+    # High-reputation brands (Z > 0) just below the threshold game the audit.
+    # They move to just above 70 — bringing their high-Z customer base with them.
     near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
     game_mask  <- near_below & (Z > 0) & (runif(N_RDD_MC) < p_game)
-    audit[game_mask] <- pmin(100, audit[game_mask] +
-                               runif(sum(game_mask), 1, GAME_WINDOW + 2))
+    audit[game_mask] <- pmin(100,
+                             audit[game_mask] + runif(sum(game_mask), 1, 8))
 
-    # WTP driven entirely by brand credentials Z — badge has NO causal effect.
-    # Just-above post-gaming: surplus of high-Z firms. Just-below: deficit.
-    # RDD picks up the Z-induced WTP gap as a spurious badge effect.
-    WTP_mc <- 4.0 + 1.0 * Z + rnorm(N_RDD_MC, 0, 0.50)
+    # WTP is driven by brand eco-reputation Z alone — badge has NO causal effect.
+    # Beta_Z = 1.5: a 1-SD reputation advantage is worth $1.50 in WTP.
+    # Low idiosyncratic noise (SD = $0.30) so the Z signal dominates.
+    # Post-gaming: RDD sees a spurious WTP jump at 70 driven by Z-sorting, not badge.
+    WTP_mc <- 5.5 + 1.5 * Z + rnorm(N_RDD_MC, 0, 0.30)
     WTP_mc <- pmax(1, pmin(10, WTP_mc))
 
     rdd_p <- tryCatch({
@@ -391,11 +394,13 @@ sim_rdd_mc |>
 ```
 
 ::: {.callout-warning}
-## The key pattern: Type I error climbs before the density test has power to catch it
+## The key pattern: RDD Type I error races toward 100% while the density test lags
 
-At low gaming rates (10–20%), the density test — the standard diagnostic — has low power to detect manipulation. Yet the RDD Type I error is already substantially above 5%. A researcher who runs `rddensity`, sees p > .05, and proceeds in good faith will still produce spurious findings at these rates.
+As gaming becomes common, the density of audit scores just above 70 swells (gamers pile in from below) and the density just below depletes. The RDD treats this Z-sorted composition as a real treatment effect — **Type I error climbs steeply toward 100%**. The density test (McCrary/rddensity) eventually picks up the bunching, but it has substantially less power than the spurious RDD finding itself: a researcher who checks `rddensity`, sees a borderline p-value, and proceeds will still produce highly confident false positives.
 
-**What to do:** (1) Report the density test but be explicit about its power at your sample size. (2) Run covariate continuity checks — if gaming firms have systematically different pre-existing characteristics, those will show up as covariate discontinuities. (3) Narrow the bandwidth: at very narrow bandwidths, gaming firms are still present above but fewer are present below (since the window is smaller), reducing the sorting imbalance. (4) If qualitative knowledge suggests manipulation is plausible, treat the RDD as a *fuzzy* design and instrument.
+**Why does Z go undetected?** The audit score is observable; Z (brand reputation) is not. Standard covariate balance checks only test *observed* pre-treatment variables. If no survey measure of brand reputation was collected, the sorting on Z is completely invisible — yet it inflates Type I error just as severely.
+
+**What to do:** (1) Collect measures of *why* firms are near the threshold — if you can measure Z, include it as a covariate and check its continuity. (2) Run a donut RDD excluding observations within a narrow band of the cutoff, where gaming is most concentrated. (3) If gaming is plausible from domain knowledge, treat any RDD near a known incentivized threshold with extra skepticism regardless of what the density test says.
 :::
 
 ---
