@@ -285,37 +285,56 @@ N_SIM_RDD   <- 200
 N_RDD_MC    <- 500
 CUTOFF_MC   <- 70
 GAME_WINDOW <- 10   # brands within 10 pts below cutoff are eligible to game
+BW_RDD      <- 10   # fixed local-linear comparison window (±10 audit points)
 
 rdd_mc_one <- function(p_game) {
   mat <- replicate(N_SIM_RDD, {
-    # Z: latent brand eco-reputation — the UNOBSERVED confounder.
-    # Z is independent of operational audit score but drives both gaming and WTP.
+    # Z: unobserved brand eco-reputation — the confounder.
+    # Z is INDEPENDENT of audit score but drives both gaming and WTP.
     Z <- rnorm(N_RDD_MC, 0, 1)
 
-    # Audit scores clustered near cutoff: most brands are borderline.
-    # A brand's score reflects operational compliance, NOT brand reputation (Z).
-    audit <- pmin(100, pmax(30,
-                            rnorm(N_RDD_MC, mean = 65, sd = 12)))
+    # Audit scores clustered near the threshold (most brands are borderline).
+    # The audit measures operational compliance; brand reputation Z is separate.
+    audit <- pmin(100, pmax(30, rnorm(N_RDD_MC, mean = CUTOFF_MC - 3, sd = 9)))
 
-    # High-reputation brands (Z > 0) just below the threshold game the audit.
-    # They move to just above 70 — bringing their high-Z customer base with them.
+    # High-reputation brands (Z > 0) near threshold appeal/re-audit to cross.
+    # cross_gap guarantees the brand actually crosses the threshold;
+    # extra scatter places them just above 70 (in [70.5, 77.5]).
     near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
     game_mask  <- near_below & (Z > 0) & (runif(N_RDD_MC) < p_game)
-    audit[game_mask] <- pmin(100,
-                             audit[game_mask] + runif(sum(game_mask), 1, 8))
+    if (any(game_mask)) {
+      cross_gap        <- CUTOFF_MC - audit[game_mask] + 0.5
+      audit[game_mask] <- pmin(100, audit[game_mask] + cross_gap +
+                                 runif(sum(game_mask), 0, 7))
+    }
 
-    # WTP is driven by brand eco-reputation Z alone — badge has NO causal effect.
-    # Beta_Z = 1.5: a 1-SD reputation advantage is worth $1.50 in WTP.
-    # Low idiosyncratic noise (SD = $0.30) so the Z signal dominates.
-    # Post-gaming: RDD sees a spurious WTP jump at 70 driven by Z-sorting, not badge.
-    WTP_mc <- 5.5 + 1.5 * Z + rnorm(N_RDD_MC, 0, 0.30)
-    WTP_mc <- pmax(1, pmin(10, WTP_mc))
+    # WTP driven entirely by brand eco-reputation Z — true badge effect = $0.
+    # After gaming: just-above 70 is flooded with high-Z brands (high WTP);
+    # just-below is depleted of them. Local comparison picks up this
+    # Z-sorting as a spurious badge discontinuity.
+    WTP_mc <- pmax(1, pmin(10, 5.5 + 1.5 * Z + rnorm(N_RDD_MC, 0, 0.30)))
 
+    # Local linear RDD with a fixed ±BW_RDD window.
+    # When WTP has no trend in audit score, rdrobust auto-selects a very wide
+    # bandwidth, diluting the gaming signal across hundreds of unaffected
+    # observations. A fixed narrow window keeps the comparison local enough
+    # that the Z-sorted gamers constitute a substantial fraction of just-above.
+    D     <- as.integer(audit >= CUTOFF_MC)
+    in_bw <- abs(audit - CUTOFF_MC) <= BW_RDD
     rdd_p <- tryCatch({
-      est <- rdrobust(y = WTP_mc, x = audit, c = CUTOFF_MC)
-      2 * pnorm(-abs(est$coef[1] / est$se[1]))
+      if (sum(in_bw) < 10 || !any(D[in_bw] == 0) || !any(D[in_bw] == 1)) {
+        NA_real_
+      } else {
+        df_bw <- data.frame(y  = WTP_mc[in_bw],
+                            xc = audit[in_bw] - CUTOFF_MC,
+                            D  = D[in_bw])
+        m  <- lm(y ~ D * xc, data = df_bw)
+        sm <- summary(m)$coefficients
+        2 * pt(-abs(sm["D", "t value"]), df = m$df.residual)
+      }
     }, error = function(e) NA_real_)
 
+    # Density test: detects bunching of gamers just above the cutoff
     dens_p <- tryCatch({
       rd <- rddensity(X = audit, c = CUTOFF_MC)
       p  <- rd$test$p_jk
@@ -367,7 +386,7 @@ ggplot(rdd_mc_summary, aes(x = p_game * 100, y = Rate, colour = Metric, shape = 
     colour = NULL, shape = NULL,
     title  = "RDD Type I error from manipulation (true badge effect = $0)",
     subtitle = sprintf(
-      "High-credential brands (high Z) game into just-above 70; low-Z brands remain below — spurious WTP gap grows with gaming rate  |  %d sims per condition",
+      "High-Z brands game into just-above 70; just-below is depleted — local linear comparison (±10 pts) picks up spurious WTP jump  |  %d sims",
       N_SIM_RDD)
   ) +
   theme_mod3() +
@@ -388,7 +407,7 @@ sim_rdd_mc |>
   ) |>
   knitr::kable(
     caption = sprintf(
-      "RDD simulation: %d sims per condition, N = %d products, true badge effect = $0. Gaming firms are high-credential brands near the threshold.",
+      "RDD simulation: %d sims per condition, N = %d brands, local linear ±10 pts, true badge effect = $0. Gaming selects high-Z brands into just-above 70.",
       N_SIM_RDD, N_RDD_MC)
   )
 ```
