@@ -277,50 +277,53 @@ The density test and covariate continuity checks are the right diagnostics — b
 **The mechanism.** A brand's audit score contains measurement noise. Brands with genuinely strong environmental credentials that scored just below 70 are most motivated to appeal, re-submit, or subtly influence the audit to cross the threshold — they believe the badge will pay off commercially. These same high-credential brands attract eco-conscious shoppers, so their customers have naturally higher WTP. The result: just above 70 you get genuine 70+ scorers *plus* gaming high-quality brands; just below, only genuine sub-70 scorers. **The true badge effect is zero** — the jump is driven entirely by credential sorting, not the badge.
 
 ```{r rdd-manipulation-mc, fig.height=5, fig.width=10}
-#| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (300 sims)"
+#| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (200 sims)"
 set.seed(2025)
-N_SIM_RDD   <- 300
-N_RDD_MC    <- 500
+N_SIM_RDD   <- 200
+N_RDD_MC    <- 400
 CUTOFF_MC   <- 70
 GAME_WINDOW <- 6    # firms within 6 pts below cutoff are "at risk" of gaming
 
 rdd_mc_one <- function(p_game) {
-  pvec <- vapply(seq_len(N_SIM_RDD), function(i) {
+  # replicate() returns a 2×N matrix; no strict-length requirement like vapply
+  mat <- replicate(N_SIM_RDD, {
     # True environmental quality; WTP tracks this, not the badge
     true_qual  <- runif(N_RDD_MC, 30, 100)
     # Observed audit score = true quality + measurement noise
     audit      <- pmin(100, pmax(30, true_qual + rnorm(N_RDD_MC, 0, 4)))
 
-    # High-quality firms just below the threshold push their audit score over
+    # High-quality firms just below the threshold push their score above 70
     near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
-    hi_qual    <- true_qual >= (CUTOFF_MC - GAME_WINDOW)   # those motivated to game
+    hi_qual    <- true_qual >= (CUTOFF_MC - GAME_WINDOW)
     game_mask  <- near_below & hi_qual & (runif(N_RDD_MC) < p_game)
-    # Gaming nudges score just over the cutoff
-    audit[game_mask] <- pmin(100, audit[game_mask] + runif(sum(game_mask), 1, GAME_WINDOW))
+    audit[game_mask] <- pmin(100, audit[game_mask] +
+                               runif(sum(game_mask), 1, GAME_WINDOW))
 
-    # Outcome: linear in true quality — badge has no effect
+    # Outcome: linear in true quality — badge has NO effect
     WTP_mc <- 4.0 + 0.025 * (true_qual - CUTOFF_MC) + rnorm(N_RDD_MC, 0, 0.60)
     WTP_mc <- pmax(1, pmin(10, WTP_mc))
 
-    rdd_pval   <- tryCatch({
+    rdd_p <- tryCatch({
       est <- rdrobust(y = WTP_mc, x = audit, c = CUTOFF_MC)
-      2 * pnorm(-abs(est$coef["Conventional", 1] / est$se["Robust", 1]))
+      2 * pnorm(-abs(est$coef[1] / est$se[1]))  # [1] = Conventional; safe indexing
     }, error = function(e) NA_real_)
 
-    dens_pval  <- tryCatch({
-      rddensity(X = audit, c = CUTOFF_MC)$test$p_jk
-    }, error = function(e) NA_real_)
+    dens_p <- tryCatch({
+      rd <- rddensity(X = audit, c = CUTOFF_MC)
+      p  <- rd$test$p_jk          # works in rddensity >= 2.1
+      if (is.null(p) || !is.finite(p)) 1.0 else as.numeric(p)[1]
+    }, error = function(e) 1.0)   # default 1.0: "test sees nothing" when it errors
 
-    c(rdd_pval, dens_pval)
-  }, numeric(2))  # 2 × N_SIM_RDD
+    c(rdd_p, dens_p)
+  })  # mat is 2 × N_SIM_RDD
 
-  data.frame(p_game   = p_game,
-             rdd_pval = pvec[1, ],
-             dens_pval= pvec[2, ])
+  data.frame(p_game    = p_game,
+             rdd_pval  = mat[1, ],
+             dens_pval = mat[2, ])
 }
 
-game_levels  <- c(0, 0.10, 0.20, 0.30, 0.50, 0.70)
-sim_rdd_mc   <- map_dfr(game_levels, rdd_mc_one)
+game_levels <- c(0, 0.10, 0.20, 0.30, 0.50, 0.70)
+sim_rdd_mc  <- map_dfr(game_levels, rdd_mc_one)
 cat(sprintf("RDD simulation complete: %d conditions × %d sims = %d total.\n",
             length(game_levels), N_SIM_RDD, nrow(sim_rdd_mc)))
 ```

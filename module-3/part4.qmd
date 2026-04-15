@@ -569,105 +569,156 @@ type1_pt |>
 - Treat a passing event study as weak evidence, not proof, of parallel trends
 :::
 
-### Violation Severity at Fixed 2 Pre-Periods {#sec-pt-violation-severity}
+### How an Unobserved Variable Inflates Type I Error {#sec-pt-ov-severity}
 
-The previous simulation varied how many pre-periods you collect, holding the violation at \$0.15/yr. Now we fix pre-periods at 2 — the single most common situation in management and marketing research — and ask: **how large does the differential trend need to be before DiD becomes unreliable?**
+The previous simulation assumed a differential slope — a pre-existing divergence visible in pre-trend data. A more dangerous violation involves an **unobserved time-varying variable** that only appears post-treatment, making pre-trend tests completely blind to it.
 
-The answer is uncomfortable: even a \$0.05/yr differential ($\approx 1\%$ of baseline WTP) produces Type I error well above 5%. A \$0.15/yr trend — modest and plausible in many real markets — produces Type I error around 40%.
+**The mechanism.** Suppose eco-orientation of a store's customer base (call it U) is unobserved. Dutch stores were already in more eco-conscious neighbourhoods — they have higher U. Post-2022, a global sustainability wave means U increasingly drives WTP everywhere: eco-conscious shoppers are willing to pay more for sustainable products regardless of labelling laws. Stores with higher U benefit disproportionately in the post-period — but not because of the Dutch law. **True law effect = \$0.** Yet DiD attributes the U-driven post-period WTP gain to the law.
 
-```{r pt-violation-severity, fig.height=5, fig.width=10}
-#| code-summary: "▶ Monte Carlo: Type I error vs. differential trend magnitude (2 pre-periods fixed)"
+**Why the pre-trend test is blind to this.** U is a fixed store characteristic. Store fixed effects absorb U completely — so in pre-treatment periods, the Dutch–Belgian trend difference from U is zero. The violation only materialises in the post-period when U interacts with time. An event study with 100 pre-periods would show perfectly parallel pre-trends even as this confounder grows post-treatment.
+
+**The OVB connection.** DiD bias ≈ γ × (Ē[U | Dutch] − Ē[U | Belgian]). With Dutch stores 1 SD higher in eco-orientation, bias ≈ γ × 1.0 = γ. This is the same formula as omitted variable bias from Module 1 — the coefficient on the omitted variable (γ) times its correlation with the treatment indicator.
+
+```{r pt-ov-simulation, fig.height=5, fig.width=10}
+#| code-summary: "▶ Monte Carlo: Type I error vs. omitted variable strength γ (300 sims, 2 pre-periods)"
 set.seed(2026)
-N_SIM_SEV   <- 300
-N_PRE_FIXED <- 2     # fixed at 2 pre-periods
-slope_grid  <- seq(0, 0.40, by = 0.05)   # differential trend: $0/yr to $0.40/yr
+N_SIM_OV <- 300
+# γ: additional WTP per 1-SD unit of eco-orientation U in the post-period
+# Dutch stores: E[U] = +0.5 SD; Belgian: E[U] = -0.5 SD
+# Expected DiD bias ≈ γ × (0.5 − (−0.5)) = γ × 1.0 = γ
+gamma_grid <- seq(0, 0.80, by = 0.10)
 
-pt_sev_one <- function(diff_slope) {
-  years_s <- c(seq(T_treat_v - N_PRE_FIXED, T_treat_v - 1),
-               T_treat_v:(T_treat_v + n_post_v - 1))
-  n_yrs   <- length(years_s)
+pt_ov_one <- function(gamma) {
+  years_ov <- c(2020, 2021, 2022, 2023, 2024)   # 2 pre, 3 post (modal setting)
+  T_ov     <- 2022
 
-  pvec <- replicate(N_SIM_SEV, {
-    n_obs     <- n_stores_v * n_yrs
-    store_s   <- rep(1:n_stores_v,  each  = n_yrs)
-    year_s    <- rep(years_s,       times = n_stores_v)
-    treated_s <- as.numeric(store_s <= n_dutch_v)
-    post_s    <- as.numeric(year_s >= T_treat_v)
-    did_s     <- treated_s * post_s
-    diff_s    <- treated_s * diff_slope * (year_s - T_treat_v)
-    fe_s      <- rnorm(n_stores_v, 0, 0.6)[store_s]
-    WTP_s     <- 5.20 + fe_s + 0.08 * (year_s - T_treat_v) + diff_s + rnorm(n_obs, 0, 0.40)
+  mat <- replicate(N_SIM_OV, {
+    # U_i: unobserved eco-orientation — researcher does not observe this
+    U_i <- c(rnorm(n_dutch_v,   +0.5, 1),   # Dutch stores: higher eco-orientation
+             rnorm(n_belgian_v, -0.5, 1))    # Belgian: lower eco-orientation
+    fe  <- rnorm(n_stores_v, 0, 0.5)
 
-    df_s <- data.frame(WTP   = WTP_s, did   = did_s,
-                       store = factor(store_s), year  = factor(year_s))
-    fit  <- lm(WTP ~ did + store + year, data = df_s)
-    tryCatch(
-      coeftest(fit, vcovCL(fit, cluster = ~store))["did", 4],
+    panel <- expand.grid(store = seq_len(n_stores_v), year = years_ov) |>
+      as_tibble() |>
+      mutate(
+        treated = as.integer(store <= n_dutch_v),
+        post    = as.integer(year >= T_ov),
+        did     = treated * post,
+        U       = U_i[store],
+        # U × post: the omitted confounder is only active post-treatment
+        # Store FEs absorb U; year FEs absorb post; but U × post is not absorbed
+        WTP     = 5.20 + fe[store] + 0.08 * (year - T_ov) +
+                  gamma * U * post +        # omitted time-varying confounder
+                  rnorm(n(), 0, 0.40)
+        # Note: no did term — true law effect = $0
+      )
+
+    # DiD estimate (TWFE)
+    fit_d  <- lm(WTP ~ did + factor(store) + factor(year), data = panel)
+    pval_d <- tryCatch(
+      coeftest(fit_d, vcovCL(fit_d, cluster = ~store))["did", 4],
       error = function(e) NA_real_
     )
-  })
 
-  data.frame(diff_slope = diff_slope, pval = pvec)
+    # Pre-trend test in pre-periods only (should be blind to U × post)
+    pre      <- panel[panel$post == 0, ]
+    pre$yr_c <- pre$year - mean(pre$year)
+    fit_p    <- lm(WTP ~ treated * yr_c + factor(store), data = pre)
+    pval_p   <- tryCatch({
+      coeftest(fit_p, vcovCL(fit_p, cluster = ~store))["treated:yr_c", 4]
+    }, error = function(e) 1.0)
+
+    c(pval_d, pval_p)
+  })  # 2 × N_SIM_OV matrix
+
+  data.frame(gamma    = gamma,
+             did_pval = mat[1, ],
+             pre_pval = mat[2, ])
 }
 
-sim_sev <- map_dfr(slope_grid, pt_sev_one)
-cat(sprintf("Severity simulation complete: %d conditions × %d sims = %d total.\n",
-            length(slope_grid), N_SIM_SEV, nrow(sim_sev)))
+sim_ov <- map_dfr(gamma_grid, pt_ov_one)
+cat(sprintf("Omitted variable simulation: %d conditions × %d sims = %d total.\n",
+            length(gamma_grid), N_SIM_OV, nrow(sim_ov)))
 ```
 
-```{r pt-severity-plot, fig.height=5, fig.width=9, echo=FALSE}
-sev_summary <- sim_sev |>
-  group_by(diff_slope) |>
-  summarise(t1_rate = mean(pval < 0.05, na.rm = TRUE), .groups = "drop")
+```{r pt-ov-plot, fig.height=5, fig.width=10, echo=FALSE}
+ov_summary <- sim_ov |>
+  group_by(gamma) |>
+  summarise(
+    `DiD Type I error\n(false law effect)` = mean(did_pval < 0.05, na.rm = TRUE),
+    `Pre-trend test power\n(detects violation)` = mean(pre_pval < 0.05, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_longer(-gamma, names_to = "Metric", values_to = "Rate")
 
-ggplot(sev_summary, aes(x = diff_slope, y = t1_rate)) +
+# Mark γ = 0.70 — expected bias equals the true effect in the main DiD example
+ggplot(ov_summary, aes(x = gamma, y = Rate, colour = Metric, shape = Metric)) +
   geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
   annotate("text", x = 0.01, y = 0.075, label = "Nominal 5%", size = 3.2,
            colour = "grey40", hjust = 0) +
-  geom_vline(xintercept = diff_slope_v, linetype = "dashed",
-             colour = "#e67e22", linewidth = 0.8) +
-  annotate("text", x = diff_slope_v + 0.005, y = 0.85,
-           label = sprintf("$%.2f/yr used\nin main example", diff_slope_v),
-           hjust = 0, size = 3.0, colour = "#e67e22") +
-  geom_line(colour = "firebrick", linewidth = 1.3) +
-  geom_point(colour = "firebrick", size = 3) +
-  geom_ribbon(aes(
-    ymin = qbeta(0.10, t1_rate * N_SIM_SEV + 0.5, (1 - t1_rate) * N_SIM_SEV + 0.5),
-    ymax = qbeta(0.90, t1_rate * N_SIM_SEV + 0.5, (1 - t1_rate) * N_SIM_SEV + 0.5)),
-    alpha = 0.15, fill = "firebrick") +
-  scale_x_continuous(labels = function(x) sprintf("$%.2f/yr", x)) +
+  geom_vline(xintercept = 0.70, linetype = "dashed", colour = "#e67e22", linewidth = 0.8) +
+  annotate("text", x = 0.715, y = 0.55,
+           label = "\u03b3 = 0.70\nExpected bias = $0.70\n= entire true effect\nin main example",
+           hjust = 0, size = 2.9, colour = "#e67e22") +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "DiD Type I error\n(false law effect)"       = "firebrick",
+    "Pre-trend test power\n(detects violation)" = "#2563a8"
+  )) +
+  scale_shape_manual(values = c(
+    "DiD Type I error\n(false law effect)"       = 17,
+    "Pre-trend test power\n(detects violation)" = 16
+  )) +
+  scale_x_continuous(
+    breaks = gamma_grid,
+    labels = function(g) sprintf("$%.2f", g),
+    sec.axis = sec_axis(~ . * 1, name = "Expected DiD bias (= \u03b3 \u00d7 1 SD difference in U)",
+                        labels = function(g) sprintf("$%.2f", g))
+  ) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
   labs(
-    x        = "Differential trend between Dutch and Belgian stores (true effect = $0)",
-    y        = "Type I error rate",
-    title    = "DiD Type I error rises sharply with violation magnitude (2 pre-periods, true effect = $0)",
+    x      = "Strength of omitted variable (\u03b3: WTP gain per 1 SD of eco-orientation in post-period)",
+    y      = "Rate",
+    colour = NULL, shape = NULL,
+    title  = "DiD Type I error from omitted time-varying confounder (true law effect = $0)",
     subtitle = sprintf(
-      "Shaded band = 80%% simulation interval  |  %d sims per condition  |  %d Dutch, %d Belgian stores",
-      N_SIM_SEV, n_dutch_v, n_belgian_v)
+      "U absorbed by store FEs pre-treatment \u2014 pre-trend test stays flat while DiD Type I error soars  |  %d sims",
+      N_SIM_OV)
   ) +
-  theme_mod3()
+  theme_mod3() +
+  theme(legend.key.width = unit(2, "cm"))
 ```
 
-```{r pt-severity-table, echo=FALSE}
-sev_summary |>
+```{r pt-ov-table, echo=FALSE}
+sim_ov |>
+  group_by(gamma) |>
+  summarise(
+    `DiD Type I error`   = sprintf("%.0f%%", 100 * mean(did_pval < 0.05, na.rm = TRUE)),
+    `Pre-test power`     = sprintf("%.0f%%", 100 * mean(pre_pval < 0.05, na.rm = TRUE)),
+    `Expected bias`      = sprintf("$%.2f", gamma[1]),
+    .groups = "drop"
+  ) |>
   transmute(
-    `Differential trend ($/yr)` = sprintf("$%.2f", diff_slope),
-    `Type I error rate`         = sprintf("%.0f%%", 100 * t1_rate),
-    `Relative to nominal 5%`    = sprintf("%.1f×", t1_rate / 0.05)
+    `\u03b3 (omitted var. strength)` = sprintf("$%.2f", gamma),
+    `Expected DiD bias`  = `Expected bias`,
+    `DiD Type I error`,
+    `Pre-trend test power`= `Pre-test power`
   ) |>
   knitr::kable(
     caption = sprintf(
-      "DiD Type I error by violation severity: 2 pre-periods, %d sims per condition, true effect = $0.",
-      N_SIM_SEV)
+      "DiD Type I error from omitted variable U: %d sims per condition, 2 pre-periods, true law effect = $0. Expected bias \u2248 \u03b3 because Dutch and Belgian stores differ by 1 SD in U.",
+      N_SIM_OV)
   )
 ```
 
 ::: {.callout-important}
-## What "plausible" violations look like in practice
+## The pre-trend test has zero power against this type of violation
 
-A \$0.15/yr differential trend across Dutch and Belgian stores is not an exotic failure — it corresponds to one group's customer base shifting toward greener preferences at a modest 3% annual rate. Yet this produces a Type I error above 30% with 2 pre-periods. **The pre-trend test with 2 pre-periods has essentially no power to catch it** (as shown in the previous simulation), so a researcher following standard practice would see clean pre-trends and proceed with confidence.
+The two lines tell the whole story. DiD Type I error rises steeply as γ increases — reaching near-certainty of a false positive when γ = 0.70 (a bias equal to the full true effect size from the main example). But the pre-trend test power **stays flat at the nominal 5%**. It never detects the violation regardless of how severe it becomes.
 
-This is why theoretical justification for the control group matters at least as much as the statistical pre-trend test. Ask not just "do the lines look parallel before treatment?" but "is there any reason to believe Dutch and Belgian shoppers were evolving differently for reasons unrelated to the law?"
+**Why?** Because U is a fixed store characteristic (captured by store FEs) with a post-period interaction. In pre-treatment periods, U's influence is absorbed away. Only when U × post materialises after the treatment date does the confounder do damage — and by then, the event study has nothing left to test.
+
+**What this means for practice:** Pre-trend tests are informative about one specific type of violation — pre-existing differential trends. They are completely uninformative about post-treatment-only confounders: macro shocks, secular trends in consumer attitudes, or any force that affects treated and control groups differently only after the treatment date. This is why theoretical justification for control group comparability is not a box-ticking exercise. Ask: *is there any mechanism — observable or not — that could have changed the Dutch–Belgian WTP gap post-2022 for reasons unrelated to the eco-label law?*
 :::
 
 ---
