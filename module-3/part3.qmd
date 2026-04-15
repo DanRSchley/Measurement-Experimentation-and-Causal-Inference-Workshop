@@ -367,8 +367,8 @@ ggplot(rdd_mc_summary, aes(x = p_game * 100, y = Rate, colour = Metric, shape = 
 sim_rdd_mc |>
   group_by(p_game) |>
   summarise(
-    `Type I error`      = sprintf("%.0f%%", 100 * mean(rdd_pval  < 0.05, na.rm = TRUE)),
-    `Density test power`= sprintf("%.0f%%", 100 * mean(dens_pval < 0.05, na.rm = TRUE)),
+    `RDD Type I error`   = sprintf("%.0f%%", 100 * mean(rdd_pval  < 0.05, na.rm = TRUE)),
+    `Density test power` = sprintf("%.0f%%", 100 * mean(dens_pval < 0.05, na.rm = TRUE)),
     .groups = "drop"
   ) |>
   transmute(
