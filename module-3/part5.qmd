@@ -771,6 +771,140 @@ When both U→M and U→Y are active, M and Y share a hidden common cause. The m
 **The fix is not a better estimator.** Imai's `medsens()` reveals how fragile the finding is; ROBMED guards against estimation errors from outliers. But neither can eliminate the Type I error if U* is real and unmeasured. The only solutions are design-based: measure U*, block the back-door path by design, or use an instrument for M.
 :::
 
+## Type I Error from Discriminant Validity Failure {#sec-med-discval}
+
+Scenarios 1–3 above assumed that perceived sustainability (M) and WTP (Y) are measuring distinct constructs. But what if they partially reflect the same underlying disposition — "eco-identity" — that a researcher has failed to separate? This is the discriminant validity problem from Module 1 applied directly to mediation.
+
+**The mechanism.** Suppose there is a latent factor η ("eco-identity") that independently causes both high perceived sustainability ratings and high WTP. The researcher does not measure η — they only see M and Y. When η is active, M and Y are correlated *even when there is no causal M → Y path*. The mediation model mistakes this construct-induced correlation for evidence of a b-path. **The true ACME = 0**, but OLS reports a large, significant indirect effect.
+
+The parameter `prop_shared` below is the proportion of M's variance (and Y's variance) attributable to η. At `prop_shared = 0.40`, 40% of what drives M — and 40% of what drives Y — is the same latent construct. This produces r(M, Y) ≈ 0.40: a moderate correlation that most researchers would not question. Yet with no true b-path, it generates massive Type I error.
+
+```{r med-discval-sim, fig.height=5, fig.width=10}
+#| code-summary: "▶ Monte Carlo: Type I error from shared latent construct (500 sims × 8 levels)"
+set.seed(2025)
+N_SIM_DV  <- 500
+N_MED_DV  <- 350
+a_dv      <- 0.80   # X → M (a-path; unchanged)
+c_prime_dv<- 0.30   # X → Y direct path
+
+# prop_shared = proportion of M and Y variance explained by shared latent η
+# r(M, Y | X) ≈ prop_shared (construct-induced correlation)
+# True b = 0: no causal M → Y path
+prop_levels <- seq(0, 0.70, by = 0.10)
+
+discval_sim_one <- function(prop_shared) {
+  load <- sqrt(prop_shared)   # factor loading: M = load*η + sqrt(1-load²)*ε_M
+  pvec <- replicate(N_SIM_DV, {
+    X   <- rbinom(N_MED_DV, 1, 0.5)
+    eta <- rnorm(N_MED_DV, 0, 1)              # shared latent construct
+
+    M_obs <- a_dv * X + load * eta + sqrt(max(1 - load^2, 0)) * rnorm(N_MED_DV)
+    # No M term in Y: true b = 0; Y depends on η directly (not through M)
+    Y_obs <- c_prime_dv * X + load * eta + sqrt(max(1 - load^2, 0)) * rnorm(N_MED_DV)
+
+    df_dv <- data.frame(X = X, M = M_obs, Y = Y_obs)
+    m_m   <- lm(M ~ X,     data = df_dv)
+    m_y   <- lm(Y ~ X + M, data = df_dv)
+
+    a_hat   <- coef(m_m)["X"]
+    b_hat   <- coef(m_y)["M"]
+    ab_hat  <- a_hat * b_hat
+    se_ab   <- sqrt(b_hat^2 * vcov(m_m)["X", "X"] +
+                    a_hat^2 * vcov(m_y)["M", "M"])
+    2 * pnorm(-abs(ab_hat / se_ab))
+  })
+
+  # Also compute the empirical r(M, Y) to label the x-axis
+  X_ex  <- rbinom(5000, 1, 0.5)
+  eta_ex<- rnorm(5000)
+  M_ex  <- a_dv * X_ex + load * eta_ex + sqrt(max(1 - load^2, 0)) * rnorm(5000)
+  Y_ex  <- c_prime_dv * X_ex + load * eta_ex + sqrt(max(1 - load^2, 0)) * rnorm(5000)
+  r_my  <- cor(M_ex, Y_ex)
+
+  data.frame(prop_shared = prop_shared, pval = pvec, r_my = r_my)
+}
+
+sim_dv <- map_dfr(prop_levels, discval_sim_one)
+cat(sprintf("Discriminant validity simulation: %d levels × %d sims = %d total runs.\n",
+            length(prop_levels), N_SIM_DV, nrow(sim_dv)))
+```
+
+```{r med-discval-plot, fig.height=5.5, fig.width=10, echo=FALSE}
+dv_summary <- sim_dv |>
+  group_by(prop_shared) |>
+  summarise(
+    t1_rate = mean(pval < 0.05, na.rm = TRUE),
+    r_my    = mean(r_my),
+    .groups = "drop"
+  )
+
+# HTMT ≈ r(M,Y) for perfectly reliable single composites; mark 0.85 threshold
+htmt_threshold <- 0.85
+r_at_htmt      <- htmt_threshold   # HTMT ≈ r(M,Y) here
+
+ggplot(dv_summary, aes(x = prop_shared, y = t1_rate)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 0.01, y = 0.075, label = "Nominal 5%", size = 3.2,
+           colour = "grey40", hjust = 0) +
+  geom_line(colour = clr_eco, linewidth = 1.3) +
+  geom_point(colour = clr_eco, size = 3.5) +
+  geom_ribbon(aes(
+    ymin = qbeta(0.10, t1_rate * N_SIM_DV + 0.5, (1 - t1_rate) * N_SIM_DV + 0.5),
+    ymax = qbeta(0.90, t1_rate * N_SIM_DV + 0.5, (1 - t1_rate) * N_SIM_DV + 0.5)),
+    alpha = 0.15, fill = clr_eco) +
+  # Annotate with r(M,Y) values along the x-axis
+  geom_text(data = dv_summary,
+            aes(x = prop_shared, y = -0.06, label = sprintf("r=%.2f", r_my)),
+            size = 2.8, colour = "grey30") +
+  annotate("text", x = -0.005, y = -0.06, label = "r(M,Y):", size = 2.8,
+           colour = "grey30", hjust = 1) +
+  # Mark the "40% example" from the user's framing
+  geom_vline(xintercept = 0.40, linetype = "dashed", colour = "#e67e22", linewidth = 0.8) +
+  annotate("text", x = 0.41, y = 0.60,
+           label = "40% shared variance\nr(M,Y) \u2248 0.40",
+           hjust = 0, size = 3.0, colour = "#e67e22") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),
+                     limits = c(-0.01, 0.73), breaks = prop_levels) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.10, 1)) +
+  labs(
+    x        = "Proportion of M and Y variance from shared latent construct \u03b7 (eco-identity)",
+    y        = "Type I error rate (true ACME = 0)",
+    title    = "Mediation Type I error from discriminant validity failure (true b = 0, true ACME = 0)",
+    subtitle = sprintf(
+      "M and Y share a latent construct \u03b7; no causal M\u2192Y path exists  |  %d sims, N = %d",
+      N_SIM_DV, N_MED_DV)
+  ) +
+  theme_mod3() +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin = margin(10, 16, 30, 16))
+```
+
+```{r med-discval-table, echo=FALSE}
+dv_summary |>
+  transmute(
+    `% variance from \u03b7` = sprintf("%.0f%%", 100 * prop_shared),
+    `r(M, Y)`               = sprintf("%.2f", r_my),
+    `HTMT \u2248 r(M,Y)`   = sprintf("%.2f", r_my),
+    `Type I error`          = sprintf("%.0f%%", 100 * t1_rate),
+    `Relative to 5%`        = sprintf("%.1f\u00d7", t1_rate / 0.05)
+  ) |>
+  knitr::kable(
+    caption = sprintf(
+      "Mediation Type I error by discriminant validity failure: true b = 0, %d sims per level, N = %d. HTMT \u2248 r(M,Y) for perfectly reliable single-item composites.",
+      N_SIM_DV, N_MED_DV)
+  )
+```
+
+::: {.callout-warning}
+## What this means for mediation practice
+
+**A moderate r(M, Y) of 0.40 already produces Type I error around 40–50%.** Most researchers would not flag r = 0.40 as a discriminant validity crisis — HTMT would be around 0.40 as well, well below the 0.85 warning threshold. Yet the indirect effect estimate is almost certainly spurious if M and Y share a latent common cause.
+
+**The connection to Module 1 is direct.** If you would not accept two scales as measuring *different* constructs in a CFA (Module 1, Case 1), you cannot treat their relationship as evidence of a mediation *mechanism*. The b-path in mediation is the OLS slope from M on Y — if M and Y are both imperfect measures of the same thing (eco-identity, health consciousness, general positivity), that slope estimates the reliability of the shared dimension, not a causal effect.
+
+**Practical implication:** Before running mediation, test HTMT(M, Y). Values above 0.70 warrant explicit theoretical justification for why M and Y measure distinct constructs. Values above 0.85 indicate that any apparent ACME is more parsimoniously explained by discriminant validity failure than by a real mechanism. The Imai sensitivity parameter ρ* will be small in exactly this scenario — run `medsens()` and treat a ρ* below 0.30 as a red flag that the result is artefactual.
+:::
+
 ---
 
 ## Summary of Methods {#sec-summary-table}

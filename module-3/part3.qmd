@@ -270,6 +270,126 @@ The bandwidth $h$ controls which products are included in the RDD comparison —
 When estimates collapse or swing wildly as $h$ changes, it usually means the polynomial fit on one side of the cutoff is extrapolating too aggressively. That's a red flag that warrants narrowing $h$ or using a local linear fit.
 :::
 
+## Type I Error from Running Variable Manipulation {#sec-rdd-manipulation-mc}
+
+The density test and covariate continuity checks are the right diagnostics — but how much Type I error accumulates before those tests catch the problem? Here we simulate a concrete manipulation scenario and track false-positive rates as gaming becomes more common.
+
+**The mechanism.** A brand's audit score contains measurement noise. Brands with genuinely strong environmental credentials that scored just below 70 are most motivated to appeal, re-submit, or subtly influence the audit to cross the threshold — they believe the badge will pay off commercially. These same high-credential brands attract eco-conscious shoppers, so their customers have naturally higher WTP. The result: just above 70 you get genuine 70+ scorers *plus* gaming high-quality brands; just below, only genuine sub-70 scorers. **The true badge effect is zero** — the jump is driven entirely by credential sorting, not the badge.
+
+```{r rdd-manipulation-mc, fig.height=5, fig.width=10}
+#| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (300 sims)"
+set.seed(2025)
+N_SIM_RDD   <- 300
+N_RDD_MC    <- 500
+CUTOFF_MC   <- 70
+GAME_WINDOW <- 6    # firms within 6 pts below cutoff are "at risk" of gaming
+
+rdd_mc_one <- function(p_game) {
+  pvec <- vapply(seq_len(N_SIM_RDD), function(i) {
+    # True environmental quality; WTP tracks this, not the badge
+    true_qual  <- runif(N_RDD_MC, 30, 100)
+    # Observed audit score = true quality + measurement noise
+    audit      <- pmin(100, pmax(30, true_qual + rnorm(N_RDD_MC, 0, 4)))
+
+    # High-quality firms just below the threshold push their audit score over
+    near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
+    hi_qual    <- true_qual >= (CUTOFF_MC - GAME_WINDOW)   # those motivated to game
+    game_mask  <- near_below & hi_qual & (runif(N_RDD_MC) < p_game)
+    # Gaming nudges score just over the cutoff
+    audit[game_mask] <- pmin(100, audit[game_mask] + runif(sum(game_mask), 1, GAME_WINDOW))
+
+    # Outcome: linear in true quality — badge has no effect
+    WTP_mc <- 4.0 + 0.025 * (true_qual - CUTOFF_MC) + rnorm(N_RDD_MC, 0, 0.60)
+    WTP_mc <- pmax(1, pmin(10, WTP_mc))
+
+    rdd_pval   <- tryCatch({
+      est <- rdrobust(y = WTP_mc, x = audit, c = CUTOFF_MC)
+      2 * pnorm(-abs(est$coef["Conventional", 1] / est$se["Robust", 1]))
+    }, error = function(e) NA_real_)
+
+    dens_pval  <- tryCatch({
+      rddensity(X = audit, c = CUTOFF_MC)$test$p_jk
+    }, error = function(e) NA_real_)
+
+    c(rdd_pval, dens_pval)
+  }, numeric(2))  # 2 × N_SIM_RDD
+
+  data.frame(p_game   = p_game,
+             rdd_pval = pvec[1, ],
+             dens_pval= pvec[2, ])
+}
+
+game_levels  <- c(0, 0.10, 0.20, 0.30, 0.50, 0.70)
+sim_rdd_mc   <- map_dfr(game_levels, rdd_mc_one)
+cat(sprintf("RDD simulation complete: %d conditions × %d sims = %d total.\n",
+            length(game_levels), N_SIM_RDD, nrow(sim_rdd_mc)))
+```
+
+```{r rdd-mc-plot, fig.height=5, fig.width=10, echo=FALSE}
+rdd_mc_summary <- sim_rdd_mc |>
+  group_by(p_game) |>
+  summarise(
+    `RDD Type I error\n(false badge effect)` = mean(rdd_pval  < 0.05, na.rm = TRUE),
+    `Density test power\n(catches manipulation)` = mean(dens_pval < 0.05, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_longer(-p_game, names_to = "Metric", values_to = "Rate")
+
+ggplot(rdd_mc_summary, aes(x = p_game * 100, y = Rate, colour = Metric, shape = Metric)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 2, y = 0.075, label = "Nominal 5%", size = 3.2,
+           colour = "grey40", hjust = 0) +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "RDD Type I error\n(false badge effect)"       = "firebrick",
+    "Density test power\n(catches manipulation)" = "#2563a8"
+  )) +
+  scale_shape_manual(values = c(
+    "RDD Type I error\n(false badge effect)"       = 17,
+    "Density test power\n(catches manipulation)" = 16
+  )) +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(
+    x      = "Probability that an eligible firm games the audit score",
+    y      = "Rate",
+    colour = NULL, shape = NULL,
+    title  = "RDD Type I error from manipulation (true badge effect = $0)",
+    subtitle = sprintf(
+      "High-credential firms near threshold push scores just above 70 — their customers have higher WTP regardless  |  %d sims per condition",
+      N_SIM_RDD)
+  ) +
+  theme_mod3() +
+  theme(legend.key.width = unit(2, "cm"))
+```
+
+```{r rdd-mc-table, echo=FALSE}
+sim_rdd_mc |>
+  group_by(p_game) |>
+  summarise(
+    `Type I error`      = sprintf("%.0f%%", 100 * mean(rdd_pval  < 0.05, na.rm = TRUE)),
+    `Density test power`= sprintf("%.0f%%", 100 * mean(dens_pval < 0.05, na.rm = TRUE)),
+    .groups = "drop"
+  ) |>
+  transmute(
+    `Gaming rate` = sprintf("%.0f%%", p_game * 100),
+    `RDD Type I error`, `Density test power`
+  ) |>
+  knitr::kable(
+    caption = sprintf(
+      "RDD simulation: %d sims per condition, N = %d products, true badge effect = $0. Gaming firms are high-credential brands near the threshold.",
+      N_SIM_RDD, N_RDD_MC)
+  )
+```
+
+::: {.callout-warning}
+## The key pattern: Type I error climbs before the density test has power to catch it
+
+At low gaming rates (10–20%), the density test — the standard diagnostic — has low power to detect manipulation. Yet the RDD Type I error is already substantially above 5%. A researcher who runs `rddensity`, sees p > .05, and proceeds in good faith will still produce spurious findings at these rates.
+
+**What to do:** (1) Report the density test but be explicit about its power at your sample size. (2) Run covariate continuity checks — if gaming firms have systematically different pre-existing characteristics, those will show up as covariate discontinuities. (3) Narrow the bandwidth: at very narrow bandwidths, gaming firms are still present above but fewer are present below (since the window is smaller), reducing the sorting imbalance. (4) If qualitative knowledge suggests manipulation is plausible, treat the RDD as a *fuzzy* design and instrument.
+:::
+
 ---
 
 ## Researcher Checklist: Regression Discontinuity Design {#sec-checklist-part3-m3}
