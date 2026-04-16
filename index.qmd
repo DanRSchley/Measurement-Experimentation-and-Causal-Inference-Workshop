@@ -1,6 +1,11 @@
 ---
 title: "Measurement, Experimentation, & Causal Inference"
 subtitle: "Understanding the Tacit Assumptions Under Each Stage of the Research Process"
+description: >
+  Open graduate workshop from Rotterdam School of Management covering psychometric
+  measurement (CFA, EFA, HTMT, LCA), experimental design, hypothesis testing,
+  and causal inference (regression discontinuity, difference-in-differences, mediation)
+  — with interactive R simulations and worked examples.
 toc: false
 ---
 
