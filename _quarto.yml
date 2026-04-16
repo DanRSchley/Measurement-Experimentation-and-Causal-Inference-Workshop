@@ -1,6 +1,8 @@
 project:
   type: book
   output-dir: docs
+  resources:
+    - googlef3f6a6d3b59e593f.html
 
 book:
   title: "Measurement, Experimentation, & Causal Inference"
