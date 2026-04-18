@@ -486,17 +486,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Point outliers (individual extreme observations) ───────────────────────────</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>n_pt  <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>adv_pt   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">24</span>, <span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">22</span>, <span class="dv">1</span>, <span class="dv">23</span>, <span class="dv">3</span>, <span class="dv">21</span>)     <span class="co"># extreme advertising values</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>sales_pt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">22</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">35</span>, <span class="dv">20</span>,  <span class="dv">2</span>, <span class="dv">24</span>, <span class="sc">-</span><span class="dv">3</span>)   <span class="co"># extreme / inconsistent sales</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Combine into single dataset ────────────────────────────────────────────────</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> <span class="fu">c</span>(adv_reg,    adv_lux,    adv_pt),</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> <span class="fu">c</span>(sales_reg,  sales_lux,  sales_pt),</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_type  =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Regular"</span>,        n_reg),</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Luxury flagship"</span>, n_lux),</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Point outlier"</span>,   n_pt))</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Point outliers are placed either at very low adv with implausibly high sales,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># or at high adv with implausibly low/negative sales, or in the mid-range gap</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># (adv 10–13, between the regular cloud and the luxury cluster) with extreme sales.</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># This keeps them visually isolated — none overlap the regular-store region.</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>adv_pt   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">24</span>, <span class="fl">0.5</span>, <span class="dv">11</span>, <span class="dv">22</span>, <span class="dv">1</span>, <span class="dv">23</span>, <span class="dv">12</span>, <span class="dv">21</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>sales_pt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">22</span>,  <span class="sc">-</span><span class="dv">8</span>, <span class="dv">35</span>, <span class="dv">20</span>,  <span class="dv">2</span>, <span class="dv">26</span>, <span class="sc">-</span><span class="dv">3</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Combine into single dataset ────────────────────────────────────────────────</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> <span class="fu">c</span>(adv_reg,    adv_lux,    adv_pt),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> <span class="fu">c</span>(sales_reg,  sales_lux,  sales_pt),</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_type  =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Regular"</span>,        n_reg),</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Luxury flagship"</span>, n_lux),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Point outlier"</span>,   n_pt))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -526,8 +530,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend (standardised)"</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales (standardised)"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend"</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Three Types of Observations in the Dataset"</span>,</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Luxury flagships form their own cluster; point outliers are scattered extremes"</span></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
@@ -634,55 +638,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">0.50</td>
 <td style="text-align: right;">22.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">13.74</td>
+<td style="text-align: right;">13.41</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">20.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">12.66</td>
+<td style="text-align: right;">12.34</td>
 </tr>
 <tr class="odd">
+<td style="text-align: right;">11.00</td>
+<td style="text-align: right;">-8.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">11.56</td>
+</tr>
+<tr class="even">
 <td style="text-align: right;">24.00</td>
 <td style="text-align: right;">-1.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">10.71</td>
+<td style="text-align: right;">9.30</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: right;">21.00</td>
 <td style="text-align: right;">-3.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">10.18</td>
+<td style="text-align: right;">8.80</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: right;">22.00</td>
 <td style="text-align: right;">35.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">8.48</td>
+<td style="text-align: right;">7.60</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: right;">23.00</td>
 <td style="text-align: right;">2.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">6.68</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">3.00</td>
-<td style="text-align: right;">24.00</td>
-<td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">6.22</td>
+<td style="text-align: right;">6.67</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">2.00</td>
-<td style="text-align: right;">-4.00</td>
+<td style="text-align: right;">12.00</td>
+<td style="text-align: right;">26.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">2.65</td>
+<td style="text-align: right;">5.26</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1.06</td>
 <td style="text-align: right;">-3.10</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">2.20</td>
+<td style="text-align: right;">2.42</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8.16</td>
@@ -694,7 +698,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">2.76</td>
 <td style="text-align: right;">5.03</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">1.84</td>
+<td style="text-align: right;">1.83</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">16.53</td>
@@ -910,7 +914,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS — all stores (distorted by outliers)</td>
-<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.878</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">True DGP (known from simulation)</td>
@@ -918,7 +922,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Robust MM-estimation — all stores</td>
-<td style="text-align: right;">0.448</td>
+<td style="text-align: right;">0.446</td>
 </tr>
 </tbody>
 </table>
@@ -1043,13 +1047,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS (all stores)</td>
-<td style="text-align: right;">-2.064</td>
-<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">-2.169</td>
+<td style="text-align: right;">0.878</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Robust MM-estimation (all stores)</td>
-<td style="text-align: right;">-0.240</td>
-<td style="text-align: right;">0.448</td>
+<td style="text-align: right;">-0.228</td>
+<td style="text-align: right;">0.446</td>
 </tr>
 </tbody>
 </table>
@@ -1230,8 +1234,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">8.93</td>
-<td style="text-align: right;">13.94</td>
+<td style="text-align: right;">9.21</td>
+<td style="text-align: right;">13.61</td>
 <td style="text-align: left;">100%</td>
 <td style="text-align: right;">8</td>
 </tr>
@@ -1252,7 +1256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">Regular</td>
 <td style="text-align: right;">1.07</td>
-<td style="text-align: right;">2.20</td>
+<td style="text-align: right;">2.42</td>
 <td style="text-align: left;">0%</td>
 <td style="text-align: right;">500</td>
 </tr>
