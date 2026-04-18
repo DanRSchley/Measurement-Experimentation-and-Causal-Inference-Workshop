@@ -390,9 +390,9 @@ ggplot() +
             linewidth = 1.2) +
   scale_colour_manual(
     values = c(
-      "Regular"                      = "grey65",
-      "Luxury flagship"              = "#e8998d",
-      "Point outlier"                = "#a8c5a0",
+      "Regular"                      = "#4575b4",
+      "Luxury flagship"              = "#d73027",
+      "Point outlier"                = "#1a9641",
       "OLS — all stores (distorted)" = "#d73027",
       "True DGP (slope = 0.40)"     = "#4575b4",
       "Robust MM — all stores"      = "#1a9641"
