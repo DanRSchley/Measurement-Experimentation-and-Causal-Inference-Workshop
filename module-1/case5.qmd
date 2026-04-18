@@ -258,9 +258,9 @@ ggplot(df5, aes(x = advertising, y = sales,
                 colour = cluster, shape = cluster)) +
   geom_point(size = 2.5, alpha = 0.8) +
   scale_colour_manual(
-    values = c("0" = "#d73027",   # noise = red (point outliers)
-               "1" = "#4575b4",   # main cluster = blue
-               "2" = "#1a9641",   # luxury cluster = green
+    values = c("0" = "#1a9641",   # noise = green (point outliers — matches scatter plot)
+               "1" = "#4575b4",   # main cluster = blue (regular stores)
+               "2" = "#d73027",   # luxury cluster = red (luxury flagships — matches scatter plot)
                "3" = "#fdae61"),  # any additional cluster
     labels = c("0" = "Noise / point outlier",
                "1" = "Main cluster (regular stores)",
@@ -292,7 +292,7 @@ ggplot(df5, aes(x = advertising, y = sales,
 ## How to read the DBSCAN output — and the limits of inferred classification
 
 **What the clusters mean:**
-- **Cluster 0 (noise/red):** Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one.
+- **Cluster 0 (noise/green):** Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one.
 - **Cluster 1 (main mass):** The main group of regular stores. This is your target population for most analyses.
 - **Cluster 2+ (secondary clusters):** Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem (Part 4), not a statistical noise problem.
 
