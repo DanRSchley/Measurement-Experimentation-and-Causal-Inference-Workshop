@@ -65,6 +65,18 @@ Within the statistical outlier category, two types behave differently:
 
 Both types distort your results — but in different ways, and the solutions are different.
 
+::: {.callout-warning}
+## Avoid arbitrary outlier rules — they replace thinking with a ritual
+
+A widespread practice in applied research is to apply mechanical thresholds before analysis: remove any observation more than 2 standard deviations from the mean, or more than 3 interquartile ranges from the median, or with a z-score above 3.29. These rules appear rigorous because they are quantitative. They are not.
+
+**The problem is conceptual, not statistical.** The question "should this observation be in my analysis?" is a question about the data-generating process — about whether this observation is from the target population and whether it represents a valid instance of the phenomenon being studied. No arbitrary cutoff can answer that question. An observation 4 SD from the mean may be the most interesting data point in your sample. An observation well within range may be from a completely different population.
+
+Mechanical thresholds also introduce researcher degrees of freedom in a hidden form. Because the threshold is chosen before looking at the data, it can feel objective — but the choice of 2 SD vs. 3 SD vs. 3 IQR makes a substantial difference, and different choices can change your conclusions. Applying a rule "everybody uses" does not eliminate the subjectivity; it just obscures it.
+
+**The right approach** is to treat every flagged observation as a question about the data-generating process: *Why is this observation extreme? Does it come from the same population as the rest of my data? Is it a measurement error or a genuine extreme case?* LOF, DBSCAN, and robust regression — covered in the steps below — are tools to *find* candidate observations for this investigation, not to replace it.
+:::
+
 ::: {.callout-note}
 ## The connection to latent subgroup analysis (Part 4)
 
@@ -79,35 +91,38 @@ The hardest case — inliers — is a latent subgroup that neither approach can 
 
 We create a store-level dataset with three groups:
 
-- **Regular stores** (n=500): Standard advertising–sales relationship
-- **Luxury flagships** (n=8): Collective outliers — much higher advertising and sales, forming their own cluster
-- **Point outliers** (n=5): Individual stores with implausibly extreme values
+- **Regular stores** (n=500): Standard advertising–sales relationship (true slope = 0.40)
+- **Luxury flagships** (n=20): Collective outliers — much higher advertising and a steeper advertising–sales relationship, forming their own cluster
+- **Point outliers** (n=8): Individual stores with implausibly extreme or internally inconsistent values
 
 ```{r case5-simulate}
 #| code-summary: "▶ Simulate store dataset with collective and point outliers"
 set.seed(2025)
 
 # ── Regular stores ─────────────────────────────────────────────────────────────
+# True DGP: sales = 0.40 * advertising + noise   (slope = 0.40, no intercept)
 n_reg <- 500
 adv_reg   <- rnorm(n_reg, mean = 5, sd = 1.5)
 sales_reg <- 0.4 * adv_reg + rnorm(n_reg, sd = 1.2)
 
 # ── Luxury flagship stores (collective outliers) ───────────────────────────────
-# They advertise much more AND have much higher sales — different economic model
-n_lux <- 8
-adv_lux   <- rnorm(n_lux, mean = 18, sd = 1.2)
-sales_lux <- 0.3 * adv_lux + rnorm(n_lux, sd = 0.8) + 10   # elevated baseline
+# Different economic model: much higher advertising, steeper returns to advertising.
+# Their cluster (centroid ≈ 20, 20) is far from the regular cluster (≈ 5, 2) —
+# the "between-cluster" slope is ~1.2, which will pull OLS well above 0.40.
+n_lux <- 20
+adv_lux   <- rnorm(n_lux, mean = 20, sd = 1.5)
+sales_lux <- 0.90 * adv_lux + rnorm(n_lux, sd = 0.8) + 2   # steeper slope, similar absolute level
 
 # ── Point outliers (individual extreme observations) ───────────────────────────
-n_pt  <- 5
-adv_pt   <- c(22, 1, 3, 19, 2)          # extreme advertising values
-sales_pt <- c(2, 18, -1, 25, 15)        # extreme / inconsistent sales
+n_pt  <- 8
+adv_pt   <- c(24, 0.5, 2, 22, 1, 23, 3, 21)     # extreme advertising values
+sales_pt <- c(-1, 22, -4, 35, 20,  2, 24, -3)   # extreme / inconsistent sales
 
 # ── Combine into single dataset ────────────────────────────────────────────────
 df5 <- data.frame(
   advertising = c(adv_reg,    adv_lux,    adv_pt),
   sales       = c(sales_reg,  sales_lux,  sales_pt),
-  store_type  = c(rep("Regular",   n_reg),
+  store_type  = c(rep("Regular",        n_reg),
                   rep("Luxury flagship", n_lux),
                   rep("Point outlier",   n_pt))
 )
@@ -285,24 +300,43 @@ ggplot(df5, aes(x = advertising, y = sales,
 **Choosing eps and minPts:** There is no single correct answer. A practical approach: plot the k-nearest-neighbor distances (sorted) and look for an "elbow" — the point where the distance curve bends sharply. That elbow value is a good starting point for eps. For minPts, a common default is 2 × (number of dimensions in your data).
 :::
 
+::: {.callout-note}
+## LOF vs DBSCAN: what each tool actually tells you
+
+Both methods are density-based, but they answer different questions.
+
+| | **LOF** | **DBSCAN** |
+|---|---|---|
+| **Output** | A continuous score per observation | A discrete cluster label per observation |
+| **Question answered** | *How* outlying is each point? | *What structure* do the outliers have? |
+| **Point outliers** | High LOF score | Label = 0 (noise) |
+| **Collective outliers** | Elevated LOF (but often less extreme than point outliers, because members of the cluster look normal *relative to each other*) | Assigned their own separate cluster (label ≠ 0, ≠ main cluster) |
+| **Key strength** | Ranks observations on a continuous scale; good for sensitivity analysis | Identifies whether outliers form a coherent group — the critical distinction between point outliers and collective outliers |
+| **Key limitation** | Does not tell you whether outliers are isolated or clustered together | Binary: in or out. Sensitive to eps and minPts choices |
+
+**Practical implication for this case:** LOF flags both luxury flagships and point outliers with high scores, but does not tell you *why* they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup (Part 4 problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.
+
+Use LOF to *rank* observations by how unusual they are. Use DBSCAN to understand *whether* unusual observations are isolated data points or an alternative population. Both are diagnostic tools, not verdicts.
+:::
+
 ## Step 4: Robust Regression — No Need to Delete Outliers
 
 The traditional advice — delete the outliers and refit — creates its own problems: it introduces researcher degrees of freedom (which ones do you delete?), it loses information, and it's post-hoc. A better approach is **robust regression**, which automatically downweights observations that don't fit the main data pattern.
 
-`MASS::rlm()` uses **M-estimation**: instead of minimising the sum of squared residuals (which gives disproportionate influence to large residuals), it minimises a less sensitive function that penalises large residuals less severely.
+We use `MASS::rlm()` with **MM-estimation** (`method = "MM"`). MM-estimators combine two stages: first, a highly robust initial fit that is resistant to both high-residual *and* high-leverage outliers; then, an M-estimation refinement step that achieves high statistical efficiency on clean data. The result is a slope estimate that is simultaneously resistant to the kinds of contamination we have in this dataset — a separate cluster at high leverage *and* scattered point outliers — while remaining close to OLS when the data are clean.
 
 ```{r case5-robust, fig.height = 3.5}
-#| code-summary: "▶ OLS vs. robust regression (rlm) coefficient comparison"
+#| code-summary: "▶ OLS vs. robust MM-regression coefficient comparison"
 # ── Fit regression models ─────────────────────────────────────────────────────
-m_ols_all <- lm(sales ~ advertising, data = df5)          # OLS with all data
-m_robust  <- MASS::rlm(sales ~ advertising, data = df5)   # Robust on all data
+m_ols_all <- lm(sales ~ advertising, data = df5)
+m_robust  <- MASS::rlm(sales ~ advertising, data = df5, method = "MM")
 # True DGP: sales = 0.4 * advertising (known from simulation — slope = 0.40)
 
 # ── Compare coefficients against true DGP ────────────────────────────────────
 coef_compare5 <- data.frame(
   Model = c("OLS — all stores (distorted by outliers)",
             "True DGP (known from simulation)",
-            "Robust regression rlm — all stores"),
+            "Robust MM-estimation — all stores"),
   `Advertising coefficient` = round(c(coef(m_ols_all)["advertising"],
                                       0.40,
                                       coef(m_robust)["advertising"]), 3)
@@ -310,11 +344,11 @@ coef_compare5 <- data.frame(
 
 kable(coef_compare5,
       col.names = c("Model", "Advertising Coefficient"),
-      caption   = "OLS vs. Robust Regression: How Much Do Outliers Matter?")
+      caption   = "OLS vs. Robust MM-Regression: The luxury flagship cluster and point outliers pull OLS well above the true DGP slope; MM-estimation recovers close to 0.40.")
 ```
 
 ```{r case5-comparison-plot, fig.height = 3.8, fig.width = 9}
-#| code-summary: "▶ Plot: OLS vs. robust regression lines"
+#| code-summary: "▶ Plot: OLS vs. robust MM regression lines"
 # Generate prediction lines
 x_seq <- seq(min(df5$advertising), max(df5$advertising), length.out = 300)
 newdat <- data.frame(advertising = x_seq)
@@ -322,23 +356,23 @@ newdat <- data.frame(advertising = x_seq)
 pred_lines <- data.frame(
   advertising = rep(x_seq, 3),
   sales       = c(predict(m_ols_all, newdata = newdat),
-                  0.40 * x_seq,                          # True DGP: slope = 0.40
+                  0.40 * x_seq,                          # True DGP: slope = 0.40, intercept = 0
                   predict(m_robust,  newdata = newdat)),
   model       = rep(c("OLS — all stores (distorted)",
                       "True DGP (slope = 0.40)",
-                      "Robust rlm — all stores"),
+                      "Robust MM — all stores"),
                     each = length(x_seq))
 )
 
 line_colors <- c(
   "OLS — all stores (distorted)" = "#d73027",
   "True DGP (slope = 0.40)"     = "#4575b4",
-  "Robust rlm — all stores"     = "#1a9641"
+  "Robust MM — all stores"      = "#1a9641"
 )
 line_types <- c(
   "OLS — all stores (distorted)" = "dotted",
   "True DGP (slope = 0.40)"     = "solid",
-  "Robust rlm — all stores"     = "dashed"
+  "Robust MM — all stores"      = "dashed"
 )
 
 ggplot() +
@@ -355,11 +389,11 @@ ggplot() +
       "Point outlier"                = "#a8c5a0",
       "OLS — all stores (distorted)" = "#d73027",
       "True DGP (slope = 0.40)"     = "#4575b4",
-      "Robust rlm — all stores"     = "#1a9641"
+      "Robust MM — all stores"      = "#1a9641"
     ),
     breaks = c("OLS — all stores (distorted)",
                "True DGP (slope = 0.40)",
-               "Robust rlm — all stores"),
+               "Robust MM — all stores"),
     name = "Regression line"
   ) +
   scale_linetype_manual(values = line_types, name = "Regression line") +
@@ -368,8 +402,8 @@ ggplot() +
   labs(
     x        = "Advertising Spend",
     y        = "Sales",
-    title    = "OLS vs. Robust Regression: Effect of Outliers on Slope Estimates",
-    subtitle = "Red dotted = OLS distorted by outliers  |  Blue solid = true DGP (slope 0.40)  |  Green dashed = robust rlm"
+    title    = "OLS vs. Robust MM-Regression: Effect of Outliers on Slope Estimates",
+    subtitle = "Red dotted = OLS distorted by outliers  |  Blue solid = true DGP (slope 0.40)  |  Green dashed = robust MM"
   ) +
   theme_minimal(base_size = 11) +
   theme(legend.position  = "bottom",
@@ -380,18 +414,18 @@ ggplot() +
 ::: {.callout-important}
 ## The core lesson from robust regression
 
-**OLS (all stores):** Pulled toward the luxury cluster and point outliers, producing a distorted slope well above the true value of 0.40. If you use this coefficient to predict sales for a regular store, you will be systematically wrong.
+**OLS (all stores):** Pulled sharply toward the luxury cluster and point outliers. The luxury flagship stores are at high advertising values (x ≈ 20), giving them enormous leverage — even though they are only 4% of the sample, they contribute more than half the total variation in advertising spend. Combined with the point outliers, OLS produces a slope well above the true value of 0.40. Predictions for a regular store using this coefficient will be systematically biased.
 
-**True DGP (slope = 0.40):** The known data-generating process for regular stores — included in the plot because we simulated the data and know the ground truth. In real research you would not see this line.
+**True DGP (slope = 0.40):** The known data-generating process for regular stores — included in the plot because we simulated the data and know the ground truth. In real research you would not see this line; you would only see how OLS and robust estimates diverge.
 
-**Robust regression (rlm, all stores):** Automatically downweights observations with large residuals (the outliers and luxury stores fit poorly under the regular-store model, so they receive low weights). The resulting coefficient is close to the true value of 0.40 — without having to decide in advance which observations to delete.
+**Robust MM-estimation (all stores):** Addresses both high-residual outliers and high-leverage points. The initial S-estimation step finds a robust fit resistant to the luxury cluster's leverage; the M-estimation refinement achieves efficiency on the regular-store observations. The result is a slope close to the true 0.40 — without deciding in advance which observations to delete.
 
 **Practical advice:**
 1. Always plot your data and check for visual outliers before running any regression
 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually
 3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Part 4 problem
 4. For point outliers, verify the data and report results with and without them as a robustness check
-5. Use robust regression as your primary estimator when you suspect outliers but are not certain which observations to remove
+5. Use `rlm(method = "MM")` rather than the default Huber M-estimator when your data contains high-leverage clusters — the default Huber weighting can still be dominated by high-leverage points
 :::
 
 ## Checking How Much Your Results Depend on Outliers
@@ -399,17 +433,17 @@ ggplot() +
 A simple sensitivity check: compare OLS and robust regression. If they give substantially different results, outliers are influencing your conclusions. If they agree, outliers aren't driving your findings.
 
 ```{r case5-sensitivity}
-#| code-summary: "▶ Sensitivity table: OLS vs. rlm coefficients"
+#| code-summary: "▶ Sensitivity table: OLS vs. robust MM coefficients"
 # Extract and compare key summary stats
 sens_df <- data.frame(
-  Method = c("OLS (all stores)", "Robust rlm (all stores)"),
+  Method = c("OLS (all stores)", "Robust MM-estimation (all stores)"),
   `Intercept` = round(c(coef(m_ols_all)[1], coef(m_robust)[1]), 3),
   `Advertising slope` = round(c(coef(m_ols_all)[2], coef(m_robust)[2]), 3)
 )
 
 kable(sens_df,
       col.names = c("Method", "Intercept", "Advertising Slope"),
-      caption   = "Sensitivity Check: OLS vs. Robust Regression Coefficients")
+      caption   = "Sensitivity Check: OLS vs. Robust MM-Estimation Coefficients")
 ```
 
 ::: {.callout-note}
