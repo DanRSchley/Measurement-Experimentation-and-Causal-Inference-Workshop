@@ -409,12 +409,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="8"><span class="header-section-number">8</span> Part 5: Outlier Detection and Robust Estimation</h1>
 <section id="connecting-to-the-earlier-cases" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="connecting-to-the-earlier-cases"><span class="header-section-number">8.1</span> Connecting to the Earlier Cases</h2>
-<p>Part 4 showed what happens when your sample contains two fundamentally different types of respondents. Part 5 extends this logic to observational data — specifically, to the problem of <strong>outliers</strong>.</p>
+<p>Part 4 showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. <strong>Part 5 is a continuation of exactly that problem</strong>, extended to observational data and reframed as the problem of <em>outliers</em>.</p>
+<p>The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in Part 4. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster’s data-generating process. These are statistical implementations of the same conceptual question Part 4 posed directly: <em>are all observations in this dataset from the same population?</em></p>
+<p>The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of Part 4, not just the statistical tools of Part 5.</p>
 <p>Not all outliers are the same. Two important distinctions that are easy to conflate:</p>
 <p><strong>Statistical outliers vs.&nbsp;conceptual outliers</strong></p>
 <p>A <em>statistical outlier</em> is any observation that is unusual relative to the rest of the sample — it has a high LOF score, a large residual, or sits far from the regression line. The statistical definition is purely data-driven and says nothing about whether the observation represents a problem.</p>
 <p>A <em>conceptual outlier</em> is an observation that comes from a fundamentally different data-generating process than the rest of your sample. Luxury flagship stores in a dataset of convenience stores are conceptual outliers: they do not just deviate from the regression line, they operate on entirely different economics. The same statistical method (advertising spend → sales) applies, but the parameters are different.</p>
-<p><strong>Why the distinction matters:</strong> Statistical outliers that are <em>not</em> conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a <em>sampling problem</em>, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Case 4 logic (latent subgroup analysis), not just downweighting the extreme values.</p>
+<p><strong>Why the distinction matters:</strong> Statistical outliers that are <em>not</em> conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a <em>sampling problem</em>, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Part 4 logic (latent subgroup analysis), not just downweighting the extreme values.</p>
 <p>Within the statistical outlier category, two types behave differently:</p>
 <ul>
 <li><p><strong>Collective outliers</strong> are a group of observations that form their own cluster, far from the rest of the data. They usually represent a <em>different population</em> — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from Part 4: if you include them, your regression line tries to average over two different data-generating processes. These are the conceptual outliers described above.</p></li>
@@ -427,12 +429,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>The connection to discriminant validity and latent subgroups
+<span class="screen-reader-only">Note</span>The connection to latent subgroup analysis (Part 4)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn’t “wrong data” — it’s a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics: the resulting coefficient doesn’t accurately describe either group.</p>
+<p>Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn’t “wrong data” — it’s a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from Part 4: the resulting coefficient doesn’t accurately describe either group. The statistical tools in Part 5 (LOF, DBSCAN, robust regression) detect these clusters empirically. Part 4’s finite mixture models detect them probabilistically. Both are answering the same question.</p>
 <p>Point outliers, by contrast, are statistical problems rather than conceptual ones. A single data entry error or an unusually extreme store doesn’t imply a hidden population — it’s just a disruptive data point that needs to be handled carefully.</p>
+<p>The hardest case — inliers — is a latent subgroup that neither approach can detect statistically. That requires domain knowledge about whether observations belong in your target population in the first place.</p>
 </div>
 </div>
 </section>
@@ -997,6 +1000,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Every outlier method we have used so far answers one question: <strong>is this observation unusual relative to what I can see in the data?</strong> LOF asks whether a point’s neighbourhood is unusually sparse. DBSCAN asks whether it belongs to any dense cluster. Robust regression downweights points whose residuals are large. None of these methods can answer a fundamentally different question: <strong>does this observation come from the same data-generating process as the phenomenon I am trying to study?</strong></p>
 <p>Those are different questions, and conflating them produces a critical blind spot — the <strong>inlier</strong>.</p>
 <p>An <em>inlier</em> is an observation that is statistically unremarkable on the dimensions you are measuring — low LOF score, inside the main cluster, small residuals — but belongs to a different population with a different data-generating process. It passes every diagnostic you run. That is precisely what makes it dangerous.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Inliers are a latent subgroup problem (Part 4), not a statistical outlier problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recall that in Part 4, latent subgroup analysis worked because the subgroups had <em>statistically detectable</em> differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.</p>
+<p>The inlier problem is a harder version of the same structure. Inliers belong to a different latent subgroup — a different population with a different data-generating process — but they are <strong>statistically indistinguishable</strong> from the target population on the variables you have measured. No mixture model, no LOF score, no density cluster will separate them. The subgroup is latent in the deepest sense: invisible to all available statistical tools.</p>
+<p>This is why the inlier problem is ultimately a <em>measurement and sampling problem</em>, not a statistical one. The relevant question — “are these observations from the same population as the phenomenon I am studying?” — is answered by domain knowledge about what you are measuring and who belongs in your target sample, not by any diagnostic statistic.</p>
+</div>
+</div>
 <p><strong>The scenario.</strong> Some luxury flagship stores happen to advertise in similar amounts and generate similar aggregate sales as regular convenience stores — perhaps because they serve a very small, very wealthy clientele from a single compact location. On advertising vs.&nbsp;sales, they are invisible. But these same stores have a completely inverted relationship with digital marketing. For regular stores, digital presence drives foot traffic and conversions — more digital → more sales. For luxury inliers, digital overexposure signals accessibility and undermines exclusivity — more digital → <em>fewer</em> sales. A researcher who detects and removes the obvious luxury outliers but keeps the inliers will draw incorrect conclusions about what drives sales. The inliers contaminate the analysis just as much — but no diagnostic flagged them.</p>
 <section id="simulating-the-luxury-inliers" class="level3" data-number="8.8.1">
 <h3 data-number="8.8.1" class="anchored" data-anchor-id="simulating-the-luxury-inliers"><span class="header-section-number">8.8.1</span> Simulating the Luxury Inliers</h3>
@@ -1052,20 +1070,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df5_ext,</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> advertising, <span class="at">y =</span> sales,</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">shape =</span> store_type, <span class="at">size =</span> store_type)) <span class="sc">+</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.75</span>) <span class="sc">+</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> type_cols, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values  =</span> type_shps, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_manual</span>(<span class="at">values   =</span> type_szs,  <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend"</span>,</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Luxury Inliers Are Statistically Invisible on Advertising vs Sales"</span>,</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Orange diamonds (luxury inliers) overlap completely with the regular-store cluster</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"No visual inspection or LOF score on these two variables will flag them"</span>)</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">fill =</span> store_type,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> store_type, <span class="at">size =</span> store_type)) <span class="sc">+</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> type_cols, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values   =</span> type_cols, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values  =</span> type_shps, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_manual</span>(<span class="at">values   =</span> type_szs,  <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend"</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Luxury Inliers Are Statistically Invisible on Advertising vs Sales"</span>,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Orange diamonds (luxury inliers) overlap completely with the regular-store cluster</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"No visual inspection or LOF score on these two variables will flag them"</span>)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1181,30 +1201,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(reg_and_inliers,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> digital_presence, <span class="at">y =</span> sales,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">shape =</span> store_type)) <span class="sc">+</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">fill =</span> store_type, <span class="at">shape =</span> store_type)) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">group =</span> store_type), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="st">"#4575b4"</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="st">"#f4a736"</span>),</span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="dv">23</span>),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="st">"#4575b4"</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="st">"#f4a736"</span>),</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Digital Presence Score"</span>,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"A Third Variable Reveals the Hidden Subgroup"</span>,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Regular stores (blue): digital presence \u2192 higher sales  |  "</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Luxury inliers (orange): digital presence \u2192 lower sales</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Same advertising, same sales — completely different data-generating process"</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="dv">23</span>),</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Digital Presence Score"</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"A Third Variable Reveals the Hidden Subgroup"</span>,</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Regular stores (blue): digital presence \u2192 higher sales  |  "</span>,</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Luxury inliers (orange): digital presence \u2192 lower sales</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Same advertising, same sales — completely different data-generating process"</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
