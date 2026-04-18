@@ -347,8 +347,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-3-dbscan-clustering-to-find-the-collective-outlier-cluster" id="toc-step-3-dbscan-clustering-to-find-the-collective-outlier-cluster" class="nav-link" data-scroll-target="#step-3-dbscan-clustering-to-find-the-collective-outlier-cluster"><span class="header-section-number">8.5</span> Step 3: DBSCAN Clustering to Find the Collective Outlier Cluster</a></li>
   <li><a href="#step-4-robust-regression-no-need-to-delete-outliers" id="toc-step-4-robust-regression-no-need-to-delete-outliers" class="nav-link" data-scroll-target="#step-4-robust-regression-no-need-to-delete-outliers"><span class="header-section-number">8.6</span> Step 4: Robust Regression — No Need to Delete Outliers</a></li>
   <li><a href="#checking-how-much-your-results-depend-on-outliers" id="toc-checking-how-much-your-results-depend-on-outliers" class="nav-link" data-scroll-target="#checking-how-much-your-results-depend-on-outliers"><span class="header-section-number">8.7</span> Checking How Much Your Results Depend on Outliers</a></li>
-  <li><a href="#other-methods-for-outlier-detection-and-robust-estimation" id="toc-other-methods-for-outlier-detection-and-robust-estimation" class="nav-link" data-scroll-target="#other-methods-for-outlier-detection-and-robust-estimation"><span class="header-section-number">8.8</span> Other Methods for Outlier Detection and Robust Estimation</a></li>
-  <li><a href="#sec-checklist-case5" id="toc-sec-checklist-case5" class="nav-link" data-scroll-target="#sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outliers</a></li>
+  <li><a href="#sec-inliers" id="toc-sec-inliers" class="nav-link" data-scroll-target="#sec-inliers"><span class="header-section-number">8.8</span> The Inlier Problem: Statistical Normalcy ≠ Conceptual Homogeneity</a>
+  <ul class="collapse">
+  <li><a href="#simulating-the-luxury-inliers" id="toc-simulating-the-luxury-inliers" class="nav-link" data-scroll-target="#simulating-the-luxury-inliers"><span class="header-section-number">8.8.1</span> Simulating the Luxury Inliers</a></li>
+  <li><a href="#advertising-vs-sales-the-inliers-are-invisible" id="toc-advertising-vs-sales-the-inliers-are-invisible" class="nav-link" data-scroll-target="#advertising-vs-sales-the-inliers-are-invisible"><span class="header-section-number">8.8.2</span> Advertising vs Sales: The Inliers Are Invisible</a></li>
+  <li><a href="#lof-confirms-inliers-score-as-normal" id="toc-lof-confirms-inliers-score-as-normal" class="nav-link" data-scroll-target="#lof-confirms-inliers-score-as-normal"><span class="header-section-number">8.8.3</span> LOF Confirms: Inliers Score as Normal</a></li>
+  <li><a href="#the-reveal-a-third-variable-exposes-the-subgroup" id="toc-the-reveal-a-third-variable-exposes-the-subgroup" class="nav-link" data-scroll-target="#the-reveal-a-third-variable-exposes-the-subgroup"><span class="header-section-number">8.8.4</span> The Reveal: A Third Variable Exposes the Subgroup</a></li>
+  <li><a href="#inliers-contaminate-regression-estimates" id="toc-inliers-contaminate-regression-estimates" class="nav-link" data-scroll-target="#inliers-contaminate-regression-estimates"><span class="header-section-number">8.8.5</span> Inliers Contaminate Regression Estimates</a></li>
+  </ul></li>
+  <li><a href="#other-methods-for-outlier-detection-and-robust-estimation" id="toc-other-methods-for-outlier-detection-and-robust-estimation" class="nav-link" data-scroll-target="#other-methods-for-outlier-detection-and-robust-estimation"><span class="header-section-number">8.9</span> Other Methods for Outlier Detection and Robust Estimation</a></li>
+  <li><a href="#sec-checklist-case5" id="toc-sec-checklist-case5" class="nav-link" data-scroll-target="#sec-checklist-case5"><span class="header-section-number">8.10</span> Researcher Checklist: Outliers</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -982,9 +990,317 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>When OLS and robust regression agree: briefly note the robustness check as evidence that your results are not driven by a small number of influential observations.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="other-methods-for-outlier-detection-and-robust-estimation" class="level2" data-number="8.8">
-<h2 data-number="8.8" class="anchored" data-anchor-id="other-methods-for-outlier-detection-and-robust-estimation"><span class="header-section-number">8.8</span> Other Methods for Outlier Detection and Robust Estimation</h2>
+<section id="sec-inliers" class="level2" data-number="8.8">
+<h2 data-number="8.8" class="anchored" data-anchor-id="sec-inliers"><span class="header-section-number">8.8</span> The Inlier Problem: Statistical Normalcy ≠ Conceptual Homogeneity</h2>
+<p>Every outlier method we have used so far answers one question: <strong>is this observation unusual relative to what I can see in the data?</strong> LOF asks whether a point’s neighbourhood is unusually sparse. DBSCAN asks whether it belongs to any dense cluster. Robust regression downweights points whose residuals are large. None of these methods can answer a fundamentally different question: <strong>does this observation come from the same data-generating process as the phenomenon I am trying to study?</strong></p>
+<p>Those are different questions, and conflating them produces a critical blind spot — the <strong>inlier</strong>.</p>
+<p>An <em>inlier</em> is an observation that is statistically unremarkable on the dimensions you are measuring — low LOF score, inside the main cluster, small residuals — but belongs to a different population with a different data-generating process. It passes every diagnostic you run. That is precisely what makes it dangerous.</p>
+<p><strong>The scenario.</strong> Some luxury flagship stores happen to advertise in similar amounts and generate similar aggregate sales as regular convenience stores — perhaps because they serve a very small, very wealthy clientele from a single compact location. On advertising vs.&nbsp;sales, they are invisible. But these same stores have a completely inverted relationship with digital marketing. For regular stores, digital presence drives foot traffic and conversions — more digital → more sales. For luxury inliers, digital overexposure signals accessibility and undermines exclusivity — more digital → <em>fewer</em> sales. A researcher who detects and removes the obvious luxury outliers but keeps the inliers will draw incorrect conclusions about what drives sales. The inliers contaminate the analysis just as much — but no diagnostic flagged them.</p>
+<section id="simulating-the-luxury-inliers" class="level3" data-number="8.8.1">
+<h3 data-number="8.8.1" class="anchored" data-anchor-id="simulating-the-luxury-inliers"><span class="header-section-number">8.8.1</span> Simulating the Luxury Inliers</h3>
+<p>We extend the dataset with 10 luxury inlier stores and add a third variable — <strong>digital presence score</strong> — that has opposite sign relationships with sales across the two populations.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Add luxury inliers + digital presence variable (extends df5)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>n_lux_in <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Luxury inliers: advertising and sales deliberately overlap with regular stores.</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># On the main two dimensions, they are statistically indistinguishable.</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>adv_in   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_lux_in, <span class="at">mean =</span> <span class="fl">5.2</span>, <span class="at">sd =</span> <span class="fl">1.4</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>sales_in <span class="ot">&lt;-</span> <span class="fl">0.38</span> <span class="sc">*</span> adv_in <span class="sc">+</span> <span class="fu">rnorm</span>(n_lux_in, <span class="at">sd =</span> <span class="fl">1.15</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Third variable: digital presence score (0–10 composite: social media, web traffic,</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># online reviews). Key distinction in the data-generating process:</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   Regular stores:      POSITIVE slope — mass-market brands benefit from digital reach.</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   Luxury inliers:      NEGATIVE slope — digital overexposure erodes brand exclusivity.</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>dp_reg <span class="ot">&lt;-</span> <span class="fl">0.55</span> <span class="sc">*</span> sales_reg <span class="sc">+</span> <span class="fu">rnorm</span>(n_reg,    <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.80</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>dp_in  <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.65</span> <span class="sc">*</span> sales_in  <span class="sc">+</span> <span class="fu">rnorm</span>(n_lux_in, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.50</span>) <span class="sc">+</span> <span class="fl">8.0</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign neutral digital scores to the obvious outlier groups (not the focus here)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>dp_lux <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_lux, <span class="at">mean =</span> <span class="fl">6.5</span>, <span class="at">sd =</span> <span class="fl">0.6</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>dp_pt  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_pt,  <span class="at">mean =</span> <span class="fl">3.0</span>, <span class="at">sd =</span> <span class="fl">0.8</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Extended dataset: all original stores + luxury inliers</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>df5_ext <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising      =</span> <span class="fu">c</span>(adv_reg,      adv_lux,       adv_pt,      adv_in),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales            =</span> <span class="fu">c</span>(sales_reg,    sales_lux,     sales_pt,    sales_in),</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">digital_presence =</span> <span class="fu">c</span>(dp_reg,       dp_lux,        dp_pt,       dp_in),</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_type       =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Regular"</span>,          n_reg),</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">rep</span>(<span class="st">"Luxury flagship"</span>,  n_lux),</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">rep</span>(<span class="st">"Point outlier"</span>,    n_pt),</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">rep</span>(<span class="st">"Luxury inlier"</span>,    n_lux_in))</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="advertising-vs-sales-the-inliers-are-invisible" class="level3" data-number="8.8.2">
+<h3 data-number="8.8.2" class="anchored" data-anchor-id="advertising-vs-sales-the-inliers-are-invisible"><span class="header-section-number">8.8.2</span> Advertising vs Sales: The Inliers Are Invisible</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Plot: four store types — inliers hidden inside regular cluster</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>type_cols  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Regular"</span>         <span class="ot">=</span> <span class="st">"#4575b4"</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Luxury flagship"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Point outlier"</span>   <span class="ot">=</span> <span class="st">"#1a9641"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Luxury inlier"</span>   <span class="ot">=</span> <span class="st">"#f4a736"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>type_shps  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Regular"</span>         <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"Luxury flagship"</span> <span class="ot">=</span> <span class="dv">17</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Point outlier"</span>   <span class="ot">=</span> <span class="dv">8</span>,  <span class="st">"Luxury inlier"</span>   <span class="ot">=</span> <span class="dv">23</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>type_szs   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Regular"</span>         <span class="ot">=</span> <span class="fl">1.5</span>, <span class="st">"Luxury flagship"</span> <span class="ot">=</span> <span class="fl">3.5</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Point outlier"</span>   <span class="ot">=</span> <span class="fl">4.0</span>, <span class="st">"Luxury inlier"</span>   <span class="ot">=</span> <span class="fl">3.5</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df5_ext,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> advertising, <span class="at">y =</span> sales,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">shape =</span> store_type, <span class="at">size =</span> store_type)) <span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.75</span>) <span class="sc">+</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> type_cols, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values  =</span> type_shps, <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_manual</span>(<span class="at">values   =</span> type_szs,  <span class="at">name =</span> <span class="st">"Store type"</span>) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend"</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Luxury Inliers Are Statistically Invisible on Advertising vs Sales"</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Orange diamonds (luxury inliers) overlap completely with the regular-store cluster</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"No visual inspection or LOF score on these two variables will flag them"</span>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/case5-inlier-scatter-1.svg" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>What to notice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The orange diamonds (luxury inliers) sit inside the blue cloud of regular stores. LOF computed on advertising and sales will give them scores near 1.0 — statistically normal. DBSCAN will assign them to the main cluster. The regression residuals will be unremarkable. They pass every standard diagnostic because — on these two dimensions — they genuinely look normal.</p>
+</div>
+</div>
+</section>
+<section id="lof-confirms-inliers-score-as-normal" class="level3" data-number="8.8.3">
+<h3 data-number="8.8.3" class="anchored" data-anchor-id="lof-confirms-inliers-score-as-normal"><span class="header-section-number">8.8.3</span> LOF Confirms: Inliers Score as Normal</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ LOF scores by group: inliers are indistinguishable from regular stores</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df5_ext_scaled <span class="ot">&lt;-</span> <span class="fu">scale</span>(df5_ext[, <span class="fu">c</span>(<span class="st">"advertising"</span>, <span class="st">"sales"</span>)])</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>df5_ext<span class="sc">$</span>lof2d  <span class="ot">&lt;-</span> dbscan<span class="sc">::</span><span class="fu">lof</span>(df5_ext_scaled, <span class="at">minPts =</span> <span class="dv">10</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df5_ext <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(store_type) <span class="sc">|&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Mean LOF</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">mean</span>(lof2d), <span class="dv">2</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Max LOF</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">max</span>(lof2d),  <span class="dv">2</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Pct &gt; 2.0</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(lof2d <span class="sc">&gt;</span> <span class="fl">2.0</span>), <span class="dv">0</span>), <span class="st">"%"</span>),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n           =</span> <span class="fu">n</span>(),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="st">`</span><span class="at">Mean LOF</span><span class="st">`</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="fu">paste0</span>(</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"LOF scores by store type (advertising + sales only). "</span>,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Inliers are statistically indistinguishable from regular stores — "</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"any threshold you set will miss them."</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>LOF scores by store type (advertising + sales only). Inliers are statistically indistinguishable from regular stores — any threshold you set will miss them.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">store_type</th>
+<th style="text-align: right;">Mean LOF</th>
+<th style="text-align: right;">Max LOF</th>
+<th style="text-align: left;">Pct &gt; 2.0</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">5.78</td>
+<td style="text-align: right;">11.85</td>
+<td style="text-align: left;">60%</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Luxury flagship</td>
+<td style="text-align: right;">1.53</td>
+<td style="text-align: right;">1.71</td>
+<td style="text-align: left;">0%</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Luxury inlier</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">2.44</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regular</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">2.41</td>
+<td style="text-align: left;">0%</td>
+<td style="text-align: right;">500</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>What this means in practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A researcher who runs LOF on advertising and sales, flags everything above LOF &gt; 2, investigates those observations, removes the obvious luxury flagships and point outliers, and then proceeds — has done everything correctly by the standard playbook. And they will still have 10 contaminating inliers in their dataset. The cleaning step created a false sense of security: the data <em>looks</em> clean because the visible problem was fixed. The invisible problem remains.</p>
+</div>
+</div>
+</section>
+<section id="the-reveal-a-third-variable-exposes-the-subgroup" class="level3" data-number="8.8.4">
+<h3 data-number="8.8.4" class="anchored" data-anchor-id="the-reveal-a-third-variable-exposes-the-subgroup"><span class="header-section-number">8.8.4</span> The Reveal: A Third Variable Exposes the Subgroup</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Digital presence vs sales: opposite slopes reveal the hidden subgroup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>reg_and_inliers <span class="ot">&lt;-</span> <span class="fu">filter</span>(df5_ext, store_type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Regular"</span>, <span class="st">"Luxury inlier"</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(reg_and_inliers,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> digital_presence, <span class="at">y =</span> sales,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> store_type, <span class="at">shape =</span> store_type)) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">group =</span> store_type), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="st">"#4575b4"</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="st">"#f4a736"</span>),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Regular"</span> <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"Luxury inlier"</span> <span class="ot">=</span> <span class="dv">23</span>),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="st">"Store type"</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Digital Presence Score"</span>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"A Third Variable Reveals the Hidden Subgroup"</span>,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Regular stores (blue): digital presence \u2192 higher sales  |  "</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Luxury inliers (orange): digital presence \u2192 lower sales</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Same advertising, same sales — completely different data-generating process"</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/case5-inlier-reveal-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="inliers-contaminate-regression-estimates" class="level3" data-number="8.8.5">
+<h3 data-number="8.8.5" class="anchored" data-anchor-id="inliers-contaminate-regression-estimates"><span class="header-section-number">8.8.5</span> Inliers Contaminate Regression Estimates</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ How inliers bias the digital presence coefficient</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> digital_presence,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">filter</span>(df5_ext, store_type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Regular"</span>, <span class="st">"Luxury inlier"</span>)))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>m_clean  <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> digital_presence,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">filter</span>(df5_ext, store_type <span class="sc">==</span> <span class="st">"Regular"</span>))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP for regular stores: digital_presence coefficient ≈ +0.55</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pooled: regular + luxury inliers (contaminated)"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Regular stores only — true DGP"</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Advertising coef</span><span class="st">`</span>      <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_pooled)[<span class="st">"advertising"</span>],</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">coef</span>(m_clean)[<span class="st">"advertising"</span>]),      <span class="dv">3</span>),</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Digital presence coef</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_pooled)[<span class="st">"digital_presence"</span>],</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">coef</span>(m_clean)[<span class="st">"digital_presence"</span>]), <span class="dv">3</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Advertising Coef"</span>, <span class="st">"Digital Presence Coef"</span>),</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption   =</span> <span class="fu">paste0</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Luxury inliers attenuate or reverse the digital presence coefficient. "</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">"True value for regular stores \u2248 +0.55. "</span>,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"No outlier diagnostic on advertising + sales would prompt you to investigate."</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Luxury inliers attenuate or reverse the digital presence coefficient. True value for regular stores ≈ +0.55. No outlier diagnostic on advertising + sales would prompt you to investigate.</caption>
+<colgroup>
+<col style="width: 55%">
+<col style="width: 19%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Advertising Coef</th>
+<th style="text-align: right;">Digital Presence Coef</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pooled: regular + luxury inliers (contaminated)</td>
+<td style="text-align: right;">0.300</td>
+<td style="text-align: right;">0.453</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regular stores only — true DGP</td>
+<td style="text-align: right;">0.257</td>
+<td style="text-align: right;">0.777</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The core lesson: critical thinking must be symmetric
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The digital presence coefficient for regular stores is positive — more digital marketing → more sales. That is the true relationship for the target population.</p>
+<p>When luxury inliers are pooled in, the coefficient collapses toward zero or flips sign. This is the same contamination problem as the obvious luxury flagship outliers, but it is <strong>completely invisible to outlier detection run on the main variables</strong>.</p>
+<p>The right framing is not “should I exclude this observation?” but rather: <strong>“does this observation come from the same data-generating process as the phenomenon I am studying?”</strong></p>
+<p>That question requires domain knowledge, not just statistics. In this case, the signal exists in a variable you might not have thought to include in your outlier diagnostic — digital presence. Without it, every diagnostic says the data is clean. With it, the subgroup is obvious.</p>
+<p><strong>The symmetry principle:</strong></p>
+<ul>
+<li>When a diagnostic <em>flags</em> an observation: demand substantive justification before removing or downweighting it. Statistical unusualness is not enough.</li>
+<li>When a diagnostic <em>clears</em> an observation: demand substantive justification before including it. Statistical normalcy is not enough.</li>
+</ul>
+<p>The question “is this a good or bad observation for my research question?” is always a conceptual question first and a statistical one second. Observations should never be included or excluded solely on the basis of how extreme they appear on the dimensions you happen to have measured.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="other-methods-for-outlier-detection-and-robust-estimation" class="level2" data-number="8.9">
+<h2 data-number="8.9" class="anchored" data-anchor-id="other-methods-for-outlier-detection-and-robust-estimation"><span class="header-section-number">8.9</span> Other Methods for Outlier Detection and Robust Estimation</h2>
 <p>LOF + DBSCAN and robust regression are practical entry points. The broader toolkit:</p>
 <ul>
 <li><strong>Mahalanobis distance:</strong> A multivariate distance metric that accounts for the covariances among variables. Points far from the centroid in Mahalanobis distance space are multivariate outliers. Computationally simple; assumes roughly elliptical distributions.</li>
@@ -997,8 +1313,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <hr>
 </section>
-<section id="sec-checklist-case5" class="level2" data-number="8.9">
-<h2 data-number="8.9" class="anchored" data-anchor-id="sec-checklist-case5"><span class="header-section-number">8.9</span> Researcher Checklist: Outliers</h2>
+<section id="sec-checklist-case5" class="level2" data-number="8.10">
+<h2 data-number="8.10" class="anchored" data-anchor-id="sec-checklist-case5"><span class="header-section-number">8.10</span> Researcher Checklist: Outliers</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
