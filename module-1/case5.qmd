@@ -117,8 +117,12 @@ sales_lux <- 0.90 * adv_lux + rnorm(n_lux, sd = 0.8) + 2   # steeper slope, simi
 
 # ── Point outliers (individual extreme observations) ───────────────────────────
 n_pt  <- 8
-adv_pt   <- c(24, 0.5, 2, 22, 1, 23, 3, 21)     # extreme advertising values
-sales_pt <- c(-1, 22, -4, 35, 20,  2, 24, -3)   # extreme / inconsistent sales
+# Point outliers are placed either at very low adv with implausibly high sales,
+# or at high adv with implausibly low/negative sales, or in the mid-range gap
+# (adv 10–13, between the regular cloud and the luxury cluster) with extreme sales.
+# This keeps them visually isolated — none overlap the regular-store region.
+adv_pt   <- c(24, 0.5, 11, 22, 1, 23, 12, 21)
+sales_pt <- c(-1, 22,  -8, 35, 20,  2, 26, -3)
 
 # ── Combine into single dataset ────────────────────────────────────────────────
 df5 <- data.frame(
@@ -155,8 +159,8 @@ ggplot(df5, aes(x = advertising, y = sales, colour = store_type, shape = store_t
     name   = "Store type"
   ) +
   labs(
-    x        = "Advertising Spend (standardised)",
-    y        = "Sales (standardised)",
+    x        = "Advertising Spend",
+    y        = "Sales",
     title    = "Three Types of Observations in the Dataset",
     subtitle = "Luxury flagships form their own cluster; point outliers are scattered extremes"
   ) +
