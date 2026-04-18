@@ -41,7 +41,11 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 ## Connecting to the Earlier Cases
 
-Part 4 showed what happens when your sample contains two fundamentally different types of respondents. Part 5 extends this logic to observational data — specifically, to the problem of **outliers**.
+Part 4 showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. **Part 5 is a continuation of exactly that problem**, extended to observational data and reframed as the problem of *outliers*.
+
+The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in Part 4. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster's data-generating process. These are statistical implementations of the same conceptual question Part 4 posed directly: *are all observations in this dataset from the same population?*
+
+The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of Part 4, not just the statistical tools of Part 5.
 
 Not all outliers are the same. Two important distinctions that are easy to conflate:
 
@@ -51,7 +55,7 @@ A *statistical outlier* is any observation that is unusual relative to the rest 
 
 A *conceptual outlier* is an observation that comes from a fundamentally different data-generating process than the rest of your sample. Luxury flagship stores in a dataset of convenience stores are conceptual outliers: they do not just deviate from the regression line, they operate on entirely different economics. The same statistical method (advertising spend → sales) applies, but the parameters are different.
 
-**Why the distinction matters:** Statistical outliers that are *not* conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a *sampling problem*, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Case 4 logic (latent subgroup analysis), not just downweighting the extreme values.
+**Why the distinction matters:** Statistical outliers that are *not* conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a *sampling problem*, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Part 4 logic (latent subgroup analysis), not just downweighting the extreme values.
 
 Within the statistical outlier category, two types behave differently:
 
@@ -62,11 +66,13 @@ Within the statistical outlier category, two types behave differently:
 Both types distort your results — but in different ways, and the solutions are different.
 
 ::: {.callout-note}
-## The connection to discriminant validity and latent subgroups
+## The connection to latent subgroup analysis (Part 4)
 
-Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn't "wrong data" — it's a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics: the resulting coefficient doesn't accurately describe either group.
+Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn't "wrong data" — it's a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from Part 4: the resulting coefficient doesn't accurately describe either group. The statistical tools in Part 5 (LOF, DBSCAN, robust regression) detect these clusters empirically. Part 4's finite mixture models detect them probabilistically. Both are answering the same question.
 
 Point outliers, by contrast, are statistical problems rather than conceptual ones. A single data entry error or an unusually extreme store doesn't imply a hidden population — it's just a disruptive data point that needs to be handled carefully.
+
+The hardest case — inliers — is a latent subgroup that neither approach can detect statistically. That requires domain knowledge about whether observations belong in your target population in the first place.
 :::
 
 ## Simulating the Dataset
@@ -429,6 +435,16 @@ Those are different questions, and conflating them produces a critical blind spo
 
 An *inlier* is an observation that is statistically unremarkable on the dimensions you are measuring — low LOF score, inside the main cluster, small residuals — but belongs to a different population with a different data-generating process. It passes every diagnostic you run. That is precisely what makes it dangerous.
 
+::: {.callout-note}
+## Inliers are a latent subgroup problem (Part 4), not a statistical outlier problem
+
+Recall that in Part 4, latent subgroup analysis worked because the subgroups had *statistically detectable* differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.
+
+The inlier problem is a harder version of the same structure. Inliers belong to a different latent subgroup — a different population with a different data-generating process — but they are **statistically indistinguishable** from the target population on the variables you have measured. No mixture model, no LOF score, no density cluster will separate them. The subgroup is latent in the deepest sense: invisible to all available statistical tools.
+
+This is why the inlier problem is ultimately a *measurement and sampling problem*, not a statistical one. The relevant question — "are these observations from the same population as the phenomenon I am studying?" — is answered by domain knowledge about what you are measuring and who belongs in your target sample, not by any diagnostic statistic.
+:::
+
 **The scenario.** Some luxury flagship stores happen to advertise in similar amounts and generate similar aggregate sales as regular convenience stores — perhaps because they serve a very small, very wealthy clientele from a single compact location. On advertising vs. sales, they are invisible. But these same stores have a completely inverted relationship with digital marketing. For regular stores, digital presence drives foot traffic and conversions — more digital → more sales. For luxury inliers, digital overexposure signals accessibility and undermines exclusivity — more digital → *fewer* sales. A researcher who detects and removes the obvious luxury outliers but keeps the inliers will draw incorrect conclusions about what drives sales. The inliers contaminate the analysis just as much — but no diagnostic flagged them.
 
 ### Simulating the Luxury Inliers
@@ -483,9 +499,11 @@ type_szs   <- c("Regular"         = 1.5, "Luxury flagship" = 3.5,
 
 ggplot(df5_ext,
        aes(x = advertising, y = sales,
-           colour = store_type, shape = store_type, size = store_type)) +
-  geom_point(alpha = 0.75) +
+           colour = store_type, fill = store_type,
+           shape = store_type, size = store_type)) +
+  geom_point(alpha = 0.85) +
   scale_colour_manual(values = type_cols, name = "Store type") +
+  scale_fill_manual(values   = type_cols, name = "Store type") +
   scale_shape_manual(values  = type_shps, name = "Store type") +
   scale_size_manual(values   = type_szs,  name = "Store type") +
   labs(
@@ -543,11 +561,15 @@ reg_and_inliers <- filter(df5_ext, store_type %in% c("Regular", "Luxury inlier")
 
 ggplot(reg_and_inliers,
        aes(x = digital_presence, y = sales,
-           colour = store_type, shape = store_type)) +
-  geom_point(size = 2.5, alpha = 0.8) +
+           colour = store_type, fill = store_type, shape = store_type)) +
+  geom_point(size = 2.5, alpha = 0.85) +
   geom_smooth(aes(group = store_type), method = "lm", se = TRUE,
               linewidth = 1.2) +
   scale_colour_manual(
+    values = c("Regular" = "#4575b4", "Luxury inlier" = "#f4a736"),
+    name   = "Store type"
+  ) +
+  scale_fill_manual(
     values = c("Regular" = "#4575b4", "Luxury inlier" = "#f4a736"),
     name   = "Store type"
   ) +
