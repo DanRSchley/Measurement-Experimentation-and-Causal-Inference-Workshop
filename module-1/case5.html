@@ -423,6 +423,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Point outliers</strong> (or global outliers) are individual observations that are simply extreme on one or more variables. They may represent data errors, rare events, or genuinely unusual cases. They pull the regression line toward them and inflate standard errors. These are more likely to be pure statistical outliers — unusual, but not necessarily from a different population.</p></li>
 </ul>
 <p>Both types distort your results — but in different ways, and the solutions are different.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Avoid arbitrary outlier rules — they replace thinking with a ritual
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A widespread practice in applied research is to apply mechanical thresholds before analysis: remove any observation more than 2 standard deviations from the mean, or more than 3 interquartile ranges from the median, or with a z-score above 3.29. These rules appear rigorous because they are quantitative. They are not.</p>
+<p><strong>The problem is conceptual, not statistical.</strong> The question “should this observation be in my analysis?” is a question about the data-generating process — about whether this observation is from the target population and whether it represents a valid instance of the phenomenon being studied. No arbitrary cutoff can answer that question. An observation 4 SD from the mean may be the most interesting data point in your sample. An observation well within range may be from a completely different population.</p>
+<p>Mechanical thresholds also introduce researcher degrees of freedom in a hidden form. Because the threshold is chosen before looking at the data, it can feel objective — but the choice of 2 SD vs.&nbsp;3 SD vs.&nbsp;3 IQR makes a substantial difference, and different choices can change your conclusions. Applying a rule “everybody uses” does not eliminate the subjectivity; it just obscures it.</p>
+<p><strong>The right approach</strong> is to treat every flagged observation as a question about the data-generating process: <em>Why is this observation extreme? Does it come from the same population as the rest of my data? Is it a measurement error or a genuine extreme case?</em> LOF, DBSCAN, and robust regression — covered in the steps below — are tools to <em>find</em> candidate observations for this investigation, not to replace it.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -443,9 +459,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="8.2" class="anchored" data-anchor-id="simulating-the-dataset"><span class="header-section-number">8.2</span> Simulating the Dataset</h2>
 <p>We create a store-level dataset with three groups:</p>
 <ul>
-<li><strong>Regular stores</strong> (n=500): Standard advertising–sales relationship</li>
-<li><strong>Luxury flagships</strong> (n=8): Collective outliers — much higher advertising and sales, forming their own cluster</li>
-<li><strong>Point outliers</strong> (n=5): Individual stores with implausibly extreme values</li>
+<li><strong>Regular stores</strong> (n=500): Standard advertising–sales relationship (true slope = 0.40)</li>
+<li><strong>Luxury flagships</strong> (n=20): Collective outliers — much higher advertising and a steeper advertising–sales relationship, forming their own cluster</li>
+<li><strong>Point outliers</strong> (n=8): Individual stores with implausibly extreme or internally inconsistent values</li>
 </ul>
 <div class="cell">
 <details class="code-fold">
@@ -453,29 +469,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Regular stores ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n_reg <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>adv_reg   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_reg, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>sales_reg <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> adv_reg <span class="sc">+</span> <span class="fu">rnorm</span>(n_reg, <span class="at">sd =</span> <span class="fl">1.2</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Luxury flagship stores (collective outliers) ───────────────────────────────</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># They advertise much more AND have much higher sales — different economic model</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>n_lux <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>adv_lux   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_lux, <span class="at">mean =</span> <span class="dv">18</span>, <span class="at">sd =</span> <span class="fl">1.2</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>sales_lux <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="sc">*</span> adv_lux <span class="sc">+</span> <span class="fu">rnorm</span>(n_lux, <span class="at">sd =</span> <span class="fl">0.8</span>) <span class="sc">+</span> <span class="dv">10</span>   <span class="co"># elevated baseline</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Point outliers (individual extreme observations) ───────────────────────────</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>n_pt  <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>adv_pt   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">19</span>, <span class="dv">2</span>)          <span class="co"># extreme advertising values</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>sales_pt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">18</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">25</span>, <span class="dv">15</span>)        <span class="co"># extreme / inconsistent sales</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Combine into single dataset ────────────────────────────────────────────────</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> <span class="fu">c</span>(adv_reg,    adv_lux,    adv_pt),</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> <span class="fu">c</span>(sales_reg,  sales_lux,  sales_pt),</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_type  =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Regular"</span>,   n_reg),</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Luxury flagship"</span>, n_lux),</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Point outlier"</span>,   n_pt))</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP: sales = 0.40 * advertising + noise   (slope = 0.40, no intercept)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>n_reg <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>adv_reg   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_reg, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>sales_reg <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> adv_reg <span class="sc">+</span> <span class="fu">rnorm</span>(n_reg, <span class="at">sd =</span> <span class="fl">1.2</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Luxury flagship stores (collective outliers) ───────────────────────────────</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Different economic model: much higher advertising, steeper returns to advertising.</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Their cluster (centroid ≈ 20, 20) is far from the regular cluster (≈ 5, 2) —</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the "between-cluster" slope is ~1.2, which will pull OLS well above 0.40.</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>n_lux <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>adv_lux   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_lux, <span class="at">mean =</span> <span class="dv">20</span>, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>sales_lux <span class="ot">&lt;-</span> <span class="fl">0.90</span> <span class="sc">*</span> adv_lux <span class="sc">+</span> <span class="fu">rnorm</span>(n_lux, <span class="at">sd =</span> <span class="fl">0.8</span>) <span class="sc">+</span> <span class="dv">2</span>   <span class="co"># steeper slope, similar absolute level</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Point outliers (individual extreme observations) ───────────────────────────</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>n_pt  <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>adv_pt   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">24</span>, <span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">22</span>, <span class="dv">1</span>, <span class="dv">23</span>, <span class="dv">3</span>, <span class="dv">21</span>)     <span class="co"># extreme advertising values</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>sales_pt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">22</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">35</span>, <span class="dv">20</span>,  <span class="dv">2</span>, <span class="dv">24</span>, <span class="sc">-</span><span class="dv">3</span>)   <span class="co"># extreme / inconsistent sales</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Combine into single dataset ────────────────────────────────────────────────</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> <span class="fu">c</span>(adv_reg,    adv_lux,    adv_pt),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> <span class="fu">c</span>(sales_reg,  sales_lux,  sales_pt),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_type  =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Regular"</span>,        n_reg),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Luxury flagship"</span>, n_lux),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Point outlier"</span>,   n_pt))</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -610,94 +629,94 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">1.00</td>
-<td style="text-align: right;">18.00</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">22.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">11.69</td>
+<td style="text-align: right;">13.74</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">2.00</td>
-<td style="text-align: right;">15.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">20.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">10.76</td>
+<td style="text-align: right;">12.66</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">24.00</td>
+<td style="text-align: right;">-1.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">10.71</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">21.00</td>
+<td style="text-align: right;">-3.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">10.18</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">22.00</td>
-<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">35.00</td>
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">5.01</td>
+<td style="text-align: right;">8.48</td>
 </tr>
 <tr class="even">
+<td style="text-align: right;">23.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">6.68</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">24.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">6.22</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">-4.00</td>
+<td style="text-align: left;">Point outlier</td>
+<td style="text-align: right;">2.65</td>
+</tr>
+<tr class="odd">
 <td style="text-align: right;">1.06</td>
 <td style="text-align: right;">-3.10</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">2.40</td>
+<td style="text-align: right;">2.20</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: right;">8.16</td>
 <td style="text-align: right;">6.12</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">2.04</td>
+<td style="text-align: right;">2.09</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: right;">2.76</td>
 <td style="text-align: right;">5.03</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">1.90</td>
+<td style="text-align: right;">1.84</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16.53</td>
+<td style="text-align: right;">16.10</td>
+<td style="text-align: left;">Luxury flagship</td>
+<td style="text-align: right;">1.76</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3.77</td>
 <td style="text-align: right;">5.29</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.75</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">15.51</td>
-<td style="text-align: right;">14.46</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.71</td>
+<td style="text-align: right;">3.94</td>
+<td style="text-align: right;">-1.92</td>
+<td style="text-align: left;">Regular</td>
+<td style="text-align: right;">1.74</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">17.27</td>
-<td style="text-align: right;">14.67</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.71</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">17.12</td>
-<td style="text-align: right;">14.42</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.71</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">17.14</td>
-<td style="text-align: right;">15.15</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.71</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">16.29</td>
-<td style="text-align: right;">13.75</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.70</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">17.04</td>
-<td style="text-align: right;">13.26</td>
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.70</td>
-</tr>
-<tr class="even">
 <td style="text-align: right;">8.73</td>
 <td style="text-align: right;">2.20</td>
 <td style="text-align: left;">Regular</td>
-<td style="text-align: right;">1.68</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1.52</td>
-<td style="text-align: right;">-1.56</td>
-<td style="text-align: left;">Regular</td>
-<td style="text-align: right;">1.61</td>
+<td style="text-align: right;">1.69</td>
 </tr>
 </tbody>
 </table>
@@ -789,24 +808,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Choosing eps and minPts:</strong> There is no single correct answer. A practical approach: plot the k-nearest-neighbor distances (sorted) and look for an “elbow” — the point where the distance curve bends sharply. That elbow value is a good starting point for eps. For minPts, a common default is 2 × (number of dimensions in your data).</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>LOF vs DBSCAN: what each tool actually tells you
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Both methods are density-based, but they answer different questions.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>LOF</strong></th>
+<th><strong>DBSCAN</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Output</strong></td>
+<td>A continuous score per observation</td>
+<td>A discrete cluster label per observation</td>
+</tr>
+<tr class="even">
+<td><strong>Question answered</strong></td>
+<td><em>How</em> outlying is each point?</td>
+<td><em>What structure</em> do the outliers have?</td>
+</tr>
+<tr class="odd">
+<td><strong>Point outliers</strong></td>
+<td>High LOF score</td>
+<td>Label = 0 (noise)</td>
+</tr>
+<tr class="even">
+<td><strong>Collective outliers</strong></td>
+<td>Elevated LOF (but often less extreme than point outliers, because members of the cluster look normal <em>relative to each other</em>)</td>
+<td>Assigned their own separate cluster (label ≠ 0, ≠ main cluster)</td>
+</tr>
+<tr class="odd">
+<td><strong>Key strength</strong></td>
+<td>Ranks observations on a continuous scale; good for sensitivity analysis</td>
+<td>Identifies whether outliers form a coherent group — the critical distinction between point outliers and collective outliers</td>
+</tr>
+<tr class="even">
+<td><strong>Key limitation</strong></td>
+<td>Does not tell you whether outliers are isolated or clustered together</td>
+<td>Binary: in or out. Sensitive to eps and minPts choices</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Practical implication for this case:</strong> LOF flags both luxury flagships and point outliers with high scores, but does not tell you <em>why</em> they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup (Part 4 problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.</p>
+<p>Use LOF to <em>rank</em> observations by how unusual they are. Use DBSCAN to understand <em>whether</em> unusual observations are isolated data points or an alternative population. Both are diagnostic tools, not verdicts.</p>
+</div>
+</div>
 </section>
 <section id="step-4-robust-regression-no-need-to-delete-outliers" class="level2" data-number="8.6">
 <h2 data-number="8.6" class="anchored" data-anchor-id="step-4-robust-regression-no-need-to-delete-outliers"><span class="header-section-number">8.6</span> Step 4: Robust Regression — No Need to Delete Outliers</h2>
 <p>The traditional advice — delete the outliers and refit — creates its own problems: it introduces researcher degrees of freedom (which ones do you delete?), it loses information, and it’s post-hoc. A better approach is <strong>robust regression</strong>, which automatically downweights observations that don’t fit the main data pattern.</p>
-<p><code>MASS::rlm()</code> uses <strong>M-estimation</strong>: instead of minimising the sum of squared residuals (which gives disproportionate influence to large residuals), it minimises a less sensitive function that penalises large residuals less severely.</p>
+<p>We use <code>MASS::rlm()</code> with <strong>MM-estimation</strong> (<code>method = "MM"</code>). MM-estimators combine two stages: first, a highly robust initial fit that is resistant to both high-residual <em>and</em> high-leverage outliers; then, an M-estimation refinement step that achieves high statistical efficiency on clean data. The result is a slope estimate that is simultaneously resistant to the kinds of contamination we have in this dataset — a separate cluster at high leverage <em>and</em> scattered point outliers — while remaining close to OLS when the data are clean.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ OLS vs.&nbsp;robust regression (rlm) coefficient comparison</summary>
+<summary>▶ OLS vs.&nbsp;robust MM-regression coefficient comparison</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Fit regression models ─────────────────────────────────────────────────────</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>m_ols_all <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> df5)          <span class="co"># OLS with all data</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>m_robust  <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">rlm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> df5)   <span class="co"># Robust on all data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>m_ols_all <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> df5)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>m_robust  <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">rlm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> df5, <span class="at">method =</span> <span class="st">"MM"</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP: sales = 0.4 * advertising (known from simulation — slope = 0.40)</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Compare coefficients against true DGP ────────────────────────────────────</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>coef_compare5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"OLS — all stores (distorted by outliers)"</span>,</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"True DGP (known from simulation)"</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Robust regression rlm — all stores"</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Robust MM-estimation — all stores"</span>),</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Advertising coefficient</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_ols_all)[<span class="st">"advertising"</span>],</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                                      <span class="fl">0.40</span>,</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">coef</span>(m_robust)[<span class="st">"advertising"</span>]), <span class="dv">3</span>)</span>
@@ -814,11 +894,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(coef_compare5,</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Advertising Coefficient"</span>),</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"OLS vs. Robust Regression: How Much Do Outliers Matter?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"OLS vs. Robust MM-Regression: The luxury flagship cluster and point outliers pull OLS well above the true DGP slope; MM-estimation recovers close to 0.40."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>OLS vs.&nbsp;Robust Regression: How Much Do Outliers Matter?</caption>
+<caption>OLS vs.&nbsp;Robust MM-Regression: The luxury flagship cluster and point outliers pull OLS well above the true DGP slope; MM-estimation recovers close to 0.40.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Model</th>
@@ -828,15 +908,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS — all stores (distorted by outliers)</td>
-<td style="text-align: right;">0.683</td>
+<td style="text-align: right;">0.865</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">True DGP (known from simulation)</td>
 <td style="text-align: right;">0.400</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Robust regression rlm — all stores</td>
-<td style="text-align: right;">0.602</td>
+<td style="text-align: left;">Robust MM-estimation — all stores</td>
+<td style="text-align: right;">0.448</td>
 </tr>
 </tbody>
 </table>
@@ -844,7 +924,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Plot: OLS vs.&nbsp;robust regression lines</summary>
+<summary>▶ Plot: OLS vs.&nbsp;robust MM regression lines</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate prediction lines</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(df5<span class="sc">$</span>advertising), <span class="fu">max</span>(df5<span class="sc">$</span>advertising), <span class="at">length.out =</span> <span class="dv">300</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>newdat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">advertising =</span> x_seq)</span>
@@ -852,23 +932,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>pred_lines <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> <span class="fu">rep</span>(x_seq, <span class="dv">3</span>),</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> <span class="fu">c</span>(<span class="fu">predict</span>(m_ols_all, <span class="at">newdata =</span> newdat),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                  <span class="fl">0.40</span> <span class="sc">*</span> x_seq,                          <span class="co"># True DGP: slope = 0.40</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                  <span class="fl">0.40</span> <span class="sc">*</span> x_seq,                          <span class="co"># True DGP: slope = 0.40, intercept = 0</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">predict</span>(m_robust,  <span class="at">newdata =</span> newdat)),</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">model       =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"OLS — all stores (distorted)"</span>,</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"True DGP (slope = 0.40)"</span>,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Robust rlm — all stores"</span>),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Robust MM — all stores"</span>),</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">each =</span> <span class="fu">length</span>(x_seq))</span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>line_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"OLS — all stores (distorted)"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>,</span>
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True DGP (slope = 0.40)"</span>     <span class="ot">=</span> <span class="st">"#4575b4"</span>,</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Robust rlm — all stores"</span>     <span class="ot">=</span> <span class="st">"#1a9641"</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Robust MM — all stores"</span>      <span class="ot">=</span> <span class="st">"#1a9641"</span></span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>line_types <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"OLS — all stores (distorted)"</span> <span class="ot">=</span> <span class="st">"dotted"</span>,</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True DGP (slope = 0.40)"</span>     <span class="ot">=</span> <span class="st">"solid"</span>,</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Robust rlm — all stores"</span>     <span class="ot">=</span> <span class="st">"dashed"</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Robust MM — all stores"</span>      <span class="ot">=</span> <span class="st">"dashed"</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
@@ -885,11 +965,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Point outlier"</span>                <span class="ot">=</span> <span class="st">"#a8c5a0"</span>,</span>
 <span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      <span class="st">"OLS — all stores (distorted)"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>,</span>
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      <span class="st">"True DGP (slope = 0.40)"</span>     <span class="ot">=</span> <span class="st">"#4575b4"</span>,</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Robust rlm — all stores"</span>     <span class="ot">=</span> <span class="st">"#1a9641"</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Robust MM — all stores"</span>      <span class="ot">=</span> <span class="st">"#1a9641"</span></span>
 <span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    ),</span>
 <span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="st">"OLS — all stores (distorted)"</span>,</span>
 <span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>               <span class="st">"True DGP (slope = 0.40)"</span>,</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Robust rlm — all stores"</span>),</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Robust MM — all stores"</span>),</span>
 <span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Regression line"</span></span>
 <span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> line_types, <span class="at">name =</span> <span class="st">"Regression line"</span>) <span class="sc">+</span></span>
@@ -898,8 +978,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Advertising Spend"</span>,</span>
 <span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Sales"</span>,</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"OLS vs. Robust Regression: Effect of Outliers on Slope Estimates"</span>,</span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red dotted = OLS distorted by outliers  |  Blue solid = true DGP (slope 0.40)  |  Green dashed = robust rlm"</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"OLS vs. Robust MM-Regression: Effect of Outliers on Slope Estimates"</span>,</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red dotted = OLS distorted by outliers  |  Blue solid = true DGP (slope 0.40)  |  Green dashed = robust MM"</span></span>
 <span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
 <span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position  =</span> <span class="st">"bottom"</span>,</span>
@@ -924,10 +1004,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>OLS (all stores):</strong> Pulled toward the luxury cluster and point outliers, producing a distorted slope well above the true value of 0.40. If you use this coefficient to predict sales for a regular store, you will be systematically wrong.</p>
-<p><strong>True DGP (slope = 0.40):</strong> The known data-generating process for regular stores — included in the plot because we simulated the data and know the ground truth. In real research you would not see this line.</p>
-<p><strong>Robust regression (rlm, all stores):</strong> Automatically downweights observations with large residuals (the outliers and luxury stores fit poorly under the regular-store model, so they receive low weights). The resulting coefficient is close to the true value of 0.40 — without having to decide in advance which observations to delete.</p>
-<p><strong>Practical advice:</strong> 1. Always plot your data and check for visual outliers before running any regression 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually 3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Part 4 problem 4. For point outliers, verify the data and report results with and without them as a robustness check 5. Use robust regression as your primary estimator when you suspect outliers but are not certain which observations to remove</p>
+<p><strong>OLS (all stores):</strong> Pulled sharply toward the luxury cluster and point outliers. The luxury flagship stores are at high advertising values (x ≈ 20), giving them enormous leverage — even though they are only 4% of the sample, they contribute more than half the total variation in advertising spend. Combined with the point outliers, OLS produces a slope well above the true value of 0.40. Predictions for a regular store using this coefficient will be systematically biased.</p>
+<p><strong>True DGP (slope = 0.40):</strong> The known data-generating process for regular stores — included in the plot because we simulated the data and know the ground truth. In real research you would not see this line; you would only see how OLS and robust estimates diverge.</p>
+<p><strong>Robust MM-estimation (all stores):</strong> Addresses both high-residual outliers and high-leverage points. The initial S-estimation step finds a robust fit resistant to the luxury cluster’s leverage; the M-estimation refinement achieves efficiency on the regular-store observations. The result is a slope close to the true 0.40 — without deciding in advance which observations to delete.</p>
+<p><strong>Practical advice:</strong> 1. Always plot your data and check for visual outliers before running any regression 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually 3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Part 4 problem 4. For point outliers, verify the data and report results with and without them as a robustness check 5. Use <code>rlm(method = "MM")</code> rather than the default Huber M-estimator when your data contains high-leverage clusters — the default Huber weighting can still be dominated by high-leverage points</p>
 </div>
 </div>
 </section>
@@ -936,21 +1016,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A simple sensitivity check: compare OLS and robust regression. If they give substantially different results, outliers are influencing your conclusions. If they agree, outliers aren’t driving your findings.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Sensitivity table: OLS vs.&nbsp;rlm coefficients</summary>
+<summary>▶ Sensitivity table: OLS vs.&nbsp;robust MM coefficients</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract and compare key summary stats</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sens_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"OLS (all stores)"</span>, <span class="st">"Robust rlm (all stores)"</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"OLS (all stores)"</span>, <span class="st">"Robust MM-estimation (all stores)"</span>),</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Intercept</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_ols_all)[<span class="dv">1</span>], <span class="fu">coef</span>(m_robust)[<span class="dv">1</span>]), <span class="dv">3</span>),</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Advertising slope</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_ols_all)[<span class="dv">2</span>], <span class="fu">coef</span>(m_robust)[<span class="dv">2</span>]), <span class="dv">3</span>)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(sens_df,</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Method"</span>, <span class="st">"Intercept"</span>, <span class="st">"Advertising Slope"</span>),</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"Sensitivity Check: OLS vs. Robust Regression Coefficients"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"Sensitivity Check: OLS vs. Robust MM-Estimation Coefficients"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Sensitivity Check: OLS vs.&nbsp;Robust Regression Coefficients</caption>
+<caption>Sensitivity Check: OLS vs.&nbsp;Robust MM-Estimation Coefficients</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Method</th>
@@ -961,13 +1041,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS (all stores)</td>
-<td style="text-align: right;">-1.272</td>
-<td style="text-align: right;">0.683</td>
+<td style="text-align: right;">-2.064</td>
+<td style="text-align: right;">0.865</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Robust rlm (all stores)</td>
-<td style="text-align: right;">-0.977</td>
-<td style="text-align: right;">0.602</td>
+<td style="text-align: left;">Robust MM-estimation (all stores)</td>
+<td style="text-align: right;">-0.240</td>
+<td style="text-align: right;">0.448</td>
 </tr>
 </tbody>
 </table>
@@ -1148,29 +1228,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Point outlier</td>
-<td style="text-align: right;">5.78</td>
-<td style="text-align: right;">11.85</td>
-<td style="text-align: left;">60%</td>
-<td style="text-align: right;">5</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Luxury flagship</td>
-<td style="text-align: right;">1.53</td>
-<td style="text-align: right;">1.71</td>
-<td style="text-align: left;">0%</td>
+<td style="text-align: right;">8.93</td>
+<td style="text-align: right;">13.94</td>
+<td style="text-align: left;">100%</td>
 <td style="text-align: right;">8</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Luxury inlier</td>
-<td style="text-align: right;">1.20</td>
-<td style="text-align: right;">2.44</td>
+<td style="text-align: right;">1.23</td>
+<td style="text-align: right;">2.53</td>
 <td style="text-align: left;">10%</td>
 <td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Luxury flagship</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: left;">0%</td>
+<td style="text-align: right;">20</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Regular</td>
 <td style="text-align: right;">1.07</td>
-<td style="text-align: right;">2.41</td>
+<td style="text-align: right;">2.20</td>
 <td style="text-align: left;">0%</td>
 <td style="text-align: right;">500</td>
 </tr>
