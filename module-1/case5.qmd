@@ -419,6 +419,205 @@ When you run a robust regression as a sensitivity check and it tells a *differen
 When OLS and robust regression agree: briefly note the robustness check as evidence that your results are not driven by a small number of influential observations.
 :::
 
+---
+
+## The Inlier Problem: Statistical Normalcy ≠ Conceptual Homogeneity {#sec-inliers}
+
+Every outlier method we have used so far answers one question: **is this observation unusual relative to what I can see in the data?** LOF asks whether a point's neighbourhood is unusually sparse. DBSCAN asks whether it belongs to any dense cluster. Robust regression downweights points whose residuals are large. None of these methods can answer a fundamentally different question: **does this observation come from the same data-generating process as the phenomenon I am trying to study?**
+
+Those are different questions, and conflating them produces a critical blind spot — the **inlier**.
+
+An *inlier* is an observation that is statistically unremarkable on the dimensions you are measuring — low LOF score, inside the main cluster, small residuals — but belongs to a different population with a different data-generating process. It passes every diagnostic you run. That is precisely what makes it dangerous.
+
+**The scenario.** Some luxury flagship stores happen to advertise in similar amounts and generate similar aggregate sales as regular convenience stores — perhaps because they serve a very small, very wealthy clientele from a single compact location. On advertising vs. sales, they are invisible. But these same stores have a completely inverted relationship with digital marketing. For regular stores, digital presence drives foot traffic and conversions — more digital → more sales. For luxury inliers, digital overexposure signals accessibility and undermines exclusivity — more digital → *fewer* sales. A researcher who detects and removes the obvious luxury outliers but keeps the inliers will draw incorrect conclusions about what drives sales. The inliers contaminate the analysis just as much — but no diagnostic flagged them.
+
+### Simulating the Luxury Inliers
+
+We extend the dataset with 10 luxury inlier stores and add a third variable — **digital presence score** — that has opposite sign relationships with sales across the two populations.
+
+```{r case5-inlier-sim}
+#| code-summary: "▶ Add luxury inliers + digital presence variable (extends df5)"
+set.seed(42)
+n_lux_in <- 10
+
+# Luxury inliers: advertising and sales deliberately overlap with regular stores.
+# On the main two dimensions, they are statistically indistinguishable.
+adv_in   <- rnorm(n_lux_in, mean = 5.2, sd = 1.4)
+sales_in <- 0.38 * adv_in + rnorm(n_lux_in, sd = 1.15)
+
+# Third variable: digital presence score (0–10 composite: social media, web traffic,
+# online reviews). Key distinction in the data-generating process:
+#   Regular stores:      POSITIVE slope — mass-market brands benefit from digital reach.
+#   Luxury inliers:      NEGATIVE slope — digital overexposure erodes brand exclusivity.
+dp_reg <- 0.55 * sales_reg + rnorm(n_reg,    mean = 0, sd = 0.80)
+dp_in  <- -0.65 * sales_in  + rnorm(n_lux_in, mean = 0, sd = 0.50) + 8.0
+
+# Assign neutral digital scores to the obvious outlier groups (not the focus here)
+dp_lux <- rnorm(n_lux, mean = 6.5, sd = 0.6)
+dp_pt  <- rnorm(n_pt,  mean = 3.0, sd = 0.8)
+
+# Extended dataset: all original stores + luxury inliers
+df5_ext <- data.frame(
+  advertising      = c(adv_reg,      adv_lux,       adv_pt,      adv_in),
+  sales            = c(sales_reg,    sales_lux,     sales_pt,    sales_in),
+  digital_presence = c(dp_reg,       dp_lux,        dp_pt,       dp_in),
+  store_type       = c(rep("Regular",          n_reg),
+                       rep("Luxury flagship",  n_lux),
+                       rep("Point outlier",    n_pt),
+                       rep("Luxury inlier",    n_lux_in))
+)
+```
+
+### Advertising vs Sales: The Inliers Are Invisible
+
+```{r case5-inlier-scatter, fig.height=5}
+#| code-summary: "▶ Plot: four store types — inliers hidden inside regular cluster"
+type_cols  <- c("Regular"         = "#4575b4",
+                "Luxury flagship" = "#d73027",
+                "Point outlier"   = "#1a9641",
+                "Luxury inlier"   = "#f4a736")
+type_shps  <- c("Regular"         = 16, "Luxury flagship" = 17,
+                "Point outlier"   = 8,  "Luxury inlier"   = 23)
+type_szs   <- c("Regular"         = 1.5, "Luxury flagship" = 3.5,
+                "Point outlier"   = 4.0, "Luxury inlier"   = 3.5)
+
+ggplot(df5_ext,
+       aes(x = advertising, y = sales,
+           colour = store_type, shape = store_type, size = store_type)) +
+  geom_point(alpha = 0.75) +
+  scale_colour_manual(values = type_cols, name = "Store type") +
+  scale_shape_manual(values  = type_shps, name = "Store type") +
+  scale_size_manual(values   = type_szs,  name = "Store type") +
+  labs(
+    x        = "Advertising Spend",
+    y        = "Sales",
+    title    = "Luxury Inliers Are Statistically Invisible on Advertising vs Sales",
+    subtitle = paste0("Orange diamonds (luxury inliers) overlap completely with the regular-store cluster\n",
+                      "No visual inspection or LOF score on these two variables will flag them")
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+::: {.callout-warning}
+## What to notice
+
+The orange diamonds (luxury inliers) sit inside the blue cloud of regular stores. LOF computed on advertising and sales will give them scores near 1.0 — statistically normal. DBSCAN will assign them to the main cluster. The regression residuals will be unremarkable. They pass every standard diagnostic because — on these two dimensions — they genuinely look normal.
+:::
+
+### LOF Confirms: Inliers Score as Normal
+
+```{r case5-inlier-lof}
+#| code-summary: "▶ LOF scores by group: inliers are indistinguishable from regular stores"
+df5_ext_scaled <- scale(df5_ext[, c("advertising", "sales")])
+df5_ext$lof2d  <- dbscan::lof(df5_ext_scaled, minPts = 10)
+
+df5_ext |>
+  group_by(store_type) |>
+  summarise(
+    `Mean LOF`  = round(mean(lof2d), 2),
+    `Max LOF`   = round(max(lof2d),  2),
+    `Pct > 2.0` = paste0(round(100 * mean(lof2d > 2.0), 0), "%"),
+    n           = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(`Mean LOF`)) |>
+  kable(caption = paste0(
+    "LOF scores by store type (advertising + sales only). ",
+    "Inliers are statistically indistinguishable from regular stores — ",
+    "any threshold you set will miss them."
+  ))
+```
+
+::: {.callout-important}
+## What this means in practice
+
+A researcher who runs LOF on advertising and sales, flags everything above LOF > 2, investigates those observations, removes the obvious luxury flagships and point outliers, and then proceeds — has done everything correctly by the standard playbook. And they will still have 10 contaminating inliers in their dataset. The cleaning step created a false sense of security: the data *looks* clean because the visible problem was fixed. The invisible problem remains.
+:::
+
+### The Reveal: A Third Variable Exposes the Subgroup
+
+```{r case5-inlier-reveal, fig.width=9, fig.height=5}
+#| code-summary: "▶ Digital presence vs sales: opposite slopes reveal the hidden subgroup"
+reg_and_inliers <- filter(df5_ext, store_type %in% c("Regular", "Luxury inlier"))
+
+ggplot(reg_and_inliers,
+       aes(x = digital_presence, y = sales,
+           colour = store_type, shape = store_type)) +
+  geom_point(size = 2.5, alpha = 0.8) +
+  geom_smooth(aes(group = store_type), method = "lm", se = TRUE,
+              linewidth = 1.2) +
+  scale_colour_manual(
+    values = c("Regular" = "#4575b4", "Luxury inlier" = "#f4a736"),
+    name   = "Store type"
+  ) +
+  scale_shape_manual(
+    values = c("Regular" = 16, "Luxury inlier" = 23),
+    name   = "Store type"
+  ) +
+  labs(
+    x        = "Digital Presence Score",
+    y        = "Sales",
+    title    = "A Third Variable Reveals the Hidden Subgroup",
+    subtitle = paste0(
+      "Regular stores (blue): digital presence \u2192 higher sales  |  ",
+      "Luxury inliers (orange): digital presence \u2192 lower sales\n",
+      "Same advertising, same sales — completely different data-generating process"
+    )
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+### Inliers Contaminate Regression Estimates
+
+```{r case5-inlier-regression}
+#| code-summary: "▶ How inliers bias the digital presence coefficient"
+m_pooled <- lm(sales ~ advertising + digital_presence,
+               data = filter(df5_ext, store_type %in% c("Regular", "Luxury inlier")))
+m_clean  <- lm(sales ~ advertising + digital_presence,
+               data = filter(df5_ext, store_type == "Regular"))
+# True DGP for regular stores: digital_presence coefficient ≈ +0.55
+
+data.frame(
+  Model = c(
+    "Pooled: regular + luxury inliers (contaminated)",
+    "Regular stores only — true DGP"
+  ),
+  `Advertising coef`      = round(c(coef(m_pooled)["advertising"],
+                                     coef(m_clean)["advertising"]),      3),
+  `Digital presence coef` = round(c(coef(m_pooled)["digital_presence"],
+                                     coef(m_clean)["digital_presence"]), 3)
+) |>
+  kable(
+    col.names = c("Model", "Advertising Coef", "Digital Presence Coef"),
+    caption   = paste0(
+      "Luxury inliers attenuate or reverse the digital presence coefficient. ",
+      "True value for regular stores \u2248 +0.55. ",
+      "No outlier diagnostic on advertising + sales would prompt you to investigate."
+    )
+  )
+```
+
+::: {.callout-important}
+## The core lesson: critical thinking must be symmetric
+
+The digital presence coefficient for regular stores is positive — more digital marketing → more sales. That is the true relationship for the target population.
+
+When luxury inliers are pooled in, the coefficient collapses toward zero or flips sign. This is the same contamination problem as the obvious luxury flagship outliers, but it is **completely invisible to outlier detection run on the main variables**.
+
+The right framing is not "should I exclude this observation?" but rather: **"does this observation come from the same data-generating process as the phenomenon I am studying?"**
+
+That question requires domain knowledge, not just statistics. In this case, the signal exists in a variable you might not have thought to include in your outlier diagnostic — digital presence. Without it, every diagnostic says the data is clean. With it, the subgroup is obvious.
+
+**The symmetry principle:**
+
+- When a diagnostic *flags* an observation: demand substantive justification before removing or downweighting it. Statistical unusualness is not enough.
+- When a diagnostic *clears* an observation: demand substantive justification before including it. Statistical normalcy is not enough.
+
+The question "is this a good or bad observation for my research question?" is always a conceptual question first and a statistical one second. Observations should never be included or excluded solely on the basis of how extreme they appear on the dimensions you happen to have measured.
+:::
+
 ## Other Methods for Outlier Detection and Robust Estimation
 
 LOF + DBSCAN and robust regression are practical entry points. The broader toolkit:
