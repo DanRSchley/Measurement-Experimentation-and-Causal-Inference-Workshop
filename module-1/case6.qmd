@@ -24,6 +24,26 @@ library(dplyr); library(tidyr); library(knitr)
 
 ---
 
+## Connecting Back to Classical Test Theory
+
+In Part 1 of this module we introduced the **Classical Test Theory (CTT)** decomposition that underlies all measurement in the behavioural sciences:
+
+$$X_{\text{obs}} = T + \varepsilon$$
+
+where $X_{\text{obs}}$ is the observed score, $T$ is the respondent's true latent value on the construct of interest, and $\varepsilon$ is measurement error. The entire edifice of psychometric measurement — reliability, validity, structural equation modelling — rests on one fundamental assumption about $\varepsilon$: it is **symmetric**, centred at zero, with equal probability of positive and negative deviations. This symmetry is what allows the observed mean to function as an unbiased estimator of the true latent mean: the errors cancel in expectation.
+
+**This assumption is testable.** In a well-specified measurement model, the estimated residuals $\hat{\varepsilon}_i = X_{\text{obs},i} - \hat{T}_i$ should be symmetrically distributed — mean zero, skewness near zero. A simple Q-Q plot of residuals, D'Agostino's skewness test, or the Jarque–Bera test can detect systematic asymmetry. If the residuals are skewed, the symmetry assumption is violated and the observed mean is no longer an unbiased proxy for the true latent mean.
+
+::: {.callout-warning}
+## The symmetry assumption for $\varepsilon$ rarely holds in practice — and bounded scales make this structural
+
+The symmetry assumption is more often assumed than checked. In practice, it fails whenever participants are constrained in the range of responses they can express — most commonly because the scale itself runs out of room.
+
+Consider a respondent whose true score is 90 on a 0–100 scale, with genuine response variability of ±15 points. Downward deviations are unconstrained: they can score 75, 80, 85. But upward deviations hit the ceiling: a genuine tendency to score 105 is recorded as 100. The error distribution is mechanically right-truncated. The respondent's $\varepsilon$ is no longer symmetric — it is negatively skewed, and every deviation toward the ceiling is suppressed.
+
+This is not a psychometric failure or a respondent quirk. It is a structural consequence of bounded measurement that applies to **every participant near a bound**, growing more severe the closer the true score sits to the ceiling or floor. The aggregate result — biased observed means, compressed variances, and skewed residuals — is what this part of the module explores. The takeaway: the symmetry of $\varepsilon$ should be checked, not assumed, and any researcher using bounded scales should inspect the residual distribution before treating observed means as unbiased.
+:::
+
 ## The Problem in Plain Language
 
 Almost every scale used in behavioral research has bounds — rating scales run from 1 to 7, percentages from 0 to 100, frequency measures from "never" to "always." These bounds are usually treated as a minor formatting detail. In practice, they introduce a systematic bias that most researchers never think about.
@@ -58,7 +78,7 @@ For right-skewed distributions common in bounded-at-zero measures (reaction time
 
 ## Interactive Simulator: See the Bias in Real Time
 
-The simulator below overlays two density curves. The **gray shaded curve** is the *true* distribution — what scores would look like if the scale had no bounds. The **blue shaded curve** is the *observed* distribution — what researchers actually record after the bounds clip the tails. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). Adjust the sliders to see how the gap between true and observed means grows as the true mean approaches a bound or as variability increases.
+The simulator below overlays two density curves and reports the full distributional impact of bounded measurement. The **gray shaded curve** is the *true* distribution — what scores would look like if the scale had no bounds. The **blue shaded curve** is the *observed* distribution — what researchers actually record after the bounds clip the tails. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). The statistics panel shows the true and observed mean, SD, and skewness — each with its bias. As you move the true mean toward a bound or increase the SD, watch how the observed distribution narrows (SD compression), shifts (mean bias), and tilts (skewness) — and how the mean–median gap signals the direction of the skew. This is the CTT symmetry assumption failing in real time.
 
 ```{ojs}
 //| echo: false
@@ -156,22 +176,79 @@ density_true = {
   });
 }
 
-bias_mean   = trunc_moments.obs_mean - bound_mu
-bias_med    = trunc_moments.obs_med  - bound_mu
-bias_dir    = Math.abs(bias_mean) < 0.5 ? "negligible" : bias_mean > 0 ? "upward" : "downward"
+bias_mean  = trunc_moments.obs_mean - bound_mu
+bias_med   = trunc_moments.obs_med  - bound_mu
+bias_sd    = trunc_moments.obs_sd   - bound_sd
+bias_dir   = Math.abs(bias_mean) < 0.5 ? "negligible" : bias_mean > 0 ? "upward" : "downward"
 
-html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.88em;">
-  <div style="flex:1;min-width:160px;border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;">
-    <strong>True mean:</strong> ${bound_mu.toFixed(1)}
+obs_skewness = {
+  // Numerical integration of the 3rd standardised central moment of the truncated distribution
+  const mu = bound_mu, sigma = bound_sd;
+  const lo = loB, hi = hiB;
+  const pA = lo === -Infinity ? 0 : Phi_fn((lo - mu) / sigma);
+  const pB = hi ===  Infinity ? 1 : Phi_fn((hi - mu) / sigma);
+  const Z  = pB - pA;
+  const mu_obs = trunc_moments.obs_mean;
+  const sd_obs = trunc_moments.obs_sd;
+  if (sd_obs < 1e-10) return 0;
+  const n   = 800;
+  const xlo = lo === -Infinity ? mu - 5 * sigma : lo;
+  const xhi = hi ===  Infinity ? mu + 5 * sigma : hi;
+  const dx  = (xhi - xlo) / n;
+  let s3 = 0;
+  for (let i = 0; i < n; i++) {
+    const x = xlo + (i + 0.5) * dx;
+    s3 += Math.pow((x - mu_obs) / sd_obs, 3) * phi_fn((x - mu) / sigma) / (sigma * Z) * dx;
+  }
+  return s3;
+}
+
+skew_label = Math.abs(obs_skewness) < 0.05
+  ? "≈ 0 (symmetric)"
+  : obs_skewness > 0
+    ? `+${obs_skewness.toFixed(3)} (right-skewed — floor clips left tail)`
+    : `${obs_skewness.toFixed(3)} (left-skewed — ceiling clips right tail)`
+skew_color = Math.abs(obs_skewness) < 0.1 ? "#888" : "#e63946"
+
+med_gap       = trunc_moments.obs_mean - trunc_moments.obs_med
+med_gap_label = Math.abs(med_gap) < 0.05
+  ? "mean ≈ median (symmetric ε)"
+  : med_gap > 0
+    ? `mean > median by ${med_gap.toFixed(2)} → right-skewed ε`
+    : `mean < median by ${Math.abs(med_gap).toFixed(2)} → left-skewed ε`
+
+html`<div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;font-size:.86em;line-height:1.6;">
+
+  <div style="flex:1;min-width:190px;border-left:4px solid #444;padding:8px 14px;background:#f5f5f5;border-radius:4px;">
+    <div style="font-weight:700;margin-bottom:4px;color:#444;">True distribution</div>
+    <div><strong>Mean:</strong> ${bound_mu.toFixed(1)}</div>
+    <div><strong>SD:</strong> ${bound_sd.toFixed(1)}</div>
+    <div style="color:#888;font-size:.92em;"><strong>Skewness:</strong> 0 — ε is symmetric</div>
   </div>
-  <div style="flex:1;min-width:160px;border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;">
-    <strong>Observed mean:</strong> ${trunc_moments.obs_mean.toFixed(2)}
-    <span style="color:${Math.abs(bias_mean)>1?'#e63946':'#888'}"> (bias: ${bias_mean > 0 ? '+' : ''}${bias_mean.toFixed(2)})</span>
+
+  <div style="flex:1;min-width:190px;border-left:4px solid #457b9d;padding:8px 14px;background:#f0f4f8;border-radius:4px;">
+    <div style="font-weight:700;margin-bottom:4px;color:#457b9d;">Observed distribution</div>
+    <div><strong>Mean:</strong> ${trunc_moments.obs_mean.toFixed(2)}
+      <span style="color:${Math.abs(bias_mean)>1?'#e63946':'#888'};">
+        (Δ = ${bias_mean > 0 ? '+' : ''}${bias_mean.toFixed(2)})</span></div>
+    <div><strong>SD:</strong> ${trunc_moments.obs_sd.toFixed(2)}
+      <span style="color:${Math.abs(bias_sd)>0.5?'#e63946':'#888'};">
+        (Δ = ${bias_sd > 0 ? '+' : ''}${bias_sd.toFixed(2)})</span></div>
+    <div><strong>Skewness:</strong>
+      <span style="color:${skew_color};">${skew_label}</span></div>
   </div>
-  <div style="flex:1;min-width:160px;border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;">
-    <strong>Observed median:</strong> ${trunc_moments.obs_med.toFixed(2)}
-    <span style="color:${Math.abs(bias_med)>1?'#e63946':'#888'}"> (bias: ${bias_med > 0 ? '+' : ''}${bias_med.toFixed(2)})</span>
+
+  <div style="flex:1;min-width:190px;border-left:4px solid #e63946;padding:8px 14px;background:#fdf0f0;border-radius:4px;">
+    <div style="font-weight:700;margin-bottom:4px;color:#e63946;">CTT symmetry check</div>
+    <div><strong>Median:</strong> ${trunc_moments.obs_med.toFixed(2)}
+      <span style="color:${Math.abs(bias_med)>1?'#e63946':'#888'};">
+        (Δ = ${bias_med > 0 ? '+' : ''}${bias_med.toFixed(2)})</span></div>
+    <div style="margin-top:4px;color:${Math.abs(med_gap)>0.5?'#e63946':'#666'};">
+      ${med_gap_label}</div>
+    <div style="color:#888;font-size:.91em;margin-top:2px;">
+      Mean–median gap reveals<br>asymmetry in ε</div>
   </div>
+
 </div>`
 ```
 
