@@ -267,15 +267,15 @@ Plot.plot({
       Math.min((hiB ===  Infinity ? bound_mu + 4.5*bound_sd : hiB) + 2, 105)
     ]
   },
-  y: {label: "Density", domain: [0, null]},
+  y: {label: "Density", zero: true},
   marks: [
     // True (untruncated) distribution — what scores would look like without bounds
-    Plot.areaY(density_true, {x: "x", y: "pdf", fill: "#aaa", fillOpacity: 0.18}),
-    Plot.line(density_true,  {x: "x", y: "pdf", stroke: "#999", strokeWidth: 1.5,
+    Plot.areaY(density_true, {x: d => d.x, y: d => d.pdf, fill: "#aaa", fillOpacity: 0.25}),
+    Plot.line(density_true,  {x: d => d.x, y: d => d.pdf, stroke: "#999", strokeWidth: 1.5,
                               strokeDasharray: "5,3"}),
     // Observed (truncated) distribution — what researchers actually see
-    Plot.areaY(density_data, {x: "x", y: "pdf", fill: "#457b9d", fillOpacity: 0.35}),
-    Plot.line(density_data,  {x: "x", y: "pdf", stroke: "#457b9d", strokeWidth: 2.2}),
+    Plot.areaY(density_data, {x: d => d.x, y: d => d.pdf, fill: "#457b9d", fillOpacity: 0.45}),
+    Plot.line(density_data,  {x: d => d.x, y: d => d.pdf, stroke: "#457b9d", strokeWidth: 2.2}),
     // Reference lines
     Plot.ruleX([bound_mu],               {stroke: "#222",     strokeDasharray: "6,3",  strokeWidth: 2.2}),
     Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d",                           strokeWidth: 2.5}),
