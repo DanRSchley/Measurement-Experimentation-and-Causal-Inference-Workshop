@@ -78,7 +78,7 @@ For right-skewed distributions common in bounded-at-zero measures (reaction time
 
 ## Interactive Simulator: See the Bias in Real Time
 
-The simulator below overlays two density curves and reports the full distributional impact of bounded measurement. The **gray shaded curve** is the *true* distribution — what scores would look like if the scale had no bounds. The **blue shaded curve** is the *observed* distribution — what researchers actually record after the bounds clip the tails. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). The statistics panel shows the true and observed mean, SD, and skewness — each with its bias. As you move the true mean toward a bound or increase the SD, watch how the observed distribution narrows (SD compression), shifts (mean bias), and tilts (skewness) — and how the mean–median gap signals the direction of the skew. This is the CTT symmetry assumption failing in real time.
+The simulator below shows the *observed* (truncated) distribution — what researchers actually record after the scale bounds clip the tails of the true distribution. Vertical reference lines mark the true mean (dashed black), the observed mean (solid blue), and the observed median (dashed red). The statistics panel shows the true and observed mean, SD, and skewness — each with its bias relative to the true value. As you move the true mean toward a bound or increase the SD, watch how the observed distribution narrows (SD compression), shifts (mean bias), and tilts (skewness) — and how the mean–median gap signals the direction of the skew. This is the CTT symmetry assumption failing in real time.
 
 ```{ojs}
 //| echo: false
@@ -255,7 +255,7 @@ html`<div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;font-size:.8
 ```{ojs}
 //| echo: false
 //| code-fold: false
-//| fig-cap: "Gray filled area = true (untruncated) distribution — what scores would look like without scale bounds. Blue filled area = observed (truncated) distribution — what researchers actually record. Dashed black vertical line = true mean; solid blue = observed mean; dashed red = observed median. Notice how the bounds clip the true distribution's tails, compressing the observed distribution and displacing its peak and mean toward the scale's center."
+//| fig-cap: "Blue filled area = observed (truncated) distribution — what researchers actually record after the scale bounds clip the tails. Dashed black vertical line = true mean; solid blue = observed mean; dashed red = observed median. The gap between the true mean (black) and the observed mean (blue) is the truncation bias. The gap between the observed mean and median indicates skewness in the measurement error."
 
 Plot.plot({
   width: 650, height: 300,
@@ -269,11 +269,7 @@ Plot.plot({
   },
   y: {label: "Density", zero: true},
   marks: [
-    // True (untruncated) distribution — what scores would look like without bounds
-    Plot.areaY(density_true, {x: d => d.x, y: d => d.pdf, fill: "#aaa", fillOpacity: 0.25}),
-    Plot.line(density_true,  {x: d => d.x, y: d => d.pdf, stroke: "#999", strokeWidth: 1.5,
-                              strokeDasharray: "5,3"}),
-    // Observed (truncated) distribution — what researchers actually see
+    // Observed (truncated) distribution — what researchers actually record
     Plot.areaY(density_data, {x: d => d.x, y: d => d.pdf, fill: "#457b9d", fillOpacity: 0.45}),
     Plot.line(density_data,  {x: d => d.x, y: d => d.pdf, stroke: "#457b9d", strokeWidth: 2.2}),
     // Reference lines
