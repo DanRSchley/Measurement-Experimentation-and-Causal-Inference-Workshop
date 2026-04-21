@@ -583,7 +583,7 @@ window.Quarto = {
 <section id="simulating-the-data" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="simulating-the-data"><span class="header-section-number">4.3</span> Simulating the Data</h2>
 <p>We use <code>MASS::mvrnorm()</code> to generate correlated latent factor scores, then create item scores from those factors plus random measurement error. The items are rounded to a 7-point Likert scale.</p>
-<p><strong>The key feature we’re building in:</strong> Environmental Concern (EC) and Green Purchase Intention (GPI) are correlated at <strong>0.93</strong> in the population — extremely high, and well above the 0.90 threshold that signals a discriminant validity problem.</p>
+<p><strong>The key feature we’re building in:</strong> Environmental Concern (EC) and Green Purchase Intention (GPI) are correlated at <strong>0.93</strong> in the population — extremely high, and well above the 0.90 threshold commonly used in HTMT-based discriminant validity tests (Henseler et al., 2015). When the HTMT ratio approaches or exceeds 0.90, two constructs are considered statistically indistinguishable and cannot be treated as separate in a model.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Simulate green marketing dataset (n=400)</summary>

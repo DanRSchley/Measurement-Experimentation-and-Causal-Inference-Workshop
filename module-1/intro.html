@@ -352,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: Measurement</a></li><li class="breadcrumb-item"><a href="../module-1/intro.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 1: Measurement</span></h1>
-<p class="subtitle lead">Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers</p>
+<p class="subtitle lead">Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, Outliers, and Systematic Measurement Error</p>
 </div>
 
 
@@ -374,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="overview" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="overview"><span class="header-section-number">2.1</span> Overview</h2>
 <p>Good measurement is the foundation of good research, yet it is the step most often skipped. This module asks: <em>does your scale actually measure the construct you intend?</em> — and introduces the tools to find out.</p>
-<p>We cover discriminant validity, omitted variable bias from measurement error, measurement invariance across groups, latent class structure, and outlier detection. Each topic is treated both conceptually and with live R code.</p>
+<p>We cover discriminant validity, omitted variable bias from measurement error, measurement invariance across groups, latent class structure, outlier detection, and systematic measurement error from bounded scales. Each topic is treated both conceptually and with live R code.</p>
 <hr>
 </section>
 <section id="learning-goals" class="level2" data-number="2.2">
@@ -387,6 +387,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Test for measurement invariance across groups using configural, metric, and scalar CFA models</li>
 <li>Identify latent class structure using mixture models and interpret class profiles</li>
 <li>Detect and reason about outliers using Cook’s D, DFFITS, and leverage diagnostics</li>
+<li>Explain how bounded scales structurally bias observed means through truncation, and diagnose this bias using skewness and Q-Q diagnostics on CTT residuals</li>
 </ul>
 <hr>
 </section>
@@ -481,15 +482,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p><strong>Y is supposed to reflect X — but it actually reflects X <em>plus something else</em>.</strong></p>
 </blockquote>
-<p>This problem shows up in five different parts that marketing researchers encounter regularly:</p>
+<p>This problem shows up in six different parts that marketing researchers encounter regularly:</p>
 <ul>
 <li><p><strong>Part 1 — Discriminant Validity:</strong> Your Green Purchase Intention scale is supposed to measure <em>purchase intention</em> (X) — but its items also pick up <em>environmental concern</em> (something else). The scale cannot be told apart from a different construct.</p></li>
 <li><p><strong>Part 2 — Omitted Variable Bias:</strong> In your secondary data, observed <em>sales</em> (Y) is supposed to reflect <em>advertising spend</em> (X) — but sales also reflects <em>store quality</em> (something else, which you never measured). Your estimated advertising effect is inflated.</p></li>
-<li><p><strong>Part 3 — Measurement Non-Invariance:</strong> Your GPI items are supposed to reflect <em>green purchase intention</em> (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don’t mean the same thing in both groups.</p></li>
+<li><p><strong>Part 3 — Measurement Invariance:</strong> Your GPI items are supposed to reflect <em>green purchase intention</em> (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don’t mean the same thing in both groups.</p></li>
 <li><p><strong>Part 4 — Latent Subgroups:</strong> Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn’t apply cleanly to anyone.</p></li>
 <li><p><strong>Part 5 — Outliers:</strong> Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.</p></li>
+<li><p><strong>Part 6 — Systematic Measurement Error:</strong> Your outcome scale has hard bounds. Respondents near the ceiling cannot express upward variation; those near the floor cannot express downward variation. The observed mean is therefore a biased estimate of the true latent mean — not because of random noise, but because of the structure of the scale itself.</p></li>
 </ul>
-<p>The statistical symptoms differ across these five parts, but the <strong>underlying logic is identical</strong>: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.</p>
+<p>The statistical symptoms differ across these six parts, but the <strong>underlying logic is identical</strong>: your observed variable is contaminated by variance — or structurally constrained — in ways that prevent it from faithfully reflecting the latent construct or causal quantity you intend to study.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -509,7 +511,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Use Gaussian mixture models (via <code>mclust</code>) to detect latent subgroups that distort your outcome</li>
 <li>Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers</li>
 <li>Apply robust regression (MASS::rlm) as an alternative to deleting outliers</li>
-<li>Explain the conceptual link between all five problems to a non-technical audience</li>
+<li>Explain how bounded scales structurally bias observed means, and diagnose this using skewness tests on CTT residuals</li>
+<li>Explain the conceptual link between all six problems to a non-technical audience</li>
 </ul>
 </div>
 </div>
@@ -523,7 +526,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>▶ Load required packages</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment to install if needed:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("lavaan", "semTools", "MASS", "ggplot2",</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "dplyr", "tidyr", "corrplot", "psych", "knitr", "lmtest",</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                    "mclust", "dbscan"))</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)       <span class="co"># CFA and SEM (Parts 1 and 3)</span></span>
