@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8dbc2b178484c8427a469309f537d68b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -181,37 +181,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case1.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Part 1: Discriminant Validity</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case2.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Part 2: Omitted Variable Bias</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case3.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Part 3: Measurement Invariance</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case4.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Part 4: Latent Subgroups</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case5.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Part 5: Outlier Detection and Robust Estimation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/case6.html" class="sidebar-item-text sidebar-link">
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Part 6: Systematic Measurement Error on Bounded Scales</span></span></a>
   </div>
 </li>
@@ -2067,6 +2067,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><label><input type="checkbox"><strong>Does your manipulation check remain significant after controlling for alternative mechanisms you measured?</strong> If it does not, the manipulation worked through a different pathway than intended.</label></li>
 <li><label><input type="checkbox"><strong>Is your treatment the experimental analog of a discriminantly-invalid scale?</strong> Just as a scale can absorb variance from multiple constructs, a manipulation can activate multiple psychological pathways simultaneously — producing an uninterpretable coefficient.</label></li>
 </ul>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Looking ahead: the exclusion restriction reappears in Module 3
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The exclusion restriction is not unique to lab experiments. Every method in <strong>Module 3 (Causal Inference)</strong> requires an analogous assumption — that the source of variation used to identify a causal effect operates <em>only</em> through the intended pathway:</p>
+<ul>
+<li><strong>Regression discontinuity (Part 3):</strong> The cutoff that determines treatment assignment must affect the outcome <em>only</em> through treatment status — not through any other mechanism that also changes sharply at the threshold.</li>
+<li><strong>Difference-in-differences (Part 4):</strong> The event or policy that causes the treatment group to change must not simultaneously affect the outcome through a separate channel.</li>
+<li><strong>Instrumental variables (background to Part 3):</strong> A valid instrument must be correlated with treatment but affect the outcome <em>only through</em> treatment — the exclusion restriction in its original, formal sense.</li>
+</ul>
+<p>In each case, the underlying question is the same one raised here: does this source of variation inject a single clean signal, or a bundle of signals that cannot be disentangled? The vocabulary and intuition you built in this section apply directly to all of those designs.</p>
 </div>
 </div>
 <hr>
