@@ -70,7 +70,7 @@ If X injects additional unintended signals that also causally influence Y — an
 
 We now simulate the coffee experiment with a realistic data-generating process that captures how the exclusion restriction fails in practice.
 
-The researcher intends the eco-label to be the only thing that differs between conditions. But in preparing the stimuli, the two versions of the coffee bag were not held perfectly equal: the eco-label condition also happened to use a **more premium-looking package design** — darker color scheme, cleaner typography, higher perceived quality cues. Participants in the eco-label condition therefore receive a *bundle*: eco-certification **plus** a premium visual presentation. Both signals independently increase WTP through different pathways.
+The researcher intends the eco-label to be the only thing that differs between conditions. But in preparing the stimuli, the two versions of the coffee bag were not held perfectly equal: the eco-label condition was also given a **more premium-looking package design** — darker color scheme, cleaner typography, higher perceived quality cues. This is a deliberate feature of the simulation, representing the kind of oversight that slips through stimuli review in real studies (see the `premium_design <- eco` assignment in the code below — the confound is perfect, r = 1.0). Participants in the eco-label condition therefore receive a *bundle*: eco-certification **plus** a premium visual presentation. Both signals independently increase WTP through different pathways.
 
 This is the exclusion restriction failure in concrete form: the treatment variable injects two distinct latent signals, not one. Any estimated "eco-label effect" is a conflation of the two.
 

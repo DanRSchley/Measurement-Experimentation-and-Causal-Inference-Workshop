@@ -56,9 +56,9 @@ gen_items <- function(latent, loadings) {
 ---
 
 
-# Part 3: Measurement Non-Invariance — A Special Case of Discriminant Validity {#sec-case3}
+# Part 3: Measurement Invariance — A Special Case of Discriminant Validity {#sec-case3}
 
-## Connecting to Cases 1 and 2
+## Connecting to Parts 1 and 2
 
 Parts 1 and 2 both showed how Y captures more than X. Part 3 is actually a **special case of the discriminant validity problem from Part 1** — it just appears in an experimental context.
 

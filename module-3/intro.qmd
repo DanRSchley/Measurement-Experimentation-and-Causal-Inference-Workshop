@@ -7,7 +7,7 @@ subtitle: "Causal Effects, Observational Methods, Natural Experiments, and Media
 
 Randomized experiments are the gold standard for causal inference — but most interesting research questions cannot be randomized. This module covers the modern toolkit for drawing causal conclusions from observational data, and for thinking more clearly about what "causation" even means.
 
-We work through the potential outcomes framework (Rubin), the causal graphical framework (Pearl), matching and weighting estimators, regression discontinuity, difference-in-differences, synthetic control, and causal mediation analysis. Each method is motivated by a concrete research question and implemented in R.
+The module covers the potential outcomes framework (Rubin), the causal graphical framework (Pearl), matching and weighting estimators, regression discontinuity, difference-in-differences, synthetic control, and causal mediation analysis. Each method is motivated by a concrete research question and implemented in R.
 
 ---
 

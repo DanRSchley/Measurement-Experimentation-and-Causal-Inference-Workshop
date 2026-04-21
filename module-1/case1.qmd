@@ -124,7 +124,7 @@ Discriminant validity is *always* a concern whenever you have two related constr
 
 We use `MASS::mvrnorm()` to generate correlated latent factor scores, then create item scores from those factors plus random measurement error. The items are rounded to a 7-point Likert scale.
 
-**The key feature we're building in:** Environmental Concern (EC) and Green Purchase Intention (GPI) are correlated at **0.93** in the population — extremely high, and well above the 0.90 threshold that signals a discriminant validity problem.
+**The key feature we're building in:** Environmental Concern (EC) and Green Purchase Intention (GPI) are correlated at **0.93** in the population — extremely high, and well above the 0.90 threshold commonly used in HTMT-based discriminant validity tests (Henseler et al., 2015). When the HTMT ratio approaches or exceeds 0.90, two constructs are considered statistically indistinguishable and cannot be treated as separate in a model.
 
 ```{r simulate-data}
 #| code-summary: "▶ Simulate green marketing dataset (n=400)"

@@ -86,6 +86,9 @@ sig  <- 1.50    # True population SD ($)
 
 # All 60 participants drawn from the same population (null is true).
 # In our specific sample the eco-label group happened to score higher — by chance.
+# pmax(1) / pmin(10) enforces the 1–10 scale bounds. With mu = 5.50 and sd = 1.50,
+# fewer than 0.3% of draws fall outside [1, 10], so truncation bias is negligible here.
+# (For a full treatment of how bounded scales bias observed means, see Module 1, Part 6.)
 wtp_all <- rnorm(N, mean = mu, sd = sig) |> round(2) |> pmax(1) |> pmin(10)
 group   <- factor(rep(c("Control", "Eco-label"), each = N / 2))
 df_coffee <- data.frame(wtp = wtp_all, group = group)

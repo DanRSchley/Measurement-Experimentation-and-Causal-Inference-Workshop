@@ -1,6 +1,6 @@
 ---
 title: "Module 1: Measurement"
-subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, and Outliers"
+subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance, Latent Classes, Outliers, and Systematic Measurement Error"
 code-tools: false
 ---
 
@@ -10,7 +10,7 @@ code-tools: false
 
 Good measurement is the foundation of good research, yet it is the step most often skipped. This module asks: *does your scale actually measure the construct you intend?* — and introduces the tools to find out.
 
-We cover discriminant validity, omitted variable bias from measurement error, measurement invariance across groups, latent class structure, and outlier detection. Each topic is treated both conceptually and with live R code.
+We cover discriminant validity, omitted variable bias from measurement error, measurement invariance across groups, latent class structure, outlier detection, and systematic measurement error from bounded scales. Each topic is treated both conceptually and with live R code.
 
 ---
 
@@ -24,6 +24,7 @@ By the end of this module you should be able to:
 - Test for measurement invariance across groups using configural, metric, and scalar CFA models
 - Identify latent class structure using mixture models and interpret class profiles
 - Detect and reason about outliers using Cook's D, DFFITS, and leverage diagnostics
+- Explain how bounded scales structurally bias observed means through truncation, and diagnose this bias using skewness and Q-Q diagnostics on CTT residuals
 
 ---
 
@@ -73,19 +74,21 @@ There is a single idea running through everything in this tutorial:
 
 > **Y is supposed to reflect X — but it actually reflects X *plus something else*.**
 
-This problem shows up in five different parts that marketing researchers encounter regularly:
+This problem shows up in six different parts that marketing researchers encounter regularly:
 
 - **Part 1 — Discriminant Validity:** Your Green Purchase Intention scale is supposed to measure *purchase intention* (X) — but its items also pick up *environmental concern* (something else). The scale cannot be told apart from a different construct.
 
 - **Part 2 — Omitted Variable Bias:** In your secondary data, observed *sales* (Y) is supposed to reflect *advertising spend* (X) — but sales also reflects *store quality* (something else, which you never measured). Your estimated advertising effect is inflated.
 
-- **Part 3 — Measurement Non-Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
+- **Part 3 — Measurement Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
 
 - **Part 4 — Latent Subgroups:** Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn't apply cleanly to anyone.
 
 - **Part 5 — Outliers:** Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.
 
-The statistical symptoms differ across these five parts, but the **underlying logic is identical**: your outcome variable is contaminated by variance that belongs to something other than the construct or cause you are trying to study.
+- **Part 6 — Systematic Measurement Error:** Your outcome scale has hard bounds. Respondents near the ceiling cannot express upward variation; those near the floor cannot express downward variation. The observed mean is therefore a biased estimate of the true latent mean — not because of random noise, but because of the structure of the scale itself.
+
+The statistical symptoms differ across these six parts, but the **underlying logic is identical**: your observed variable is contaminated by variance — or structurally constrained — in ways that prevent it from faithfully reflecting the latent construct or causal quantity you intend to study.
 
 ::: {.callout-note}
 ## Learning Objectives
@@ -98,7 +101,8 @@ By the end of this tutorial, you will be able to:
 - Use Gaussian mixture models (via `mclust`) to detect latent subgroups that distort your outcome
 - Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers
 - Apply robust regression (MASS::rlm) as an alternative to deleting outliers
-- Explain the conceptual link between all five problems to a non-technical audience
+- Explain how bounded scales structurally bias observed means, and diagnose this using skewness tests on CTT residuals
+- Explain the conceptual link between all six problems to a non-technical audience
 :::
 
 
@@ -113,7 +117,7 @@ Install and load the required packages. If you haven't installed them before, ru
 #| code-summary: "▶ Load required packages"
 # Uncomment to install if needed:
 # install.packages(c("lavaan", "semTools", "MASS", "ggplot2",
-#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
+#                    "dplyr", "tidyr", "corrplot", "psych", "knitr", "lmtest",
 #                    "mclust", "dbscan"))
 
 library(lavaan)       # CFA and SEM (Parts 1 and 3)
