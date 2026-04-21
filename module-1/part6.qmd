@@ -83,7 +83,7 @@ The simulator below shows the *observed* (truncated) distribution — what resea
 ```{ojs}
 //| echo: false
 //| code-fold: false
-viewof bound_mu  = Inputs.range([5, 95], {step: 1, value: 50, label: "True mean (population)"})
+viewof bound_mu  = Inputs.range([1, 99], {step: 1, value: 50, label: "True mean (population)"})
 viewof bound_sd  = Inputs.range([2, 40], {step: 1, value: 15, label: "True SD (variability / noise)"})
 viewof bound_lo  = Inputs.select(["Bounded at 0", "No lower bound"], {value: "Bounded at 0", label: "Lower bound"})
 viewof bound_hi  = Inputs.select(["Bounded at 100", "No upper bound"], {value: "Bounded at 100", label: "Upper bound"})

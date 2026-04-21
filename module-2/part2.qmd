@@ -1200,3 +1200,17 @@ Every concept in this tutorial maps directly onto a concept from Module 1:
 :::
 
 ---
+
+::: {.callout-note}
+## Looking ahead: the exclusion restriction reappears in Module 3
+
+The exclusion restriction is not unique to lab experiments. Every method in **Module 3 (Causal Inference)** requires an analogous assumption — that the source of variation used to identify a causal effect operates *only* through the intended pathway:
+
+- **Regression discontinuity (Part 3):** The cutoff that determines treatment assignment must affect the outcome *only* through treatment status — not through any other mechanism that also changes sharply at the threshold.
+- **Difference-in-differences (Part 4):** The event or policy that causes the treatment group to change must not simultaneously affect the outcome through a separate channel.
+- **Instrumental variables (background to Part 3):** A valid instrument must be correlated with treatment but affect the outcome *only through* treatment — the exclusion restriction in its original, formal sense.
+
+In each case, the underlying question is the same one raised here: does this source of variation inject a single clean signal, or a bundle of signals that cannot be disentangled? The vocabulary and intuition you built in this section apply directly to all of those designs.
+:::
+
+---
