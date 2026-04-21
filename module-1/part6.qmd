@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 6: Systematic Measurement Error on Bounded Scales"
 ---
 
@@ -318,7 +318,7 @@ Wooldridge, J. M. (2010). *Econometric analysis of cross section and panel data*
 
 ---
 
-## Researcher Checklist: Bounded Scales {#sec-checklist-case6}
+## Researcher Checklist: Bounded Scales {#sec-checklist-part6}
 
 ::: {.callout-note}
 ## Key questions when using Likert or other bounded measures

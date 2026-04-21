@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 1: Discriminant Validity"
 ---
 
@@ -41,7 +41,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Part 5)
 ---
 
 
-# Part 1: Discriminant Validity {#sec-case1}
+# Part 1: Discriminant Validity {#sec-part1}
 
 ## The Classical Test Theory Starting Point
 
@@ -1352,7 +1352,7 @@ A high Cronbach's alpha confirms your items are consistently measuring *somethin
 
 ---
 
-## Researcher Checklist: Discriminant Validity {#sec-checklist-case1}
+## Researcher Checklist: Discriminant Validity {#sec-checklist-part1}
 
 ::: {.callout-note}
 ## Key questions before using your scales

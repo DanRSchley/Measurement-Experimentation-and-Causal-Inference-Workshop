@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 3: Measurement Invariance"
 ---
 
@@ -56,7 +56,7 @@ gen_items <- function(latent, loadings) {
 ---
 
 
-# Part 3: Measurement Invariance — A Special Case of Discriminant Validity {#sec-case3}
+# Part 3: Measurement Invariance — A Special Case of Discriminant Validity {#sec-part3}
 
 ## Connecting to Parts 1 and 2
 
@@ -429,7 +429,7 @@ The configural → metric → scalar sequence using lavaan is the standard appro
 
 ---
 
-## Researcher Checklist: Measurement Invariance {#sec-checklist-case3}
+## Researcher Checklist: Measurement Invariance {#sec-checklist-part3}
 
 ::: {.callout-note}
 ## Key questions before comparing groups

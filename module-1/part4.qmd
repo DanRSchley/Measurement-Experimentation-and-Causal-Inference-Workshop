@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 4: Latent Subgroups"
 ---
 
@@ -39,7 +39,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Part 4: Latent Subgroups — When Your Sample Contains Two Different Worlds {#sec-case4}
+# Part 4: Latent Subgroups — When Your Sample Contains Two Different Worlds {#sec-part4}
 
 ## Connecting to the Earlier Cases
 
@@ -562,7 +562,7 @@ Gaussian mixture models (mclust) are the continuous-variable analogue of latent 
 
 ---
 
-## Researcher Checklist: Latent Subgroups {#sec-checklist-case4}
+## Researcher Checklist: Latent Subgroups {#sec-checklist-part4}
 
 ::: {.callout-note}
 ## Key questions before pooling your sample

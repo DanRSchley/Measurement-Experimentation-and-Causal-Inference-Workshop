@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 5: Outlier Detection and Robust Estimation"
 ---
 
@@ -39,7 +39,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Part 5: Outlier Detection and Robust Estimation {#sec-case5}
+# Part 5: Outlier Detection and Robust Estimation {#sec-part5}
 
 ## Connecting to the Earlier Cases
 
@@ -683,7 +683,7 @@ LOF + DBSCAN and robust regression are practical entry points. The broader toolk
 
 ---
 
-## Researcher Checklist: Outliers {#sec-checklist-case5}
+## Researcher Checklist: Outliers {#sec-checklist-part5}
 
 ::: {.callout-note}
 ## Key questions before removing or ignoring extreme observations

@@ -37,12 +37,12 @@ When does your scale measure what you think it measures — and when does it mea
 
 **Sections**
 
-- [Part 1: Discriminant Validity](module-1/case1.qmd)
-- [Part 2: Omitted Variable Bias](module-1/case2.qmd)
-- [Part 3: Measurement Invariance](module-1/case3.qmd)
-- [Part 4: Latent Subgroups](module-1/case4.qmd)
-- [Part 5: Outlier Detection and Robust Estimation](module-1/case5.qmd)
-- [Part 6: Systematic Measurement Error](module-1/case6.qmd)
+- [Part 1: Discriminant Validity](module-1/part1.qmd)
+- [Part 2: Omitted Variable Bias](module-1/part2.qmd)
+- [Part 3: Measurement Invariance](module-1/part3.qmd)
+- [Part 4: Latent Subgroups](module-1/part4.qmd)
+- [Part 5: Outlier Detection and Robust Estimation](module-1/part5.qmd)
+- [Part 6: Systematic Measurement Error](module-1/part6.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}

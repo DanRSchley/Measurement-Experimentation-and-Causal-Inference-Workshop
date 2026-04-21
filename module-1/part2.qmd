@@ -1,4 +1,4 @@
----
+﻿---
 title: "Part 2: Omitted Variable Bias"
 ---
 
@@ -37,7 +37,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ---
 
 
-# Part 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-case2}
+# Part 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-part2}
 
 ## Connecting to Case 1
 
@@ -271,7 +271,7 @@ Several of the methods below are covered in depth in **Module 3: Causal Inferenc
 
 ---
 
-## Researcher Checklist: Omitted Variable Bias {#sec-checklist-case2}
+## Researcher Checklist: Omitted Variable Bias {#sec-checklist-part2}
 
 ::: {.callout-note}
 ## Key questions before interpreting your regression

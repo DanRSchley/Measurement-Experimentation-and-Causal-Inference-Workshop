@@ -38,12 +38,12 @@ book:
     - part: "Module 1: Measurement"
       chapters:
         - module-1/intro.qmd
-        - module-1/case1.qmd
-        - module-1/case2.qmd
-        - module-1/case3.qmd
-        - module-1/case4.qmd
-        - module-1/case5.qmd
-        - module-1/case6.qmd
+        - module-1/part1.qmd
+        - module-1/part2.qmd
+        - module-1/part3.qmd
+        - module-1/part4.qmd
+        - module-1/part5.qmd
+        - module-1/part6.qmd
     - part: "Module 2: Hypothesis Testing"
       chapters:
         - module-2/intro.qmd
