@@ -8,7 +8,7 @@
 
 <meta name="description" content="A graduate-level open workshop on advanced research methods in management science. Covers psychometric measurement (CFA, EFA, HTMT, LCA), experimental design and power analysis, and causal inference (regression discontinuity, difference-in-differences, mediation analysis) — each module with worked R simulations and interactive diagnostics.">
 
-<title>18&nbsp; Part 4: Difference-in-Differences – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>19&nbsp; Part 4: Difference-in-Differences – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-8dbc2b178484c8427a469309f537d68b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -159,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -282,7 +282,13 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-2/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 4: Experimental Design Strategies and Assignment Solutions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Part 4: Selection Effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-2/part5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Part 5: Experimental Design Strategies and Assignment Solutions</span></span></a>
   </div>
 </li>
       </ul>
@@ -299,37 +305,37 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Module 3: Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 1: What Is a Causal Effect?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span></a>
   </div>
 </li>
       </ul>
@@ -367,27 +373,27 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#sec-did-setup" id="toc-sec-did-setup" class="nav-link active" data-scroll-target="#sec-did-setup"><span class="header-section-number">18.1</span> The Setup</a></li>
-  <li><a href="#sec-did-sim" id="toc-sec-did-sim" class="nav-link" data-scroll-target="#sec-did-sim"><span class="header-section-number">18.2</span> Simulating Panel Data</a></li>
-  <li><a href="#sec-did-twfe" id="toc-sec-did-twfe" class="nav-link" data-scroll-target="#sec-did-twfe"><span class="header-section-number">18.3</span> Two-Way Fixed Effects (TWFE)</a></li>
-  <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event"><span class="header-section-number">18.4</span> Testing Parallel Trends: Event Study</a></li>
-  <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid"><span class="header-section-number">18.5</span> Synthetic Difference-in-Differences</a></li>
-  <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure"><span class="header-section-number">18.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a>
+  <li><a href="#sec-did-setup" id="toc-sec-did-setup" class="nav-link active" data-scroll-target="#sec-did-setup"><span class="header-section-number">19.1</span> The Setup</a></li>
+  <li><a href="#sec-did-sim" id="toc-sec-did-sim" class="nav-link" data-scroll-target="#sec-did-sim"><span class="header-section-number">19.2</span> Simulating Panel Data</a></li>
+  <li><a href="#sec-did-twfe" id="toc-sec-did-twfe" class="nav-link" data-scroll-target="#sec-did-twfe"><span class="header-section-number">19.3</span> Two-Way Fixed Effects (TWFE)</a></li>
+  <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event"><span class="header-section-number">19.4</span> Testing Parallel Trends: Event Study</a></li>
+  <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid"><span class="header-section-number">19.5</span> Synthetic Difference-in-Differences</a></li>
+  <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure"><span class="header-section-number">19.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a>
   <ul class="collapse">
-  <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</a></li>
-  <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
-  <li><a href="#sec-pt-ov-severity" id="toc-sec-pt-ov-severity" class="nav-link" data-scroll-target="#sec-pt-ov-severity"><span class="header-section-number">18.6.3</span> How an Unobserved Variable Inflates Type I Error</a></li>
+  <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz"><span class="header-section-number">19.6.1</span> A Realistic Parallel Trends Violation</a></li>
+  <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc"><span class="header-section-number">19.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</a></li>
+  <li><a href="#sec-pt-ov-severity" id="toc-sec-pt-ov-severity" class="nav-link" data-scroll-target="#sec-pt-ov-severity"><span class="header-section-number">19.6.3</span> How an Unobserved Variable Inflates Type I Error</a></li>
   </ul></li>
-  <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3"><span class="header-section-number">18.7</span> Researcher Checklist: Difference-in-Differences</a></li>
+  <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3"><span class="header-section-number">19.7</span> Researcher Checklist: Difference-in-Differences</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 4: Difference-in-Differences</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -417,12 +423,12 @@ window.Quarto = {
 <p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
 </div>
 </div>
-<section id="sec-did-setup" class="level2" data-number="18.1">
-<h2 data-number="18.1" class="anchored" data-anchor-id="sec-did-setup"><span class="header-section-number">18.1</span> The Setup</h2>
+<section id="sec-did-setup" class="level2" data-number="19.1">
+<h2 data-number="19.1" class="anchored" data-anchor-id="sec-did-setup"><span class="header-section-number">19.1</span> The Setup</h2>
 <p>The Dutch government introduces a <strong>mandatory eco-labelling law</strong> in <strong>2022</strong>. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).</p>
 </section>
-<section id="sec-did-sim" class="level2" data-number="18.2">
-<h2 data-number="18.2" class="anchored" data-anchor-id="sec-did-sim"><span class="header-section-number">18.2</span> Simulating Panel Data</h2>
+<section id="sec-did-sim" class="level2" data-number="19.2">
+<h2 data-number="19.2" class="anchored" data-anchor-id="sec-did-sim"><span class="header-section-number">19.2</span> Simulating Panel Data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -494,8 +500,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-did-twfe" class="level2" data-number="18.3">
-<h2 data-number="18.3" class="anchored" data-anchor-id="sec-did-twfe"><span class="header-section-number">18.3</span> Two-Way Fixed Effects (TWFE)</h2>
+<section id="sec-did-twfe" class="level2" data-number="19.3">
+<h2 data-number="19.3" class="anchored" data-anchor-id="sec-did-twfe"><span class="header-section-number">19.3</span> Two-Way Fixed Effects (TWFE)</h2>
 <p><span class="math display">\[Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}\]</span></p>
 <div class="cell">
 <details class="code-fold">
@@ -573,8 +579,8 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-did-event" class="level2" data-number="18.4">
-<h2 data-number="18.4" class="anchored" data-anchor-id="sec-did-event"><span class="header-section-number">18.4</span> Testing Parallel Trends: Event Study</h2>
+<section id="sec-did-event" class="level2" data-number="19.4">
+<h2 data-number="19.4" class="anchored" data-anchor-id="sec-did-event"><span class="header-section-number">19.4</span> Testing Parallel Trends: Event Study</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -640,8 +646,8 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-synthdid" class="level2" data-number="18.5">
-<h2 data-number="18.5" class="anchored" data-anchor-id="sec-synthdid"><span class="header-section-number">18.5</span> Synthetic Difference-in-Differences</h2>
+<section id="sec-synthdid" class="level2" data-number="19.5">
+<h2 data-number="19.5" class="anchored" data-anchor-id="sec-synthdid"><span class="header-section-number">19.5</span> Synthetic Difference-in-Differences</h2>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -739,8 +745,8 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </div>
 </div>
 </section>
-<section id="sec-pt-failure" class="level2" data-number="18.6">
-<h2 data-number="18.6" class="anchored" data-anchor-id="sec-pt-failure"><span class="header-section-number">18.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</h2>
+<section id="sec-pt-failure" class="level2" data-number="19.6">
+<h2 data-number="19.6" class="anchored" data-anchor-id="sec-pt-failure"><span class="header-section-number">19.6</span> When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</h2>
 <p>Parallel trends are <strong>not directly testable</strong> — you never observe what Dutch stores would have done without the eco-label law. What you <em>can</em> test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:</p>
 <ol type="1">
 <li><strong>Too few pre-treatment periods.</strong> Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.</li>
@@ -766,8 +772,8 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 <p>Passing the pre-trend test is necessary but far from sufficient for causal identification.</p>
 </div>
 </div>
-<section id="sec-pt-violation-viz" class="level3" data-number="18.6.1">
-<h3 data-number="18.6.1" class="anchored" data-anchor-id="sec-pt-violation-viz"><span class="header-section-number">18.6.1</span> A Realistic Parallel Trends Violation</h3>
+<section id="sec-pt-violation-viz" class="level3" data-number="19.6.1">
+<h3 data-number="19.6.1" class="anchored" data-anchor-id="sec-pt-violation-viz"><span class="header-section-number">19.6.1</span> A Realistic Parallel Trends Violation</h3>
 <p>Suppose Dutch stores were <em>already</em> attracting more environmentally conscious shoppers whose WTP grew $0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there (selection). <strong>The true treatment effect is zero.</strong> The eco-label law is irrelevant. But this ongoing differential growth will trick DiD into finding one.</p>
 <div class="cell">
 <details class="code-fold">
@@ -853,8 +859,8 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 </div>
 </div>
 </section>
-<section id="sec-pt-mc" class="level3" data-number="18.6.2">
-<h3 data-number="18.6.2" class="anchored" data-anchor-id="sec-pt-mc"><span class="header-section-number">18.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</h3>
+<section id="sec-pt-mc" class="level3" data-number="19.6.2">
+<h3 data-number="19.6.2" class="anchored" data-anchor-id="sec-pt-mc"><span class="header-section-number">19.6.2</span> Monte Carlo: Pre-Test Power and Type I Error</h3>
 <p>We now formalise this with 300 simulations per condition. <strong>True effect = $0 throughout.</strong> We vary the number of pre-treatment periods from 1 to 6 and track three quantities:</p>
 <table class="caption-top table">
 <colgroup>
@@ -1049,8 +1055,8 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 </div>
 </div>
 </section>
-<section id="sec-pt-ov-severity" class="level3" data-number="18.6.3">
-<h3 data-number="18.6.3" class="anchored" data-anchor-id="sec-pt-ov-severity"><span class="header-section-number">18.6.3</span> How an Unobserved Variable Inflates Type I Error</h3>
+<section id="sec-pt-ov-severity" class="level3" data-number="19.6.3">
+<h3 data-number="19.6.3" class="anchored" data-anchor-id="sec-pt-ov-severity"><span class="header-section-number">19.6.3</span> How an Unobserved Variable Inflates Type I Error</h3>
 <p>The previous simulation assumed a differential slope — a pre-existing divergence visible in pre-trend data. A more dangerous violation involves an <strong>unobserved time-varying variable</strong> that only appears post-treatment, making pre-trend tests completely blind to it.</p>
 <p><strong>The mechanism.</strong> Suppose eco-orientation of a store’s customer base (call it U) is unobserved. Dutch stores were already in more eco-conscious neighbourhoods — they have higher U. Post-2022, a global sustainability wave means U increasingly drives WTP everywhere: eco-conscious shoppers are willing to pay more for sustainable products regardless of labelling laws. Stores with higher U benefit disproportionately in the post-period — but not because of the Dutch law. <strong>True law effect = $0.</strong> Yet DiD attributes the U-driven post-period WTP gain to the law.</p>
 <p><strong>Why the pre-trend test is blind to this.</strong> U is a fixed store characteristic. Store fixed effects absorb U completely — so in pre-treatment periods, the Dutch–Belgian trend difference from U is zero. The violation only materialises in the post-period when U interacts with time. An event study with 100 pre-periods would show perfectly parallel pre-trends even as this confounder grows post-treatment.</p>
@@ -1225,8 +1231,8 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <hr>
 </section>
 </section>
-<section id="sec-checklist-part4-m3" class="level2" data-number="18.7">
-<h2 data-number="18.7" class="anchored" data-anchor-id="sec-checklist-part4-m3"><span class="header-section-number">18.7</span> Researcher Checklist: Difference-in-Differences</h2>
+<section id="sec-checklist-part4-m3" class="level2" data-number="19.7">
+<h2 data-number="19.7" class="anchored" data-anchor-id="sec-checklist-part4-m3"><span class="header-section-number">19.7</span> Researcher Checklist: Difference-in-Differences</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1704,12 +1710,12 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Regression Discontinuity Design">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Part 3: Regression Discontinuity Design</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-3/part5.html" class="pagination-link" aria-label="Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?">
-        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Part 5: Mediation — Does the Eco-Label Work Through Perceived Sustainability?</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
