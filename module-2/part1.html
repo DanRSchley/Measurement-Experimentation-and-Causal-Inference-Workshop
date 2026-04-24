@@ -317,7 +317,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -431,7 +431,7 @@ window.Quarto = {
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRg0zz3ILArjQNbjlILaUy3EvVrBqDrDrLsbzieDsJU9VcB1NBVWJufM-Oiv3EeJA/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 1: P-values">
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRg0zz3ILArjQNbjlILaUy3EvVrBqDrDrLsbzieDsJU9VcB1NBVWJufM-Oiv3EeJA/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 1: P-values">
 </iframe>
 <section id="sec-pvalues" class="level1" data-number="11">
 <h1 data-number="11"><span class="header-section-number">11</span> Part 1: What Does a P-value Actually Mean?</h1>
@@ -492,28 +492,37 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Simulate WTP data and compute observed difference</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>N    <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>mu   <span class="ot">&lt;-</span> <span class="fl">5.50</span>    <span class="co"># True population mean WTP ($)</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sig  <span class="ot">&lt;-</span> <span class="fl">1.50</span>    <span class="co"># True population SD ($)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># All 60 participants drawn from the same population (null is true).</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># In our specific sample the eco-label group happened to score higher — by chance.</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># pmax(1) / pmin(10) enforces the 1–10 scale bounds. With mu = 5.50 and sd = 1.50,</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># fewer than 0.3% of draws fall outside [1, 10], so truncation bias is negligible here.</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># (For a full treatment of how bounded scales bias observed means, see Module 1, Part 6.)</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>wtp_all <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N, <span class="at">mean =</span> mu, <span class="at">sd =</span> sig) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">pmax</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">pmin</span>(<span class="dv">10</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>group   <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Eco-label"</span>), <span class="at">each =</span> N <span class="sc">/</span> <span class="dv">2</span>))</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>df_coffee <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">wtp =</span> wtp_all, <span class="at">group =</span> group)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>obs_diff <span class="ot">&lt;-</span> <span class="fu">mean</span>(df_coffee<span class="sc">$</span>wtp[df_coffee<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Eco-label"</span>]) <span class="sc">-</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mean</span>(df_coffee<span class="sc">$</span>wtp[df_coffee<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Control"</span>])</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Observed mean difference: $%.2f</span><span class="sc">\n</span><span class="st">"</span>, obs_diff))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>N    <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mu   <span class="ot">&lt;-</span> <span class="fl">5.50</span>    <span class="co"># True population mean WTP ($)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sig  <span class="ot">&lt;-</span> <span class="fl">1.50</span>    <span class="co"># True population SD ($)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># All 60 participants are drawn from the same population (the null is true).</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># We search for a draw where the eco-label group happened to score ~$0.80 higher</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># purely by chance — matching the study description above.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># With N = 60 and SD = $1.50 the SE of the difference is ~$0.39, so a gap of $0.80</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># corresponds to a t-statistic of ~2.1 and occurs in roughly 4% of random samples.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># That is the pedagogical point: this seemingly large difference can arise under H₀.</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>seed_use <span class="ot">&lt;-</span> <span class="cn">NA_integer_</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="dv">50000</span>)) {</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(s)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  wtp_try <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="fu">pmin</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(N, mu, sig), <span class="dv">2</span>), <span class="dv">10</span>), <span class="dv">1</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  d_try   <span class="ot">&lt;-</span> <span class="fu">mean</span>(wtp_try[<span class="dv">31</span><span class="sc">:</span><span class="dv">60</span>]) <span class="sc">-</span> <span class="fu">mean</span>(wtp_try[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>])</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (d_try <span class="sc">&gt;=</span> <span class="fl">0.75</span> <span class="sc">&amp;&amp;</span> d_try <span class="sc">&lt;=</span> <span class="fl">0.85</span>) { seed_use <span class="ot">&lt;-</span> s; <span class="cf">break</span> }</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.na</span>(seed_use)) <span class="fu">stop</span>(<span class="st">"No seed found in 50,000 tries — adjust target range"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(seed_use)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>wtp_all   <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="fu">pmin</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(N, mu, sig), <span class="dv">2</span>), <span class="dv">10</span>), <span class="dv">1</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>group     <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Eco-label"</span>), <span class="at">each =</span> N <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>df_coffee <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">wtp =</span> wtp_all, <span class="at">group =</span> group)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>obs_diff <span class="ot">&lt;-</span> <span class="fu">mean</span>(df_coffee<span class="sc">$</span>wtp[df_coffee<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Eco-label"</span>]) <span class="sc">-</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mean</span>(df_coffee<span class="sc">$</span>wtp[df_coffee<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Control"</span>])</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Observed mean difference: $%.2f</span><span class="sc">\n</span><span class="st">"</span>, obs_diff))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Observed mean difference: $-0.22</code></pre>
+<pre><code>Observed mean difference: $0.78</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -548,12 +557,12 @@ window.Quarto = {
 </div>
 </div>
 <p><strong>What this plot is telling you — before we touch a single formula.</strong></p>
-<p>Each dot is one participant’s stated WTP. The box spans the middle 50% of values within each condition; the diamond marks the group mean. The bracket at the top labels the observed mean difference: Δ = <span class="math inline">\(0.22\)</span>.</p>
+<p>Each dot is one participant’s stated WTP. The box spans the middle 50% of values within each condition; the diamond marks the group mean. The bracket at the top labels the observed mean difference: Δ = <span class="math inline">\(0.78\)</span>.</p>
 <p>A few things worth noticing right now:</p>
 <ul>
 <li><strong>The distributions heavily overlap.</strong> The vast majority of the WTP values in both conditions occupy the same range. There is no clean separation — only a slight shift in the center of one distribution relative to the other.</li>
-<li><strong>Individual variation swamps the group difference.</strong> The spread <em>within</em> each group (roughly $1–$10) is many times larger than the <span class="math inline">\(0.22\)</span> gap <em>between</em> them. This is almost always true in behavioral experiments: people differ from one another far more than any treatment moves them.</li>
-<li><strong>This is precisely why “significant” requires more than a single number.</strong> The gap of <span class="math inline">\(0.22\)</span> could be real — or it could have appeared by chance simply because of which 30 people happened to land in each condition. The p-value we compute next turns that intuition into a probability.</li>
+<li><strong>Individual variation swamps the group difference.</strong> The spread <em>within</em> each group (roughly $1–$10) is many times larger than the <span class="math inline">\(0.78\)</span> gap <em>between</em> them. This is almost always true in behavioral experiments: people differ from one another far more than any treatment moves them.</li>
+<li><strong>This is precisely why “significant” requires more than a single number.</strong> The gap of <span class="math inline">\(0.78\)</span> could be real — or it could have appeared by chance simply because of which 30 people happened to land in each condition. The p-value we compute next turns that intuition into a probability.</li>
 </ul>
 </section>
 <section id="building-the-null-distribution-by-shuffling-labels" class="level2" data-number="11.4">
@@ -583,7 +592,7 @@ window.Quarto = {
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Two-sided permutation p-value: %.3f</span><span class="sc">\n</span><span class="st">"</span>, p_val))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Two-sided permutation p-value: 0.569</code></pre>
+<pre><code>Two-sided permutation p-value: 0.052</code></pre>
 </div>
 <details class="code-fold">
 <summary>▶ Run permutation test (10,000 label shuffles)</summary>
@@ -591,7 +600,7 @@ window.Quarto = {
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">quantile</span>(null_dist, <span class="fl">0.025</span>), <span class="fu">quantile</span>(null_dist, <span class="fl">0.975</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>95% CI of null distribution: [$-0.72, $0.73]</code></pre>
+<pre><code>95% CI of null distribution: [$-0.78, $0.79]</code></pre>
 </div>
 </div>
 <section id="watching-the-shuffle-in-action" class="level3" data-number="11.4.1">
@@ -742,7 +751,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>The p-value of <strong>0.569</strong> tells us: 56.9% of shuffled datasets produced a difference as large as $0.22 or larger. This difference is <em>not</em> unusual under the null — chance produces it regularly.</p>
+<p>The p-value of <strong>0.052</strong> tells us: 5.2% of shuffled datasets produced a difference as large as $0.78 or larger — meaning this gap arises by chance roughly 1 time in 19 under H₀. Look at where the red line lands relative to the tails of the null distribution. The conventional α = .05 cutoff is not a wall separating “real” effects from chance: it is a decision rule, and results near the boundary carry substantial uncertainty regardless of which side they fall on.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

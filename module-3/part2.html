@@ -8,7 +8,7 @@
 
 <meta name="description" content="A graduate-level open workshop on advanced research methods in management science. Covers psychometric measurement (CFA, EFA, HTMT, LCA), experimental design and power analysis, and causal inference (regression discontinuity, difference-in-differences, mediation analysis) — each module with worked R simulations and interactive diagnostics.">
 
-<title>17&nbsp; Part 2: Selection on Observables – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>17&nbsp; Part 2: Observational Methods for Causal Inference – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -159,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -317,7 +317,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -403,9 +403,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -435,7 +435,7 @@ window.Quarto = {
 <p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
 </div>
 </div>
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables">
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables">
 </iframe>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -449,6 +449,61 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p>Every method in this section is trying to achieve the same thing as a randomised experiment — but without actually randomising. In Module 2 you saw that randomisation achieves <strong>exchangeability</strong>: treated and control groups are, in expectation, identical on every measured and unmeasured covariate. The methods here — regression adjustment, IPW, matching, doubly-robust estimation — all attempt to restore exchangeability <em>after the fact</em>, using only the measured covariates. Module 2 showed that even inside a well-designed experiment, exchangeability is more fragile than it looks (demand effects, attrition, compliance failures). In observational designs, the gap between “we measured a lot of covariates” and “we have achieved exchangeability” is far larger and entirely unverifiable. Every assumption below is a bet that the measured set is complete.</p>
 <p>Module 1 raised the same issue from a different angle: if covariates are measured with error — if environmental concern is a noisy proxy for true eco-mindedness — then even conditioning on the observed score leaves residual confounding from the measurement error. Poor construct validity (Module 1) directly undermines the conditional independence assumption (Module 3). Getting the covariates right, in both selection and measurement quality, is a prerequisite for all the methods that follow.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What this chapter covers — and the type of selection each method addresses
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This chapter covers a family of methods for drawing causal inferences from observational data. They are organized by the <em>type</em> of selection problem they are designed for:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Selection type</th>
+<th>Key assumption</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Heckman selection model</strong></td>
+<td>Selection on <em>unobservables</em></td>
+<td>Valid instrument for participation</td>
+</tr>
+<tr class="even">
+<td><strong>Tobit / censored regression</strong></td>
+<td>Censoring or corner solutions</td>
+<td>Latent normal DGP, no genuine zeros</td>
+</tr>
+<tr class="odd">
+<td><strong>Regression adjustment</strong></td>
+<td>Selection on <em>observables</em></td>
+<td>Conditional ignorability (no hidden confounders)</td>
+</tr>
+<tr class="even">
+<td><strong>IPW / matching / doubly robust</strong></td>
+<td>Selection on <em>observables</em></td>
+<td>Conditional ignorability + overlap</td>
+</tr>
+<tr class="odd">
+<td><strong>Synthetic control</strong></td>
+<td>Aggregate panel data</td>
+<td>Pre-treatment parallel-trend fit</td>
+</tr>
+</tbody>
+</table>
+<p>“Selection on observables” strictly refers to the regression adjustment, IPW, matching, and doubly robust rows — these require only that conditioning on measured covariates achieves exchangeability. The Heckman and synthetic control methods relax that assumption in different ways. Tobit addresses a related but distinct problem (censoring of the outcome, not selection into treatment). Each section opens with the assumption that licenses that particular approach.</p>
 </div>
 </div>
 <section id="sec-heckman" class="level2" data-number="17.1">

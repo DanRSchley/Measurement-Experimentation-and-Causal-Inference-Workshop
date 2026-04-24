@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -594,8 +594,8 @@ F-statistic:  2227 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The residuals spread out dramatically as fitted values increase. This <strong>heteroskedasticity</strong> is a red flag: if the variance of errors is not constant, it usually means the model has left out something important that also varies with X.</p>
-<p>Here, that missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape in the residual plot is the visual signature of that missing variable.</p>
+<p>The residuals spread out dramatically as fitted values increase. This <strong>heteroskedasticity</strong> is a red flag: non-constant variance suggests the model has left out something that also varies with X.</p>
+<p>Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is <em>consistent with</em> that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.</p>
 <p>Connect this back to Case 1: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in Case 1 — telling you that Y reflects more than X.</p>
 </div>
 </div>
@@ -787,7 +787,7 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 <li><label><input type="checkbox"><strong>Can you name the most plausible omitted variable in your regression?</strong> For each predictor, identify what variable (a) affects Y and (b) correlates with X. That is your primary OVB threat.</label></li>
 <li><label><input type="checkbox"><strong>What direction is the bias?</strong> The sign of the bias is the sign of β_omitted × r(X, omitted). Knowing the direction tells you whether your estimate is inflated or deflated.</label></li>
 <li><label><input type="checkbox"><strong>Does your coefficient change meaningfully when you add a proxy for the omitted variable?</strong> Instability is evidence of OVB. Stability is reassuring but not proof.</label></li>
-<li><label><input type="checkbox"><strong>Do your residuals show a fan pattern or cluster by group?</strong> This is the clearest visual diagnostic for a missing structuring variable.</label></li>
+<li><label><input type="checkbox"><strong>Do your residuals show a fan pattern or cluster by group?</strong> This is <em>consistent with</em> a missing structuring variable, but heteroskedasticity has multiple causes. Pair the visual with a substantive theory of what might be omitted before concluding OVB.</label></li>
 </ul>
 </div>
 </div>

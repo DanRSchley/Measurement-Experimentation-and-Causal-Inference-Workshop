@@ -317,7 +317,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Selection on Observables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Part 2: Observational Methods for Causal Inference</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -434,7 +434,7 @@ window.Quarto = {
 <tr class="header">
 <th>Scenario</th>
 <th>Key feature</th>
-<th>Who wins</th>
+<th>Which method performs best <em>in this scenario</em></th>
 </tr>
 </thead>
 <tbody>
@@ -446,12 +446,12 @@ window.Quarto = {
 <tr class="even">
 <td><strong>2: Large outliers</strong></td>
 <td>Correlated high-leverage points inflate OLS b-path</td>
-<td><strong>ROBMED</strong> wins</td>
+<td><strong>ROBMED</strong> recovers the true effect</td>
 </tr>
 <tr class="odd">
 <td><strong>3: M–Y confounded</strong></td>
 <td>Unobserved U causes both M and Y; true ACME = 0</td>
-<td><strong>Imai sensitivity</strong> catches it</td>
+<td><strong>Imai sensitivity</strong> flags the fragility</td>
 </tr>
 </tbody>
 </table>
@@ -735,7 +735,7 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p>The key is <em>direction</em>: when participants who score unusually high on M also score unusually high on Y (same-sign shocks), they create data points that pull the OLS regression line steeply upward. To OLS, these are just informative extreme observations — it can’t distinguish “genuinely high M causes genuinely high Y” from “an external shock hit both M and Y simultaneously.”</p>
 <p><strong>ROBMED’s MM-estimator</strong> assigns lower weight to observations whose residuals are large relative to the bulk of the data. The outlier participants — who are far from the M–Y regression cloud — receive close to zero weight, leaving the slope estimate dominated by the non-contaminated 88%.</p>
-<p><strong>Why Imai doesn’t help here</strong>: <code>mediate()</code> calls the same <code>lm()</code> models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. ROBMED is the right tool; Imai is not.</p>
+<p><strong>Why Imai doesn’t help here</strong>: <code>mediate()</code> calls the same <code>lm()</code> models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. In this outlier scenario, ROBMED is the appropriate tool — Imai’s advantage lies in confounding diagnosis (Scenario 3), not outlier robustness.</p>
 </div>
 </div>
 <div class="cell">
@@ -992,7 +992,7 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <li><strong>Scenario 1 (clean)</strong>: ACME reaches zero only at <span class="math inline">\(\rho^* \approx\)</span> 0.60. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is <strong>robust</strong>.</li>
 <li><strong>Scenario 3 (confounded)</strong>: ACME crosses zero at <span class="math inline">\(\rho^* \approx\)</span> 0.25. Only modest confounding is enough to nullify the result. The “significant” ACME is <strong>fragile</strong> — correctly so, since the true ACME is 0.</li>
 </ul>
-<p><strong>The Imai advantage is not a better point estimate</strong> (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the <em>sensitivity analysis itself</em> — an honest diagnostic that Baron–Kenny completely omits. A finding that reports both the ROBMED estimate and a large ρ* from <code>medsens()</code> is far more credible than one that does neither.</p>
+<p><strong>The Imai advantage is not a better point estimate</strong> (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the <em>sensitivity analysis itself</em> — a diagnostic that Baron–Kenny does not provide. A finding that reports both the ROBMED estimate and a large ρ* from <code>medsens()</code> is far more credible than one that does neither.</p>
 </div>
 </div>
 </section>
