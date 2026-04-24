@@ -572,7 +572,7 @@ The first is that in real experiments, exclusion criteria almost never screen pa
 
 The second problem is researcher degrees of freedom: when the exclusion rule is chosen *after seeing the data* — especially after seeing whether the treatment effect is significant — the choice of rule is itself a researcher degree of freedom. Across all rules a researcher might try, the probability that at least one crosses α = .05 is far higher than 5%.
 
-The simulation below captures both problems. The DGP includes a latent **engagement** variable that simultaneously drives response time (low engagement → fast RT), outcome quality (low engagement → lower Y), and quality-check performance — but is independent of treatment condition (H₀ is true throughout). Exclusion rules that target engagement-correlated proxies therefore inflate individual-rule FP rates; picking the most favorable rule inflates them further.
+The simulation below captures both problems. The DGP has a latent **engagement** variable that drives response time, outcome quality, and Y. Critically, the treatment condition (eco-label) is more novel and engaging than the control, so treatment **boosts engagement by 0.5 SD**. H₀ is still true on Y (Y depends only on baseline engagement, not on the treatment-induced boost). But RT and quality reflect the boosted engagement — so applying pooled exclusion thresholds removes more participants from the less-engaging control condition than from the treatment condition. This asymmetric exclusion, combined with the engagement→Y path, inflates individual-rule FP rates. Choosing the most favorable rule inflates them further.
 
 ```{r exclusion-bias, fig.height=5.5, fig.width=11}
 #| code-summary: "▶ Simulate: false-positive rate across 10 exclusion rules (null effect)"
@@ -598,18 +598,23 @@ rule_labels <- c(
 sim_pvals <- replicate(n_sims_ex, {
   trt <- rep(0:1, each = N_excl / 2)
 
-  # Latent engagement: random, NOT related to condition (H0 is true)
+  # Baseline engagement trait: independent of treatment (individual difference)
   engagement <- rnorm(N_excl)
 
-  # Y is correlated with engagement: engaged participants give more considered
-  # responses (e.g., more thoughtful WTP estimates). corr(Y, engagement) = 0.65.
+  # Treatment (eco-label) is more novel and interesting than the control task
+  # → it BOOSTS engagement in the treatment condition by 0.5 SD.
+  # H₀ is still true on Y: Y depends only on BASELINE engagement, not on the boost.
+  engagement_boost <- 0.5
+  effective_eng    <- engagement + engagement_boost * trt
+
+  # Y (WTP): driven by baseline engagement, NOT by treatment directly
   Y  <- 0.65 * engagement + sqrt(1 - 0.65^2) * rnorm(N_excl)
 
-  # RT: engaged = careful = slower; speeding = fast = low engagement
-  rt <- pmax(5 + 3 * engagement + rnorm(N_excl, sd = 2.5), 0.5)
-
-  # Quality score (like an attention/engagement index); correlated with engagement
-  quality <- engagement + rnorm(N_excl, sd = 0.6)
+  # RT and quality depend on EFFECTIVE engagement (including the boost).
+  # Treatment group is more careful → slower RT, higher quality.
+  # Applying pooled thresholds therefore excludes more control participants.
+  rt      <- 5 + 3 * effective_eng + rnorm(N_excl, sd = 2.5)
+  quality <- effective_eng + rnorm(N_excl, sd = 0.6)
 
   sapply(seq_along(rule_labels), function(k) {
     keep <- switch(k,
@@ -664,7 +669,7 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
        title = "Correlated Exclusion Criteria Inflate False Positives — Even Rule by Rule",
        subtitle = paste0(
          "N = ", N_excl, "  \u00b7  True effect = 0  \u00b7  ",
-         n_sims_ex, " replications  \u00b7  engagement drives both RT/quality and Y\n",
+         n_sims_ex, " replications  \u00b7  treatment boosts engagement \u2192 asymmetric exclusion\n",
          "Blue = near nominal 5%  \u00b7  Red = inflated  \u00b7  Red dashed = rate if researcher picks best rule")) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
@@ -673,7 +678,7 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
 p_excl
 ```
 
-**What the plot shows:** The symmetric SD-based rules (rules 2–4) exclude from both tails of Y and stay near the nominal 5%. The RT-based rules exclude from the *low* end of Y (fast responders give lower WTP) and are clearly elevated. The quality-score rules are most aggressive — removing 10–20% of the sample based on a criterion correlated with Y inflates the FP rate substantially even for a single, pre-committed rule. Choosing the best-performing rule across all ten pushes the combined false-positive rate to the red dashed line.
+**What the plot shows:** The SD-based rules (rules 2–4) exclude based on Y itself — since Y is symmetric across conditions by design, these stay near 5%. The RT and quality rules use *pooled* thresholds (the bottom X% of all participants combined). Because the treatment condition boosts engagement, it shifts the pooled RT and quality distributions rightward — the shared threshold therefore cuts deeper into the *control* distribution, removing more control participants. Those removed have low engagement and thus low Y. The remaining control group has artificially inflated mean Y, making the treatment appear worse by comparison and inflating the false-positive rate for individual rules. Choosing the best-performing rule across all ten pushes it to the red dashed line.
 
 ::: {.callout-note}
 ## Connecting to Part 1: what makes a p-value valid
