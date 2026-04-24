@@ -69,13 +69,15 @@ There is a single thread running through this tutorial and its predecessor:
 
 In Module 1, that problem lived in your *outcome variable Y* — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in **two places at once**: in your *treatment variable X*, and in the act of *randomization* that is supposed to make X interpretable.
 
-This tutorial covers three ideas:
+This tutorial covers four ideas:
 
 - **Part 1 — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
 
 - **Part 2 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When this happens, your "experiment" is really a quasi-experiment — and the single coefficient on treatment conflates several distinct causal pathways.
 
 - **Part 3 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
+
+- **Part 4 — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
 
 ::: {.callout-note}
 ## Learning Objectives
@@ -90,6 +92,9 @@ By the end of this tutorial, you will be able to:
 - Articulate the difference between **observable randomization** and **latent randomization** using the construct-validity language from Module 1
 - Calculate the minimum observations needed for approximate orthogonality given the complexity of Y
 - Run diagnostic checks to assess whether your observed randomization achieved approximate orthogonality
+- Identify the four classes of selection effect (non-representativeness, self-selection, survivorship/attrition, exclusion bias) and explain why each makes exchangeability structurally unachievable within the affected sample
+- Distinguish survivorship bias (missing observations never entered the sample) from attrition bias (observations entered the sample but left non-randomly)
+- Diagnose differential attrition across conditions and explain why conditioning on a post-randomization event breaks exchangeability even in a properly randomized experiment
 :::
 
 ---

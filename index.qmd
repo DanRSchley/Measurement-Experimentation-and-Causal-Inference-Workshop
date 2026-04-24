@@ -57,7 +57,8 @@ What does a p-value actually tell you? How does randomization create valid infer
 - [Part 1: What Does a P-value Mean?](module-2/part1.qmd)
 - [Part 2: The Exclusion Restriction](module-2/part2.qmd)
 - [Part 3: What Does Random Assignment Require?](module-2/part3.qmd)
-- [Part 4: Experimental Design Strategies and Assignment Solutions](module-2/part4.qmd)
+- [Part 4: Selection Effects](module-2/part4.qmd)
+- [Part 5: Experimental Design Strategies and Assignment Solutions](module-2/part5.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-4}

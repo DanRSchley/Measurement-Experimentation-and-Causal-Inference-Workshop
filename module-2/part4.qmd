@@ -1,5 +1,5 @@
 ---
-title: "Part 4: Experimental Design Strategies and Assignment Solutions"
+title: "Part 4: Selection Effects"
 ---
 
 ```{r setup, include=FALSE}
@@ -15,778 +15,691 @@ dir.create("figs", recursive = TRUE, showWarnings = FALSE)
 
 ```{r packages}
 #| code-summary: "▶ Load required packages"
-library(tidyverse); library(ggplot2); library(knitr); library(scales); library(patchwork)
-if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
-library(lavaan)
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(scales)
+library(patchwork)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQnz6Vpt7vp1ADOrFLktNe2nhQI99W5TbY1lJ7FH6jk9VA5bY618C_nx4-FzQsJdA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Experimental Design"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
 
-# Part 4: Experimental Design Strategies — Using Structure to Buy Efficiency {#sec-designs}
+# Part 4: Selection Effects — Structural Threats to Exchangeability {#sec-selection}
 
-## The Core Tension
+## The Problem That Randomization Cannot Fix
 
-Parts 2 and 3 showed a fundamental tension:
+Part 3 established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
 
-- **More dimensions of Y** → larger design space → more N needed for orthogonality
-- **More N** → more expensive → temptation to reduce sample → back to poor orthogonality
+This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 3, these are not fixable by running more participants. They are structural. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions.
 
-Section 3 offered two partial design-based solutions (stratification, clustering). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
+The distinction is worth making precise:
 
-## Completely Random, Factorial, and Latin Square Designs
+| Part 3 failure | Part 4 failure |
+|---|---|
+| Random assignment is executed, but the sample is too small to achieve exchangeability by chance | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
+| Fixable with more data, blocked randomization, or structural designs (Part 5) | Not fixable by better randomization — the selection process operates outside the researcher's randomization step |
+| Creates imbalance between conditions on pre-existing covariates | Creates a sample that misrepresents the intended population or analysis set |
 
-The simplest way to see the tradeoffs is to contrast three design types on a common example.
+::: {.callout-important}
+## The Module 1 parallel
 
-**Scenario:** You want to test the effect of:
+Module 1 showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed *sample* can fail to reflect your intended *population* or *analysis group* for parallel reasons.
 
-- **Factor A:** Eco-certification badge (present / absent) — 2 levels
-- **Factor B:** Price level (low / medium / high) — 3 levels
-- **Factor C:** Message framing (individual benefit / social benefit) — 2 levels
-
-```{r design-comparison, fig.height=6, fig.width=11}
-#| code-summary: "▶ Visualize: CRD vs. Factorial vs. Latin Square cell structures"
-
-# ── Fully factorial: all A×B×C combinations ──────────────────────────────────
-fact_df <- expand.grid(
-  EcoBadge  = c("No Badge", "Eco Badge"),
-  PriceLevel = c("Low", "Medium", "High"),
-  Framing    = c("Individual\nBenefit", "Social\nBenefit")
-) |>
-  mutate(cell = paste(EcoBadge, PriceLevel, Framing, sep = "\n"),
-         design = "Fully Factorial\n(12 cells, 12N total)")
-
-# ── Latin square: Factor C varied across rows and Factor A×B as column×row
-# 2×3 Latin Square (accommodate unequal levels by using 3×3 and dropping one row)
-ls_grid <- expand.grid(Row = 1:2, Col = 1:3) |>
-  mutate(
-    EcoBadge   = ifelse(Col %in% c(1, 3), "No Badge", "Eco Badge"),
-    PriceLevel = c("Low","Medium","High","High","Low","Medium"),
-    Framing    = c("Individual\nBenefit","Social\nBenefit","Individual\nBenefit",
-                   "Social\nBenefit","Individual\nBenefit","Social\nBenefit"),
-    design     = "Latin Square\n(6 cells, 6N total)"
-  )
-
-# ── CRD: just two cells (eco vs. no eco, collapsing B and C) ─────────────────
-crd_df <- data.frame(
-  EcoBadge   = c("No Badge", "Eco Badge"),
-  PriceLevel = "Pooled\n(B,C varied\nbut uncontrolled)",
-  Framing    = "Pooled",
-  design     = "Simple A/B (CRA)\n(2 cells, N total)",
-  Row = 1, Col = 1:2
-)
-
-# ── Plot factorial and latin square side by side ──────────────────────────────
-p_fact <- ggplot(fact_df, aes(x = PriceLevel, y = Framing, fill = EcoBadge)) +
-  geom_tile(color = "white", linewidth = 1.2, width = 0.95, height = 0.95) +
-  geom_text(aes(label = paste0("n\u2265", ifelse(EcoBadge == "Eco Badge", "1", "1"))),
-            size = 3.5, fontface = "bold", color = "gray20") +
-  scale_fill_manual(values = c("No Badge" = "#d6ecff", "Eco Badge" = "#2d6a4f"),
-                    name = "Eco Badge") +
-  labs(title = "Fully Factorial (12 conditions)",
-       subtitle = "Every combination tested  \u00b7  Min N = 12\nTests A, B, C main effects AND interactions",
-       x = "Price Level", y = "Message Framing") +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid = element_blank(), legend.position = "top")
-
-p_ls <- ggplot(ls_grid, aes(x = factor(Col), y = factor(Row), fill = EcoBadge)) +
-  geom_tile(color = "white", linewidth = 1.5, width = 0.92, height = 0.92) +
-  geom_text(aes(label = paste0(EcoBadge, "\n", PriceLevel, "\n", Framing)),
-            size = 2.9, lineheight = 0.85, color = "gray10") +
-  scale_fill_manual(values = c("No Badge" = "#d6ecff", "Eco Badge" = "#2d6a4f"),
-                    name = "Eco Badge") +
-  labs(title = "Latin Square (6 conditions)",
-       subtitle = "Each factor level appears exactly once per row and column\nMin N = 6  \u00b7  Tests main effects only (no interactions)",
-       x = "Column (order slot / price)", y = "Row (participant block)") +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid = element_blank(), legend.position = "top",
-        axis.text = element_text(size = 9))
-
-p_fact + p_ls
-```
-
-```{r design-efficiency-table}
-#| code-summary: "▶ Table: design comparison on key dimensions"
-
-design_tab <- data.frame(
-  Design = c("Simple A/B (CRA)", "Fully Factorial", "Latin Square"),
-  `Conditions` = c(2, 12, 6),
-  `Min N (1 obs/cell)` = c(2, 12, 6),
-  `Main effects testable` = c("A only", "A, B, C", "A, B, C"),
-  `Interactions testable` = c("None", "A\u00d7B, A\u00d7C, B\u00d7C, A\u00d7B\u00d7C", "None"),
-  `Orthogonality coverage` = c("Only A vs. B,C confounded", "Perfect within cells", "Approximate — by design"),
-  check.names = FALSE
-)
-
-kable(design_tab,
-      caption = "Design comparison: efficiency, testability, and orthogonality coverage")
-```
-
-::: {.callout-note}
-## Connecting to Section 3: how designs reduce the effective design space
-
-Recall from Section 3.6 that the required N for approximate orthogonality grows with the number of dimensions D and falls as $r_{\max}$ increases. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
-
-- A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.
-- A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors' levels.
-- A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from Section 3.
-
-The Latin Square is a direct structural solution to the Section 3 problem: **it buys you orthogonality through design structure rather than through sample size.**
+> Just as a biased scale gives you the wrong latent score for a respondent, a biased sampling or exclusion process gives you the wrong set of respondents.
 :::
 
-## Interactive Latin Square Design Builder
-
-Use the controls below to design your own Latin Square experiment. Set the number of factors, give each one a name and the number of levels you need, and specify your participant budget per cell. The grid updates instantly — colors show which level of the primary factor each cell receives, labels inside the cells show the other factors.
-
-```{ojs}
-//| echo: false
-//| code-fold: false
-
-viewof ls_config = Inputs.form({
-  n_fac:      Inputs.range([2, 5], {step: 1, value: 3,
-                label: "Number of factors to study"}),
-  a_name:     Inputs.text({label: "Factor A — name",   value: "Eco badge",    width: 160}),
-  a_levels:   Inputs.select([2, 3, 4], {label: "Factor A — levels", value: 3}),
-  b_name:     Inputs.text({label: "Factor B — name",   value: "Price level",  width: 160}),
-  b_levels:   Inputs.select([2, 3, 4], {label: "Factor B — levels", value: 3}),
-  c_name:     Inputs.text({label: "Factor C — name",   value: "Framing",      width: 160}),
-  c_levels:   Inputs.select([2, 3, 4], {label: "Factor C — levels", value: 3}),
-  d_name:     Inputs.text({label: "Factor D — name",   value: "Source cred.", width: 160}),
-  d_levels:   Inputs.select([2, 3, 4], {label: "Factor D — levels", value: 2}),
-  e_name:     Inputs.text({label: "Factor E — name",   value: "Ad copy",      width: 160}),
-  e_levels:   Inputs.select([2, 3, 4], {label: "Factor E — levels", value: 2}),
-  n_per_cell: Inputs.range([1, 30], {step: 1, value: 5,
-                label: "Participants per cell"}),
-})
-```
-
-```{ojs}
-//| echo: false
-//| code-fold: false
-//| output: false
-
-ls_state = {
-  const nf   = ls_config.n_fac
-  const defs = [
-    {name: ls_config.a_name || "Factor A", levels: +ls_config.a_levels},
-    {name: ls_config.b_name || "Factor B", levels: +ls_config.b_levels},
-    {name: ls_config.c_name || "Factor C", levels: +ls_config.c_levels},
-    {name: ls_config.d_name || "Factor D", levels: +ls_config.d_levels},
-    {name: ls_config.e_name || "Factor E", levels: +ls_config.e_levels},
-  ]
-  const facs = defs.slice(0, nf)
-  const maxL = Math.max(...facs.map(f => f.levels))
-
-  const cells = []
-  for (let r = 0; r < maxL; r++) {
-    for (let c = 0; c < maxL; c++) {
-      const cell = {row: r + 1, col: c + 1}
-      facs.forEach((fac, k) => {
-        cell["lv" + k]    = ((r + c + k) % fac.levels) + 1
-        cell["short" + k] = (fac.name || ("F" + (k+1))).substring(0, 4) + "\u202f" +
-                             (((r + c + k) % fac.levels) + 1)
-      })
-      cell.fa_label     = "Level\u00a0" + (((r + c) % facs[0].levels) + 1)
-      cell.other_labels = facs.slice(1)
-        .map((f, i) => (f.name || ("F" + (i+2))).substring(0, 4) + "\u202f" +
-                        (((r + c + i + 1) % f.levels) + 1))
-        .join("  ")
-      cells.push(cell)
-    }
-  }
-
-  const full_factorial = facs.reduce((acc, f) => acc * f.levels, 1)
-  const ls_cells       = maxL * maxL
-  const n_per_cell     = +ls_config.n_per_cell
-
-  return {facs, cells, maxL, full_factorial, ls_cells,
-          total_n: ls_cells * n_per_cell, n_per_cell, nf}
-}
-```
-
-```{ojs}
-//| echo: false
-//| code-fold: false
-
-{
-  const {facs, cells, maxL} = ls_state
-
-  const palettes = {
-    2: ["#4e79a7","#f28e2b"],
-    3: ["#4e79a7","#f28e2b","#59a14f"],
-    4: ["#4e79a7","#f28e2b","#59a14f","#e15759"]
-  }
-  const pal    = palettes[Math.min(facs[0].levels, 4)]
-  const cellPx = Math.max(80, Math.min(150, 540 / maxL))
-
-  return Plot.plot({
-    width:       cellPx * maxL + 110,
-    height:      cellPx * maxL + 90,
-    marginLeft:  85, marginBottom: 52, marginTop: 36, marginRight: 10,
-    x: { domain: Array.from({length: maxL}, (_, i) => i + 1),
-         tickFormat: d => "Pos. " + d, label: "Order position \u2192" },
-    y: { domain: Array.from({length: maxL}, (_, i) => i + 1),
-         tickFormat: d => "Block " + d, label: "\u2190 Participant block" },
-    color: {
-      domain: Array.from({length: facs[0].levels}, (_, i) => "Level\u00a0" + (i+1)),
-      range:  pal, legend: true,
-      label:  (facs[0].name || "Factor A") + " (cell color)"
-    },
-    marks: [
-      Plot.cell(cells, {
-        x: "col", y: "row", fill: "fa_label",
-        stroke: "white", strokeWidth: 3, rx: 6
-      }),
-      Plot.text(cells, {
-        x: "col", y: "row",
-        text: d => (facs[0].name || "A").substring(0, 4) + "\u202f" + d["lv0"],
-        fill: "white", fontWeight: "bold", fontSize: 13,
-        dy: facs.length > 1 ? -9 : 0
-      }),
-      ...(facs.length > 1 ? [Plot.text(cells, {
-        x: "col", y: "row",
-        text: "other_labels",
-        fill: "white", fontSize: 9.5, opacity: 0.92, dy: 9
-      })] : [])
-    ]
-  })
-}
-```
-
-```{ojs}
-//| echo: false
-//| code-fold: false
-
-{
-  const {facs, cells, ls_cells, full_factorial, total_n, n_per_cell, maxL} = ls_state
-  const pct   = Math.round(ls_cells / full_factorial * 100)
-  const saved = full_factorial - ls_cells
-
-  const balance = facs.map((fac, k) => {
-    const expected = maxL / fac.levels
-    let ok = true
-    for (let r = 1; r <= maxL; r++) {
-      for (let lv = 1; lv <= fac.levels; lv++) {
-        const n = cells.filter(c => c.row === r && c["lv" + k] === lv).length
-        if (Math.abs(n - expected) > 0.49) ok = false
-      }
-    }
-    return {name: fac.name, levels: fac.levels, expected: expected.toFixed(1), balanced: ok}
-  })
-
-  return html`
-  <div style="display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 10px">
-    <div style="flex:1;min-width:110px;background:#e8f4f8;border-radius:10px;
-                padding:13px 16px;text-align:center;border-left:4px solid #457b9d">
-      <div style="font-size:2em;font-weight:700;color:#457b9d;line-height:1">${ls_cells}</div>
-      <div style="font-size:0.78em;color:#555;margin-top:4px">Latin Square<br>conditions</div>
-    </div>
-    <div style="flex:1;min-width:110px;background:#fff8e1;border-radius:10px;
-                padding:13px 16px;text-align:center;border-left:4px solid #f9a825">
-      <div style="font-size:2em;font-weight:700;color:#f9a825;line-height:1">${full_factorial}</div>
-      <div style="font-size:0.78em;color:#555;margin-top:4px">Full factorial<br>conditions</div>
-    </div>
-    <div style="flex:1;min-width:110px;background:#e8f5e9;border-radius:10px;
-                padding:13px 16px;text-align:center;border-left:4px solid #388e3c">
-      <div style="font-size:2em;font-weight:700;color:#388e3c;line-height:1">${pct}%</div>
-      <div style="font-size:0.78em;color:#555;margin-top:4px">Design efficiency<br>(vs. full factorial)</div>
-    </div>
-    <div style="flex:1;min-width:110px;background:#fce4ec;border-radius:10px;
-                padding:13px 16px;text-align:center;border-left:4px solid #c62828">
-      <div style="font-size:2em;font-weight:700;color:#c62828;line-height:1">${total_n}</div>
-      <div style="font-size:0.78em;color:#555;margin-top:4px">Total participants<br>(${n_per_cell}/cell)</div>
-    </div>
-  </div>
-  ${saved > 0
-    ? html`<p style="color:#388e3c;font-size:0.88em;margin:6px 0 10px">
-        <strong>&#10003; Savings:</strong> Testing all ${facs.length} factors with a Latin Square
-        uses <strong>${ls_cells} conditions</strong> instead of ${full_factorial} &mdash;
-        saving ${saved} conditions (${Math.round(saved/full_factorial*100)}% fewer cells)
-        without losing any main-effect estimation power.
-      </p>`
-    : html`<p style="color:#666;font-size:0.88em;margin:6px 0 10px">
-        All factors have the same number of levels, so the Latin Square equals
-        the full factorial here. Try mixing levels (e.g., 2 and 3) to see the efficiency gain.
-      </p>`
-  }
-  <details style="margin-top:6px">
-    <summary style="cursor:pointer;color:#457b9d;font-weight:600;font-size:0.88em">
-      &#9654; Balance check &mdash; how many times does each factor level appear per row?
-    </summary>
-    <table style="border-collapse:collapse;font-size:0.83em;margin-top:8px;width:100%">
-      <thead>
-        <tr style="background:#f0f4f8">
-          <th style="padding:5px 10px;text-align:left;border:1px solid #ddd">Factor</th>
-          <th style="padding:5px 10px;text-align:center;border:1px solid #ddd">Levels</th>
-          <th style="padding:5px 10px;text-align:center;border:1px solid #ddd">Appearances per row</th>
-          <th style="padding:5px 10px;text-align:center;border:1px solid #ddd">Balanced?</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${balance.map(b => html`<tr>
-          <td style="padding:5px 10px;border:1px solid #ddd"><strong>${b.name}</strong></td>
-          <td style="padding:5px 10px;text-align:center;border:1px solid #ddd">${b.levels}</td>
-          <td style="padding:5px 10px;text-align:center;border:1px solid #ddd">${b.expected}</td>
-          <td style="padding:5px 10px;text-align:center;border:1px solid #ddd">
-            ${b.balanced
-              ? html`<span style="color:#388e3c;font-weight:bold">&#10003; Perfect</span>`
-              : html`<span style="color:#f9a825;font-weight:bold">&#8776; Approximate</span>`}
-          </td>
-        </tr>`)}
-      </tbody>
-    </table>
-  </details>`
-}
-```
-
-::: {.callout-warning}
-## Latin Squares cannot estimate interactions
-A Latin Square tests each factor's **main effect** using the full sample, but it **cannot** detect whether factors interact (e.g., whether the eco-badge effect depends on price level). If an interaction is theoretically important, use a full factorial design for those two factors and apply the Latin Square only to the remaining ones.
-:::
-
-### Analysis code for Latin Square designs
-
-```{r latin-analysis-code, eval=FALSE}
-#| code-summary: "▶ Analysis template: fit Latin Square model"
-
-# Replace Y, Factor_A, Factor_B, Factor_C with your actual variable names.
-# Row and Column are nuisance blocking variables — always include them.
-
-# Two-factor model
-fit2 <- lm(Y ~ Factor_A + Factor_B + Row + Column, data = your_df)
-emmeans(fit2, pairwise ~ Factor_A, adjust = "holm")$contrasts
-emmeans(fit2, pairwise ~ Factor_B, adjust = "holm")$contrasts
-
-# Three-factor model
-fit3 <- lm(Y ~ Factor_A + Factor_B + Factor_C + Row + Column, data = your_df)
-emmeans(fit3, pairwise ~ Factor_A, adjust = "holm")$contrasts
-emmeans(fit3, pairwise ~ Factor_B, adjust = "holm")$contrasts
-emmeans(fit3, pairwise ~ Factor_C, adjust = "holm")$contrasts
-```
+Selection effects appear in four structural forms. We cover each in turn.
 
 ---
 
-## Metastudies: Pooling Power Across Multiple Factors
+# 1. Non-Representativeness {#sec-non-rep}
 
-The Latin Square is efficient because it uses design structure to study multiple factors simultaneously. A related idea scales this up to the level of a research program: the **metastudy** (DeKay, Rubinchik, Li, & De Boeck, 2022, *Perspectives on Psychological Science*).
+Non-representativeness means the observations that enter your study are systematically unlike the population you intend to generalize to. The groups may still be exchangeable with each other — the randomization may have worked — but the entire study is anchored to the wrong population.
 
-A metastudy is a single, pre-registered study that simultaneously tests many experimental factors — what DeKay et al. call *facets* — by crossing them in a balanced factorial design. Each participant sees one randomly sampled combination of facet levels (a *microstudy*); the researcher estimates each facet's main effect by contrasting all participants who received the high level of that facet against all who received the low level, averaged across all other facets.
+## Secondary Data: Polling the 2016 US Presidential Election
 
-**Why power INCREASES as more scenarios are crossed:**
+The 2016 US presidential election produced one of the most widely analyzed forecasting failures in modern polling history. Many pre-election polls — particularly online opt-in panels — showed Hillary Clinton with a consistent and comfortable lead in key swing states. The final result was a Trump victory.
 
-In a metastudy, each participant sees **one** randomly sampled combination of scenario levels — one *microstudy*. You have K microstudies total, each with n₁ = N/K participants. The researcher estimates the average main effect across all K microstudies using a meta-analytic average.
+The core problem was not that polls are inherently flawed — carefully conducted probability samples were closer to the final result. The problem was **sample composition**. Online opt-in panels draw participants who choose to participate. That group over-represented:
 
-DeKay et al. (2022, Eq. 2) derive the standard error of that meta-analytic estimate:
+- College-educated voters (more likely to see and respond to online political surveys)
+- Urban voters
+- Politically engaged individuals
 
-$$\text{SE} = \sqrt{\frac{\tau^2}{K} + \frac{\sigma^2}{N}}$$
+All three of these characteristics predicted support for Clinton in 2016. The sample was not representative of likely voters in the midwest and rust belt states that determined the electoral college outcome. Pollsters could build a perfectly valid internal random sample from their panel — comparing Clinton- and Trump-leaning respondents with exact balance — while their whole panel remained systematically unrepresentative of the electorate.
 
-where $\tau^2$ is the variance of the true effect *across scenarios* (effect heterogeneity — some contexts produce a stronger effect than others), $\sigma^2$ is the within-person response variance, and $N$ is the total sample. Two terms, and they behave very differently as $K$ grows:
+```{r polling-bias, fig.height=5, fig.width=10}
+#| code-summary: "▶ Simulate: biased opt-in sample vs. random sample for election polling"
 
-- **$\sigma^2/N$ is fixed.** It is set entirely by your total budget. Adding more microstudies does not change it.
-- **$\tau^2/K$ shrinks** as K grows. Each new microstudy samples another region of the scenario space, averaging out more of the between-scenario heterogeneity.
+set.seed(2025)
+N_pop <- 10000
 
-This means that **for any fixed total N, power increases as you add more microstudies** — even though each individual microstudy gets fewer participants. The gain comes from sampling the method space more densely, not from adding people.
+# True population: 51% Trump, 49% Clinton
+# College-educated: 35% of population; 65% Clinton-leaning among college-educated
+# Non-college: 65% of population; 40% Clinton-leaning
 
-Contrast this with running K separate, independent A/B tests using the same total budget. Each separate test gets only N/K participants, so its standard error grows as K increases. The metastudy and the separate-tests approach start from the same place at K = 1 and then diverge sharply in opposite directions.
+pop <- tibble(
+  college    = rbinom(N_pop, 1, 0.35),
+  clinton    = ifelse(college == 1,
+                      rbinom(N_pop, 1, 0.65),
+                      rbinom(N_pop, 1, 0.40))
+)
+true_clinton <- mean(pop$clinton)
 
-```{r metastudy-power, fig.height=5.5, fig.width=12}
-#| code-summary: "▶ Plot: metastudy power rises with K; separate A/B tests collapse"
+# Random sample: 800 participants drawn at random
+rand_idx     <- sample(N_pop, 800)
+rand_clinton <- mean(pop$clinton[rand_idx])
 
-# ── Parameters ────────────────────────────────────────────────────────────────
-# d   = average true effect size (Cohen's d) across all scenarios
-# tau = SD of true effects across scenarios (effect heterogeneity)
-# N   = fixed total participant budget
-N_total <- 400
-d       <- 0.28    # near 80% power at K=1 with N=400
-tau     <- 0.10    # moderate between-scenario heterogeneity
-sigma   <- 1.0
-alpha   <- 0.05
-K_vec   <- c(1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30)
+# Biased opt-in sample: college-educated 3× more likely to respond
+response_prob <- ifelse(pop$college == 1, 0.15, 0.05)
+responded     <- rbinom(N_pop, 1, response_prob) == 1
+# Subsample to ~800 from those who responded
+opt_in_idx    <- sample(which(responded), min(800, sum(responded)))
+opt_clinton   <- mean(pop$clinton[opt_in_idx])
 
-# ── Analytical power (no simulation needed — formula is exact) ───────────────
-#
-# Correct SE derivation for metastudy (DeKay et al. 2022):
-#   K microstudies, each n = N/K participants, n/2 per condition.
-#   SE per microstudy = sigma * sqrt(4 / n) = sigma * sqrt(4K / N)
-#   Meta-analytic average of K independent estimates:
-#     Var(d̄) = (1/K²) * K * [sigma² * 4K/N  +  tau²]
-#             = 4*sigma²/N  +  tau²/K
-#   SE_meta = sqrt(4*sigma²/N + tau²/K)
-#
-#   The 4*sigma²/N term is FIXED (all N participants contribute to the eco contrast).
-#   Only the tau²/K term shrinks as K grows → power rises monotonically for K ≥ 2.
-#
-#   At K=1 a metastudy IS a single A/B test — the tau²/K scenario-sampling term
-#   does not apply (only one scenario, no averaging). Use A/B SE directly.
-#
-# Separate A/B tests: K independent studies, each with N/K participants
-#   SE_AB = sigma * sqrt(4 / floor(N/K))   [two arms of N/2K each]
-#   As K grows: floor(N/K) shrinks → SE_AB grows → power falls.
-#   The A/B test NEVER benefits from averaging across scenarios.
+# College composition of each sample
+college_pop     <- mean(pop$college)
+college_rand    <- mean(pop$college[rand_idx])
+college_opt     <- mean(pop$college[opt_in_idx])
 
-power_fn <- function(d, se, alpha = 0.05) {
-  z <- qnorm(1 - alpha / 2)
-  pnorm(d / se - z) + pnorm(-d / se - z)  # two-sided normal approximation
-}
-
-meta_se_fn <- function(K) {
-  # K=1: same as one A/B test (no scenario averaging, tau²/K irrelevant)
-  # K≥2: correct DeKay formula — 4*sigma²/N is the fixed floor; tau²/K shrinks
-  ifelse(K == 1,
-         sigma * sqrt(4 / N_total),
-         sqrt(tau^2 / K + 4 * sigma^2 / N_total))
-}
-ab_se_fn   <- function(K) sigma * sqrt(4 / pmax(4, floor(N_total / K)))
-
-meta_label <- paste0("Metastudy: K microstudies, N = ", N_total, " total")
-ab_label   <- paste0("Separate A/B tests: N = ", N_total, " / K per test")
-
-power_df <- data.frame(
-  K      = rep(K_vec, 2),
-  power  = c(sapply(K_vec, function(K) power_fn(d, meta_se_fn(K))),
-             sapply(K_vec, function(K) power_fn(d, ab_se_fn(K)))),
-  design = rep(c(meta_label, ab_label), each = length(K_vec))
+results_df <- tibble(
+  Sample      = factor(c("True population", "Random sample\n(n = 800)",
+                          "Opt-in online panel\n(n ≈ 800)"),
+                        levels = c("True population", "Random sample\n(n = 800)",
+                                   "Opt-in online panel\n(n ≈ 800)")),
+  Clinton_pct = c(true_clinton, rand_clinton, opt_clinton) * 100,
+  College_pct = c(college_pop, college_rand, college_opt) * 100,
+  Source      = c("truth", "random", "biased")
 )
 
-# ── Ribbon data: vertical gap between metastudy and A/B power ─────────────────
-ribbon_df <- data.frame(K = K_vec) |>
+p_vote <- ggplot(results_df, aes(x = Sample, y = Clinton_pct, fill = Source)) +
+  geom_col(width = 0.6, alpha = 0.88) +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  geom_text(aes(label = sprintf("%.1f%%", Clinton_pct)),
+            vjust = -0.5, size = 4.5, fontface = "bold") +
+  annotate("text", x = 3.45, y = 51.5, label = "50% threshold",
+           color = "gray40", size = 3.2, hjust = 1) +
+  scale_fill_manual(values = c("truth" = "#457b9d", "random" = "#52b788",
+                                "biased" = "#e63946"), guide = "none") +
+  scale_y_continuous(limits = c(0, 75), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = "Estimated Clinton support (%)",
+       title = "Non-Representative Sampling Overstates Clinton Support",
+       subtitle = paste0("True population: ", sprintf("%.1f", true_clinton * 100),
+                         "% Clinton  \u00b7  ",
+                         "Opt-in panel over-samples college-educated voters")) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+p_college <- ggplot(results_df, aes(x = Sample, y = College_pct, fill = Source)) +
+  geom_col(width = 0.6, alpha = 0.88) +
+  geom_text(aes(label = sprintf("%.1f%%\ncollege-educated", College_pct)),
+            vjust = -0.4, size = 3.5, lineheight = 0.85) +
+  scale_fill_manual(values = c("truth" = "#457b9d", "random" = "#52b788",
+                                "biased" = "#e63946"), guide = "none") +
+  scale_y_continuous(limits = c(0, 0.85), labels = percent_format(accuracy = 1)) +
+  labs(x = NULL, y = "% college-educated in sample",
+       title = "Why: Opt-In Panel Over-Samples College-Educated Respondents",
+       subtitle = "College-educated voters respond to online surveys at ~3\u00d7 the rate of non-college voters") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+p_vote + p_college
+```
+
+The left panel shows the vote-share estimate from each source. The random sample closely tracks the true population; the opt-in panel substantially overstates Clinton support. The right panel explains why: college-educated respondents are dramatically overrepresented in the opt-in panel. This is not a failure of the pollster's internal analysis — it is a failure of the sampling mechanism that determined who entered the study.
+
+**The key point for experimenters:** selecting participants from an online panel and then randomly assigning them to conditions achieves exchangeability *within the panel*. It does not solve the problem that the panel itself is non-representative. Your internal validity can be high while your external validity is zero.
+
+## Experimental Context: Crowdsourcing Platforms (MTurk, Prolific)
+
+MTurk and Prolific are the dominant platforms for online behavioral research. Participants on these platforms self-select in based on three features:
+
+- **Reward rate** — higher-paying studies attract different participant profiles. Higher reward rates draw more experienced workers and participants who rely more heavily on platform income; lower rates draw those with fewer outside options or those with high intrinsic interest in research.
+- **Study duration** — stated completion times filter for participants' availability and patience. Studies labeled as short attract more participants who are multitasking.
+- **Study topic** — participants read titles and descriptions and choose whether to participate. A study on "eco-friendly consumption" will attract participants who are already interested in environmental issues.
+
+Each of these features creates a different non-representative subsample of the platform population — and the platform population is itself non-representative of any general population. MTurk workers are younger, more educated, more liberal, and more tech-savvy than the US general public. Prolific users are similarly skewed, though in somewhat different ways and with better demographic controls available.
+
+::: {.callout-note}
+## What this means for the eco-coffee experiment
+
+In our running example, a study titled "Opinions about eco-certified coffee" on MTurk is not drawing from a population of general coffee consumers. It is drawing from a subset of MTurk workers who:
+
+- Have time and interest to complete a study on that topic right now
+- Find the compensation acceptable
+- Were browsing available tasks at that moment
+
+The randomization within that sample may be perfectly executed — eco-label vs. control groups may be fully exchangeable in terms of every measured covariate. But the effect you estimate is the eco-label effect for *that particular self-selected group*, not for coffee consumers in general. Whether the effect generalizes depends on whether the self-selection process is correlated with the moderators of the eco-label effect (e.g., environmental values, income, brand awareness).
+:::
+
+## Stimulus Non-Representativeness: Bahník & Vranka (2017)
+
+Non-representativeness does not only afflict participant samples — it also afflicts **stimulus samples**. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells & Windschitl (1999) stimulus sampling reading in the Module 2 introduction.
+
+**The original finding.** Song & Schwarz (2009) reported that food additives and amusement-park rides with difficult-to-pronounce names were judged as more hazardous than easier-to-pronounce versions. The explanation was *processing fluency*: names that are hard to process feel unfamiliar and foreign, activating a heuristic that foreign = risky. The result became a widely cited demonstration of how subtle perceptual cues influence risk judgment.
+
+**The problem.** Song & Schwarz did not randomly sample their stimuli from the population of food additives and roller coasters. They selected specific stimuli and then assigned pronounceability labels to them. Bahník & Vranka (2017) noticed that the stimuli assigned to the "hard to pronounce" condition were not merely harder to pronounce — they had other features that genuinely made them seem more exotic or obscure. The conditions were not exchangeable at the stimulus level.
+
+**The replication.** When Bahník & Vranka drew stimuli randomly from a broader population of additives and rides and assigned them to pronunciation conditions, the fluency-risk effect did not replicate. The observed correlation between pronounceability and perceived risk in the original study reflected the non-random selection of specific stimuli, not a generalizable cognitive effect.
+
+::: {.callout-important}
+## The conceptual parallel to Part 3
+
+Recall from Part 3 that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:
+
+> The "hard to pronounce" stimuli and "easy to pronounce" stimuli may differ on dimensions other than pronounceability — and those other dimensions may independently predict the outcome.
+
+This is why **treating stimuli as fixed effects** — using a single advertisement, a single brand name, a single vignette — is a validity threat. Your conditions are not exchangeable if your stimuli were selected rather than randomly sampled. The fluency-risk finding is a high-profile example of what can go wrong.
+:::
+
+---
+
+# 2. Self-Selection {#sec-self-select}
+
+Self-selection occurs when individuals determine their own membership in the observed group rather than being assigned by the researcher. The resulting group is not exchangeable with those who selected out — not because randomization failed, but because there was never any randomization to speak of.
+
+## Secondary Data: The J-Shaped Distribution of Customer Reviews
+
+If you have shopped on Amazon, you have noticed that product reviews tend to cluster at the extremes. Few products have a normally distributed spread of ratings. Instead, the distribution is J-shaped (or reverse-J-shaped): lots of 1-star reviews, lots of 5-star reviews, and relatively few 2, 3, and 4-star reviews.
+
+The true distribution of product experiences is approximately normal — most purchases are satisfactory, some are excellent, some are disappointing. The observed distribution is J-shaped because **people self-select into submitting a review**. The selection mechanism is asymmetric:
+
+- Customers who are very satisfied (5-star) have high motivation to share their enthusiasm
+- Customers who are very dissatisfied (1-star) have high motivation to warn others or vent frustration
+- Customers with middling experiences (2, 3, 4-star) have little motivation to write anything
+
+```{r j_curve, fig.height=5.5, fig.width=11}
+#| code-summary: "▶ Simulate: J-shaped review distribution from normal true experiences"
+
+set.seed(2025)
+N_cust <- 50000
+
+# True experience: roughly normal, clipped to 1–5
+true_exp <- pmax(1, pmin(5, round(rnorm(N_cust, mean = 3.5, sd = 1.1))))
+
+# Review submission probability by star rating
+# Mirrors empirically observed patterns: high at extremes, low in middle
+submit_prob <- c("1" = 0.72, "2" = 0.12, "3" = 0.08, "4" = 0.15, "5" = 0.70)
+prob_vec    <- submit_prob[as.character(true_exp)]
+submitted   <- rbinom(N_cust, 1, prob_vec) == 1
+obs_exp     <- true_exp[submitted]
+
+# Build plotting data
+true_df <- tibble(stars = true_exp) |>
+  count(stars) |>
+  mutate(pct = n / sum(n), source = "True experience distribution\n(all customers)")
+
+obs_df <- tibble(stars = obs_exp) |>
+  count(stars) |>
+  mutate(pct = n / sum(n), source = "Observed reviews\n(self-selected submitters)")
+
+plot_df <- bind_rows(true_df, obs_df) |>
+  mutate(source = factor(source,
+    levels = c("True experience distribution\n(all customers)",
+               "Observed reviews\n(self-selected submitters)")))
+
+ggplot(plot_df, aes(x = factor(stars), y = pct, fill = source)) +
+  geom_col(position = position_dodge(0.75), width = 0.68, alpha = 0.88) +
+  geom_text(aes(label = sprintf("%.0f%%", pct * 100)),
+            position = position_dodge(0.75), vjust = -0.4, size = 3.5) +
+  scale_fill_manual(values = c(
+    "True experience distribution\n(all customers)"  = "#4a90d9",
+    "Observed reviews\n(self-selected submitters)"   = "#e63946"
+  ), name = NULL) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.55)) +
+  labs(x = "Star rating", y = "Share of observations (%)",
+       title = "The J-Shaped Review Distribution: Self-Selection, Not Reality",
+       subtitle = paste0(
+         "True experiences are roughly normal (mean \u2248 3.5)  \u00b7  ",
+         "Observed reviews are J-shaped because extreme raters disproportionately submit\n",
+         "Submission probability: 1\u2605 = 72%  \u00b7  2\u2605 = 12%  \u00b7  ",
+         "3\u2605 = 8%  \u00b7  4\u2605 = 15%  \u00b7  5\u2605 = 70%")) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        legend.position = "top")
+```
+
+The red bars (observed reviews) are dramatically different from the blue bars (true experience distribution). A researcher who draws conclusions from the review data alone — "most buyers either love or hate this product" — is drawing conclusions from a self-selected sample, not from customer experience. Average star ratings systematically overstate dissatisfaction (1-star submitters are overrepresented) and overstate exceptional satisfaction (5-star submitters are overrepresented), while the large middle group of satisfied-but-not-enthusiastic customers is nearly invisible.
+
+## Secondary Data: Non-Response Bias in Email Marketing
+
+Email marketing analytics provide another common source of self-selection bias. Open rates, click rates, and conversion rates are calculated on the denominator of *people who chose to open the email*. That group is not a random draw from the full mailing list.
+
+Consider a marketing analyst studying whether an eco-label message in a promotional email increases conversion to purchase. She sends the email to 100,000 customers and observes a 22% open rate — 22,000 people opened the email. Of those, 8% converted. She concludes that the eco-label message has a strong effect among "engaged customers."
+
+The problem: the 22,000 people who opened the email are already a self-selected group. They opened because they had prior interest in the sender, the product category, or the subject line. Among the 78,000 who did not open, the eco-label message had no opportunity to work — but their non-response is itself informative: they are less engaged with the brand and likely less responsive to any message. The conversion rate among openers reflects the intersection of (a) the eco-label effect and (b) the characteristics of people who open emails in the first place. These two things cannot be disentangled without data on the full sample.
+
+## Experimental Context: Goswami & Urminsky (2016) — Conditional Participation
+
+Perhaps the most important and most easily overlooked form of self-selection in experiments occurs when the analysis conditions on a decision that participants make during the study. Goswami & Urminsky (2016) provide a clear example using charitable donation experiments.
+
+**The study design.** Participants were randomly assigned to see a charitable giving solicitation with either a low default donation amount ($1) or a high default donation amount ($10). There were two outcomes of interest: (1) whether the participant chose to donate at all; and (2) among those who donated, how much they donated.
+
+**Stage 1 — the donate/don't-donate decision.** At this stage, the two experimental groups are exchangeable. Random assignment worked. We can straightforwardly estimate the causal effect of the default on the probability of donating.
+
+**Stage 2 — how much to donate.** This analysis is restricted to participants who chose to donate. And here is where the exchangeability breaks down. The decision to donate is influenced by the default amount. A high default ($10) changes who decides to donate:
+
+- Participants who would have donated $5 or more regardless of the default are unaffected in their decision to donate
+- Participants who were on the margin — willing to give something small if prompted, but not willing to give $10 — may decline to donate when facing the high default
+
+The result is that the composition of donors is different across conditions. The high-default condition retains only the more committed donors (those willing to give at least $10); the low-default condition retains the committed donors *plus* the borderline donors (who give a small amount). These two subsets are not exchangeable.
+
+```{r conditional-participation, fig.height=5.5, fig.width=12}
+#| code-summary: "▶ Simulate: two-stage donation experiment — exchangeable at stage 1, not at stage 2"
+
+set.seed(2025)
+N_don <- 2000
+
+sim_don <- tibble(
+  # True giving propensity: higher = more committed donor
+  propensity    = rnorm(N_don, 0, 1),
+  # Random assignment
+  high_default  = rbinom(N_don, 1, 0.5),
+  # Stage 1: probability of donating
+  # High default raises threshold: only donate if propensity > 0.4 (vs. > -0.3 for low default)
+  p_donate      = plogis(propensity * 1.2 - 0.4 * high_default),
+  donated       = rbinom(N_don, 1, p_donate),
+  # Stage 2: amount, conditional on donating
+  # True effect of high default on amount = $1.50 (anchoring)
+  # But high donors have higher baseline propensity in high-default condition
+  amount_latent = 5 + 1.5 * high_default + 2.0 * propensity + rnorm(N_don, 0, 1.5),
+  amount        = ifelse(donated == 1, pmax(0.5, amount_latent), NA_real_)
+)
+
+# ── Balance: full sample (before conditioning) ───────────────────────────────
+balance_full <- sim_don |>
+  group_by(high_default) |>
+  summarise(
+    n           = n(),
+    mean_prop   = round(mean(propensity), 3),
+    pct_donate  = round(mean(donated) * 100, 1),
+    .groups     = "drop"
+  ) |>
+  mutate(Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)")) |>
+  dplyr::select(Condition, n, `Mean propensity` = mean_prop,
+                `% who donate` = pct_donate)
+
+# ── Balance: donors only (after conditioning) ────────────────────────────────
+donors <- sim_don |> filter(donated == 1)
+
+balance_donors <- donors |>
+  group_by(high_default) |>
+  summarise(
+    n           = n(),
+    mean_prop   = round(mean(propensity), 3),
+    mean_amount = round(mean(amount, na.rm = TRUE), 2),
+    .groups     = "drop"
+  ) |>
+  mutate(Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)")) |>
+  dplyr::select(Condition, n, `Mean propensity (among donors)` = mean_prop,
+                `Mean donation amount ($)` = mean_amount)
+
+# ── Plot: propensity distribution by condition, full vs. donors ──────────────
+plot_data <- bind_rows(
+  sim_don |> mutate(subset = "Full sample\n(before conditioning)"),
+  donors  |> mutate(subset = "Donors only\n(after conditioning)")
+) |>
   mutate(
-    meta_power = sapply(K, function(k) power_fn(d, meta_se_fn(k))),
-    ab_power   = sapply(K, function(k) power_fn(d, ab_se_fn(k)))
+    Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)"),
+    subset    = factor(subset,
+                  levels = c("Full sample\n(before conditioning)",
+                             "Donors only\n(after conditioning)"))
   )
 
-color_vals <- c("#2d6a4f", "#e63946")
-names(color_vals) <- c(meta_label, ab_label)
-
-# Annotation: find K where metastudy-A/B gap is largest (for arrow placement)
-gap_max_K <- ribbon_df$K[which.max(ribbon_df$meta_power - ribbon_df$ab_power)]
-gap_max_y <- mean(c(ribbon_df$meta_power[which.max(ribbon_df$meta_power - ribbon_df$ab_power)],
-                    ribbon_df$ab_power[which.max(ribbon_df$meta_power - ribbon_df$ab_power)]))
-
-ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
-  annotate("text", x = 30.5, y = 0.83, label = "80% power",
-           color = "gray40", size = 3.2, hjust = 1) +
-  # shaded region = vertical distance between metastudy and A/B test curves
-  geom_ribbon(
-    data = ribbon_df,
-    aes(x = K, ymin = ab_power, ymax = meta_power),
-    inherit.aes = FALSE,
-    fill = "#2d6a4f", alpha = 0.12
-  ) +
-  geom_line(linewidth = 1.3) +
-  geom_point(size = 3.5) +
-  annotate("text", x = gap_max_K + 1.5, y = gap_max_y,
-           label = "Shaded area =\nmetastudy advantage\nover A/B tests",
-           color = "#2d6a4f", size = 2.9, hjust = 0, fontface = "italic") +
-  scale_color_manual(values = color_vals, name = NULL) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  scale_x_continuous(breaks = c(1, 5, 10, 15, 20, 25, 30)) +
-  labs(
-    x        = "Number of microstudies / scenarios (K)",
-    y        = paste0("Power to detect average effect  (d = ", d, ")"),
-    title    = "Metastudy Maintains Power Across K; Separate A/B Tests Collapse",
-    subtitle = paste0(
-      "Both designs use N = ", N_total, " total  \u00b7  d = ", d,
-      "  \u00b7  \u03c4 = ", tau, " (SD of true effect across scenarios)\n",
-      "Metastudy SE = \u221a(\u03c4\u00b2/K + 4\u03c3\u00b2/N): dips slightly at low K then recovers  \u00b7  ",
-      "A/B SE = \u221a(4\u03c3\u00b2/(N/K)): shrinking budget per test collapses power"
-    )
-  ) +
+ggplot(plot_data, aes(x = propensity, fill = Condition, color = Condition)) +
+  geom_density(alpha = 0.35, linewidth = 0.9) +
+  facet_wrap(~subset, nrow = 1) +
+  scale_fill_manual(values  = c("High default ($10)" = "#e63946",
+                                 "Low default ($1)"   = "#4a90d9"), name = NULL) +
+  scale_color_manual(values = c("High default ($10)" = "#e63946",
+                                 "Low default ($1)"   = "#4a90d9"), name = NULL) +
+  labs(x = "Donor propensity (latent)", y = "Density",
+       title = "Conditioning on Donation Destroys Exchangeability",
+       subtitle = paste0(
+         "Left: full sample — conditions are exchangeable (overlapping distributions)\n",
+         "Right: donors only — high-default condition retains only high-propensity donors")) +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), legend.position = "top",
-        legend.text = element_text(size = 9),
-        plot.margin = margin(5, 30, 5, 5))
+        strip.text = element_text(face = "bold"))
 ```
 
-**Reading the plot:** at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test — and they share the same power (~80% for d = 0.28 with N = 400). As K grows, the designs diverge. In the metastudy, K = 2 introduces a small dip in power (the τ²/K term is still non-trivial at K = 2), but power quickly recovers and rises as more scenarios average out the between-scenario heterogeneity — metastudy power asymptotes back toward its K = 1 level and beyond. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls monotonically. By K = 3 the metastudy already surpasses the A/B test; by K = 15 the metastudy is near its ceiling while the separate A/B tests have collapsed below 20% power. The shaded region shows the metastudy's cumulative advantage — the vertical gap between the two curves — which grows steadily from K = 2 onward.
+The left panel confirms that randomization worked: the full-sample distributions of donor propensity are nearly identical across conditions — the groups are exchangeable before anyone makes a donation decision. The right panel shows what happens after conditioning: the high-default condition now contains a disproportionate share of high-propensity donors. Their average donation appears lower than expected from the anchoring hypothesis alone, because the low-default condition's average is inflated by a larger share of committed high-propensity donors who give generously. Any naive comparison of mean donation amounts across conditions conflates the anchoring effect with this composition shift.
 
-The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
+```{r don-balance-tables}
+#| code-summary: "▶ Tables: balance before and after conditioning"
+kable(balance_full,
+      caption = "Balance check: full sample (before conditioning on donation)")
+kable(balance_donors,
+      caption = "Balance check: donors only (after conditioning) — propensity is no longer balanced")
+```
 
-**The connection to Section 3:** a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
+::: {.callout-important}
+## Why forcing a $0 response does not solve this
+
+A researcher might think the solution is to include non-donors in the amount analysis — just force every participant to report an amount, and let them respond with $0. The problem is that **$0 from a non-donor is categorically different from $0.01 from a reluctant donor**. These two data points reflect different decisions from different decision processes. A participant who decided not to donate and reported $0 was never in the donation decision-making process; a participant who decided to donate a small amount was. Pooling them into a single continuous outcome conflates two qualitatively different behavioral states.
+
+The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the *probability* of donating (where groups remain exchangeable); (2) separately report and analyze the effect on *conditional donation amount* with the explicit caveat that this second analysis is compromised by the conditioning problem. Module 3, Part 2 will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.
+:::
 
 ---
 
-## Within-Participant Designs: Same Observations, More Power
+# 3. Survivorship Bias and Attrition Bias {#sec-survival-attrition}
 
-### The Intuition
+Two related but structurally distinct problems arise when observations leave the sample before or during the study.
 
-In all the designs above, we compared *different people* in different conditions. A within-participant (repeated-measures) design instead exposes *the same person* to multiple conditions, measuring the outcome each time.
+::: {.callout-important}
+## The critical distinction
 
-**Why does this increase power?** Consider the source of variance in your data:
+**Survivorship bias:** the observations that did not survive — those that were filtered out before entering the observed sample — are *permanently absent*. You never had them. Their absence is invisible unless you reason carefully about what would have needed to be there.
 
-$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
-
-In a between-participant design, your treatment effect estimate must be separated from *both* between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.
-
-In a within-participant design, between-person variance **cancels out** because each person serves as their own control. You are estimating the effect within each person and averaging those within-person effects. The only remaining noise is within-person variance and measurement error — which are much smaller.
-
-```{r within-between-power, fig.height=5.5, fig.width=10}
-#| code-summary: "▶ Simulate: between vs. within participant power comparison"
-
-set.seed(2026)
-
-# Parameters
-true_effect <- 0.40   # true within-person effect (SD units)
-icc_range   <- seq(0.10, 0.90, by = 0.10)  # ICC = between / total variance
-
-power_comparison <- expand.grid(
-  icc    = icc_range,
-  design = c("Between-participant", "Within-participant")
-) |>
-  mutate(
-    # For fixed total N = 100, n_per_arm = 50 between, N = 50 for within
-    N        = 100,
-    n_arm    = 50,
-    # Between: variance includes between-person component (inflates denominator)
-    sd_eff_b = sqrt(1),             # full SD
-    # Within: SD of the DIFFERENCE scores = sqrt(2*(1-icc)) * total_sd
-    sd_eff_w = sqrt(2 * (1 - icc)),
-    power_val = mapply(function(des, sd_e) {
-      tryCatch(
-        power.t.test(n = 50, delta = true_effect,
-                     sd = sd_e, sig.level = 0.05,
-                     type = ifelse(des == "Between-participant",
-                                   "two.sample", "paired"))$power,
-        error = function(e) NA_real_
-      )
-    }, design, ifelse(design == "Between-participant", sd_eff_b, sd_eff_w))
-  )
-
-ggplot(power_comparison, aes(x = icc, y = power_val,
-                              color = design, group = design)) +
-  geom_line(linewidth = 1.4) +
-  geom_point(size = 3.2) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
-  annotate("text", x = 0.91, y = 0.82, label = "80% power",
-           color = "gray40", size = 3.2) +
-  scale_color_manual(values = c("Between-participant" = "#e63946",
-                                 "Within-participant"  = "#2d6a4f"),
-                     name = NULL) +
-  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f\n(%.0f%% between-person)", x, x*100)) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  labs(x = "Intraclass correlation (ICC = proportion of variance between people)",
-       y = "Statistical power",
-       title = "Within-Participant Designs Have Greater Power — Especially When ICC Is High",
-       subtitle = paste0("Fixed N = 100 participants  \u00b7  True effect = d = ", true_effect,
-                         "\nWithin-participant design removes between-person variance from the error term")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top")
-```
-
-::: {.callout-note}
-## Why ICC determines how much you gain
-
-The **intraclass correlation (ICC)** measures what fraction of total variance in Y is due to stable between-person differences. When ICC is high:
-
-- People differ a lot from each other (but are consistent with themselves across conditions)
-- Between-participant designs "waste" most of their variance budget on individual differences
-- Within-participant designs remove all of this, leaving only the small within-person residual
-
-When ICC is low:
-- People are not very consistent — their responses vary randomly from occasion to occasion
-- Within-participant designs offer less of an advantage because the between-person variance that cancels out was small to begin with
-
-**Practical benchmark:** for most psychological constructs (attitudes, preferences, perceptions), ICC values between 0.40 and 0.70 are common. In this range, within-participant designs typically require **half to one-third** the sample size of between-participant designs for equivalent power.
+**Attrition bias:** observations *enter* the sample at the start, but leave non-randomly during data collection. They were in the dataset at time 1; they are gone by time 2. Because you have their baseline measurements, the problem is at least *detectable* — which survivorship is not.
 :::
 
-### The connection to Section 3: within-participant designs and the design space
+## Survivorship Bias: The WWII Bomber Aircraft
 
-Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
+During World War II, the Statistical Research Group at Columbia University was asked to advise the US military on where to add armor to bomber aircraft. The military's data showed the following damage pattern on returning planes: bullet holes were concentrated on the wings, fuselage, and tail. The initial proposal was to reinforce those areas.
 
-The tradeoff is well known: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), and **fatigue or practice effects**. These are most severe when:
+Abraham Wald pointed out the error. The data came only from planes that *returned*. The planes that were shot down and never returned — the non-survivors — were hit somewhere else. The absence of engine hits in the data on surviving planes was not evidence that engines were rarely hit. It was evidence that planes hit in the engines did not survive to be counted.
 
-- The treatment induces lasting attitude change (hard to reverse)
-- The conditions are highly transparent (easy to guess the hypothesis)
-- The outcome requires learning or practice (performance tasks)
+Reinforcing the wings and fuselage would have been reinforcing exactly the places that *could* absorb damage without bringing a plane down. The right conclusion was to reinforce the engines — precisely because they were not represented in the damage data.
 
-For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.
+**The general structure.** In any survivorship problem:
 
-# Design Solutions: CRA, Stratified, and Clustered Assignment {#sec-design-solutions}
+1. A filter operates on the population before you observe it
+2. The filter is correlated with the outcome or a key predictor
+3. The sample you observe is not representative of the population — it over-represents the kind of entities that survive the filter
 
-The Latin Square and metastudy designs are *pre-experimental* solutions that achieve orthogonality through structure. Sometimes you cannot redesign the study — the assignment mechanism is fixed. The three designs below represent progressively stronger responses to assignment constraints.
+This structure appears throughout business and social research:
 
-## Completely Random Assignment — The Baseline
+- **Successful startups:** you observe the strategies of companies that survived long enough to be studied. Failed companies used many of the same strategies and are absent from the analysis. "What do successful companies have in common?" is often answered with characteristics that are equally present in failed companies.
+- **Published studies:** the published literature over-represents studies that found significant effects. Studies with null results are harder to publish. The evidence base for an effect is built from a survivor-selected sample of studies.
+- **Long-tenured employees:** surveys of organizational engagement administered to current employees over-sample those who found the environment tolerable enough to stay. The most disengaged employees have already left.
 
-In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check "randomize" in Qualtrics.
+## Attrition Bias in Longitudinal Studies
 
-CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 3 showed, that chance is often disappointingly low when Y is complex.
+Attrition bias is the longitudinal analog of survivorship, with a critical difference: participants *started* in the study and then left. You have their baseline measurements. The loss is not invisible — it is detectable.
 
-## Stratified (Blocked) Random Assignment
+In a clinical trial or longitudinal panel, participants drop out for systematic reasons:
 
-**The idea:** divide participants into groups (strata or blocks) based on measured covariates that you expect to relate to Y, then randomize *within* each block.
+- **Differential health-related attrition:** participants who respond well to a treatment may drop out because they feel better and no longer see the need to continue. The remaining sample appears sicker than the treatment actually achieves — the apparent trajectory is too pessimistic.
+- **Severe deterioration:** participants who deteriorate severely may become too ill to continue. The remaining sample appears healthier — the apparent trajectory is too optimistic.
 
-**Concrete example:** In the eco-coffee study, you know from Module 1's analysis that "environmental values" is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs. low environmental values strata. Then assign 50% to eco-label and 50% to control *within each stratum*.
+Both patterns produce biased estimates of treatment trajectories and effect sizes. And the two patterns can partially cancel each other, making the net bias hard to sign without careful investigation of who dropped out and when.
 
-**Why it works:** By randomizing within strata, you guarantee that each condition contains equal proportions of high- and low-environmental-values participants. This eliminates one source of latent imbalance — the most important one — by design rather than by chance.
+**Why the survivorship/attrition distinction matters methodologically:**
 
-```{r stratified-random, fig.height=5, fig.width=10}
-#| code-summary: "▶ Simulate: CRA vs. stratified assignment for 500 experiments"
-
-set.seed(2026)
-N_str  <- 200
-D_str  <- 3    # three binary covariates to stratify on
-
-n_sims <- 500
-
-# Helper: absolute SMD for a covariate
-abs_smd <- function(x, trt) {
-  m1 <- mean(x[trt == 1]); m0 <- mean(x[trt == 0])
-  s  <- sqrt((var(x[trt == 1]) + var(x[trt == 0])) / 2)
-  if (s == 0) return(0)
-  abs(m1 - m0) / s
-}
-
-# Simulate one run under CRA and one under stratified
-one_run <- function() {
-  # Participant covariates (binary)
-  X1 <- rbinom(N_str, 1, 0.45)  # environmental values
-  X2 <- rbinom(N_str, 1, 0.50)  # income
-  X3 <- rbinom(N_str, 1, 0.40)  # health focus
-
-  # CRA
-  trt_cra  <- sample(rep(0:1, N_str / 2))
-
-  # Stratified: randomize within each of 2^3 = 8 strata
-  strata   <- paste(X1, X2, X3, sep = "-")
-  trt_strat <- integer(N_str)
-  for (s in unique(strata)) {
-    idx <- which(strata == s)
-    n_s <- length(idx)
-    trt_strat[idx] <- sample(c(rep(0, ceiling(n_s / 2)),
-                                rep(1, floor(n_s / 2)))[seq_len(n_s)])
-  }
-
-  data.frame(
-    method = c(rep("CRA", 3L), rep("Stratified", 3L)),
-    cov    = rep(c("Env. Values", "Income", "Health Focus"), 2L),
-    smd    = c(abs_smd(X1, trt_cra),  abs_smd(X2, trt_cra),  abs_smd(X3, trt_cra),
-               abs_smd(X1, trt_strat), abs_smd(X2, trt_strat), abs_smd(X3, trt_strat))
-  )
-}
-
-set.seed(42)
-strat_sims <- bind_rows(replicate(n_sims, one_run(), simplify = FALSE))
-
-strat_summary <- strat_sims |>
-  group_by(method, cov) |>
-  summarise(mean_smd = mean(smd), p90_smd = quantile(smd, 0.90), .groups = "drop") |>
-  mutate(method = factor(method, levels = c("CRA", "Stratified")))
-
-ggplot(strat_summary, aes(x = cov, y = mean_smd, fill = method,
-                           ymin = 0, ymax = p90_smd)) +
-  geom_col(position = position_dodge(0.7), width = 0.6, alpha = 0.85) +
-  geom_errorbar(aes(ymin = mean_smd, ymax = p90_smd),
-                position = position_dodge(0.7), width = 0.25, linewidth = 0.8) +
-  geom_hline(yintercept = 0.10, linetype = "dashed", color = "gray40", linewidth = 0.8) +
-  annotate("text", x = 3.45, y = 0.105, label = "|SMD| = 0.10\nthreshold",
-           size = 3.0, color = "gray40", hjust = 0, lineheight = 0.85) +
-  scale_fill_manual(values = c("CRA" = "#e63946", "Stratified" = "#52b788"), name = NULL) +
-  labs(x = "Covariate", y = "Mean |SMD| (bar) + 90th percentile (error bar)",
-       title = "Stratified vs. Completely Random Assignment: Balance on Stratified Covariates",
-       subtitle = paste0("N = ", N_str, "  \u00b7  500 simulated experiments  \u00b7  ",
-                         "Bars = mean |SMD|  \u00b7  Error bars = 90th percentile worst case")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top")
-```
-
-Stratification dramatically reduces both the mean and worst-case imbalance on the stratified covariates. The 90th-percentile bar for CRA often exceeds the 0.10 threshold; the stratified version almost never does.
-
-**The limitation** is the same as in Module 1's measurement section: you can only stratify on what you have *measured*. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.
-
-## Clustered Random Assignment
-
-**The idea:** sometimes participants come in natural groups (classrooms, teams, branches, households), and the intervention must be assigned at the group level. In this case, you assign entire clusters to conditions.
-
-**Concrete example:** You want to test whether providing eco-label information changes café purchasing behavior. You cannot assign individual customers within a café to different menu conditions simultaneously — contamination would occur. Instead, you assign *cafés* to conditions.
-
-**The tradeoff:** clustering increases statistical efficiency when you have to intervene at the group level, but it also introduces **intraclass correlation (ICC)**. If people within the same café are more similar to each other (they self-select into similar cafés), then your N cafés provide less independent information than N individuals would.
-
-```{r clustered-random, fig.height=4.5, fig.width=9}
-#| code-summary: "▶ Illustrate: effective N under clustered assignment for different ICCs"
-
-icc_vals      <- c(0.00, 0.05, 0.10, 0.20, 0.30, 0.50)
-cluster_sizes <- c(5, 10, 20, 40)
-
-deff_df <- expand.grid(icc = icc_vals, m = cluster_sizes) |>
-  mutate(
-    DEFF    = 1 + (m - 1) * icc,
-    Neff_80 = ceiling(
-      power.t.test(delta = 0.40, sd = 1, sig.level = 0.05, power = 0.80,
-                   type = "two.sample")$n * DEFF
-    ),
-    m_label = paste0("Cluster size = ", m)
-  )
-
-ggplot(deff_df, aes(x = icc, y = Neff_80,
-                    color = factor(m), group = factor(m))) +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 2.8) +
-  geom_hline(yintercept = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
-                                        power = 0.80, type = "two.sample")$n,
-             linetype = "dashed", color = "gray40", linewidth = 0.7) +
-  annotate("text", x = 0.51, y = power.t.test(delta = 0.40, sd = 1, sig.level = 0.05,
-                                                power = 0.80, type = "two.sample")$n + 3,
-           label = "Required N\nif individual\nassignment",
-           size = 2.8, color = "gray40", hjust = 0, lineheight = 0.85) +
-  scale_color_manual(values = c("5" = "#4a90d9", "10" = "#52b788",
-                                 "20" = "#f4a261", "40" = "#e63946"),
-                     name = "Cluster size (m)") +
-  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f", x)) +
-  scale_y_continuous(labels = comma) +
-  labs(x = "Intraclass correlation (ICC)",
-       y = "Required total N (individuals)",
-       title = "Clustered Assignment: How ICC Inflates Required Sample Size",
-       subtitle = "DEFF = 1 + (m\u22121)\u00d7ICC  \u00b7  Design effect multiplies into required N  \u00b7  Target: d = 0.40, 80% power") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank())
-```
-
-::: {.callout-note}
-## Stratified vs. Clustered — the key contrast
-
-| Feature | Stratified | Clustered |
+| | Survivorship bias | Attrition bias |
 |---|---|---|
-| Unit of randomization | Individual (within strata) | Group / cluster |
-| Effect on balance | **Improves** balance on stratified vars | No improvement (can worsen) |
-| Effect on required N | Reduces N slightly | **Increases** N via design effect |
-| When to use | When measured covariates predict Y strongly | When intervention must be applied at group level |
-| Analogy (Module 1) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
+| When does the selection occur? | Before the study begins (or before the observation window) | During the study, after enrollment |
+| Do we have any data on the absent observations? | No — they never entered the sample | Yes — we have their baseline (and possibly wave-1) measurements |
+| Is the problem detectable? | Only through external reasoning about what is missing | Yes — compare dropouts to completers on observed baseline covariates |
+| Can it be (partially) corrected? | Very difficult; requires external data or strong assumptions | Sometimes — using inverse probability weighting on dropout, imputation, or mixed models under MAR |
 
-The core message: stratification and clustering both depart from simple CRA, but in opposite directions for power. Use stratification proactively when you can; account for clustering carefully when you must.
+## Experimental Attrition: Zhou & Fishbach (2016)
+
+Online experiments are particularly vulnerable to attrition, and that attrition is rarely random. Zhou & Fishbach (2016, *Journal of Personality and Social Psychology*) documented what they called the "pitfall of experimenting on the web": dropout rates in online studies are high (often 20–60%), systematically vary across conditions, and produce participant samples that are no longer exchangeable across groups at study completion.
+
+**The mechanism.** Participants decide whether to continue after seeing each screen. That decision depends on how engaging, interesting, or boring they find the current task. Critically, different experimental conditions often differ in their intrinsic engagement level — one condition may be more novel, more interesting, or more meaningful than another. The result:
+
+- The more engaging condition retains more participants
+- The less engaging condition (often the control) loses its least motivated participants first
+- Among completers, the less engaging condition is disproportionately populated by persistent, motivated, or attentive participants — people who are systematically different on dimensions that predict Y
+
+```{r attrition-sim, fig.height=5.5, fig.width=12}
+#| code-summary: "▶ Simulate: differential attrition creates spurious treatment effect"
+
+set.seed(2025)
+N_att <- 1200  # initial enrollment per condition
+
+# Each participant has a latent engagement level
+# Treatment condition (more interesting): dropout prob = 12%
+# Control condition (more boring): dropout prob = 32%, but dropout is not random —
+#   low-engagement participants are more likely to drop out
+sim_att <- tibble(
+  condition  = rep(c("Treatment\n(engaging)", "Control\n(less engaging)"), each = N_att),
+  engagement = rnorm(N_att * 2, 0, 1),  # latent engagement trait
+  # Dropout probability: baseline + larger effect of low engagement in control
+  p_dropout  = plogis(
+    ifelse(condition == "Treatment\n(engaging)",
+           -2.0 + (-0.3) * engagement,   # 12% average dropout; weak engagement effect
+           -0.8 + (-0.8) * engagement)   # 32% average dropout; strong engagement effect
+  ),
+  dropped    = rbinom(N_att * 2, 1, p_dropout) == 1,
+  # Outcome: truly no treatment effect; but engagement drives Y
+  Y          = 5 + 0 * (condition == "Treatment\n(engaging)") + 1.5 * engagement + rnorm(N_att * 2)
+)
+
+completers <- sim_att |> filter(!dropped)
+
+# Summary stats
+att_summary <- sim_att |>
+  group_by(condition) |>
+  summarise(
+    enrolled   = n(),
+    completed  = sum(!dropped),
+    dropout_pct = round(mean(dropped) * 100, 1),
+    .groups = "drop"
+  )
+
+comp_summary <- completers |>
+  group_by(condition) |>
+  summarise(
+    mean_engagement = round(mean(engagement), 3),
+    mean_Y          = round(mean(Y), 2),
+    .groups = "drop"
+  )
+
+# ── Plot ──────────────────────────────────────────────────────────────────────
+p_engage <- ggplot(completers, aes(x = engagement, fill = condition, color = condition)) +
+  geom_density(alpha = 0.35, linewidth = 0.9) +
+  scale_fill_manual(values  = c("Treatment\n(engaging)" = "#2d6a4f",
+                                 "Control\n(less engaging)" = "#e63946"), name = NULL) +
+  scale_color_manual(values = c("Treatment\n(engaging)" = "#2d6a4f",
+                                 "Control\n(less engaging)" = "#e63946"), name = NULL) +
+  labs(x = "Latent engagement trait", y = "Density",
+       title = "Completers Are Not Exchangeable",
+       subtitle = "Control retains disproportionately high-engagement participants after dropout") +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+
+p_outcome <- ggplot(comp_summary,
+                    aes(x = condition, y = mean_Y, fill = condition)) +
+  geom_col(width = 0.5, alpha = 0.88) +
+  geom_text(aes(label = sprintf("$%.2f", mean_Y)), vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("Treatment\n(engaging)" = "#2d6a4f",
+                                "Control\n(less engaging)" = "#e63946"), guide = "none") +
+  scale_y_continuous(limits = c(0, 7.5)) +
+  labs(x = NULL, y = "Mean WTP among completers ($)",
+       title = "Spurious 'Effect' Among Completers",
+       subtitle = "True treatment effect = $0  \u00b7  Apparent effect is a composition artifact") +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+p_engage + p_outcome
+```
+
+```{r attrition-table}
+#| code-summary: "▶ Table: attrition rates and completer characteristics by condition"
+kable(left_join(att_summary, comp_summary, by = "condition"),
+      col.names = c("Condition", "Enrolled", "Completed", "Dropout %",
+                    "Mean engagement\n(completers)", "Mean WTP\n(completers)"),
+      caption = "Attrition summary: differential dropout creates non-exchangeable completer samples")
+```
+
+The simulation has a true treatment effect of exactly $0. Yet among completers, the treatment group appears to have higher WTP — because differential attrition left the control group populated by a disproportionately engaged, high-WTP subset of participants. The apparent effect is entirely a composition artifact.
+
+::: {.callout-note}
+## Diagnosing differential attrition
+
+Zhou & Fishbach recommend three checks when reporting online experimental data:
+
+1. **Report attrition rates by condition.** A chi-square test of dropout rate across conditions is the minimum diagnostic. If dropout rates differ significantly, the completer sample is suspect.
+2. **Compare completers' baseline characteristics across conditions.** If you collected any pre-manipulation measures (demographics, attention checks, prior attitudes), test whether they differ between conditions among completers. This is the analog of a balance table, applied to the post-attrition sample.
+3. **Conduct sensitivity analyses.** Report results under different assumptions about how dropouts would have responded (e.g., assuming dropouts have the same mean as completers in their condition; assuming dropouts have the worst-case mean in their condition).
 :::
 
 ---
 
+# 4. Exclusion Bias {#sec-exclusion-bias}
+
+Exclusion bias occurs when decisions about which data points to include in analysis are made non-randomly — introducing a selection filter between the raw data and the analyzed data. Unlike the previous three mechanisms, exclusion bias is researcher-driven rather than participant-driven.
+
+## Secondary Data: Selective Deletion in Large Datasets
+
+Consider a researcher analyzing a large administrative dataset of customer purchases to evaluate whether eco-labeling increased transaction value. The raw data contains 200,000 transactions. During data cleaning, the researcher decides to remove "anomalous" records — very large transactions that might represent data-entry errors or corporate bulk purchases, and very small transactions that might reflect returns or test orders.
+
+If the threshold for exclusion ("transactions above $500 are anomalous") is not specified before looking at the data, the decision is endogenous to the outcome. And even well-intentioned thresholds create asymmetric exclusion if the experimental conditions differ on the tails of the distribution:
+
+- Eco-labeled products attract some high-value buyers who purchase large quantities
+- Removing "outlier" transactions by an absolute dollar threshold disproportionately removes eco-label-condition observations
+- The remaining eco-label sample is no longer representative of eco-label customers
+
+The excluded observations are not random — they are the transactions most likely to reflect the very effect the researcher is trying to estimate. The analyzed sample looks more conservative because the extremes have been removed, and those extremes were asymmetrically distributed across conditions.
+
+## Experimental Context: André (2022) — How (Not) to Exclude Outliers
+
+In experimental settings, exclusion decisions are most commonly made about participants rather than transactions. André (2022, *Journal of Consumer Research*) documents that researchers have many legitimate, defensible rules for handling outliers in response data:
+
+- Exclude participants whose response time was less than [2 / 3 / 5 / 10] seconds per item
+- Exclude participants whose total completion time was in the bottom [5% / 10%] of the sample
+- Exclude responses more than [2 / 2.5 / 3] standard deviations from the condition mean
+- Exclude participants who failed [1 / 2 / any] attention check items
+- Winsorize at the [1st & 99th / 2.5th & 97.5th / 5th & 95th] percentiles
+
+Each of these rules is reasonable on its face. Each has been used in published research. The problem is that when the exclusion rule is chosen *after seeing the data* — especially after seeing whether the treatment effect is significant under each rule — the choice of rule is itself a researcher degree of freedom.
+
+```{r exclusion-bias, fig.height=5.5, fig.width=11}
+#| code-summary: "▶ Simulate: false-positive rate across 10 exclusion rules (null effect)"
+
+set.seed(2025)
+n_sims_ex <- 3000
+N_excl    <- 200
+alpha_ex  <- 0.05
+
+# 10 exclusion rules indexed by their SD cutoff (or equivalent)
+# Rules vary from lenient (keep almost all) to strict (remove many)
+rule_labels <- c(
+  "No exclusions",
+  "\u00b13.0 SD",
+  "\u00b12.5 SD",
+  "\u00b12.0 SD",
+  "Bottom 5% RT",
+  "Bottom 10% RT",
+  "Top/bottom 5%\nwinsorized",
+  "Attention fail\n(\u22651 miss)",
+  "Attention fail\n(\u22652 misses)",
+  "Fastest 10%\n+ \u00b12.5 SD"
+)
+
+# For each simulation, generate null data, apply each rule, get p-value
+sim_pvals <- replicate(n_sims_ex, {
+  # True null: no treatment effect
+  trt <- rep(0:1, each = N_excl / 2)
+  Y   <- rnorm(N_excl)
+  # Simulated nuisance variables used by exclusion rules
+  rt       <- runif(N_excl, 0.5, 15)   # response time
+  att      <- rbinom(N_excl, 3, 0.15)  # number of attention check fails
+
+  # Compute per-rule p-values
+  sapply(seq_along(rule_labels), function(k) {
+    keep <- switch(k,
+      "1"  = rep(TRUE, N_excl),
+      "2"  = abs(scale(Y)) < 3.0,
+      "3"  = abs(scale(Y)) < 2.5,
+      "4"  = abs(scale(Y)) < 2.0,
+      "5"  = rt > quantile(rt, 0.05),
+      "6"  = rt > quantile(rt, 0.10),
+      "7"  = { Y_w <- Y; Y_w[Y > quantile(Y,.95)] <- quantile(Y,.95)
+               Y_w[Y < quantile(Y,.05)] <- quantile(Y,.05); rep(TRUE, N_excl) },
+      "8"  = att < 1,
+      "9"  = att < 2,
+      "10" = rt > quantile(rt, 0.10) & abs(scale(Y)) < 2.5
+    )
+    # For winsorizing (rule 7), Y is modified in place above — use winsorized Y
+    Y_use <- if (k == 7) {
+      Y_w <- Y; Y_w[Y > quantile(Y,.95)] <- quantile(Y,.95)
+      Y_w[Y < quantile(Y,.05)] <- quantile(Y,.05); Y_w
+    } else Y
+    if (sum(keep) < 10) return(1)
+    tryCatch(
+      t.test(Y_use[keep & trt == 1], Y_use[keep & trt == 0])$p.value,
+      error = function(e) 1
+    )
+  })
+})  # sim_pvals is 10 × n_sims_ex
+
+# False-positive rate per rule
+fp_per_rule <- rowMeans(sim_pvals < alpha_ex)
+
+# False-positive rate if researcher picks the most favorable rule
+fp_best_rule <- mean(apply(sim_pvals, 2, min) < alpha_ex)
+
+excl_df <- tibble(
+  rule   = factor(rule_labels, levels = rule_labels),
+  fp_rate = fp_per_rule
+)
+
+p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex)) +
+  geom_col(width = 0.65, alpha = 0.88) +
+  geom_hline(yintercept = alpha_ex, linetype = "dashed", color = "gray40", linewidth = 0.9) +
+  annotate("text", x = 10.5, y = alpha_ex + 0.004,
+           label = "Nominal \u03b1 = 5%", color = "gray40", size = 3.2, hjust = 1) +
+  annotate("segment", x = 0.4, xend = 10.6,
+           y = fp_best_rule, yend = fp_best_rule,
+           color = "#e63946", linewidth = 1.1, linetype = "longdash") +
+  annotate("text", x = 10.6, y = fp_best_rule + 0.005,
+           label = sprintf("Best rule: %.0f%%\nfalse positives", fp_best_rule * 100),
+           color = "#e63946", size = 3.2, hjust = 1, lineheight = 0.85) +
+  geom_text(aes(label = sprintf("%.1f%%", fp_rate * 100)),
+            vjust = -0.4, size = 3.5) +
+  scale_fill_manual(values = c("FALSE" = "#4a90d9", "TRUE" = "#e63946"), guide = "none") +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.22)) +
+  labs(x = "Exclusion rule", y = "False-positive rate (true null effect)",
+       title = "Each Rule Looks Reasonable; Choosing the Best One Inflates False Positives",
+       subtitle = paste0(
+         "N = ", N_excl, " per simulation  \u00b7  True treatment effect = 0  \u00b7  ",
+         N_sims_ex, " replications\n",
+         "Dashed = 5% nominal  \u00b7  Red line = false-positive rate if researcher picks most favorable rule")) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(size = 9, lineheight = 0.85))
+
+p_excl
+```
+
+Each individual exclusion rule maintains a false-positive rate close to the nominal 5% — there is nothing wrong with any single rule in isolation. But the red dashed line shows what happens when a researcher tries all ten rules and reports whichever one gives the best result: the false-positive rate climbs well above the nominal level. A null finding becomes a significant finding simply by the researcher's choice of which participants to exclude.
+
 ::: {.callout-note}
-## Module 2 — the complete thread
+## Connecting to Part 1: what makes a p-value valid
 
-Every concept in this module is a direct extension of Module 1, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:
+Recall from Part 1 that a p-value's validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of **researcher degrees of freedom** (Simmons, Nelson & Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.
 
-| Module 1 (Measurement of Y) | Module 2 (Manipulation of X and Randomization) |
-|---|---|
-| Scale items are observables for a latent construct | Treatment assignment is an observable for latent randomization |
-| Discriminant validity: does Y measure *only* what it should? | Exclusion restriction: does X activate *only* the intended pathway? |
-| Construct breadth determines how many items you need | Construct breadth of Y determines how much N you need for orthogonality |
-| Correlated subscales: efficient but can hide distinct pathways | Correlated latent dimensions: can ease orthogonality OR cascade failures |
-| Open-ended text reveals the nomological net of Y | Open-ended text identifies unmeasured confounders and latent dimensions |
-| Stratified measurement (subscales by domain) | Stratified randomization (block by measured covariates) |
-| Multi-level data (participants nested in groups) | Clustered randomization (interventions at group level, ICC inflates required N) |
-| Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
-| Broad constructs: many items, hard to achieve discriminant validity | Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy) |
-
-**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 3, Part 2) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
+The solution is not to avoid excluding outliers — some exclusions are genuinely principled. The solution is to pre-register the exclusion rule before collecting data, apply it blindly without knowledge of its effect on the result, and report the primary analysis under that rule alongside sensitivity checks under alternatives.
 :::
 
 ---
 
-## Researcher Checklist: Experimental Design {#sec-checklist-part4}
+# Forward Connections {#sec-forward-part4}
 
 ::: {.callout-note}
-## Key questions about your design structure
+## What comes next
 
-- [ ] **Does your design match your theoretical question?** A main-effect-only hypothesis needs a simple A/B or factorial. An interaction hypothesis requires at least a 2×2 — a single A/B cannot test whether an effect is moderated.
-- [ ] **How many stimuli are you using?** A single advertisement, brand, or scenario is one draw from the stimulus space. Your conclusion can only generalize to that specific stimulus unless you use multiple exemplars and treat stimulus as a random effect.
-- [ ] **Is the efficiency gain of a within-subjects design worth the carryover risk for your construct?** Within-subjects removes between-person variance (more power) but introduces demand characteristics and order effects. Choose deliberately, not by default.
-- [ ] **Have you pre-registered the design?** Post-hoc flexibility in which cells to compare, which interactions to test, or which conditions to collapse inflates false-positive rates — this is the design-level analog of researcher degrees of freedom.
+**Module 2, Part 5** covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.
+
+**Module 3, Part 2 — Selection on Observables** addresses how to *reestablish* approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate *why* participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.
+:::
+
+---
+
+## Researcher Checklist: Selection Effects {#sec-checklist-part4}
+
+::: {.callout-note}
+## Key questions about your sample and data
+
+- [ ] **Is your sample representative of the population you want to generalize to?** If using crowdsourcing platforms, document who self-selected in and what demographic and attitudinal features your platform, reward structure, and study topic likely over- or under-sample.
+- [ ] **Are your stimuli randomly sampled or hand-picked?** If you chose specific stimuli, check whether the hard vs. easy, interesting vs. boring, or novel vs. familiar conditions are confounded with other features that might drive your outcome. Consider using multiple stimuli per condition and treating stimulus as a random effect.
+- [ ] **Does your analysis condition on a post-randomization event?** Comparing only donors, only completers, only non-dropouts, or only non-excluded participants breaks the exchangeability achieved at randomization. Report outcomes at every stage of the decision process, not just the stage that is most convenient.
+- [ ] **Are attrition rates equal across conditions?** Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as Part 3.
+- [ ] **Were your exclusion rules pre-registered and applied blind to condition assignment?** If not, the choice of exclusion rule is an additional researcher degree of freedom. Report your primary analysis under the pre-registered rule and include results under alternative rules as a sensitivity check.
 :::
