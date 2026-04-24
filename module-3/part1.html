@@ -1512,15 +1512,17 @@ True ITE SD = 0.967</code></pre>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>p_always_taker <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">2.5</span> <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>env)</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>D_if_Z1 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, p_comply_if_Z1)</span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>D_if_Z0 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, p_always_taker)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>D       <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z<span class="sc">==</span><span class="dv">1</span>, D_if_Z1, D_if_Z0)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>compliance_type <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="st">"Complier"</span>,</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="st">"Always-taker"</span>,</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="st">"Never-taker"</span>,</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="st">"Defier"</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">table</span>(compliance_type), <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"Compliance type"</span>,<span class="st">"Count"</span>),</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption=</span><span class="st">"True compliance breakdown (observable only in simulation)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Enforce monotonicity: no defiers (D_i(1) &gt;= D_i(0) for all i)</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>D_if_Z0 <span class="ot">&lt;-</span> <span class="fu">pmin</span>(D_if_Z0, D_if_Z1)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>D       <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z<span class="sc">==</span><span class="dv">1</span>, D_if_Z1, D_if_Z0)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>compliance_type <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="st">"Complier"</span>,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="st">"Always-taker"</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="st">"Never-taker"</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  D_if_Z1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D_if_Z0<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="st">"Defier"</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">table</span>(compliance_type), <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"Compliance type"</span>,<span class="st">"Count"</span>),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption=</span><span class="st">"True compliance breakdown (observable only in simulation)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1541,12 +1543,8 @@ True ITE SD = 0.967</code></pre>
 <td style="text-align: right;">1244</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Defier</td>
-<td style="text-align: right;">44</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">Never-taker</td>
-<td style="text-align: right;">579</td>
+<td style="text-align: right;">623</td>
 </tr>
 </tbody>
 </table>
@@ -1605,26 +1603,26 @@ True ITE SD = 0.967</code></pre>
 <tr class="even">
 <td style="text-align: left;">ITT</td>
 <td style="text-align: left;">Effect of <em>assigning</em> the label regardless of compliance</td>
-<td style="text-align: right;">0.520</td>
-<td style="text-align: right;">0.520</td>
+<td style="text-align: right;">0.540</td>
+<td style="text-align: right;">0.540</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">LATE (Wald)</td>
 <td style="text-align: left;">Effect for consumers who complied <em>because</em> they were assigned</td>
 <td style="text-align: right;">0.716</td>
-<td style="text-align: right;">0.889</td>
+<td style="text-align: right;">0.887</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ATT</td>
 <td style="text-align: left;">Effect for consumers who <em>actually saw</em> the label</td>
-<td style="text-align: right;">0.792</td>
-<td style="text-align: right;">0.792</td>
+<td style="text-align: right;">0.788</td>
+<td style="text-align: right;">0.788</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ATC</td>
 <td style="text-align: left;">Effect for those who <em>did not see</em> it</td>
-<td style="text-align: right;">0.499</td>
-<td style="text-align: right;">0.499</td>
+<td style="text-align: right;">0.507</td>
+<td style="text-align: right;">0.507</td>
 </tr>
 </tbody>
 </table>

@@ -812,7 +812,7 @@ window.Quarto = {
 <h2 data-number="17.3" class="anchored" data-anchor-id="sec-tobit"><span class="header-section-number">17.3</span> Censored Data Models (Tobit)</h2>
 <p>In the eco-coffee WTP study, participants could not state WTP below $1 (floor) or above $10 (ceiling). In many studies, the outcome is <strong>censored</strong> — truncated at a boundary because the measurement instrument or the context prevents observing values beyond a threshold.</p>
 <p><strong>Consequence of ignoring censoring:</strong> OLS on a censored outcome is biased and inconsistent. Observations piled at the ceiling (e.g., everyone stating exactly $10.00 WTP) look identical to OLS but represent unobserved heterogeneity (some would have stated $12 or $15 if allowed).</p>
-<p>The <strong>Tobit model</strong> explicitly models the censoring threshold and recovers the latent distribution:</p>
+<p>The <strong>Tobit model</strong> explicitly models the censoring threshold and moves estimates substantially closer to the latent distribution:</p>
 <p><span class="math display">\[Y^* = X\beta + \varepsilon, \quad Y = \max(Y_{\text{lower}}, \min(Y^*, Y_{\text{upper}}))\]</span></p>
 <div class="cell">
 <details class="code-fold">
@@ -860,11 +860,11 @@ window.Quarto = {
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(cens_tab,</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="fu">paste0</span>(<span class="st">"OLS vs. Tobit on floor-censored WTP (true eco effect = $0.90). "</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"~20% floor censoring attenuates OLS; Tobit moves materially closer to the latent coefficient."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>OLS vs.&nbsp;Tobit on floor-censored WTP (true eco effect = $0.90). ~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient.</caption>
+<caption>OLS vs.&nbsp;Tobit on floor-censored WTP (true eco effect = $0.90). ~20% floor censoring attenuates OLS; Tobit moves materially closer to the latent coefficient.</caption>
 <colgroup>
 <col style="width: 44%">
 <col style="width: 23%">

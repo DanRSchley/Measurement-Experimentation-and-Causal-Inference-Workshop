@@ -483,8 +483,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Y_sales <span class="ot">&lt;-</span> <span class="fl">0.20</span> <span class="sc">*</span> X_ads <span class="sc">+</span> <span class="fl">5.00</span> <span class="sc">*</span> U_quality <span class="sc">+</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">0.3</span> <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">abs</span>(U_quality))</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store size: a rough proxy for quality we might observe in secondary data ──</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>store_size <span class="ot">&lt;-</span> <span class="fl">1.5</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">1.8</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store size: a strong proxy for quality (corr ≈ 0.95 with U_quality) ──────</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>store_size <span class="ot">&lt;-</span> <span class="fl">1.5</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Observed dataset (quality is hidden; store_size is sometimes available) ───</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -709,7 +709,7 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: left;">With store-size proxy</td>
-<td style="text-align: right;">1.192</td>
+<td style="text-align: right;">0.779</td>
 <td style="text-align: right;">0.2</td>
 </tr>
 <tr class="odd">
@@ -733,7 +733,7 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 <div class="callout-body-container callout-body">
 <p>If your advertising coefficient <strong>drops substantially</strong> when you add a control variable, that control was correlated with both advertising and sales — a sign it was a partial proxy for an omitted confounder. The larger the drop, the more worried you should be about the original estimate.</p>
 <p>If the coefficient barely moves, that control was probably not picking up a meaningful confounder (though it doesn’t fully rule out other unmeasured variables).</p>
-<p><strong>Rule of thumb:</strong> A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that is cut in half or more (as in our simulation) is a clear warning of omitted variable bias.</p>
+<p><strong>Rule of thumb:</strong> A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that drops substantially from its naive value — moving meaningfully toward the oracle — is a clear warning of omitted variable bias. The larger the drop, the stronger the evidence.</p>
 </div>
 </div>
 </section>

@@ -405,8 +405,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Helper objects shared with Cases 1 and 3 ──────────────────────────────────</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Factor correlation matrix used in simulation</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>phi_pop <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">1.00</span>, <span class="fl">0.93</span>, <span class="fl">0.45</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.93</span>, <span class="fl">1.00</span>, <span class="fl">0.50</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">1.00</span>, <span class="fl">0.40</span>, <span class="fl">0.45</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.40</span>, <span class="fl">1.00</span>, <span class="fl">0.50</span>,</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.45</span>, <span class="fl">0.50</span>, <span class="fl">1.00</span>),</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"EC"</span>, <span class="st">"GPI"</span>, <span class="st">"BA"</span>), <span class="fu">c</span>(<span class="st">"EC"</span>, <span class="st">"GPI"</span>, <span class="st">"BA"</span>))</span>
@@ -696,9 +696,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Chi-Squared Difference Test
 
            Df   AIC   BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)    
-fit_config 82 10404 10691  74.105                                          
-fit_metric 90 10399 10655  85.376      11.27 0.04521       8     0.1868    
-fit_scalar 98 10563 10786 265.072     179.70 0.32758       8     &lt;2e-16 ***
+fit_config 82 10753 11041  75.551                                          
+fit_metric 90 10744 11000  82.573      7.022 0.00000       8     0.5343    
+fit_scalar 98 10901 11125 255.387    172.814 0.32095       8     &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -745,27 +745,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Configural</td>
-<td style="text-align: right;">74.1</td>
+<td style="text-align: right;">75.6</td>
 <td style="text-align: right;">82</td>
 <td style="text-align: right;">1.000</td>
-<td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.028</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.032</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Metric</td>
-<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">82.6</td>
 <td style="text-align: right;">90</td>
 <td style="text-align: right;">1.000</td>
-<td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.039</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Scalar (full)</td>
-<td style="text-align: right;">265.1</td>
+<td style="text-align: right;">255.4</td>
 <td style="text-align: right;">98</td>
-<td style="text-align: right;">0.925</td>
-<td style="text-align: right;">0.092</td>
-<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.916</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.074</td>
 </tr>
 </tbody>
 </table>
@@ -924,9 +924,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 Chi-Squared Difference Test
 
             Df   AIC   BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)    
-fit_metric  90 10399 10655  85.376                                          
-fit_partial 96 10394 10626  92.350      6.974 0.02849       6     0.3232    
-fit_scalar  98 10563 10786 265.072    172.722 0.65330       2     &lt;2e-16 ***
+fit_metric  90 10744 11000  82.573                                          
+fit_partial 96 10739 10971  89.439      6.866 0.02687       6     0.3334    
+fit_scalar  98 10901 11125 255.387    165.948 0.64021       2     &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -961,35 +961,35 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Configural</td>
-<td style="text-align: right;">74.1</td>
+<td style="text-align: right;">75.6</td>
 <td style="text-align: right;">82</td>
 <td style="text-align: right;">1.000</td>
-<td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.028</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.032</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Metric</td>
-<td style="text-align: right;">85.4</td>
+<td style="text-align: right;">82.6</td>
 <td style="text-align: right;">90</td>
 <td style="text-align: right;">1.000</td>
-<td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.039</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Partial scalar (GPI1, GPI2 freed)</td>
-<td style="text-align: right;">92.3</td>
+<td style="text-align: right;">89.4</td>
 <td style="text-align: right;">96</td>
 <td style="text-align: right;">1.000</td>
-<td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.043</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.040</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Full scalar</td>
-<td style="text-align: right;">265.1</td>
+<td style="text-align: right;">255.4</td>
 <td style="text-align: right;">98</td>
-<td style="text-align: right;">0.925</td>
-<td style="text-align: right;">0.092</td>
-<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.916</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.074</td>
 </tr>
 </tbody>
 </table>
@@ -1056,11 +1056,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Full scalar (ignores item shift — biased)</td>
-<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.927</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Partial scalar (accounts for item shift — corrected)</td>
-<td style="text-align: right;">0.191</td>
+<td style="text-align: right;">0.215</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">True value — known from Scenario B simulation</td>
