@@ -566,7 +566,13 @@ In experimental settings, exclusion decisions are most commonly made about parti
 - Exclude participants who failed [1 / 2 / any] attention check items
 - Winsorize at the [1st & 99th / 2.5th & 97.5th / 5th & 95th] percentiles
 
-Each of these rules is reasonable on its face. Each has been used in published research. The problem is that when the exclusion rule is chosen *after seeing the data* — especially after seeing whether the treatment effect is significant under each rule — the choice of rule is itself a researcher degree of freedom.
+Each of these rules is reasonable on its face. Each has been used in published research. There are two related problems.
+
+The first is that in real experiments, exclusion criteria almost never screen participants who are *randomly* low-quality: a participant who speeds through the survey is also likely to give less considered responses — a lower WTP estimate, a weaker attitude rating, a noisier preference judgment. Exclusion criteria (RT, attention checks, quality scores) are **correlated with the outcome Y**. When you remove low-RT or low-attention participants, you are simultaneously removing the low-Y tail of the distribution. That asymmetric truncation makes the standard error look smaller than it is, so the t-test is anti-conservative — it rejects H₀ more than 5% of the time even when the null is true.
+
+The second problem is researcher degrees of freedom: when the exclusion rule is chosen *after seeing the data* — especially after seeing whether the treatment effect is significant — the choice of rule is itself a researcher degree of freedom. Across all rules a researcher might try, the probability that at least one crosses α = .05 is far higher than 5%.
+
+The simulation below captures both problems. The DGP includes a latent **engagement** variable that simultaneously drives response time (low engagement → fast RT), outcome quality (low engagement → lower Y), and quality-check performance — but is independent of treatment condition (H₀ is true throughout). Exclusion rules that target engagement-correlated proxies therefore inflate individual-rule FP rates; picking the most favorable rule inflates them further.
 
 ```{r exclusion-bias, fig.height=5.5, fig.width=11}
 #| code-summary: "▶ Simulate: false-positive rate across 10 exclusion rules (null effect)"
@@ -576,31 +582,35 @@ n_sims_ex <- 3000
 N_excl    <- 200
 alpha_ex  <- 0.05
 
-# 10 exclusion rules indexed by their SD cutoff (or equivalent)
-# Rules vary from lenient (keep almost all) to strict (remove many)
 rule_labels <- c(
   "No exclusions",
   "\u00b13.0 SD",
   "\u00b12.5 SD",
   "\u00b12.0 SD",
-  "Bottom 5% RT",
-  "Bottom 10% RT",
+  "Fastest 5%\n(RT < 5th pct)",
+  "Fastest 10%\n(RT < 10th pct)",
   "Top/bottom 5%\nwinsorized",
-  "Attention fail\n(\u22651 miss)",
-  "Attention fail\n(\u22652 misses)",
-  "Fastest 10%\n+ \u00b12.5 SD"
+  "Low quality\n(bottom 20%)",
+  "Low quality\n(bottom 10%)",
+  "RT + SD\ncombined"
 )
 
-# For each simulation, generate null data, apply each rule, get p-value
 sim_pvals <- replicate(n_sims_ex, {
-  # True null: no treatment effect
   trt <- rep(0:1, each = N_excl / 2)
-  Y   <- rnorm(N_excl)
-  # Simulated nuisance variables used by exclusion rules
-  rt       <- runif(N_excl, 0.5, 15)   # response time
-  att      <- rbinom(N_excl, 3, 0.15)  # number of attention check fails
 
-  # Compute per-rule p-values
+  # Latent engagement: random, NOT related to condition (H0 is true)
+  engagement <- rnorm(N_excl)
+
+  # Y is correlated with engagement: engaged participants give more considered
+  # responses (e.g., more thoughtful WTP estimates). corr(Y, engagement) = 0.65.
+  Y  <- 0.65 * engagement + sqrt(1 - 0.65^2) * rnorm(N_excl)
+
+  # RT: engaged = careful = slower; speeding = fast = low engagement
+  rt <- pmax(5 + 3 * engagement + rnorm(N_excl, sd = 2.5), 0.5)
+
+  # Quality score (like an attention/engagement index); correlated with engagement
+  quality <- engagement + rnorm(N_excl, sd = 0.6)
+
   sapply(seq_along(rule_labels), function(k) {
     keep <- switch(k,
       "1"  = rep(TRUE, N_excl),
@@ -609,16 +619,15 @@ sim_pvals <- replicate(n_sims_ex, {
       "4"  = abs(scale(Y)) < 2.0,
       "5"  = rt > quantile(rt, 0.05),
       "6"  = rt > quantile(rt, 0.10),
-      "7"  = { Y_w <- Y; Y_w[Y > quantile(Y,.95)] <- quantile(Y,.95)
-               Y_w[Y < quantile(Y,.05)] <- quantile(Y,.05); rep(TRUE, N_excl) },
-      "8"  = att < 1,
-      "9"  = att < 2,
+      "7"  = { Y_w <- Y; Y_w[Y > quantile(Y, .95)] <- quantile(Y, .95)
+               Y_w[Y < quantile(Y, .05)] <- quantile(Y, .05); rep(TRUE, N_excl) },
+      "8"  = quality > quantile(quality, 0.20),
+      "9"  = quality > quantile(quality, 0.10),
       "10" = rt > quantile(rt, 0.10) & abs(scale(Y)) < 2.5
     )
-    # For winsorizing (rule 7), Y is modified in place above — use winsorized Y
     Y_use <- if (k == 7) {
-      Y_w <- Y; Y_w[Y > quantile(Y,.95)] <- quantile(Y,.95)
-      Y_w[Y < quantile(Y,.05)] <- quantile(Y,.05); Y_w
+      Y_w <- Y; Y_w[Y > quantile(Y, .95)] <- quantile(Y, .95)
+      Y_w[Y < quantile(Y, .05)] <- quantile(Y, .05); Y_w
     } else Y
     if (sum(keep) < 10) return(1)
     tryCatch(
@@ -628,14 +637,11 @@ sim_pvals <- replicate(n_sims_ex, {
   })
 })  # sim_pvals is 10 × n_sims_ex
 
-# False-positive rate per rule
-fp_per_rule <- rowMeans(sim_pvals < alpha_ex)
-
-# False-positive rate if researcher picks the most favorable rule
+fp_per_rule  <- rowMeans(sim_pvals < alpha_ex)
 fp_best_rule <- mean(apply(sim_pvals, 2, min) < alpha_ex)
 
 excl_df <- tibble(
-  rule   = factor(rule_labels, levels = rule_labels),
+  rule    = factor(rule_labels, levels = rule_labels),
   fp_rate = fp_per_rule
 )
 
@@ -653,13 +659,13 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
   geom_text(aes(label = sprintf("%.1f%%", fp_rate * 100)),
             vjust = -0.4, size = 3.5) +
   scale_fill_manual(values = c("FALSE" = "#4a90d9", "TRUE" = "#e63946"), guide = "none") +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.22)) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.30)) +
   labs(x = "Exclusion rule", y = "False-positive rate (true null effect)",
-       title = "Each Rule Looks Reasonable; Choosing the Best One Inflates False Positives",
+       title = "Correlated Exclusion Criteria Inflate False Positives — Even Rule by Rule",
        subtitle = paste0(
-         "N = ", N_excl, " per simulation  \u00b7  True treatment effect = 0  \u00b7  ",
-         n_sims_ex, " replications\n",
-         "Dashed = 5% nominal  \u00b7  Red line = false-positive rate if researcher picks most favorable rule")) +
+         "N = ", N_excl, "  \u00b7  True effect = 0  \u00b7  ",
+         n_sims_ex, " replications  \u00b7  engagement drives both RT/quality and Y\n",
+         "Blue = near nominal 5%  \u00b7  Red = inflated  \u00b7  Red dashed = rate if researcher picks best rule")) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
         axis.text.x = element_text(size = 9, lineheight = 0.85))
@@ -667,7 +673,7 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
 p_excl
 ```
 
-Each individual exclusion rule maintains a false-positive rate close to the nominal 5% — there is nothing wrong with any single rule in isolation. But the red dashed line shows what happens when a researcher tries all ten rules and reports whichever one gives the best result: the false-positive rate climbs well above the nominal level. A null finding becomes a significant finding simply by the researcher's choice of which participants to exclude.
+**What the plot shows:** The symmetric SD-based rules (rules 2–4) exclude from both tails of Y and stay near the nominal 5%. The RT-based rules exclude from the *low* end of Y (fast responders give lower WTP) and are clearly elevated. The quality-score rules are most aggressive — removing 10–20% of the sample based on a criterion correlated with Y inflates the FP rate substantially even for a single, pre-committed rule. Choosing the best-performing rule across all ten pushes the combined false-positive rate to the red dashed line.
 
 ::: {.callout-note}
 ## Connecting to Part 1: what makes a p-value valid
