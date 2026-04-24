@@ -2,7 +2,7 @@
 title: "Part 5: Outlier Detection and Robust Estimation"
 ---
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vStfLBmv5QyrjY4DKAJ5i0oYi-QnznIQTUNYDLGhmH6fEa_Ocy4qutilseNEaIn9w/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 5: Outlier Detection and Robust Estimation"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vStfLBmv5QyrjY4DKAJ5i0oYi-QnznIQTUNYDLGhmH6fEa_Ocy4qutilseNEaIn9w/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 5: Outlier Detection and Robust Estimation"></iframe>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(

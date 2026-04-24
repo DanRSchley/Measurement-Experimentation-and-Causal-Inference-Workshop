@@ -23,7 +23,7 @@ library(patchwork)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
 
 # Part 4: Selection Effects — Structural Threats to Exchangeability {#sec-selection}
 
@@ -601,20 +601,21 @@ sim_pvals <- replicate(n_sims_ex, {
   # Baseline engagement trait: independent of treatment (individual difference)
   engagement <- rnorm(N_excl)
 
-  # Treatment (eco-label) is more novel and interesting than the control task
-  # → it BOOSTS engagement in the treatment condition by 0.5 SD.
-  # H₀ is still true on Y: Y depends only on BASELINE engagement, not on the boost.
-  engagement_boost <- 0.5
+  # Treatment (eco-label) is more engaging than control.
+  # H₀ is still true: Y has zero treatment effect. But engagement predicts Y strongly,
+  # and treatment boosts effective engagement → exclusion criteria are correlated with
+  # BOTH the DV (Y) and condition — exactly the André (2022) hazard.
+  engagement_boost <- 1.0
   effective_eng    <- engagement + engagement_boost * trt
 
-  # Y (WTP): driven by baseline engagement, NOT by treatment directly
-  Y  <- 0.65 * engagement + sqrt(1 - 0.65^2) * rnorm(N_excl)
+  # Y (WTP): strongly driven by baseline engagement, NOT by treatment directly.
+  # corr(Y, engagement) ≈ 0.85 so exclusion on engagement-correlated criteria bites hard.
+  Y  <- 0.85 * engagement + sqrt(1 - 0.85^2) * rnorm(N_excl)
 
   # RT and quality depend on EFFECTIVE engagement (including the boost).
-  # Treatment group is more careful → slower RT, higher quality.
-  # Applying pooled thresholds therefore excludes more control participants.
-  rt      <- 5 + 3 * effective_eng + rnorm(N_excl, sd = 2.5)
-  quality <- effective_eng + rnorm(N_excl, sd = 0.6)
+  # Tight noise → pooled threshold cuts asymmetrically into control distribution.
+  rt      <- 5 + 3 * effective_eng + rnorm(N_excl, sd = 1.5)
+  quality <- effective_eng + rnorm(N_excl, sd = 0.4)
 
   sapply(seq_along(rule_labels), function(k) {
     keep <- switch(k,
@@ -664,12 +665,12 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
   geom_text(aes(label = sprintf("%.1f%%", fp_rate * 100)),
             vjust = -0.4, size = 3.5) +
   scale_fill_manual(values = c("FALSE" = "#4a90d9", "TRUE" = "#e63946"), guide = "none") +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.30)) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.45)) +
   labs(x = "Exclusion rule", y = "False-positive rate (true null effect)",
        title = "Correlated Exclusion Criteria Inflate False Positives — Even Rule by Rule",
        subtitle = paste0(
          "N = ", N_excl, "  \u00b7  True effect = 0  \u00b7  ",
-         n_sims_ex, " replications  \u00b7  treatment boosts engagement \u2192 asymmetric exclusion\n",
+         n_sims_ex, " replications  \u00b7  exclusion criterion correlated with both Y and treatment\n",
          "Blue = near nominal 5%  \u00b7  Red = inflated  \u00b7  Red dashed = rate if researcher picks best rule")) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
@@ -678,7 +679,7 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
 p_excl
 ```
 
-**What the plot shows:** The SD-based rules (rules 2–4) exclude based on Y itself — since Y is symmetric across conditions by design, these stay near 5%. The RT and quality rules use *pooled* thresholds (the bottom X% of all participants combined). Because the treatment condition boosts engagement, it shifts the pooled RT and quality distributions rightward — the shared threshold therefore cuts deeper into the *control* distribution, removing more control participants. Those removed have low engagement and thus low Y. The remaining control group has artificially inflated mean Y, making the treatment appear worse by comparison and inflating the false-positive rate for individual rules. Choosing the best-performing rule across all ten pushes it to the red dashed line.
+**What the plot shows:** André (2022) identified two conditions under which an exclusion rule inflates Type I error: the criterion must correlate with (1) the outcome Y and (2) the treatment condition. The SD-based rules (rules 2–4) exclude on Y itself — since Y has zero treatment effect by design, these rules are symmetric across conditions and stay near 5%. The RT and quality rules are where the problem arises. In this study, the treatment is more engaging, which raises participants' response times and quality scores in the treatment condition. Exclusion thresholds are computed pooled (e.g., "bottom 20% of quality across all participants"), so the threshold lands in a region denser with control-group participants. More control participants are removed — and those removed have low engagement and therefore lower Y. The remaining control group now has an artificially elevated mean Y, making it look like the treatment reduced WTP even though the true effect is zero. RT rules show moderate inflation; quality rules (which are more tightly linked to engagement) show the largest inflation. Choosing the best-performing rule across all ten pushes the false-positive rate to the red dashed line — far above the nominal 5%.
 
 ::: {.callout-note}
 ## Connecting to Part 1: what makes a p-value valid

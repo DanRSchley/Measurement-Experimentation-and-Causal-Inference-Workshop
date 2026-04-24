@@ -4,7 +4,7 @@ subtitle: "Discriminant Validity, Omitted Variable Bias, Measurement Invariance,
 code-tools: false
 ---
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQQ3faOAAMPPcbScJcz6sh2J3xp0NsUmjdtyDl-0md-w5tMxPQprFUoz0rSWnq6Ug/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1: Measurement Overview"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQQ3faOAAMPPcbScJcz6sh2J3xp0NsUmjdtyDl-0md-w5tMxPQprFUoz0rSWnq6Ug/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1: Measurement Overview"></iframe>
 
 ## Overview
 

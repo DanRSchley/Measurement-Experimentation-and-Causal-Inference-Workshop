@@ -110,7 +110,7 @@ rob_extract <- function(fit) {
 The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
 :::
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables"></iframe>
 
 ::: {.callout-note}
 ## The thread from Module 2: exchangeability, now without randomisation

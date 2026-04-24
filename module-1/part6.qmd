@@ -20,7 +20,7 @@ library(lavaan); library(semTools); library(MASS); library(ggplot2)
 library(dplyr); library(tidyr); library(knitr)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRK55iak9cjh7X5Udy3Nbu-jZVP-0niiNmdaIftQrjSyU-pQkaMmSlmxf2sJLX_0g/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Systematic Measurement Error"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRK55iak9cjh7X5Udy3Nbu-jZVP-0niiNmdaIftQrjSyU-pQkaMmSlmxf2sJLX_0g/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Systematic Measurement Error"></iframe>
 
 ---
 

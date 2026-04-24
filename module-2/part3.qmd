@@ -28,7 +28,7 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSyGh6sF8I9YHHL9ShrSBqS8CPrZXcaSYYJoyuLJJMOSpYxA2RKTmtfVyold85MpQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 3: Random Assignment"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSyGh6sF8I9YHHL9ShrSBqS8CPrZXcaSYYJoyuLJJMOSpYxA2RKTmtfVyold85MpQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 3: Random Assignment"></iframe>
 
 # Part 3: What Does "Random Assignment" Actually Require? {#sec-randomization}
 
@@ -396,10 +396,10 @@ where $\beta_C$ is C's true effect on Y and $r_{T,C}$ is the correlation between
 
 **A concrete example.** Suppose your eco-label WTP study recruited participants through an environmental forum, creating a systematic imbalance on environmental values:
 
-| Group | High env. values (%) | Baseline WTP |
+| Group | High env. values (%) | Observed WTP |
 |---|---|---|
 | Control (N = 95) | 38% | $4.20 |
-| Eco-label (N = 105) | 61% | — |
+| Eco-label (N = 105) | 61% | $5.50 |
 
 This imbalance corresponds to r(T, env\_values) ≈ 0.23. Environmental values have a direct positive effect on WTP of β ≈ 0.8 SD (≈ $1.20) even without any eco-label stimulus present.
 
