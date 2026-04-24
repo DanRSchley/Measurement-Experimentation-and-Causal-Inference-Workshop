@@ -659,7 +659,7 @@ p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex))
        title = "Each Rule Looks Reasonable; Choosing the Best One Inflates False Positives",
        subtitle = paste0(
          "N = ", N_excl, " per simulation  \u00b7  True treatment effect = 0  \u00b7  ",
-         N_sims_ex, " replications\n",
+         n_sims_ex, " replications\n",
          "Dashed = 5% nominal  \u00b7  Red line = false-positive rate if researcher picks most favorable rule")) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
