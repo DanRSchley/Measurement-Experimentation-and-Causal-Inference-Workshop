@@ -153,9 +153,9 @@ ggplot(obs_df, aes(x = fitted_naive, y = resid_naive)) +
 
 ::: {.callout-warning}
 ## What the fan shape tells you
-The residuals spread out dramatically as fitted values increase. This **heteroskedasticity** is a red flag: if the variance of errors is not constant, it usually means the model has left out something important that also varies with X.
+The residuals spread out dramatically as fitted values increase. This **heteroskedasticity** is a red flag: non-constant variance suggests the model has left out something that also varies with X.
 
-Here, that missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape in the residual plot is the visual signature of that missing variable.
+Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is *consistent with* that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.
 
 Connect this back to Case 1: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in Case 1 — telling you that Y reflects more than X.
 :::
@@ -279,5 +279,5 @@ Several of the methods below are covered in depth in **Module 3: Causal Inferenc
 - [ ] **Can you name the most plausible omitted variable in your regression?** For each predictor, identify what variable (a) affects Y and (b) correlates with X. That is your primary OVB threat.
 - [ ] **What direction is the bias?** The sign of the bias is the sign of β_omitted × r(X, omitted). Knowing the direction tells you whether your estimate is inflated or deflated.
 - [ ] **Does your coefficient change meaningfully when you add a proxy for the omitted variable?** Instability is evidence of OVB. Stability is reassuring but not proof.
-- [ ] **Do your residuals show a fan pattern or cluster by group?** This is the clearest visual diagnostic for a missing structuring variable.
+- [ ] **Do your residuals show a fan pattern or cluster by group?** This is *consistent with* a missing structuring variable, but heteroskedasticity has multiple causes. Pair the visual with a substantive theory of what might be omitted before concluding OVB.
 :::

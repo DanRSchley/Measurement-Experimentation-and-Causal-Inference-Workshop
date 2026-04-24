@@ -217,7 +217,7 @@ Every section uses simulated data with **known true effects** so you can see exa
 
 # Part 1: What Do We Mean by "Causal Effect"? {#sec-m3-part1}
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ_Qbgn1mguAIxorFZHqsS0sGJXYUbyYw7yFBsyd37wKXQpQgrpBh5c3wWTxDEtvg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 1: Causal Effects"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ_Qbgn1mguAIxorFZHqsS0sGJXYUbyYw7yFBsyd37wKXQpQgrpBh5c3wWTxDEtvg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 1: Causal Effects"></iframe>
 
 ## The Fundamental Problem of Causal Inference {#sec-fundamental}
 
@@ -402,7 +402,7 @@ Module 2's permutation test estimated the **ITT** — comparing all participants
 
 # Part 2: Selection on Observables {#sec-m3-part2}
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQDZkkwB4SGjnilPnrjkLIiEc48HRNlQ26hvFYLUFfMUftwN-xCXndPGlFDdG_DIw/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 2: Selection on Observables"></iframe>
 
 ## The Problem: Consumers Choose to Buy Eco-Labelled Products {#sec-obs-problem}
 

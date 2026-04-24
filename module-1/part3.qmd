@@ -51,7 +51,7 @@ gen_items <- function(latent, loadings) {
 }
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTrJTwXSENcvw2E1WGZ4irQAbXD7G0hZ3lhYOXxiRhfjoaN1zgxAuGnxxTcnrKTtA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 2: Measurement Invariance"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTrJTwXSENcvw2E1WGZ4irQAbXD7G0hZ3lhYOXxiRhfjoaN1zgxAuGnxxTcnrKTtA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 2: Measurement Invariance"></iframe>
 
 ---
 

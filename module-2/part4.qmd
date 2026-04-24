@@ -23,7 +23,7 @@ library(patchwork)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
 
 # Part 4: Selection Effects — Structural Threats to Exchangeability {#sec-selection}
 

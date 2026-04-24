@@ -71,7 +71,7 @@ When can we say that X *caused* Y? What methods go beyond randomized experiments
 **Sections**
 
 - [Part 1: What Is a Causal Effect?](module-3/part1.qmd)
-- [Part 2: Selection on Observables](module-3/part2.qmd)
+- [Part 2: Observational Methods for Causal Inference](module-3/part2.qmd)
 - [Part 3: Regression Discontinuity](module-3/part3.qmd)
 - [Part 4: Difference-in-Differences](module-3/part4.qmd)
 - [Part 5: Mediation](module-3/part5.qmd)

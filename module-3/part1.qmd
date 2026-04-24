@@ -106,7 +106,7 @@ rob_extract <- function(fit) {
 
 # Part 1: What Do We Mean by "Causal Effect"? {#sec-m3-part1}
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ_Qbgn1mguAIxorFZHqsS0sGJXYUbyYw7yFBsyd37wKXQpQgrpBh5c3wWTxDEtvg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 1: Causal Effects"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ_Qbgn1mguAIxorFZHqsS0sGJXYUbyYw7yFBsyd37wKXQpQgrpBh5c3wWTxDEtvg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 1: Causal Effects"></iframe>
 
 ## Causal Inference is a Deductive Process {#sec-deductive}
 

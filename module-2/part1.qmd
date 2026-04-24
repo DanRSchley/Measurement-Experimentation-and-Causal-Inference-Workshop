@@ -28,7 +28,7 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRg0zz3ILArjQNbjlILaUy3EvVrBqDrDrLsbzieDsJU9VcB1NBVWJufM-Oiv3EeJA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 1: P-values"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRg0zz3ILArjQNbjlILaUy3EvVrBqDrDrLsbzieDsJU9VcB1NBVWJufM-Oiv3EeJA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 1: P-values"></iframe>
 
 # Part 1: What Does a P-value Actually Mean? {#sec-pvalues}
 
@@ -78,19 +78,28 @@ We can exploit this directly: shuffle the labels thousands of times, recompute t
 ```{r sim-data}
 #| code-summary: "▶ Simulate WTP data and compute observed difference"
 
-set.seed(2025)
-
 N    <- 60
 mu   <- 5.50    # True population mean WTP ($)
 sig  <- 1.50    # True population SD ($)
 
-# All 60 participants drawn from the same population (null is true).
-# In our specific sample the eco-label group happened to score higher — by chance.
-# pmax(1) / pmin(10) enforces the 1–10 scale bounds. With mu = 5.50 and sd = 1.50,
-# fewer than 0.3% of draws fall outside [1, 10], so truncation bias is negligible here.
-# (For a full treatment of how bounded scales bias observed means, see Module 1, Part 6.)
-wtp_all <- rnorm(N, mean = mu, sd = sig) |> round(2) |> pmax(1) |> pmin(10)
-group   <- factor(rep(c("Control", "Eco-label"), each = N / 2))
+# All 60 participants are drawn from the same population (the null is true).
+# We search for a draw where the eco-label group happened to score ~$0.80 higher
+# purely by chance — matching the study description above.
+# With N = 60 and SD = $1.50 the SE of the difference is ~$0.39, so a gap of $0.80
+# corresponds to a t-statistic of ~2.1 and occurs in roughly 4% of random samples.
+# That is the pedagogical point: this seemingly large difference can arise under H₀.
+seed_use <- NA_integer_
+for (s in seq_len(50000)) {
+  set.seed(s)
+  wtp_try <- pmax(pmin(round(rnorm(N, mu, sig), 2), 10), 1)
+  d_try   <- mean(wtp_try[31:60]) - mean(wtp_try[1:30])
+  if (d_try >= 0.75 && d_try <= 0.85) { seed_use <- s; break }
+}
+if (is.na(seed_use)) stop("No seed found in 50,000 tries — adjust target range")
+
+set.seed(seed_use)
+wtp_all   <- pmax(pmin(round(rnorm(N, mu, sig), 2), 10), 1)
+group     <- factor(rep(c("Control", "Eco-label"), each = N / 2))
 df_coffee <- data.frame(wtp = wtp_all, group = group)
 
 obs_diff <- mean(df_coffee$wtp[df_coffee$group == "Eco-label"]) -
@@ -298,7 +307,7 @@ ggplot(null_df, aes(x = diff, fill = extreme)) +
   )
 ```
 
-The p-value of **`r sprintf("%.3f", p_val)`** tells us: `r sprintf("%.1f", p_val * 100)`% of shuffled datasets produced a difference as large as $`r sprintf("%.2f", abs(obs_diff))` or larger. This difference is *not* unusual under the null — chance produces it regularly.
+The p-value of **`r sprintf("%.3f", p_val)`** tells us: `r sprintf("%.1f", p_val * 100)`% of shuffled datasets produced a difference as large as $`r sprintf("%.2f", abs(obs_diff))` or larger — meaning this gap arises by chance roughly 1 time in `r round(1 / p_val)` under H₀. Look at where the red line lands relative to the tails of the null distribution. The conventional α = .05 cutoff is not a wall separating "real" effects from chance: it is a decision rule, and results near the boundary carry substantial uncertainty regardless of which side they fall on.
 
 ::: {.callout-note}
 ## What the p-value is and is NOT

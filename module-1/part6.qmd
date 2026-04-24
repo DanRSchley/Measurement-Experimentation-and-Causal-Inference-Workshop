@@ -20,7 +20,7 @@ library(lavaan); library(semTools); library(MASS); library(ggplot2)
 library(dplyr); library(tidyr); library(knitr)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRK55iak9cjh7X5Udy3Nbu-jZVP-0niiNmdaIftQrjSyU-pQkaMmSlmxf2sJLX_0g/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Systematic Measurement Error"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRK55iak9cjh7X5Udy3Nbu-jZVP-0niiNmdaIftQrjSyU-pQkaMmSlmxf2sJLX_0g/pubembed?start=false&loop=false&delayms=3000" width="100%" height="380px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Systematic Measurement Error"></iframe>
 
 ---
 
@@ -35,13 +35,13 @@ where $X_{\text{obs}}$ is the observed score, $T$ is the respondent's true laten
 **This assumption is testable.** In a well-specified measurement model, the estimated residuals $\hat{\varepsilon}_i = X_{\text{obs},i} - \hat{T}_i$ should be symmetrically distributed — mean zero, skewness near zero. A simple Q-Q plot of residuals, D'Agostino's skewness test, or the Jarque–Bera test can detect systematic asymmetry. If the residuals are skewed, the symmetry assumption is violated and the observed mean is no longer an unbiased proxy for the true latent mean — it will be pulled toward the center of the scale (ceiling effects bias means downward; floor effects bias them upward).
 
 ::: {.callout-warning}
-## The symmetry assumption for $\varepsilon$ rarely holds in practice — and bounded scales make this structural
+## The symmetry assumption for $\varepsilon$ rarely holds in practice — bounded scales are a common culprit
 
-The symmetry assumption is more often assumed than checked. In practice, it fails whenever participants are constrained in the range of responses they can express — most commonly because the scale itself runs out of room.
+The symmetry assumption is more often assumed than checked. One important way it fails is when participants are constrained in the range of responses they can express — most commonly because the scale itself runs out of room. The mechanism described below assumes a **truncated latent-score model**: the construct has a continuous latent distribution, and the observed score is that latent value clipped to the scale's endpoints. This is the right model for many bounded continuous measures (sliders, 0–100 ratings, VAS scales), though different scale types — ordinal Likert items, count outcomes, or corner-solution variables with genuine mass at a bound — follow a different data-generating process and may require different diagnostics.
 
-Consider a respondent whose true score is 90 on a 0–100 scale, with genuine response variability of ±15 points. Downward deviations are unconstrained: they can score 75, 80, 85. But upward deviations hit the ceiling: a genuine tendency to score 105 is recorded as 100. The error distribution is mechanically right-truncated. The respondent's $\varepsilon$ is no longer symmetric — it is negatively skewed, and every deviation toward the ceiling is suppressed.
+Consider a respondent whose true score is 90 on a 0–100 scale, with genuine response variability of ±15 points. Downward deviations are unconstrained: they can score 75, 80, 85. But upward deviations hit the ceiling: a genuine tendency to score 105 is recorded as 100. Under this truncated model, the error distribution is right-truncated. The respondent's $\varepsilon$ is no longer symmetric — it is negatively skewed, and every deviation toward the ceiling is suppressed.
 
-This is not a psychometric failure or a respondent quirk. It is a structural consequence of bounded measurement that applies to **every participant near a bound**, growing more severe the closer the true score sits to the ceiling or floor. The aggregate result — biased observed means, compressed variances, and skewed residuals — is what this part of the module explores. The takeaway: the symmetry of $\varepsilon$ should be checked, not assumed, and any researcher using bounded scales should inspect the residual distribution before treating observed means as unbiased.
+This is not a psychometric failure or a respondent quirk. Under a truncated latent-score DGP, it is a structural consequence of bounded measurement that grows more severe the closer the true score sits to the ceiling or floor. The aggregate result — biased observed means, compressed variances, and skewed residuals — is what this part of the module explores. The takeaway: the symmetry of $\varepsilon$ should be checked, not assumed, and any researcher using bounded continuous scales should inspect the residual distribution before treating observed means as unbiased.
 :::
 
 ## The Problem in Plain Language
@@ -56,9 +56,9 @@ Bounded scales are ubiquitous across the social, health, economic, and statistic
 This measurement-layer problem cascades upward through the rest of the inferential chain. Biased observed means corrupt hypothesis tests — because what is being tested is not the construct being theorized about. Those corrupted tests in turn compromise causal inference — because treatment-effect estimates compare biased observations rather than true latent values. A researcher who finds a null result comparing a control group (true mean 50) to a treated group (true mean 75, both on a 0–100 scale with SD 20) may be observing a genuine effect masked by **differential truncation bias**: the treated group's distribution is clipped more severely because it sits closer to the ceiling. The measurement layer is not preliminary housekeeping — it shapes every conclusion drawn above it.
 :::
 
-Here is the mechanism. Suppose a participant's true level of some construct is 85 on a 0–100 scale, and they have a genuine tendency to vary ±15 points around that true value due to measurement noise (mood, attention, question framing). On the low side, they can express that variation freely — they might score 70, 75, 80. On the high side, they hit a ceiling. Scores of 95, 100, 105 are impossible — those attempts to go higher just pile up at 100. The result: the *observed* distribution of scores is not centered at 85. It is pulled toward the center of the scale. The ceiling cuts off the upper tail, making the observed mean *lower* than the true mean.
+Here is the mechanism under a truncated latent-score model. Suppose a participant's true level of some construct is 85 on a 0–100 scale, and they have a genuine tendency to vary ±15 points around that true value due to measurement noise (mood, attention, question framing). On the low side, they can express that variation freely — they might score 70, 75, 80. On the high side, they hit a ceiling. Scores of 95, 100, 105 are impossible — those attempts to go higher just pile up at 100. The result: the *observed* distribution of scores is not centered at 85. It is pulled toward the center of the scale. The ceiling cuts off the upper tail, making the observed mean *lower* than the true mean.
 
-The same thing happens at the lower bound: if the true value is close to the floor, the floor cuts off the lower tail and pulls the observed mean *upward*. Both effects push observations toward the middle of the scale.
+The same thing happens at the lower bound: if the true value is close to the floor, the floor cuts off the lower tail and pulls the observed mean *upward*. Both effects push observations toward the middle of the scale. (Note: for ordinal Likert items, the response function is categorical rather than continuous-truncation, so the magnitude and direction of bias can differ.)
 
 Three factors make this worse:
 
@@ -67,13 +67,13 @@ Three factors make this worse:
 3. **Tighter scale** — a 7-point scale truncates more than a 100-point scale for the same true variability.
 
 ::: {.callout-note}
-## One-sided vs. two-sided bounds
+## One-sided vs. two-sided bounds (under a truncated latent-score model)
 
-Scales bounded on *both* ends (1–7 Likert, 0–100 slider) produce *symmetric* pull toward the center: ceiling effects at the top and floor effects at the bottom, each biasing estimates toward the midpoint.
+Under a truncated latent-score DGP, scales bounded on *both* ends (0–100 slider, bounded continuous rating) produce *symmetric* pull toward the center: ceiling effects at the top and floor effects at the bottom, each biasing estimates toward the midpoint. Ordinal Likert scales share this topology but follow a different response function — the bias pattern is qualitatively similar but the magnitude depends on item thresholds, not just the raw bounds.
 
-Scales bounded on *one end only* — like response time (lower bound at 0, no upper bound), log-transformed variables, or count data — produce *asymmetric* pull toward the *bounded* end only. The unbounded tail is free; the bounded tail is clipped. This asymmetry means the direction of bias depends on which bound participants approach.
+Scales bounded on *one end only* — like response time (lower bound at 0, no upper bound) or non-negative count data — produce *asymmetric* pull toward the *bounded* end only. The unbounded tail is free; the bounded tail is clipped. For corner-solution outcomes (variables with genuine probability mass at zero, such as dollars spent or number of purchases), the econometric treatment differs: a Tobit or hurdle model is more appropriate than a truncation correction.
 
-For right-skewed distributions common in bounded-at-zero measures (reaction time, income, sales), the floor effect is usually the active constraint, and the bias pushes mean estimates upward.
+For right-skewed continuous distributions common in bounded-at-zero measures (reaction time, income, sales), the floor effect is usually the active constraint, and under truncation the bias pushes mean estimates upward.
 :::
 
 ## Interactive Simulator: See the Bias in Real Time

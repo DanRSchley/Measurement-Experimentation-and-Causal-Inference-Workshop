@@ -112,11 +112,11 @@ The code blocks throughout this section contain inline annotations explaining **
 
 Mediation analysis asks whether the eco-label affects WTP **directly** or **through a mechanism** — here, *perceived sustainability* (M). Three estimators are compared across three scenarios that each challenge a different method.
 
-| Scenario | Key feature | Who wins |
+| Scenario | Key feature | Which method performs best *in this scenario* |
 |---|---|---|
 | **1: Clean normal data** | No violations — a baseline | All methods perform well |
-| **2: Large outliers** | Correlated high-leverage points inflate OLS b-path | **ROBMED** wins |
-| **3: M–Y confounded** | Unobserved U causes both M and Y; true ACME = 0 | **Imai sensitivity** catches it |
+| **2: Large outliers** | Correlated high-leverage points inflate OLS b-path | **ROBMED** recovers the true effect |
+| **3: M–Y confounded** | Unobserved U causes both M and Y; true ACME = 0 | **Imai sensitivity** flags the fragility |
 
 ::: {.callout-note}
 ## The mediation arithmetic — and where it can break
@@ -325,7 +325,7 @@ The key is *direction*: when participants who score unusually high on M also sco
 
 **ROBMED's MM-estimator** assigns lower weight to observations whose residuals are large relative to the bulk of the data. The outlier participants — who are far from the M–Y regression cloud — receive close to zero weight, leaving the slope estimate dominated by the non-contaminated 88%.
 
-**Why Imai doesn't help here**: `mediate()` calls the same `lm()` models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. ROBMED is the right tool; Imai is not.
+**Why Imai doesn't help here**: `mediate()` calls the same `lm()` models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. In this outlier scenario, ROBMED is the appropriate tool — Imai's advantage lies in confounding diagnosis (Scenario 3), not outlier robustness.
 :::
 
 
@@ -513,7 +513,7 @@ Both Scenario 1 and Scenario 3 produce a *statistically significant* ACME from O
 - **Scenario 1 (clean)**: ACME reaches zero only at $\rho^* \approx$ `r fmt_rho(crit_rho_s1)`. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is **robust**.
 - **Scenario 3 (confounded)**: ACME crosses zero at $\rho^* \approx$ `r fmt_rho(crit_rho_s3)`. Only modest confounding is enough to nullify the result. The "significant" ACME is **fragile** — correctly so, since the true ACME is 0.
 
-**The Imai advantage is not a better point estimate** (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the *sensitivity analysis itself* — an honest diagnostic that Baron–Kenny completely omits. A finding that reports both the ROBMED estimate and a large ρ* from `medsens()` is far more credible than one that does neither.
+**The Imai advantage is not a better point estimate** (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the *sensitivity analysis itself* — a diagnostic that Baron–Kenny does not provide. A finding that reports both the ROBMED estimate and a large ρ* from `medsens()` is far more credible than one that does neither.
 :::
 
 ## Comprehensive Bias Comparison Across All Scenarios {#sec-med-comparison}
