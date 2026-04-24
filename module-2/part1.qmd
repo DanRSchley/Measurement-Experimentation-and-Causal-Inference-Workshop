@@ -387,7 +387,7 @@ pval_df |>
   summarise(power = mean(sig), .groups = "drop") |>
   mutate(power = percent(power, accuracy = 0.1)) |>
   kable(col.names = c("True Effect", "% experiments with p < .05"),
-        caption = "Statistical power at \u03b1 = .05 (N = 60 per group, SD = $1.50)")
+        caption = "Statistical power at \u03b1 = .05 (N = 30 per group, total N = 60, SD = $1.50)")
 ```
 
 ```{r pval-hist, fig.height=4.5}

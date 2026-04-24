@@ -991,6 +991,8 @@ p_comply_if_Z1 <- plogis(0.8 + 0.6*env)
 p_always_taker <- plogis(-2.5 + 0.5*env)
 D_if_Z1 <- rbinom(N, 1, p_comply_if_Z1)
 D_if_Z0 <- rbinom(N, 1, p_always_taker)
+# Enforce monotonicity: no defiers (D_i(1) >= D_i(0) for all i)
+D_if_Z0 <- pmin(D_if_Z0, D_if_Z1)
 D       <- ifelse(Z==1, D_if_Z1, D_if_Z0)
 compliance_type <- case_when(
   D_if_Z1==1 & D_if_Z0==0 ~ "Complier",

@@ -111,14 +111,23 @@ WTP_4 <- gen_class_items(n4, lam_wtp, c("Green Champion" = 1.0,  "Price Skeptic"
 PS_4  <- gen_class_items(n4, lam_ps,  c("Green Champion" = -1.0, "Price Skeptic" =  0.8), true_class)
 GPI_4 <- gen_class_items(n4, lam_gpi, c("Green Champion" = 1.0,  "Price Skeptic" = -0.7), true_class)
 
+# ── Assign treatment BEFORE outcomes so effects can differ by class ────────────
+treatment <- sample(c(0L, 1L), n4, replace = TRUE)
+
 # ── Compute scale scores for LCA input ────────────────────────────────────────
 df4 <- data.frame(
   true_class = true_class,
+  treatment  = treatment,
   EC_score   = rowMeans(EC_4),
   WTP_score  = rowMeans(WTP_4),
   PS_score   = rowMeans(PS_4),
   GPI_score  = rowMeans(GPI_4)
 )
+
+# ── Add class-specific treatment effect to GPI ─────────────────────────────────
+# Green Champions respond strongly (+1.0 scale units); Price Skeptics barely move (+0.05)
+te_vec        <- ifelse(true_class == "Green Champion", 1.0, 0.05)
+df4$GPI_score <- df4$GPI_score + te_vec * treatment
 ```
 
 ## Step 1: Seeing the Pooled vs. Within-Class Pattern
@@ -228,9 +237,13 @@ set.seed(2025)
 gmm_fit <- mclust::Mclust(scale_scores, G = 2, verbose = FALSE)
 
 # ── Extract classification results ────────────────────────────────────────────
-df4$estimated_class <- factor(gmm_fit$classification,
-                               levels = 1:2,
-                               labels = c("Class 1", "Class 2"))
+# Relabel EM classes so the higher-EC class = Green Champions (avoids label switching)
+class_ec_means <- tapply(df4$EC_score, gmm_fit$classification, mean)
+champ_em_class <- which.max(class_ec_means)
+df4$estimated_class <- factor(
+  ifelse(gmm_fit$classification == champ_em_class, "Green Champions", "Price Skeptics"),
+  levels = c("Green Champions", "Price Skeptics")
+)
 
 # ── Classification accuracy: how well did EM recover the true classes? ─────────
 class_table <- table(True = df4$true_class,
@@ -268,7 +281,7 @@ ggplot(class_profiles, aes(x = variable, y = mean_score,
   geom_col(position = position_dodge(0.7), width = 0.6, colour = "white") +
   geom_hline(yintercept = 0, colour = "grey40") +
   scale_fill_manual(
-    values = c("Class 1" = "#2c7bb6", "Class 2" = "#d73027"),
+    values = c("Green Champions" = "#2c7bb6", "Price Skeptics" = "#d73027"),
     name   = "Estimated class"
   ) +
   scale_x_discrete(labels = c("EC" = "Environmental\nConcern",
@@ -305,32 +318,26 @@ Work through the chart one variable at a time:
 
 ```{r case4-class-effects}
 #| code-summary: "▶ Treatment effects by latent class"
-# Treatment effect of the green marketing campaign, estimated separately per class
-# Recall: Green Champions have high GPI regardless; Skeptics barely move
-
-# For illustration, simulate a treatment variable
-set.seed(2025)
-df4$treatment <- sample(c(0L, 1L), n4, replace = TRUE)
-
+# Treatment was assigned in the simulation chunk; use it directly
 # Naive pooled model
 m_pooled <- lm(GPI_score ~ treatment, data = df4)
 
-# Class-specific models
-m_class1 <- lm(GPI_score ~ treatment,
-               data = filter(df4, estimated_class == "Class 1"))
-m_class2 <- lm(GPI_score ~ treatment,
-               data = filter(df4, estimated_class == "Class 2"))
+# Class-specific models (using relabeled estimated classes)
+m_champ <- lm(GPI_score ~ treatment,
+              data = filter(df4, estimated_class == "Green Champions"))
+m_skept <- lm(GPI_score ~ treatment,
+              data = filter(df4, estimated_class == "Price Skeptics"))
 
 class_effects <- data.frame(
   Model = c("Pooled (ignores classes)",
-            "Class 1 (Green Champions)",
-            "Class 2 (Price Skeptics)"),
+            "Green Champions",
+            "Price Skeptics"),
   `Treatment effect on GPI` = round(c(coef(m_pooled)["treatment"],
-                                      coef(m_class1)["treatment"],
-                                      coef(m_class2)["treatment"]), 3),
+                                      coef(m_champ)["treatment"],
+                                      coef(m_skept)["treatment"]), 3),
   `N` = c(n4,
-          sum(df4$estimated_class == "Class 1"),
-          sum(df4$estimated_class == "Class 2"))
+          sum(df4$estimated_class == "Green Champions"),
+          sum(df4$estimated_class == "Price Skeptics"))
 )
 
 kable(class_effects,

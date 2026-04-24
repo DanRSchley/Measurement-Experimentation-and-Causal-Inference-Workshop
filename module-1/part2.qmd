@@ -93,8 +93,8 @@ X_ads <- 4 * U_quality + rnorm(n_obs, sd = 1.5)
 Y_sales <- 0.20 * X_ads + 5.00 * U_quality +
            rnorm(n_obs, sd = 0.3 + 1.5 * abs(U_quality))
 
-# ── Store size: a rough proxy for quality we might observe in secondary data ──
-store_size <- 1.5 * U_quality + rnorm(n_obs, sd = 1.8)
+# ── Store size: a strong proxy for quality (corr ≈ 0.95 with U_quality) ──────
+store_size <- 1.5 * U_quality + rnorm(n_obs, sd = 0.5)
 
 # ── Observed dataset (quality is hidden; store_size is sometimes available) ───
 obs_df <- data.frame(
@@ -237,7 +237,7 @@ If your advertising coefficient **drops substantially** when you add a control v
 
 If the coefficient barely moves, that control was probably not picking up a meaningful confounder (though it doesn't fully rule out other unmeasured variables).
 
-**Rule of thumb:** A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that is cut in half or more (as in our simulation) is a clear warning of omitted variable bias.
+**Rule of thumb:** A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that drops substantially from its naive value — moving meaningfully toward the oracle — is a clear warning of omitted variable bias. The larger the drop, the stronger the evidence.
 :::
 
 ## Summary: What OVB Teaches Us

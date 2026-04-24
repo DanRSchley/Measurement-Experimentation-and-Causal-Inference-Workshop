@@ -36,8 +36,8 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 # ── Helper objects shared with Cases 1 and 3 ──────────────────────────────────
 # Factor correlation matrix used in simulation
 phi_pop <- matrix(
-  c(1.00, 0.93, 0.45,
-    0.93, 1.00, 0.50,
+  c(1.00, 0.40, 0.45,
+    0.40, 1.00, 0.50,
     0.45, 0.50, 1.00),
   nrow = 3, byrow = TRUE,
   dimnames = list(c("EC", "GPI", "BA"), c("EC", "GPI", "BA"))

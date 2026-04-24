@@ -333,7 +333,7 @@ In the eco-coffee WTP study, participants could not state WTP below $1 (floor) o
 
 **Consequence of ignoring censoring:** OLS on a censored outcome is biased and inconsistent. Observations piled at the ceiling (e.g., everyone stating exactly $10.00 WTP) look identical to OLS but represent unobserved heterogeneity (some would have stated $12 or $15 if allowed).
 
-The **Tobit model** explicitly models the censoring threshold and recovers the latent distribution:
+The **Tobit model** explicitly models the censoring threshold and moves estimates substantially closer to the latent distribution:
 
 $$Y^* = X\beta + \varepsilon, \quad Y = \max(Y_{\text{lower}}, \min(Y^*, Y_{\text{upper}}))$$
 
@@ -378,7 +378,7 @@ cens_tab <- data.frame(
 
 kable(cens_tab,
       caption = paste0("OLS vs. Tobit on floor-censored WTP (true eco effect = $0.90). ",
-                       "~20% floor censoring attenuates OLS; Tobit recovers the latent coefficient."))
+                       "~20% floor censoring attenuates OLS; Tobit moves materially closer to the latent coefficient."))
 ```
 
 ## The Problem: Consumers Choose to Buy Eco-Labelled Products {#sec-obs-problem}
