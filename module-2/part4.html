@@ -534,27 +534,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"biased"</span> <span class="ot">=</span> <span class="st">"#e63946"</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
 <span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">75</span>), <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Estimated Clinton support (%)"</span>,</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Non-Representative Sampling Overstates Clinton Support"</span>,</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"True population: "</span>, <span class="fu">sprintf</span>(<span class="st">"%.1f"</span>, true_clinton <span class="sc">*</span> <span class="dv">100</span>),</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"% Clinton  \u00b7  "</span>,</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Opt-in panel over-samples college-educated voters"</span>)) <span class="sc">+</span></span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>p_college <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(results_df, <span class="fu">aes</span>(<span class="at">x =</span> Sample, <span class="at">y =</span> College_pct, <span class="at">fill =</span> Source)) <span class="sc">+</span></span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.88</span>) <span class="sc">+</span></span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.1f%%</span><span class="sc">\n</span><span class="st">college-educated"</span>, College_pct)),</span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">lineheight =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"truth"</span> <span class="ot">=</span> <span class="st">"#457b9d"</span>, <span class="st">"random"</span> <span class="ot">=</span> <span class="st">"#52b788"</span>,</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"biased"</span> <span class="ot">=</span> <span class="st">"#e63946"</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.85</span>), <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"% college-educated in sample"</span>,</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Why: Opt-In Panel Over-Samples College-Educated Respondents"</span>,</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"College-educated voters respond to online surveys at ~3\u00d7 the rate of non-college voters"</span>) <span class="sc">+</span></span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>p_vote <span class="sc">+</span> p_college</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Biased Sample Overstates Clinton Support"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"True: "</span>, <span class="fu">sprintf</span>(<span class="st">"%.1f"</span>, true_clinton <span class="sc">*</span> <span class="dv">100</span>),</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"% Clinton  \u00b7  Opt-in panel skews college-educated"</span>)) <span class="sc">+</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>p_college <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(results_df, <span class="fu">aes</span>(<span class="at">x =</span> Sample, <span class="at">y =</span> College_pct, <span class="at">fill =</span> Source)) <span class="sc">+</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">alpha =</span> <span class="fl">0.88</span>) <span class="sc">+</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.0f%%</span><span class="sc">\n</span><span class="st">college"</span>, College_pct)),</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">lineheight =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"truth"</span> <span class="ot">=</span> <span class="st">"#457b9d"</span>, <span class="st">"random"</span> <span class="ot">=</span> <span class="st">"#52b788"</span>,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"biased"</span> <span class="ot">=</span> <span class="st">"#e63946"</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">85</span>), <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"% college-educated"</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Opt-In Panels Over-Sample</span><span class="sc">\n</span><span class="st">College-Educated Respondents"</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"College-educated respond ~3\u00d7 more often to online surveys"</span>) <span class="sc">+</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>p_vote <span class="sc">+</span> p_college</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -723,8 +722,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Random assignment</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">high_default  =</span> <span class="fu">rbinom</span>(N_don, <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Stage 1: probability of donating</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># High default raises threshold: only donate if propensity &gt; 0.4 (vs. &gt; -0.3 for low default)</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_donate      =</span> <span class="fu">plogis</span>(propensity <span class="sc">*</span> <span class="fl">1.2</span> <span class="sc">-</span> <span class="fl">0.4</span> <span class="sc">*</span> high_default),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># High default raises threshold sharply: only committed donors (propensity &gt; ~0.8) proceed</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_donate      =</span> <span class="fu">plogis</span>(propensity <span class="sc">*</span> <span class="fl">1.5</span> <span class="sc">-</span> <span class="fl">1.2</span> <span class="sc">*</span> high_default),</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">donated       =</span> <span class="fu">rbinom</span>(N_don, <span class="dv">1</span>, p_donate),</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Stage 2: amount, conditional on donating</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># True effect of high default on amount = $1.50 (anchoring)</span></span>
@@ -820,13 +819,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">Low default ($1)</td>
 <td style="text-align: right;">959</td>
 <td style="text-align: right;">0.026</td>
-<td style="text-align: right;">50.2</td>
+<td style="text-align: right;">50.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">High default ($10)</td>
 <td style="text-align: right;">1041</td>
 <td style="text-align: right;">-0.063</td>
-<td style="text-align: right;">38.1</td>
+<td style="text-align: right;">27.5</td>
 </tr>
 </tbody>
 </table>
@@ -856,15 +855,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Low default ($1)</td>
-<td style="text-align: right;">481</td>
-<td style="text-align: right;">0.497</td>
-<td style="text-align: right;">5.97</td>
+<td style="text-align: right;">484</td>
+<td style="text-align: right;">0.549</td>
+<td style="text-align: right;">6.09</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">High default ($10)</td>
-<td style="text-align: right;">397</td>
-<td style="text-align: right;">0.448</td>
-<td style="text-align: right;">7.38</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.663</td>
+<td style="text-align: right;">7.85</td>
 </tr>
 </tbody>
 </table>
