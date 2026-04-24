@@ -124,23 +124,22 @@ p_vote <- ggplot(results_df, aes(x = Sample, y = Clinton_pct, fill = Source)) +
                                 "biased" = "#e63946"), guide = "none") +
   scale_y_continuous(limits = c(0, 75), labels = function(x) paste0(x, "%")) +
   labs(x = NULL, y = "Estimated Clinton support (%)",
-       title = "Non-Representative Sampling Overstates Clinton Support",
-       subtitle = paste0("True population: ", sprintf("%.1f", true_clinton * 100),
-                         "% Clinton  \u00b7  ",
-                         "Opt-in panel over-samples college-educated voters")) +
+       title = "Biased Sample Overstates Clinton Support",
+       subtitle = paste0("True: ", sprintf("%.1f", true_clinton * 100),
+                         "% Clinton  \u00b7  Opt-in panel skews college-educated")) +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
 
 p_college <- ggplot(results_df, aes(x = Sample, y = College_pct, fill = Source)) +
   geom_col(width = 0.6, alpha = 0.88) +
-  geom_text(aes(label = sprintf("%.1f%%\ncollege-educated", College_pct)),
+  geom_text(aes(label = sprintf("%.0f%%\ncollege", College_pct)),
             vjust = -0.4, size = 3.5, lineheight = 0.85) +
   scale_fill_manual(values = c("truth" = "#457b9d", "random" = "#52b788",
                                 "biased" = "#e63946"), guide = "none") +
-  scale_y_continuous(limits = c(0, 0.85), labels = percent_format(accuracy = 1)) +
-  labs(x = NULL, y = "% college-educated in sample",
-       title = "Why: Opt-In Panel Over-Samples College-Educated Respondents",
-       subtitle = "College-educated voters respond to online surveys at ~3\u00d7 the rate of non-college voters") +
+  scale_y_continuous(limits = c(0, 85), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = "% college-educated",
+       title = "Opt-In Panels Over-Sample\nCollege-Educated Respondents",
+       subtitle = "College-educated respond ~3\u00d7 more often to online surveys") +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
 
@@ -297,8 +296,8 @@ sim_don <- tibble(
   # Random assignment
   high_default  = rbinom(N_don, 1, 0.5),
   # Stage 1: probability of donating
-  # High default raises threshold: only donate if propensity > 0.4 (vs. > -0.3 for low default)
-  p_donate      = plogis(propensity * 1.2 - 0.4 * high_default),
+  # High default raises threshold sharply: only committed donors (propensity > ~0.8) proceed
+  p_donate      = plogis(propensity * 1.5 - 1.2 * high_default),
   donated       = rbinom(N_don, 1, p_donate),
   # Stage 2: amount, conditional on donating
   # True effect of high default on amount = $1.50 (anchoring)
