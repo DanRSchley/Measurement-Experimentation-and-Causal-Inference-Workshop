@@ -283,7 +283,7 @@ ggplot(expl_df, aes(x = k, y = cells)) +
 
 With 10 binary dimensions, the full design matrix has 1,024 rows. We can visualize this as a heatmap where each column is a unique participant profile and each row is one dimension:
 
-```{r matrix-1024, fig.height=6, fig.width=10}
+```{r matrix-1024, fig.height=8, fig.width=10}
 #| code-summary: "▶ Plot: all 1,024 unique profiles in the 10-dimension design space"
 
 all_profiles <- as.data.frame(
@@ -792,7 +792,7 @@ Most researchers assume larger samples make experiments safer. The bottom plot r
 
 **The compounding trap visualized:** The plot below shows — for Scenario B (the dangerous case) — how Type-1 error (among experiments *with* violations) and Type-2 error/miss rate (among experiments *without* violations) evolve as N grows. Point size is proportional to the frequency of orthogonality violations. Read it as a race: the red line (false-positive danger) climbs faster than the blue line (miss rate) falls.
 
-```{r danger-overlay, fig.height=5, fig.width=11}
+```{r danger-overlay, fig.height=6.5, fig.width=11}
 #| code-summary: "▶ Side-by-side: Type-1 error (violations) vs power (no violations) as N grows"
 
 # Extract Scenario B only; compute power = 1 - miss rate; reshape to long for facets

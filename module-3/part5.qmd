@@ -137,7 +137,7 @@ The **ACME** (Average Causal Mediation Effect) is the product $a \times b$. It h
 
 ## Causal Structures {#sec-med-dags}
 
-```{r med-dag-scenarios, fig.height=3.2, fig.width=10, echo=FALSE}
+```{r med-dag-scenarios, fig.height=4.5, fig.width=10, echo=FALSE}
 #| code-summary: "▶ DAGs: true mediation (Scenarios 1 & 2) vs. confounded (Scenario 3)"
 dA <- .dag(nodes = list(X=c(0,.5), M=c(.5,.9), Y=c(1,.5)),
            solid  = list(c("X","M"), c("M","Y"), c("X","Y")),
@@ -354,7 +354,7 @@ tibble(
   )
 ```
 
-```{r med-outlier-scatter, fig.height=3.5, fig.width=10, echo=FALSE}
+```{r med-outlier-scatter, fig.height=5.0, fig.width=10, echo=FALSE}
 #| code-summary: "▶ Scatter: clean vs contaminated data showing outlier leverage on OLS slope"
 p_s1_sc <- ggplot(df_s1, aes(x = perc_sust, y = WTP)) +
   geom_point(alpha = 0.35, size = 1.5, colour = clr_ctrl) +
@@ -415,7 +415,7 @@ Imai et al.'s `medsens()` asks: *how large would the correlation between M-equat
 - **Large ρ***: only substantial unmeasured confounding could explain away the result → **robust**
 - **Small ρ***: even modest unmeasured confounding suffices → **fragile**
 
-```{r med-sensitivity-compare, fig.height=4.5, fig.width=10}
+```{r med-sensitivity-compare, fig.height=5.5, fig.width=10}
 #| code-summary: "▶ Sensitivity analysis: clean DGP (robust) vs. confounded DGP (fragile)"
 # ── YOUR DATA: replace res_s1$med_imai and res_s3$med_imai with the med_imai
 #    object returned by run_mediation_triple() on your own data frame.
@@ -655,7 +655,7 @@ res_2x2 <- do.call(rbind, lapply(scenarios_2x2, function(s) {
 }))
 ```
 
-```{r med-2x2-dags, fig.height=5, fig.width=11, echo=FALSE}
+```{r med-2x2-dags, fig.height=6.5, fig.width=11, echo=FALSE}
 #| code-summary: "▶ DAGs: the four 2×2 scenarios"
 
 # ── DAG drawing helper (adapted from Mediation-Simulation.Rmd) ────────────────
@@ -719,7 +719,7 @@ dag_list_2x2 <- list(
 (dag_list_2x2[[1]] | dag_list_2x2[[2]]) / (dag_list_2x2[[3]] | dag_list_2x2[[4]])
 ```
 
-```{r med-2x2-plot, fig.height=5.5, fig.width=9, echo=FALSE}
+```{r med-2x2-plot, fig.height=6.5, fig.width=9, echo=FALSE}
 #| code-summary: "▶ True vs. estimated ACME across all four cells"
 
 cell_colours <- c(
