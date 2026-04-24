@@ -1116,7 +1116,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Exclude participants who failed [1 / 2 / any] attention check items</li>
 <li>Winsorize at the [1st &amp; 99th / 2.5th &amp; 97.5th / 5th &amp; 95th] percentiles</li>
 </ul>
-<p>Each of these rules is reasonable on its face. Each has been used in published research. The problem is that when the exclusion rule is chosen <em>after seeing the data</em> — especially after seeing whether the treatment effect is significant under each rule — the choice of rule is itself a researcher degree of freedom.</p>
+<p>Each of these rules is reasonable on its face. Each has been used in published research. There are two related problems.</p>
+<p>The first is that in real experiments, exclusion criteria almost never screen participants who are <em>randomly</em> low-quality: a participant who speeds through the survey is also likely to give less considered responses — a lower WTP estimate, a weaker attitude rating, a noisier preference judgment. Exclusion criteria (RT, attention checks, quality scores) are <strong>correlated with the outcome Y</strong>. When you remove low-RT or low-attention participants, you are simultaneously removing the low-Y tail of the distribution. That asymmetric truncation makes the standard error look smaller than it is, so the t-test is anti-conservative — it rejects H₀ more than 5% of the time even when the null is true.</p>
+<p>The second problem is researcher degrees of freedom: when the exclusion rule is chosen <em>after seeing the data</em> — especially after seeing whether the treatment effect is significant — the choice of rule is itself a researcher degree of freedom. Across all rules a researcher might try, the probability that at least one crosses α = .05 is far higher than 5%.</p>
+<p>The simulation below captures both problems. The DGP includes a latent <strong>engagement</strong> variable that simultaneously drives response time (low engagement → fast RT), outcome quality (low engagement → lower Y), and quality-check performance — but is independent of treatment condition (H₀ is true throughout). Exclusion rules that target engagement-correlated proxies therefore inflate individual-rule FP rates; picking the most favorable rule inflates them further.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Simulate: false-positive rate across 10 exclusion rules (null effect)</summary>
@@ -1125,66 +1128,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>N_excl    <span class="ot">&lt;-</span> <span class="dv">200</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>alpha_ex  <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 exclusion rules indexed by their SD cutoff (or equivalent)</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Rules vary from lenient (keep almost all) to strict (remove many)</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>rule_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"No exclusions"</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b13.0 SD"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b12.5 SD"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b12.0 SD"</span>,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Bottom 5% RT"</span>,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Bottom 10% RT"</span>,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Top/bottom 5%</span><span class="sc">\n</span><span class="st">winsorized"</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Attention fail</span><span class="sc">\n</span><span class="st">(\u22651 miss)"</span>,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Attention fail</span><span class="sc">\n</span><span class="st">(\u22652 misses)"</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Fastest 10%</span><span class="sc">\n</span><span class="st">+ \u00b12.5 SD"</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># For each simulation, generate null data, apply each rule, get p-value</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>sim_pvals <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sims_ex, {</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># True null: no treatment effect</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  trt <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> N_excl <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  Y   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_excl)</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulated nuisance variables used by exclusion rules</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  rt       <span class="ot">&lt;-</span> <span class="fu">runif</span>(N_excl, <span class="fl">0.5</span>, <span class="dv">15</span>)   <span class="co"># response time</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  att      <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_excl, <span class="dv">3</span>, <span class="fl">0.15</span>)  <span class="co"># number of attention check fails</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute per-rule p-values</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(<span class="fu">seq_along</span>(rule_labels), <span class="cf">function</span>(k) {</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    keep <span class="ot">&lt;-</span> <span class="cf">switch</span>(k,</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>      <span class="st">"1"</span>  <span class="ot">=</span> <span class="fu">rep</span>(<span class="cn">TRUE</span>, N_excl),</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">"2"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">3.0</span>,</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>      <span class="st">"3"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.5</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>      <span class="st">"4"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.0</span>,</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>      <span class="st">"5"</span>  <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.05</span>),</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">"6"</span>  <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.10</span>),</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>      <span class="st">"7"</span>  <span class="ot">=</span> { Y_w <span class="ot">&lt;-</span> Y; Y_w[Y <span class="sc">&gt;</span> <span class="fu">quantile</span>(Y,.<span class="dv">95</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y,.<span class="dv">95</span>)</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>               Y_w[Y <span class="sc">&lt;</span> <span class="fu">quantile</span>(Y,.<span class="dv">05</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y,.<span class="dv">05</span>); <span class="fu">rep</span>(<span class="cn">TRUE</span>, N_excl) },</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>      <span class="st">"8"</span>  <span class="ot">=</span> att <span class="sc">&lt;</span> <span class="dv">1</span>,</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>      <span class="st">"9"</span>  <span class="ot">=</span> att <span class="sc">&lt;</span> <span class="dv">2</span>,</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>      <span class="st">"10"</span> <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.10</span>) <span class="sc">&amp;</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.5</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For winsorizing (rule 7), Y is modified in place above — use winsorized Y</span></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    Y_use <span class="ot">&lt;-</span> <span class="cf">if</span> (k <span class="sc">==</span> <span class="dv">7</span>) {</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>      Y_w <span class="ot">&lt;-</span> Y; Y_w[Y <span class="sc">&gt;</span> <span class="fu">quantile</span>(Y,.<span class="dv">95</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y,.<span class="dv">95</span>)</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>      Y_w[Y <span class="sc">&lt;</span> <span class="fu">quantile</span>(Y,.<span class="dv">05</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y,.<span class="dv">05</span>); Y_w</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> Y</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(keep) <span class="sc">&lt;</span> <span class="dv">10</span>) <span class="fu">return</span>(<span class="dv">1</span>)</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>(</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(Y_use[keep <span class="sc">&amp;</span> trt <span class="sc">==</span> <span class="dv">1</span>], Y_use[keep <span class="sc">&amp;</span> trt <span class="sc">==</span> <span class="dv">0</span>])<span class="sc">$</span>p.value,</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="dv">1</span></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>})  <span class="co"># sim_pvals is 10 × n_sims_ex</span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="co"># False-positive rate per rule</span></span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>fp_per_rule <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(sim_pvals <span class="sc">&lt;</span> alpha_ex)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>rule_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"No exclusions"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b13.0 SD"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b12.5 SD"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"\u00b12.0 SD"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Fastest 5%</span><span class="sc">\n</span><span class="st">(RT &lt; 5th pct)"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Fastest 10%</span><span class="sc">\n</span><span class="st">(RT &lt; 10th pct)"</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Top/bottom 5%</span><span class="sc">\n</span><span class="st">winsorized"</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Low quality</span><span class="sc">\n</span><span class="st">(bottom 20%)"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Low quality</span><span class="sc">\n</span><span class="st">(bottom 10%)"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RT + SD</span><span class="sc">\n</span><span class="st">combined"</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>sim_pvals <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sims_ex, {</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  trt <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> N_excl <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Latent engagement: random, NOT related to condition (H0 is true)</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  engagement <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_excl)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Y is correlated with engagement: engaged participants give more considered</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># responses (e.g., more thoughtful WTP estimates). corr(Y, engagement) = 0.65.</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  Y  <span class="ot">&lt;-</span> <span class="fl">0.65</span> <span class="sc">*</span> engagement <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.65</span><span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(N_excl)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># RT: engaged = careful = slower; speeding = fast = low engagement</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  rt <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">5</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> engagement <span class="sc">+</span> <span class="fu">rnorm</span>(N_excl, <span class="at">sd =</span> <span class="fl">2.5</span>), <span class="fl">0.5</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Quality score (like an attention/engagement index); correlated with engagement</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  quality <span class="ot">&lt;-</span> engagement <span class="sc">+</span> <span class="fu">rnorm</span>(N_excl, <span class="at">sd =</span> <span class="fl">0.6</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(<span class="fu">seq_along</span>(rule_labels), <span class="cf">function</span>(k) {</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    keep <span class="ot">&lt;-</span> <span class="cf">switch</span>(k,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>      <span class="st">"1"</span>  <span class="ot">=</span> <span class="fu">rep</span>(<span class="cn">TRUE</span>, N_excl),</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">"2"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">3.0</span>,</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>      <span class="st">"3"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.5</span>,</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      <span class="st">"4"</span>  <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.0</span>,</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>      <span class="st">"5"</span>  <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.05</span>),</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>      <span class="st">"6"</span>  <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.10</span>),</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>      <span class="st">"7"</span>  <span class="ot">=</span> { Y_w <span class="ot">&lt;-</span> Y; Y_w[Y <span class="sc">&gt;</span> <span class="fu">quantile</span>(Y, .<span class="dv">95</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y, .<span class="dv">95</span>)</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>               Y_w[Y <span class="sc">&lt;</span> <span class="fu">quantile</span>(Y, .<span class="dv">05</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y, .<span class="dv">05</span>); <span class="fu">rep</span>(<span class="cn">TRUE</span>, N_excl) },</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>      <span class="st">"8"</span>  <span class="ot">=</span> quality <span class="sc">&gt;</span> <span class="fu">quantile</span>(quality, <span class="fl">0.20</span>),</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>      <span class="st">"9"</span>  <span class="ot">=</span> quality <span class="sc">&gt;</span> <span class="fu">quantile</span>(quality, <span class="fl">0.10</span>),</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>      <span class="st">"10"</span> <span class="ot">=</span> rt <span class="sc">&gt;</span> <span class="fu">quantile</span>(rt, <span class="fl">0.10</span>) <span class="sc">&amp;</span> <span class="fu">abs</span>(<span class="fu">scale</span>(Y)) <span class="sc">&lt;</span> <span class="fl">2.5</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    Y_use <span class="ot">&lt;-</span> <span class="cf">if</span> (k <span class="sc">==</span> <span class="dv">7</span>) {</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>      Y_w <span class="ot">&lt;-</span> Y; Y_w[Y <span class="sc">&gt;</span> <span class="fu">quantile</span>(Y, .<span class="dv">95</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y, .<span class="dv">95</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>      Y_w[Y <span class="sc">&lt;</span> <span class="fu">quantile</span>(Y, .<span class="dv">05</span>)] <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y, .<span class="dv">05</span>); Y_w</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> Y</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(keep) <span class="sc">&lt;</span> <span class="dv">10</span>) <span class="fu">return</span>(<span class="dv">1</span>)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>(</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(Y_use[keep <span class="sc">&amp;</span> trt <span class="sc">==</span> <span class="dv">1</span>], Y_use[keep <span class="sc">&amp;</span> trt <span class="sc">==</span> <span class="dv">0</span>])<span class="sc">$</span>p.value,</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="dv">1</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>})  <span class="co"># sim_pvals is 10 × n_sims_ex</span></span>
 <span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a><span class="co"># False-positive rate if researcher picks the most favorable rule</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>fp_per_rule  <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(sim_pvals <span class="sc">&lt;</span> alpha_ex)</span>
 <span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>fp_best_rule <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">apply</span>(sim_pvals, <span class="dv">2</span>, min) <span class="sc">&lt;</span> alpha_ex)</span>
 <span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>excl_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">rule   =</span> <span class="fu">factor</span>(rule_labels, <span class="at">levels =</span> rule_labels),</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">rule    =</span> <span class="fu">factor</span>(rule_labels, <span class="at">levels =</span> rule_labels),</span>
 <span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">fp_rate =</span> fp_per_rule</span>
 <span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a></span>
@@ -1202,13 +1205,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.1f%%"</span>, fp_rate <span class="sc">*</span> <span class="dv">100</span>)),</span>
 <span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>            <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
 <span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"#4a90d9"</span>, <span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#e63946"</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.22</span>)) <span class="sc">+</span></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.30</span>)) <span class="sc">+</span></span>
 <span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Exclusion rule"</span>, <span class="at">y =</span> <span class="st">"False-positive rate (true null effect)"</span>,</span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Each Rule Looks Reasonable; Choosing the Best One Inflates False Positives"</span>,</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Correlated Exclusion Criteria Inflate False Positives — Even Rule by Rule"</span>,</span>
 <span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>         <span class="st">"N = "</span>, N_excl, <span class="st">" per simulation  \u00b7  True treatment effect = 0  \u00b7  "</span>,</span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>         n_sims_ex, <span class="st">" replications</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Dashed = 5% nominal  \u00b7  Red line = false-positive rate if researcher picks most favorable rule"</span>)) <span class="sc">+</span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>         <span class="st">"N = "</span>, N_excl, <span class="st">"  \u00b7  True effect = 0  \u00b7  "</span>,</span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>         n_sims_ex, <span class="st">" replications  \u00b7  engagement drives both RT/quality and Y</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Blue = near nominal 5%  \u00b7  Red = inflated  \u00b7  Red dashed = rate if researcher picks best rule"</span>)) <span class="sc">+</span></span>
 <span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
 <span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>(),</span>
 <span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>, <span class="at">lineheight =</span> <span class="fl">0.85</span>))</span>
@@ -1223,7 +1226,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Each individual exclusion rule maintains a false-positive rate close to the nominal 5% — there is nothing wrong with any single rule in isolation. But the red dashed line shows what happens when a researcher tries all ten rules and reports whichever one gives the best result: the false-positive rate climbs well above the nominal level. A null finding becomes a significant finding simply by the researcher’s choice of which participants to exclude.</p>
+<p><strong>What the plot shows:</strong> The symmetric SD-based rules (rules 2–4) exclude from both tails of Y and stay near the nominal 5%. The RT-based rules exclude from the <em>low</em> end of Y (fast responders give lower WTP) and are clearly elevated. The quality-score rules are most aggressive — removing 10–20% of the sample based on a criterion correlated with Y inflates the FP rate substantially even for a single, pre-committed rule. Choosing the best-performing rule across all ten pushes the combined false-positive rate to the red dashed line.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
