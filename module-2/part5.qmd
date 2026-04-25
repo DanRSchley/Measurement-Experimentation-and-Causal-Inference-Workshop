@@ -374,7 +374,7 @@ In all the designs above, we compared *different people* in different conditions
 
 **Why does this increase power?** Consider the source of variance in your data:
 
-$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
+$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{Heterogeneity across people}} + \underbrace{\text{Within-person variance}}_{\text{Each person's unique patterns}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
 
 In a between-participant design, your treatment effect estimate must be separated from *both* between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.
 
@@ -484,6 +484,10 @@ where $\tau^2$ is the variance of the true effect *across scenarios* (effect het
 This means that **for any fixed total N, power increases as you add more microstudies** — even though each individual microstudy gets fewer participants. The gain comes from sampling the method space more densely, not from adding people.
 
 Contrast this with running K separate, independent A/B tests using the same total budget. Each separate test gets only N/K participants, so its standard error grows as K increases. The metastudy and the separate-tests approach start from the same place at K = 1 and then diverge sharply in opposite directions.
+
+Like in within-participant studies where we can parse out each participant's unique patterns from the residual variance, because each condition is being crossed with other conditions orthogonally, we can parse the unique idiosyncrasies of each condition. This further reduces the residual variance, improving power.
+
+$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{Heterogeneity across people}} + \underbrace{\text{Within-person variance}}_{\text{Each person's unique patterns}} + \underbrace{\text{Within-condition variance}}_{\text{Each condition's unique patterns}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
 
 ```{r metastudy-power, fig.height=5.5, fig.width=12}
 #| code-summary: "▶ Plot: metastudy power rises with K; separate A/B tests collapse"
