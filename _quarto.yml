@@ -70,7 +70,7 @@ format:
     css: styles.css
     toc: true
     toc-depth: 3
-    number-sections: true
+    number-sections: false
     code-fold: true
     code-tools:
       source: false
