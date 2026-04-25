@@ -366,6 +366,102 @@ emmeans(fit3, pairwise ~ Factor_C, adjust = "holm")$contrasts
 
 ---
 
+## Within-Participant Designs: Same Observations, More Power
+
+### The Intuition
+
+In all the designs above, we compared *different people* in different conditions. A within-participant (repeated-measures) design instead exposes *the same person* to multiple conditions, measuring the outcome each time.
+
+**Why does this increase power?** Consider the source of variance in your data:
+
+$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
+
+In a between-participant design, your treatment effect estimate must be separated from *both* between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.
+
+In a within-participant design, between-person variance **cancels out** because each person serves as their own control. You are estimating the effect within each person and averaging those within-person effects. The only remaining noise is within-person variance and measurement error — which are much smaller.
+
+```{r within-between-power, fig.height=5.5, fig.width=10}
+#| code-summary: "▶ Simulate: between vs. within participant power comparison"
+
+set.seed(2026)
+
+# Parameters
+true_effect <- 0.40   # true within-person effect (SD units)
+icc_range   <- seq(0.10, 0.90, by = 0.10)  # ICC = between / total variance
+
+power_comparison <- expand.grid(
+  icc    = icc_range,
+  design = c("Between-participant", "Within-participant")
+) |>
+  mutate(
+    # For fixed total N = 100, n_per_arm = 50 between, N = 50 for within
+    N        = 100,
+    n_arm    = 50,
+    # Between: variance includes between-person component (inflates denominator)
+    sd_eff_b = sqrt(1),             # full SD
+    # Within: SD of the DIFFERENCE scores = sqrt(2*(1-icc)) * total_sd
+    sd_eff_w = sqrt(2 * (1 - icc)),
+    power_val = mapply(function(des, sd_e) {
+      tryCatch(
+        power.t.test(n = 50, delta = true_effect,
+                     sd = sd_e, sig.level = 0.05,
+                     type = ifelse(des == "Between-participant",
+                                   "two.sample", "paired"))$power,
+        error = function(e) NA_real_
+      )
+    }, design, ifelse(design == "Between-participant", sd_eff_b, sd_eff_w))
+  )
+
+ggplot(power_comparison, aes(x = icc, y = power_val,
+                              color = design, group = design)) +
+  geom_line(linewidth = 1.4) +
+  geom_point(size = 3.2) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
+  annotate("text", x = 0.91, y = 0.82, label = "80% power",
+           color = "gray40", size = 3.2) +
+  scale_color_manual(values = c("Between-participant" = "#e63946",
+                                 "Within-participant"  = "#2d6a4f"),
+                     name = NULL) +
+  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f\n(%.0f%% between-person)", x, x*100)) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(x = "Intraclass correlation (ICC = proportion of variance between people)",
+       y = "Statistical power",
+       title = "Within-Participant Designs Have Greater Power — Especially When ICC Is High",
+       subtitle = paste0("Fixed N = 100 participants  \u00b7  True effect = d = ", true_effect,
+                         "\nWithin-participant design removes between-person variance from the error term")) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+::: {.callout-note}
+## Why ICC determines how much you gain
+
+The **intraclass correlation (ICC)** measures what fraction of total variance in Y is due to stable between-person differences. When ICC is high:
+
+- People differ a lot from each other (but are consistent with themselves across conditions)
+- Between-participant designs "waste" most of their variance budget on individual differences
+- Within-participant designs remove all of this, leaving only the small within-person residual
+
+When ICC is low:
+- People are not very consistent — their responses vary randomly from occasion to occasion
+- Within-participant designs offer less of an advantage because the between-person variance that cancels out was small to begin with
+
+**Practical benchmark:** for most psychological constructs (attitudes, preferences, perceptions), ICC values between 0.40 and 0.70 are common. In this range, within-participant designs typically require **half to one-third** the sample size of between-participant designs for equivalent power.
+:::
+
+### The connection to Section 3: within-participant designs and the design space
+
+Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
+
+The tradeoff is well known: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), and **fatigue or practice effects**. These are most severe when:
+
+- The treatment induces lasting attitude change (hard to reverse)
+- The conditions are highly transparent (easy to guess the hypothesis)
+- The outcome requires learning or practice (performance tasks)
+
+For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.
+
+
 ## Metastudies: Pooling Power Across Multiple Factors
 
 The Latin Square is efficient because it uses design structure to study multiple factors simultaneously. A related idea scales this up to the level of a research program: the **metastudy** (DeKay, Rubinchik, Li, & De Boeck, 2022, *Perspectives on Psychological Science*).
@@ -506,101 +602,6 @@ The practical upshot: a single well-powered A/B test answers the question "does 
 **The connection to Section 3:** a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
 
 ---
-
-## Within-Participant Designs: Same Observations, More Power
-
-### The Intuition
-
-In all the designs above, we compared *different people* in different conditions. A within-participant (repeated-measures) design instead exposes *the same person* to multiple conditions, measuring the outcome each time.
-
-**Why does this increase power?** Consider the source of variance in your data:
-
-$$\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}$$
-
-In a between-participant design, your treatment effect estimate must be separated from *both* between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.
-
-In a within-participant design, between-person variance **cancels out** because each person serves as their own control. You are estimating the effect within each person and averaging those within-person effects. The only remaining noise is within-person variance and measurement error — which are much smaller.
-
-```{r within-between-power, fig.height=5.5, fig.width=10}
-#| code-summary: "▶ Simulate: between vs. within participant power comparison"
-
-set.seed(2026)
-
-# Parameters
-true_effect <- 0.40   # true within-person effect (SD units)
-icc_range   <- seq(0.10, 0.90, by = 0.10)  # ICC = between / total variance
-
-power_comparison <- expand.grid(
-  icc    = icc_range,
-  design = c("Between-participant", "Within-participant")
-) |>
-  mutate(
-    # For fixed total N = 100, n_per_arm = 50 between, N = 50 for within
-    N        = 100,
-    n_arm    = 50,
-    # Between: variance includes between-person component (inflates denominator)
-    sd_eff_b = sqrt(1),             # full SD
-    # Within: SD of the DIFFERENCE scores = sqrt(2*(1-icc)) * total_sd
-    sd_eff_w = sqrt(2 * (1 - icc)),
-    power_val = mapply(function(des, sd_e) {
-      tryCatch(
-        power.t.test(n = 50, delta = true_effect,
-                     sd = sd_e, sig.level = 0.05,
-                     type = ifelse(des == "Between-participant",
-                                   "two.sample", "paired"))$power,
-        error = function(e) NA_real_
-      )
-    }, design, ifelse(design == "Between-participant", sd_eff_b, sd_eff_w))
-  )
-
-ggplot(power_comparison, aes(x = icc, y = power_val,
-                              color = design, group = design)) +
-  geom_line(linewidth = 1.4) +
-  geom_point(size = 3.2) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray40") +
-  annotate("text", x = 0.91, y = 0.82, label = "80% power",
-           color = "gray40", size = 3.2) +
-  scale_color_manual(values = c("Between-participant" = "#e63946",
-                                 "Within-participant"  = "#2d6a4f"),
-                     name = NULL) +
-  scale_x_continuous(labels = function(x) sprintf("ICC = %.2f\n(%.0f%% between-person)", x, x*100)) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  labs(x = "Intraclass correlation (ICC = proportion of variance between people)",
-       y = "Statistical power",
-       title = "Within-Participant Designs Have Greater Power — Especially When ICC Is High",
-       subtitle = paste0("Fixed N = 100 participants  \u00b7  True effect = d = ", true_effect,
-                         "\nWithin-participant design removes between-person variance from the error term")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top")
-```
-
-::: {.callout-note}
-## Why ICC determines how much you gain
-
-The **intraclass correlation (ICC)** measures what fraction of total variance in Y is due to stable between-person differences. When ICC is high:
-
-- People differ a lot from each other (but are consistent with themselves across conditions)
-- Between-participant designs "waste" most of their variance budget on individual differences
-- Within-participant designs remove all of this, leaving only the small within-person residual
-
-When ICC is low:
-- People are not very consistent — their responses vary randomly from occasion to occasion
-- Within-participant designs offer less of an advantage because the between-person variance that cancels out was small to begin with
-
-**Practical benchmark:** for most psychological constructs (attitudes, preferences, perceptions), ICC values between 0.40 and 0.70 are common. In this range, within-participant designs typically require **half to one-third** the sample size of between-participant designs for equivalent power.
-:::
-
-### The connection to Section 3: within-participant designs and the design space
-
-Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
-
-The tradeoff is well known: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), and **fatigue or practice effects**. These are most severe when:
-
-- The treatment induces lasting attitude change (hard to reverse)
-- The conditions are highly transparent (easy to guess the hypothesis)
-- The outcome requires learning or practice (performance tasks)
-
-For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.
 
 # Design Solutions: CRA, Stratified, and Clustered Assignment {#sec-design-solutions}
 
