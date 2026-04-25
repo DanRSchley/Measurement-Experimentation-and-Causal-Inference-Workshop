@@ -568,105 +568,102 @@ In experimental settings, exclusion decisions are most commonly made about parti
 
 Each of these rules is reasonable on its face. Each has been used in published research. There are two related problems.
 
-The first is that in real experiments, exclusion criteria almost never screen participants who are *randomly* low-quality: a participant who speeds through the survey is also likely to give less considered responses — a lower WTP estimate, a weaker attitude rating, a noisier preference judgment. Exclusion criteria (RT, attention checks, quality scores) are **correlated with the outcome Y**. When you remove low-RT or low-attention participants, you are simultaneously removing the low-Y tail of the distribution. That asymmetric truncation makes the standard error look smaller than it is, so the t-test is anti-conservative — it rejects H₀ more than 5% of the time even when the null is true.
-
-The second problem is researcher degrees of freedom: when the exclusion rule is chosen *after seeing the data* — especially after seeing whether the treatment effect is significant — the choice of rule is itself a researcher degree of freedom. Across all rules a researcher might try, the probability that at least one crosses α = .05 is far higher than 5%.
-
-The simulation below captures both problems. The DGP has a latent **engagement** variable that drives response time, outcome quality, and Y. Critically, the treatment condition (eco-label) is more novel and engaging than the control, so treatment **boosts engagement by 0.5 SD**. H₀ is still true on Y (Y depends only on baseline engagement, not on the treatment-induced boost). But RT and quality reflect the boosted engagement — so applying pooled exclusion thresholds removes more participants from the less-engaging control condition than from the treatment condition. This asymmetric exclusion, combined with the engagement→Y path, inflates individual-rule FP rates. Choosing the most favorable rule inflates them further.
-
-```{r exclusion-bias, fig.height=5.5, fig.width=10}
-#| code-summary: "▶ Simulate: false-positive rate across 7 exclusion rules (null effect)"
+The simulation below isolates the key driver: how strongly the exclusion criterion correlates with the treatment condition. It shows two rules separately. For both, H\u2080 is true (no direct treatment effect on Y). The x-axis is the empirical correlation between the exclusion criterion and treatment condition; the y-axis is the false-positive rate across 2,000 replications.
+```{r exclusion-bias, fig.height=5.5, fig.width=11}
+#| code-summary: "▶ Simulate: Type I error as a function of exclusion-treatment correlation"
 
 set.seed(2025)
-n_sims_ex <- 3000
+n_sims_ex <- 2000
 N_excl    <- 200
 alpha_ex  <- 0.05
 
-rule_labels <- c(
-  "No exclusions",
-  "\u00b12.5 SD\n(on Y)",
-  "Fastest 5%\n(RT < 5th pct)",
-  "Fastest 10%\n(RT < 10th pct)",
-  "Low quality\n(bottom 20%)",
-  "Low quality\n(bottom 10%)",
-  "RT + SD\ncombined"
-)
+# ---- Panel 1: RT exclusion (fastest 10%) -----------------------------------
+# Treatment boosts engagement -> faster RT. Pooled 10th-pct threshold cuts
+# deeper into the control distribution as the boost grows.
+boost_vals <- seq(0, 1.8, length.out = 13)
 
-sim_pvals <- replicate(n_sims_ex, {
-  trt <- rep(0:1, each = N_excl / 2)
-
-  # Baseline engagement: individual difference, independent of treatment assignment.
-  engagement <- rnorm(N_excl)
-
-  # Treatment is more engaging. H0 is true: Y has zero treatment effect.
-  # Engagement strongly predicts Y and treatment boosts effective engagement --
-  # so exclusion criteria are correlated with BOTH the DV (Y) and condition.
-  engagement_boost <- 1.0
-  effective_eng    <- engagement + engagement_boost * trt
-
-  # Y (WTP): driven by baseline engagement only, not treatment directly.
-  Y  <- 0.85 * engagement + sqrt(1 - 0.85^2) * rnorm(N_excl)
-
-  # RT and quality depend on EFFECTIVE engagement (including the boost).
-  rt      <- 5 + 3 * effective_eng + rnorm(N_excl, sd = 1.5)
-  quality <- effective_eng + rnorm(N_excl, sd = 0.4)
-
-  sapply(seq_along(rule_labels), function(k) {
-    keep <- switch(k,
-      rep(TRUE, N_excl),
-      abs(scale(Y)) < 2.5,
-      rt > quantile(rt, 0.05),
-      rt > quantile(rt, 0.10),
-      quality > quantile(quality, 0.20),
-      quality > quantile(quality, 0.10),
-      rt > quantile(rt, 0.10) & abs(scale(Y)) < 2.5
-    )
-    if (sum(keep) < 10) return(1)
-    tryCatch(
-      t.test(Y[keep & trt == 1], Y[keep & trt == 0])$p.value,
-      error = function(e) 1
-    )
+rt_res <- do.call(rbind, lapply(boost_vals, function(boost) {
+  sim <- replicate(n_sims_ex, {
+    trt <- rep(0:1, each = N_excl / 2)
+    eng <- rnorm(N_excl)
+    eff <- eng + boost * trt
+    Y   <- 0.85 * eng + sqrt(1 - 0.85^2) * rnorm(N_excl)
+    rt  <- 5 + 3 * eff + rnorm(N_excl, sd = 1.5)
+    keep <- rt > quantile(rt, 0.10)
+    pval <- if (sum(keep) < 10) 1L else
+      tryCatch(t.test(Y[keep & trt==1], Y[keep & trt==0])$p.value, error=function(e) 1)
+    c(pval, cor(rt, trt))
   })
-})  # sim_pvals is 7 x n_sims_ex
+  data.frame(panel   = "RT exclusion: fastest 10% removed",
+             corr    = mean(sim[2, ]),
+             fp_rate = mean(sim[1, ] < alpha_ex))
+}))
 
-fp_per_rule  <- rowMeans(sim_pvals < alpha_ex)
-fp_best_rule <- mean(apply(sim_pvals, 2, min) < alpha_ex)
+# ---- Panel 2: SD exclusion on Y (+/-2.5 SD) --------------------------------
+# Treatment creates occasional high-Y outliers (extreme eco-label enthusiasts).
+# Each outlier is centred so E[Y|trt] = 0 (null holds). Applying a pooled
+# +/-2.5 SD threshold removes those high-Y treatment observations -> treatment
+# mean drops below control -> spurious negative apparent effect.
+p_out_vals <- seq(0, 0.08, length.out = 13)
+M_out      <- 4   # outlier shift magnitude
 
-excl_df <- tibble(
-  rule    = factor(rule_labels, levels = rule_labels),
-  fp_rate = fp_per_rule
-)
+sd_res <- do.call(rbind, lapply(p_out_vals, function(p_out) {
+  sim <- replicate(n_sims_ex, {
+    n_each <- N_excl / 2
+    trt    <- rep(0:1, each = n_each)
+    Y_ctrl <- rnorm(n_each)
+    outl   <- rbinom(n_each, 1, p_out)
+    Y_trt  <- rnorm(n_each) + outl * M_out - p_out * M_out   # centred at 0
+    Y      <- c(Y_ctrl, Y_trt)
+    keep   <- abs(scale(Y)) < 2.5
+    pval   <- if (sum(keep) < 10) 1L else
+      tryCatch(t.test(Y[keep & trt==1], Y[keep & trt==0])$p.value, error=function(e) 1)
+    c(pval, cor(abs(Y - mean(Y)), trt))
+  })
+  data.frame(panel   = "SD exclusion: \u00b12.5 SD on Y removed",
+             corr    = mean(sim[2, ]),
+             fp_rate = mean(sim[1, ] < alpha_ex))
+}))
 
-p_excl <- ggplot(excl_df, aes(x = rule, y = fp_rate, fill = fp_rate > alpha_ex)) +
-  geom_col(width = 0.65, alpha = 0.88) +
+# ---- Combine and plot -------------------------------------------------------
+excl_df <- rbind(rt_res, sd_res)
+excl_df$panel <- factor(excl_df$panel,
+                        levels = c("RT exclusion: fastest 10% removed",
+                                   "SD exclusion: \u00b12.5 SD on Y removed"))
+
+p_excl <- ggplot(excl_df, aes(x = corr, y = fp_rate)) +
   geom_hline(yintercept = alpha_ex, linetype = "dashed", color = "gray40", linewidth = 0.9) +
-  annotate("text", x = 7.5, y = alpha_ex + 0.012,
-           label = "Nominal \u03b1 = 5%", color = "gray40", size = 3.2, hjust = 1) +
-  annotate("segment", x = 0.4, xend = 7.6,
-           y = fp_best_rule, yend = fp_best_rule,
-           color = "#e63946", linewidth = 1.1, linetype = "longdash") +
-  annotate("text", x = 7.6, y = fp_best_rule + 0.018,
-           label = sprintf("Best rule: %.0f%%\nfalse positives", fp_best_rule * 100),
-           color = "#e63946", size = 3.2, hjust = 1, lineheight = 0.85) +
-  geom_text(aes(label = sprintf("%.1f%%", fp_rate * 100)),
-            vjust = -0.4, size = 3.5) +
-  scale_fill_manual(values = c("FALSE" = "#4a90d9", "TRUE" = "#e63946"), guide = "none") +
-  scale_y_continuous(labels = percent_format(accuracy = 1), breaks = seq(0, 0.7, 0.1)) +
+  geom_line(color = "#e63946", linewidth = 1.3) +
+  geom_point(color = "#e63946", size = 2.8) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), breaks = seq(0, 0.6, 0.1)) +
+  scale_x_continuous(labels = function(x) sprintf("%.2f", x)) +
   coord_cartesian(ylim = c(0, 0.65)) +
-  labs(x = "Exclusion rule", y = "False-positive rate (true null effect)",
-       title = "Correlated Exclusion Criteria Inflate False Positives \u2014 Even Rule by Rule",
-       subtitle = paste0(
-         "N = ", N_excl, "  \u00b7  True effect = 0  \u00b7  ",
-         n_sims_ex, " replications  \u00b7  exclusion criterion correlated with both Y and treatment\n",
-         "Blue = near nominal 5%  \u00b7  Red = inflated  \u00b7  Red dashed = rate if researcher picks best rule")) +
+  facet_wrap(~ panel, scales = "free_x", nrow = 1) +
+  labs(
+    x     = "cor(exclusion criterion, treatment condition)",
+    y     = "False-positive rate (true null effect)",
+    title = "Type I Error Inflates as the Exclusion Criterion Correlates with Treatment",
+    subtitle = paste0(
+      "N = ", N_excl, "  \u00b7  True direct effect = 0  \u00b7  ",
+      n_sims_ex, " replications per point  \u00b7  dashed line = nominal 5%")
+  ) +
   theme_minimal(base_size = 12) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(size = 9, lineheight = 0.85))
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.text       = element_text(face = "bold", size = 10),
+    strip.background = element_rect(fill = "#f1f5f9", color = NA)
+  )
 
 p_excl
 ```
 
-**What the plot shows:** André (2022) identified two conditions under which an exclusion rule inflates Type I error: the criterion must correlate with (1) the outcome Y and (2) the treatment condition. The SD-based rules (rules 2–4) exclude on Y itself — since Y has zero treatment effect by design, these rules are symmetric across conditions and stay near 5%. The RT and quality rules are where the problem arises. In this study, the treatment is more engaging, which raises participants' response times and quality scores in the treatment condition. Exclusion thresholds are computed pooled (e.g., "bottom 20% of quality across all participants"), so the threshold lands in a region denser with control-group participants. More control participants are removed — and those removed have low engagement and therefore lower Y. The remaining control group now has an artificially elevated mean Y, making it look like the treatment reduced WTP even though the true effect is zero. RT rules show moderate inflation; quality rules (which are more tightly linked to engagement) show the largest inflation. Choosing the best-performing rule across all ten pushes the false-positive rate to the red dashed line — far above the nominal 5%.
+**What the plots show:** Both panels share the same logic: when the exclusion criterion is uncorrelated with treatment (x = 0), the pooled threshold removes participants equally from both conditions and the false-positive rate stays near the nominal 5%. As the correlation grows, exclusion becomes asymmetric.
+
+In the **RT panel**, treatment boosts engagement, which raises response times in the treatment group. A pooled "fastest 10%" threshold therefore cuts deeper into the control condition. The removed control participants have low engagement and thus low Y, so the remaining control mean rises — producing a spurious apparent negative treatment effect.
+
+In the **SD panel**, a fraction of treatment participants are high-Y outliers (extreme eco-label enthusiasts). Their mean Y contribution is centered at zero, so H₀ holds exactly. But the ±2.5 SD pooled threshold clips exactly those high-Y treatment observations. After exclusion, the treatment mean falls below the control mean — again a spurious negative effect. As the fraction of outliers grows (x increases), the false-positive rate rises steeply.
+
+The practical implication of both panels: the damage is not caused by choosing *many* rules (though that amplifies it). A single, seemingly principled exclusion rule inflates Type I error as soon as the criterion it screens is associated with treatment assignment.
 
 ::: {.callout-note}
 ## Connecting to Part 1: what makes a p-value valid
