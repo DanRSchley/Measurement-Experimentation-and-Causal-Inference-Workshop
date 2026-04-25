@@ -147,13 +147,13 @@ dag_states = {
 // Tool logic (each button represents a POSITIVE finding that rules out
 // structures that cannot produce that result):
 //
-//   reg  — regression Y ~ X + M runs      → requires X-M link (xm≠0) AND M-Y link (my≠0)
-//           Does NOT constrain xy: a zero direct X→Y effect is still consistent as long
-//           as the X→M→Y chain exists.
+//   reg  — regression Y ~ X + M runs      → requires X-M association (xm≠0) AND M-Y association (my≠0)
+//           Does NOT constrain xy, and does NOT identify the direction of associations:
+//           each could be causal, reverse-causal, or arise from a collider or shared cause.
 //   expX — X experimentally manipulated   → X exogenous: xm≠2,3; xy≠2,3
-//   med  — mediation X→M→Y (pure)         → xm≠0; my≠0; xy=0
-//           Extends reg by additionally requiring no direct X→Y link.
-//           Clicking reg+med is equivalent to clicking med alone.
+//   med  — indirect-pattern finding       → xm≠0; my≠0; xy=0
+//           Extends reg by requiring no direct X–Y association conditional on M.
+//           Rules out direct X→Y, but X→M←Y (Y causes M) and X→M↔Y still survive.
 function dagConsistent(s, active) {
   const { xm, my, xy } = s;
   const any = v => v > 0;
@@ -174,9 +174,9 @@ function dagConsistent(s, active) {
 // ── Tool buttons ───────────────────────────────────────────────────────────────
 viewof activeTools = {
   const TOOLS = [
-    { id:"reg",  cat:"Regression", label:"Regression Y ~ X + M",  sub:"X–M and M–Y links present; direct X–Y may or may not exist" },
-    { id:"expX", cat:"Experiment", label:"Manipulate X",           sub:"X is exogenous — removes all arrows into X" },
-    { id:"med",  cat:"Mediation",  label:"Mediation: X → M → Y",  sub:"Pure mediation — X–M and M–Y links, no direct X–Y" },
+    { id:"reg",  cat:"Regression", label:"Regression Y ~ X + M",             sub:"X–M and M–Y associations detected; direction of each association is unconstrained" },
+    { id:"expX", cat:"Experiment", label:"Manipulate X",                       sub:"X is exogenous — removes all arrows into X" },
+    { id:"med",  cat:"Mediation",  label:"No direct X–Y, given X–M and M–Y",  sub:"X–Y association vanishes conditional on M; consistent with mediation, reverse causation, or reciprocal M–Y" },
   ];
   const ICONS = { Regression:"📊", Experiment:"🧪", Mediation:"⛓️" };
   const active = new Set();
@@ -453,6 +453,20 @@ dagGrid = {
 }
 ```
 
+::: {.callout-important}
+## What pressing all three buttons shows
+
+After applying all three tools together — regression, experimental manipulation of X, and the indirect-pattern finding — **three causal structures survive**, not one:
+
+| Structure | Interpretation |
+|---|---|
+| X → M → Y | Classic mediation: X causes M, M causes Y |
+| X → M ← Y | Y causes M (reverse causation on the M–Y link; M is a collider) |
+| X → M ↔ Y | M and Y are reciprocally linked or share an unmeasured common cause |
+
+All three are consistent with every piece of evidence you can collect in this system without additional assumptions. Causal inference is deduction by elimination — each tool removes some structures — but **the elimination rarely converges to one uniquely identified story**. Ruling out the two alternatives requires additional design choices (e.g., time-ordering evidence that Y cannot precede M, an instrument for M, or a manipulation of M) that go beyond regression and a single experiment.
+:::
+
 ### What if There Is an Unobserved Confounder? {#sec-confounded}
 
 The exercise above assumed no hidden variables. Now introduce **U** — an unobserved variable that may have arrows to X, M, and/or Y but is never measured. No research tool can constrain U directly.
@@ -502,9 +516,9 @@ countUConfigs = (xmyState, active) => {
 // ── Tool buttons (confounded model) ────────────────────────────────────────
 viewof activeTools2 = {
   const TOOLS = [
-    { id:"reg2",  cat:"Regression", label:"Regression Y ~ X + M",  sub:"X–M and M–Y links present; direct X–Y may or may not exist" },
-    { id:"expX2", cat:"Experiment", label:"Manipulate X",           sub:"X is exogenous — removes arrows into X, including U→X" },
-    { id:"med2",  cat:"Mediation",  label:"Mediation: X → M → Y",  sub:"Pure mediation — X–M and M–Y links, no direct X–Y" },
+    { id:"reg2",  cat:"Regression", label:"Regression Y ~ X + M",             sub:"X–M and M–Y associations detected; direction of each association is unconstrained" },
+    { id:"expX2", cat:"Experiment", label:"Manipulate X",                       sub:"X is exogenous — removes arrows into X, including U→X" },
+    { id:"med2",  cat:"Mediation",  label:"No direct X–Y, given X–M and M–Y",  sub:"X–Y association vanishes conditional on M; consistent with mediation, reverse causation, or reciprocal M–Y" },
   ];
   const ICONS = { Regression:"📊", Experiment:"🧪", Mediation:"⛓️" };
   const active = new Set();
