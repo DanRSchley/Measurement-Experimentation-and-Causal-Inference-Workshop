@@ -834,7 +834,7 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="the-intuition">The Intuition</h3>
 <p>In all the designs above, we compared <em>different people</em> in different conditions. A within-participant (repeated-measures) design instead exposes <em>the same person</em> to multiple conditions, measuring the outcome each time.</p>
 <p><strong>Why does this increase power?</strong> Consider the source of variance in your data:</p>
-<p><span class="math display">\[\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{individual differences}} + \underbrace{\text{Within-person variance}}_{\text{response to conditions}} + \underbrace{\text{Measurement error}}_{\text{noise}}\]</span></p>
+<p><span class="math display">\[\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{Heterogeneity across people}} + \underbrace{\text{Within-person variance}}_{\text{Each person's unique patterns}} + \underbrace{\text{Measurement error}}_{\text{noise}}\]</span></p>
 <p>In a between-participant design, your treatment effect estimate must be separated from <em>both</em> between-person variance and measurement error. Between-person variance is typically the largest component — people simply differ from each other a lot, regardless of condition.</p>
 <p>In a within-participant design, between-person variance <strong>cancels out</strong> because each person serves as their own control. You are estimating the effect within each person and averaging those within-person effects. The only remaining noise is within-person variance and measurement error — which are much smaller.</p>
 <div class="cell">
@@ -945,6 +945,8 @@ window.Quarto = {
 </ul>
 <p>This means that <strong>for any fixed total N, power increases as you add more microstudies</strong> — even though each individual microstudy gets fewer participants. The gain comes from sampling the method space more densely, not from adding people.</p>
 <p>Contrast this with running K separate, independent A/B tests using the same total budget. Each separate test gets only N/K participants, so its standard error grows as K increases. The metastudy and the separate-tests approach start from the same place at K = 1 and then diverge sharply in opposite directions.</p>
+<p>Like in within-participant studies where we can parse out each participant’s unique patterns from the residual variance, because each condition is being crossed with other conditions orthogonally, we can parse the unique idiosyncrasies of each condition. This further reduces the residual variance, improving power.</p>
+<p><span class="math display">\[\text{Total variance in Y} = \underbrace{\text{Between-person variance}}_{\text{Heterogeneity across people}} + \underbrace{\text{Within-person variance}}_{\text{Each person's unique patterns}} + \underbrace{\text{Within-condition variance}}_{\text{Each condition's unique patterns}} + \underbrace{\text{Measurement error}}_{\text{noise}}\]</span></p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Plot: metastudy power rises with K; separate A/B tests collapse</summary>
