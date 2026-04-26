@@ -359,11 +359,24 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#sec-confounded" id="toc-sec-confounded" class="nav-link" data-scroll-target="#sec-confounded">What if There Is an Unobserved Confounder?</a></li>
   </ul></li>
-  <li><a href="#sec-fundamental" id="toc-sec-fundamental" class="nav-link" data-scroll-target="#sec-fundamental">The Fundamental Problem of Causal Inference</a></li>
+  <li><a href="#sec-fundamental" id="toc-sec-fundamental" class="nav-link" data-scroll-target="#sec-fundamental">The Fundamental Problem of Causal Inference</a>
+  <ul class="collapse">
+  <li><a href="#what-is-a-counterfactual" id="toc-what-is-a-counterfactual" class="nav-link" data-scroll-target="#what-is-a-counterfactual">What is a counterfactual?</a></li>
+  </ul></li>
   <li><a href="#sec-ite" id="toc-sec-ite" class="nav-link" data-scroll-target="#sec-ite">Individual Treatment Effects (ITE)</a></li>
   <li><a href="#sec-ate" id="toc-sec-ate" class="nav-link" data-scroll-target="#sec-ate">Average Treatment Effect (ATE)</a></li>
   <li><a href="#sec-cate" id="toc-sec-cate" class="nav-link" data-scroll-target="#sec-cate">Conditional Average Treatment Effect (CATE)</a></li>
   <li><a href="#sec-late" id="toc-sec-late" class="nav-link" data-scroll-target="#sec-late">Compliance, ITT, LATE, ATT, and ATC</a></li>
+  <li><a href="#sec-dags" id="toc-sec-dags" class="nav-link" data-scroll-target="#sec-dags">Causal Graphs and the Logic of Identification</a>
+  <ul class="collapse">
+  <li><a href="#what-is-a-dag" id="toc-what-is-a-dag" class="nav-link" data-scroll-target="#what-is-a-dag">What is a DAG?</a></li>
+  <li><a href="#three-fundamental-path-structures" id="toc-three-fundamental-path-structures" class="nav-link" data-scroll-target="#three-fundamental-path-structures">Three fundamental path structures</a></li>
+  <li><a href="#collider-bias-a-concrete-example" id="toc-collider-bias-a-concrete-example" class="nav-link" data-scroll-target="#collider-bias-a-concrete-example">Collider bias: a concrete example</a></li>
+  <li><a href="#intervention-vs.-observation-the-do-operator" id="toc-intervention-vs.-observation-the-do-operator" class="nav-link" data-scroll-target="#intervention-vs.-observation-the-do-operator">Intervention vs.&nbsp;observation: the do-operator</a></li>
+  <li><a href="#sec-backdoor" id="toc-sec-backdoor" class="nav-link" data-scroll-target="#sec-backdoor">The backdoor criterion</a></li>
+  <li><a href="#sec-mediator-control" id="toc-sec-mediator-control" class="nav-link" data-scroll-target="#sec-mediator-control">Controlling for mediators: when to and when not to</a></li>
+  <li><a href="#sec-frontdoor" id="toc-sec-frontdoor" class="nav-link" data-scroll-target="#sec-frontdoor">The frontdoor criterion</a></li>
+  </ul></li>
   <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1">Researcher Checklist: Causal Effects and Estimands</a></li>
   </ul></li>
   </ul>
@@ -1296,6 +1309,34 @@ True ITE SD = 0.967</code></pre>
 </table>
 </div>
 </div>
+<section id="what-is-a-counterfactual" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-counterfactual">What is a counterfactual?</h3>
+<p>A <strong>counterfactual</strong> is the answer to a “what if” question about the road not taken. For Sophie, who saw the eco-label and paid $8.20, the counterfactual is: <em>what would she have paid if she had not seen it?</em> That number — say, $6.80 — never happened in our world, but it is what the word “caused” points at. The eco-label <em>caused</em> a $1.40 increase in Sophie’s WTP precisely because $8.20 (observed) minus $6.80 (counterfactual) equals $1.40.</p>
+<p>This might sound abstract, but counterfactuals are built into everyday causal language:</p>
+<ul>
+<li><em>“Taking the earlier train saved me 20 minutes”</em> — the counterfactual is arriving 20 minutes later had you not taken it.</li>
+<li><em>“The aspirin cured my headache”</em> — the counterfactual is the headache persisting without aspirin.</li>
+<li><em>“The eco-label increased her WTP by $1.40”</em> — the counterfactual is what she would have paid without it.</li>
+</ul>
+<p>The table above makes the problem concrete: we assigned Sophie to the control condition and observed her pay $6.80, so her counterfactual <em>Y(1)</em> — what she would have paid with the label — is invisible. We assigned Daan to the treatment and observed <em>Y(1)</em>, so his <em>Y(0)</em> is invisible. Both missing cells are counterfactuals. The <strong>fundamental problem of causal inference</strong> is that every individual appears in exactly one condition, so every individual’s causal effect requires reasoning about a world that did not occur.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Counterfactuals in your own research
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Before running any analysis, try writing out the counterfactual claim your paper makes:</p>
+<blockquote class="blockquote">
+<p><em>“If participant</em> <span class="math inline">\(i\)</span> <em>had been assigned to condition A instead of condition B, their outcome would have been ___ rather than ___.”</em></p>
+</blockquote>
+<p>If you cannot fill in the blank — or if filling it in requires assuming things you have not measured — your causal claim is more fragile than it looks. This exercise is the fastest way to spot whether your design actually supports the inference you intend to draw.</p>
+</div>
+</div>
+</section>
 </section>
 <section id="sec-ite" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ite">Individual Treatment Effects (ITE)</h2>
@@ -1656,6 +1697,131 @@ True ITE SD = 0.967</code></pre>
 </div>
 </div>
 <hr>
+</section>
+<section id="sec-dags" class="level2">
+<h2 class="anchored" data-anchor-id="sec-dags">Causal Graphs and the Logic of Identification</h2>
+<p>Potential outcomes give you a precise language for <em>what</em> you want to estimate. But they are largely silent on <em>how</em> to estimate it — which variables to control for, which to leave alone, and why. <strong>Directed acyclic graphs (DAGs)</strong>, developed by Judea Pearl and colleagues, fill that gap. They provide a visual language for encoding your causal assumptions and a set of rules for reading off, directly from the picture, which adjustment strategies identify causal effects and which produce bias.</p>
+<section id="what-is-a-dag" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-dag">What is a DAG?</h3>
+<p>A DAG has two ingredients:</p>
+<ul>
+<li><strong>Nodes</strong> — variables (observed or unobserved)</li>
+<li><strong>Directed edges (arrows)</strong> — each arrow <span class="math inline">\(A \rightarrow B\)</span> asserts that <span class="math inline">\(A\)</span> directly causes <span class="math inline">\(B\)</span>, holding all other direct causes of <span class="math inline">\(B\)</span> constant</li>
+</ul>
+<p>The “acyclic” part means no variable can cause itself through any chain of arrows — time must flow forward. You can draw feedback loops if you think about each time-point as a separate node (e.g., <span class="math inline">\(X_t \rightarrow Y_t \rightarrow X_{t+1}\)</span>), but within a cross-sectional DAG, cycles are forbidden.</p>
+<p>Every arrow you draw is an assumption. Every missing arrow is also an assumption — it claims the two variables are not directly linked. A DAG made honest is a complete inventory of what you believe about the causal structure of your system.</p>
+</section>
+<section id="three-fundamental-path-structures" class="level3">
+<h3 class="anchored" data-anchor-id="three-fundamental-path-structures">Three fundamental path structures</h3>
+<p>Three building blocks cover nearly every situation you will encounter:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/dag-three-structures-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Chain (mediator):</strong> <span class="math inline">\(X \rightarrow M \rightarrow Y\)</span>. <span class="math inline">\(X\)</span> causes <span class="math inline">\(M\)</span>, <span class="math inline">\(M\)</span> causes <span class="math inline">\(Y\)</span>. <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are associated, but the association runs <em>through</em> <span class="math inline">\(M\)</span>. If you block <span class="math inline">\(M\)</span> — by controlling for it in a regression — you sever the path and the <span class="math inline">\(X\)</span>–<span class="math inline">\(Y\)</span> association disappears.</p>
+<p><strong>Fork (confounder):</strong> <span class="math inline">\(X \leftarrow U \rightarrow Y\)</span>. A common cause <span class="math inline">\(U\)</span> produces an association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> even if <span class="math inline">\(X\)</span> does not cause <span class="math inline">\(Y\)</span> at all. Controlling for <span class="math inline">\(U\)</span> blocks this spurious path.</p>
+<p><strong>Collider:</strong> <span class="math inline">\(X \rightarrow M \leftarrow Y\)</span>. Both <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> cause <span class="math inline">\(M\)</span>, but <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are <em>not</em> associated in the population — the arrows both flow <em>into</em> <span class="math inline">\(M\)</span>, so the path is blocked. If you condition on <span class="math inline">\(M\)</span> (control for it, or stratify on it, or select a sample where <span class="math inline">\(M\)</span> is constant), you <em>open</em> a spurious association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> that did not previously exist. This is collider bias, and it is one of the most counterintuitive results in causal inference.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The key rule
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A path transmits association between two variables <strong>unless</strong> it contains a collider <em>or</em> you condition on a non-collider node on the path. Conditioning on a collider <strong>opens</strong> a path that was closed.</p>
+<p>This has an immediate practical implication: <strong>not every control variable improves your estimate.</strong> If you control for a collider, you introduce bias. Choosing covariates by “putting in everything correlated with Y” is precisely the wrong strategy.</p>
+</div>
+</div>
+</section>
+<section id="collider-bias-a-concrete-example" class="level3">
+<h3 class="anchored" data-anchor-id="collider-bias-a-concrete-example">Collider bias: a concrete example</h3>
+<p>Suppose you study whether conscientiousness (<span class="math inline">\(X\)</span>) causes job performance (<span class="math inline">\(Y\)</span>). You decide to study only employees who were <em>hired</em> (<span class="math inline">\(M = 1\)</span>). Hiring is itself caused by both conscientiousness (conscientious applicants get hired) and prior performance signals (<span class="math inline">\(Y\)</span>-precursors). By restricting to hired employees, you have conditioned on <span class="math inline">\(M\)</span> — a collider — and opened a spurious <em>negative</em> association between conscientiousness and performance <em>within your sample</em>. Conscientious employees who were hired despite mediocre performance signals are uncommon; within the hired group, high conscientiousness and high performance are no longer independent. This is why studies of elite samples (top MBA programmes, Fortune 500 firms, clinical trial completers) routinely find attenuated or even reversed relationships compared to population samples.</p>
+</section>
+<section id="intervention-vs.-observation-the-do-operator" class="level3">
+<h3 class="anchored" data-anchor-id="intervention-vs.-observation-the-do-operator">Intervention vs.&nbsp;observation: the do-operator</h3>
+<p>Observational data tell you about the world as it is — how variables co-occur. Causal questions ask about the world as it <em>would be</em> if you intervened. Pearl’s <strong>do-operator</strong> makes this distinction precise.</p>
+<ul>
+<li><span class="math inline">\(P(Y \mid X = x)\)</span> — the probability of <span class="math inline">\(Y\)</span> given that you <em>observe</em> <span class="math inline">\(X = x\)</span> (observational)</li>
+<li><span class="math inline">\(P(Y \mid \mathit{do}(X = x))\)</span> — the probability of <span class="math inline">\(Y\)</span> given that you <em>set</em> <span class="math inline">\(X = x\)</span> by intervention (interventional)</li>
+</ul>
+<p>These are equal only when <span class="math inline">\(X\)</span> is not confounded. If conscientiousness affects hiring and hiring is measured as a collider, observing <span class="math inline">\(X = x\)</span> and <em>setting</em> <span class="math inline">\(X = x\)</span> produce different distributions of <span class="math inline">\(Y\)</span> — even within the same data.</p>
+<p>Random assignment is the cleanest implementation of <span class="math inline">\(\mathit{do}(X = x)\)</span>: by forcing <span class="math inline">\(X\)</span> to the value you choose, you sever all incoming arrows to <span class="math inline">\(X\)</span> (you replace the natural causes of <span class="math inline">\(X\)</span> with your randomiser). The resulting <span class="math inline">\(P(Y \mid \mathit{do}(X))\)</span> is identified without any further adjustment. When you cannot randomise, identification requires finding an <em>adjustment set</em> that mimics what randomisation would have done.</p>
+</section>
+<section id="sec-backdoor" class="level3">
+<h3 class="anchored" data-anchor-id="sec-backdoor">The backdoor criterion</h3>
+<p>A <strong>backdoor path</strong> from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span> is any path that starts by going <em>backwards</em> along an incoming arrow into <span class="math inline">\(X\)</span>. Backdoor paths carry confounding association — they are association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> that does not flow through any causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>.</p>
+<p>The <strong>backdoor criterion</strong> says: a set of variables <span class="math inline">\(Z\)</span> is sufficient to identify the causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> if <span class="math inline">\(Z\)</span> (1) blocks all backdoor paths from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>, and (2) does not include any descendant of <span class="math inline">\(X\)</span> (no post-treatment variables or mediators).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/dag-backdoor-1.svg" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the eco-label study, suppose consumers who chose to shop at eco-conscious stores (<span class="math inline">\(X\)</span> = saw label) differ systematically from other shoppers in their underlying environmental values (<span class="math inline">\(U\)</span>). <span class="math inline">\(U\)</span> causes both store choice (and thus label exposure) and WTP (<span class="math inline">\(Y\)</span>). The path <span class="math inline">\(X \leftarrow U \rightarrow Y\)</span> is a backdoor path. If we could measure and control for <span class="math inline">\(U\)</span>, we would block this path and identify the causal effect. Randomising store assignment — so <span class="math inline">\(X\)</span> is no longer caused by <span class="math inline">\(U\)</span> — severs the backdoor path entirely.</p>
+<p>When a valid backdoor adjustment set exists, the causal effect is:</p>
+<p><span class="math display">\[P(Y \mid \mathit{do}(X)) = \sum_z P(Y \mid X, Z=z)\, P(Z=z)\]</span></p>
+<p>This is just a weighted average of the <span class="math inline">\(X \rightarrow Y\)</span> association within strata of <span class="math inline">\(Z\)</span> — familiar as regression adjustment or stratification.</p>
+</section>
+<section id="sec-mediator-control" class="level3">
+<h3 class="anchored" data-anchor-id="sec-mediator-control">Controlling for mediators: when to and when not to</h3>
+<p>The mediator structure (<span class="math inline">\(X \rightarrow M \rightarrow Y\)</span>) creates a choice: do you control for <span class="math inline">\(M\)</span> or not?</p>
+<ul>
+<li><p><strong>Do not control for <span class="math inline">\(M\)</span></strong> if you want the <strong>total effect</strong> of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> — the sum of the direct path (<span class="math inline">\(X \rightarrow Y\)</span>) and the indirect path (<span class="math inline">\(X \rightarrow M \rightarrow Y\)</span>). Controlling for <span class="math inline">\(M\)</span> blocks the indirect path and gives you only the direct effect.</p></li>
+<li><p><strong>Control for <span class="math inline">\(M\)</span></strong> only if you want the <strong>direct effect</strong> of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> holding <span class="math inline">\(M\)</span> fixed — and <em>only</em> if <span class="math inline">\(M\)</span> is not itself confounded with <span class="math inline">\(Y\)</span> (i.e., there is no unmeasured common cause of <span class="math inline">\(M\)</span> and <span class="math inline">\(Y\)</span>). If there is, controlling for <span class="math inline">\(M\)</span> opens a new backdoor path and introduces bias rather than removing it.</p></li>
+</ul>
+<p>In the eco-label context: suppose the label works by (a) directly signalling quality and (b) activating guilt about environmental harm (<span class="math inline">\(M\)</span>), which then raises WTP. If you want to know “does the label raise WTP?”, do not control for guilt — you would remove the mechanism. If you want to know “does the label raise WTP <em>beyond</em> the guilt pathway?”, control for guilt — but only after checking that guilt is not confounded with WTP by some unmeasured variable.</p>
+</section>
+<section id="sec-frontdoor" class="level3">
+<h3 class="anchored" data-anchor-id="sec-frontdoor">The frontdoor criterion</h3>
+<p>Sometimes the backdoor path cannot be blocked — <span class="math inline">\(U\)</span> is unobserved and there is no valid instrument. But if a mediator <span class="math inline">\(M\)</span> satisfies three conditions, the causal effect is still identifiable through the <strong>frontdoor criterion</strong>:</p>
+<ol type="1">
+<li><span class="math inline">\(M\)</span> is causally between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> (all causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> flows through <span class="math inline">\(M\)</span>)</li>
+<li>There is no unblocked backdoor path from <span class="math inline">\(X\)</span> to <span class="math inline">\(M\)</span></li>
+<li>All backdoor paths from <span class="math inline">\(M\)</span> to <span class="math inline">\(Y\)</span> are blocked by <span class="math inline">\(X\)</span></li>
+</ol>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/dag-frontdoor-1.svg" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The classic example: smoking (<span class="math inline">\(X\)</span>) causes cancer (<span class="math inline">\(Y\)</span>) through tar deposits in the lungs (<span class="math inline">\(M\)</span>). <span class="math inline">\(U\)</span> = genetic predisposition confounds the <span class="math inline">\(X\)</span>–<span class="math inline">\(Y\)</span> relationship. But if we can measure <span class="math inline">\(M\)</span>, and <span class="math inline">\(M\)</span> is not directly confounded with <span class="math inline">\(Y\)</span> except through pathways that <span class="math inline">\(X\)</span> blocks, we can first estimate <span class="math inline">\(P(M \mid \mathit{do}(X))\)</span> (randomise <span class="math inline">\(X\)</span> given <span class="math inline">\(M\)</span> blocks <span class="math inline">\(U\)</span>) and then <span class="math inline">\(P(Y \mid \mathit{do}(M))\)</span> (using <span class="math inline">\(X\)</span> to block the backdoor into <span class="math inline">\(M\)</span>), and combine them.</p>
+<p>In management research, the frontdoor is relevant when you have a clear causal chain — policy <span class="math inline">\(\rightarrow\)</span> behaviour <span class="math inline">\(\rightarrow\)</span> outcome — and you can measure the behaviour even though the policy’s take-up is confounded. It is less commonly exploited than instrumental variables but rests on weaker assumptions when the structure is present.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>DAGs in practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You do not need to run Pearl’s full do-calculus algebra to benefit from DAGs. Drawing the DAG before your analysis forces three productive habits:</p>
+<ol type="1">
+<li><strong>Enumerate your assumptions</strong> — every absent arrow is a claim that two variables are not directly linked.</li>
+<li><strong>Classify your covariates</strong> — before adding a control variable, ask: is it a confounder (should adjust), a mediator (adjust only for direct effect), or a collider (never adjust)?</li>
+<li><strong>Identify the backdoor paths</strong> — these are the precise channels through which confounding flows, and blocking them is the definition of identification.</li>
+</ol>
+<p>Modules 3.2–3.5 will apply this framework to regression discontinuity, difference-in-differences, and mediation analysis, where the DAG determines whether each design’s identifying assumption is plausible.</p>
+</div>
+</div>
+<hr>
+</section>
 </section>
 <section id="sec-checklist-part1" class="level2">
 <h2 class="anchored" data-anchor-id="sec-checklist-part1">Researcher Checklist: Causal Effects and Estimands</h2>
