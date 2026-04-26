@@ -865,6 +865,28 @@ tibble(
 ) |> knitr::kable(caption="The fundamental problem: exactly ONE potential outcome per person is observed.")
 ```
 
+### What is a counterfactual?
+
+A **counterfactual** is the answer to a "what if" question about the road not taken. For Sophie, who saw the eco-label and paid \$8.20, the counterfactual is: *what would she have paid if she had not seen it?* That number — say, \$6.80 — never happened in our world, but it is what the word "caused" points at. The eco-label *caused* a \$1.40 increase in Sophie's WTP precisely because \$8.20 (observed) minus \$6.80 (counterfactual) equals \$1.40.
+
+This might sound abstract, but counterfactuals are built into everyday causal language:
+
+- *"Taking the earlier train saved me 20 minutes"* — the counterfactual is arriving 20 minutes later had you not taken it.
+- *"The aspirin cured my headache"* — the counterfactual is the headache persisting without aspirin.
+- *"The eco-label increased her WTP by \$1.40"* — the counterfactual is what she would have paid without it.
+
+The table above makes the problem concrete: we assigned Sophie to the control condition and observed her pay \$6.80, so her counterfactual *Y(1)* — what she would have paid with the label — is invisible. We assigned Daan to the treatment and observed *Y(1)*, so his *Y(0)* is invisible. Both missing cells are counterfactuals. The **fundamental problem of causal inference** is that every individual appears in exactly one condition, so every individual's causal effect requires reasoning about a world that did not occur.
+
+::: {.callout-tip}
+## Counterfactuals in your own research
+
+Before running any analysis, try writing out the counterfactual claim your paper makes:
+
+> *"If participant* $i$ *had been assigned to condition A instead of condition B, their outcome would have been \_\_\_ rather than \_\_\_."*
+
+If you cannot fill in the blank — or if filling it in requires assuming things you have not measured — your causal claim is more fragile than it looks. This exercise is the fastest way to spot whether your design actually supports the inference you intend to draw.
+:::
+
 ## Individual Treatment Effects (ITE) {#sec-ite}
 
 The **individual treatment effect** for person $i$ is:
@@ -1060,6 +1082,157 @@ tibble(
        subtitle="ATT > ATE > ATC: consumers who seek eco-labels respond more strongly to them") +
   theme_mod3()
 ```
+
+---
+
+## Causal Graphs and the Logic of Identification {#sec-dags}
+
+Potential outcomes give you a precise language for *what* you want to estimate. But they are largely silent on *how* to estimate it — which variables to control for, which to leave alone, and why. **Directed acyclic graphs (DAGs)**, developed by Judea Pearl and colleagues, fill that gap. They provide a visual language for encoding your causal assumptions and a set of rules for reading off, directly from the picture, which adjustment strategies identify causal effects and which produce bias.
+
+### What is a DAG?
+
+A DAG has two ingredients:
+
+- **Nodes** — variables (observed or unobserved)
+- **Directed edges (arrows)** — each arrow $A \rightarrow B$ asserts that $A$ directly causes $B$, holding all other direct causes of $B$ constant
+
+The "acyclic" part means no variable can cause itself through any chain of arrows — time must flow forward. You can draw feedback loops if you think about each time-point as a separate node (e.g., $X_t \rightarrow Y_t \rightarrow X_{t+1}$), but within a cross-sectional DAG, cycles are forbidden.
+
+Every arrow you draw is an assumption. Every missing arrow is also an assumption — it claims the two variables are not directly linked. A DAG made honest is a complete inventory of what you believe about the causal structure of your system.
+
+### Three fundamental path structures
+
+Three building blocks cover nearly every situation you will encounter:
+
+```{r dag-three-structures, fig.height=3.2, fig.width=10, echo=FALSE}
+#| code-summary: "▶ Show the three fundamental DAG structures"
+
+# 1. Chain (mediator)
+p_chain <- .dag(
+  nodes   = list(X=c(0,0), M=c(1,0), Y=c(2,0)),
+  solid   = list(c("X","M"), c("M","Y")),
+  title   = "Chain  X → M → Y\n(mediator)"
+)
+
+# 2. Fork (common cause / confounder)
+p_fork <- .dag(
+  nodes   = list(U=c(1,1), X=c(0,0), Y=c(2,0)),
+  solid   = list(c("U","X"), c("U","Y")),
+  unobserved = "U",
+  title   = "Fork  X ← U → Y\n(confounder)"
+)
+
+# 3. Collider
+p_collider <- .dag(
+  nodes   = list(X=c(0,0), M=c(1,0), Y=c(2,0)),
+  solid   = list(c("X","M"), c("Y","M")),
+  title   = "Collider  X → M ← Y\n(collider on M)"
+)
+
+p_chain | p_fork | p_collider
+```
+
+**Chain (mediator):** $X \rightarrow M \rightarrow Y$. $X$ causes $M$, $M$ causes $Y$. $X$ and $Y$ are associated, but the association runs *through* $M$. If you block $M$ — by controlling for it in a regression — you sever the path and the $X$–$Y$ association disappears.
+
+**Fork (confounder):** $X \leftarrow U \rightarrow Y$. A common cause $U$ produces an association between $X$ and $Y$ even if $X$ does not cause $Y$ at all. Controlling for $U$ blocks this spurious path.
+
+**Collider:** $X \rightarrow M \leftarrow Y$. Both $X$ and $Y$ cause $M$, but $X$ and $Y$ are *not* associated in the population — the arrows both flow *into* $M$, so the path is blocked. If you condition on $M$ (control for it, or stratify on it, or select a sample where $M$ is constant), you *open* a spurious association between $X$ and $Y$ that did not previously exist. This is collider bias, and it is one of the most counterintuitive results in causal inference.
+
+::: {.callout-important}
+## The key rule
+
+A path transmits association between two variables **unless** it contains a collider *or* you condition on a non-collider node on the path. Conditioning on a collider **opens** a path that was closed.
+
+This has an immediate practical implication: **not every control variable improves your estimate.** If you control for a collider, you introduce bias. Choosing covariates by "putting in everything correlated with Y" is precisely the wrong strategy.
+:::
+
+### Collider bias: a concrete example
+
+Suppose you study whether conscientiousness ($X$) causes job performance ($Y$). You decide to study only employees who were *hired* ($M = 1$). Hiring is itself caused by both conscientiousness (conscientious applicants get hired) and prior performance signals ($Y$-precursors). By restricting to hired employees, you have conditioned on $M$ — a collider — and opened a spurious *negative* association between conscientiousness and performance *within your sample*. Conscientious employees who were hired despite mediocre performance signals are uncommon; within the hired group, high conscientiousness and high performance are no longer independent. This is why studies of elite samples (top MBA programmes, Fortune 500 firms, clinical trial completers) routinely find attenuated or even reversed relationships compared to population samples.
+
+### Intervention vs. observation: the do-operator
+
+Observational data tell you about the world as it is — how variables co-occur. Causal questions ask about the world as it *would be* if you intervened. Pearl's **do-operator** makes this distinction precise.
+
+- $P(Y \mid X = x)$ — the probability of $Y$ given that you *observe* $X = x$ (observational)
+- $P(Y \mid \mathit{do}(X = x))$ — the probability of $Y$ given that you *set* $X = x$ by intervention (interventional)
+
+These are equal only when $X$ is not confounded. If conscientiousness affects hiring and hiring is measured as a collider, observing $X = x$ and *setting* $X = x$ produce different distributions of $Y$ — even within the same data.
+
+Random assignment is the cleanest implementation of $\mathit{do}(X = x)$: by forcing $X$ to the value you choose, you sever all incoming arrows to $X$ (you replace the natural causes of $X$ with your randomiser). The resulting $P(Y \mid \mathit{do}(X))$ is identified without any further adjustment. When you cannot randomise, identification requires finding an *adjustment set* that mimics what randomisation would have done.
+
+### The backdoor criterion {#sec-backdoor}
+
+A **backdoor path** from $X$ to $Y$ is any path that starts by going *backwards* along an incoming arrow into $X$. Backdoor paths carry confounding association — they are association between $X$ and $Y$ that does not flow through any causal effect of $X$ on $Y$.
+
+The **backdoor criterion** says: a set of variables $Z$ is sufficient to identify the causal effect of $X$ on $Y$ if $Z$ (1) blocks all backdoor paths from $X$ to $Y$, and (2) does not include any descendant of $X$ (no post-treatment variables or mediators).
+
+```{r dag-backdoor, fig.height=3.5, fig.width=6, echo=FALSE}
+#| code-summary: "▶ Show backdoor confounding"
+
+# Eco-label example: U = environmental values affects both store choice (X) and WTP (Y)
+.dag(
+  nodes      = list(U=c(1,1.4), X=c(0,0), Y=c(2,0)),
+  solid      = list(c("X","Y")),
+  dashed     = list(c("U","X"), c("U","Y")),
+  unobserved = "U",
+  title      = "Backdoor: U confounds X → Y"
+)
+```
+
+In the eco-label study, suppose consumers who chose to shop at eco-conscious stores ($X$ = saw label) differ systematically from other shoppers in their underlying environmental values ($U$). $U$ causes both store choice (and thus label exposure) and WTP ($Y$). The path $X \leftarrow U \rightarrow Y$ is a backdoor path. If we could measure and control for $U$, we would block this path and identify the causal effect. Randomising store assignment — so $X$ is no longer caused by $U$ — severs the backdoor path entirely.
+
+When a valid backdoor adjustment set exists, the causal effect is:
+
+$$P(Y \mid \mathit{do}(X)) = \sum_z P(Y \mid X, Z=z)\, P(Z=z)$$
+
+This is just a weighted average of the $X \rightarrow Y$ association within strata of $Z$ — familiar as regression adjustment or stratification.
+
+### Controlling for mediators: when to and when not to {#sec-mediator-control}
+
+The mediator structure ($X \rightarrow M \rightarrow Y$) creates a choice: do you control for $M$ or not?
+
+- **Do not control for $M$** if you want the **total effect** of $X$ on $Y$ — the sum of the direct path ($X \rightarrow Y$) and the indirect path ($X \rightarrow M \rightarrow Y$). Controlling for $M$ blocks the indirect path and gives you only the direct effect.
+
+- **Control for $M$** only if you want the **direct effect** of $X$ on $Y$ holding $M$ fixed — and *only* if $M$ is not itself confounded with $Y$ (i.e., there is no unmeasured common cause of $M$ and $Y$). If there is, controlling for $M$ opens a new backdoor path and introduces bias rather than removing it.
+
+In the eco-label context: suppose the label works by (a) directly signalling quality and (b) activating guilt about environmental harm ($M$), which then raises WTP. If you want to know "does the label raise WTP?", do not control for guilt — you would remove the mechanism. If you want to know "does the label raise WTP *beyond* the guilt pathway?", control for guilt — but only after checking that guilt is not confounded with WTP by some unmeasured variable.
+
+### The frontdoor criterion {#sec-frontdoor}
+
+Sometimes the backdoor path cannot be blocked — $U$ is unobserved and there is no valid instrument. But if a mediator $M$ satisfies three conditions, the causal effect is still identifiable through the **frontdoor criterion**:
+
+1. $M$ is causally between $X$ and $Y$ (all causal effect of $X$ on $Y$ flows through $M$)
+2. There is no unblocked backdoor path from $X$ to $M$
+3. All backdoor paths from $M$ to $Y$ are blocked by $X$
+
+```{r dag-frontdoor, fig.height=3.5, fig.width=6, echo=FALSE}
+#| code-summary: "▶ Show frontdoor structure"
+
+.dag(
+  nodes      = list(U=c(1,1.4), X=c(0,0), M=c(1,0), Y=c(2,0)),
+  solid      = list(c("X","M"), c("M","Y")),
+  dashed     = list(c("U","X"), c("U","Y")),
+  unobserved = "U",
+  title      = "Frontdoor: M identifies X → Y despite unobserved U"
+)
+```
+
+The classic example: smoking ($X$) causes cancer ($Y$) through tar deposits in the lungs ($M$). $U$ = genetic predisposition confounds the $X$–$Y$ relationship. But if we can measure $M$, and $M$ is not directly confounded with $Y$ except through pathways that $X$ blocks, we can first estimate $P(M \mid \mathit{do}(X))$ (randomise $X$ given $M$ blocks $U$) and then $P(Y \mid \mathit{do}(M))$ (using $X$ to block the backdoor into $M$), and combine them.
+
+In management research, the frontdoor is relevant when you have a clear causal chain — policy $\rightarrow$ behaviour $\rightarrow$ outcome — and you can measure the behaviour even though the policy's take-up is confounded. It is less commonly exploited than instrumental variables but rests on weaker assumptions when the structure is present.
+
+::: {.callout-note}
+## DAGs in practice
+
+You do not need to run Pearl's full do-calculus algebra to benefit from DAGs. Drawing the DAG before your analysis forces three productive habits:
+
+1. **Enumerate your assumptions** — every absent arrow is a claim that two variables are not directly linked.
+2. **Classify your covariates** — before adding a control variable, ask: is it a confounder (should adjust), a mediator (adjust only for direct effect), or a collider (never adjust)?
+3. **Identify the backdoor paths** — these are the precise channels through which confounding flows, and blocking them is the definition of identification.
+
+Modules 3.2–3.5 will apply this framework to regression discontinuity, difference-in-differences, and mediation analysis, where the DAG determines whether each design's identifying assumption is plausible.
+:::
 
 ---
 
