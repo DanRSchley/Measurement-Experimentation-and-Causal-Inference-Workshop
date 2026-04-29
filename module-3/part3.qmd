@@ -1,5 +1,5 @@
 ---
-title: "Part 3: Regression Discontinuity Design"
+title: "Part 3: Secondary Data Tools for Causal Identification"
 ---
 
 ```{r setup, include=FALSE}
@@ -89,12 +89,10 @@ theme_mod3 <- function() {
 
 # ── Mediation extraction helper (handles robmed version differences) ───────────
 rob_extract <- function(fit) {
-  # point estimate: try $ab, then $indirect, then coef()["ab"]
   ab <- tryCatch(fit$ab,
     error = function(e) tryCatch(fit$indirect,
       error = function(e2) tryCatch(coef(fit)["ab"],
         error = function(e3) NA_real_)))
-  # CI: try $ci (matrix or vector), then confint()
   ci <- tryCatch({
     r <- fit$ci
     if (is.matrix(r)) r[1,] else r
@@ -110,9 +108,186 @@ rob_extract <- function(fit) {
 The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
 :::
 
-<iframe src="https://docs.google.com/presentation/d/1tinC2e3yTcwJSDqN2L5nqAZuB4VWV4v0/embed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 3: Regression Discontinuity Design"></iframe>
+<iframe src="https://docs.google.com/presentation/d/1tinC2e3yTcwJSDqN2L5nqAZuB4VWV4v0/embed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 3: Secondary Data Tools for Causal Identification"></iframe>
 
-## The Core Idea {#sec-rdd-idea}
+This part covers three secondary-data tools for causal identification — instrumental variables (IV), regression discontinuity design (RDD), and difference-in-differences (DiD). They are not three unrelated methods. They share a common logic: find variation in the treatment that is *as good as random* — variation that is unrelated to the unobserved confounders that make simple comparisons misleading. IV finds that variation through an external lever; RDD finds it at a sharp threshold; DiD finds it in a policy timing that differs across groups. Understanding IV first makes RDD and DiD easier to see as extensions of the same core idea.
+
+---
+
+## Instrumental Variables {#sec-iv}
+
+### The core problem
+
+Part 2 showed that when an unobserved variable $U$ causes both treatment $X$ and outcome $Y$, no amount of regression adjustment on observed covariates can recover the causal effect of $X$ on $Y$. The path $X \leftarrow U \rightarrow Y$ is a backdoor that remains open whenever $U$ is unmeasured.
+
+In the eco-label context: suppose stores that display eco-labels ($X = 1$) tend to be in neighbourhoods with higher baseline environmental orientation ($U$). $U$ independently raises consumer WTP ($Y$). A naive comparison of WTP between labelling and non-labelling stores overstates the label's causal effect, because part of the WTP gap is driven by neighbourhood composition, not the label.
+
+### The IV solution
+
+An **instrument** $Z$ provides a second source of variation in $X$ — one that is unrelated to $U$ and therefore free of confounding. Instead of using all variation in $X$ to estimate its effect on $Y$, IV uses only the variation in $X$ that comes from $Z$. Because $Z$ is unrelated to $U$, this slice of variation in $X$ is clean.
+
+```{r iv-dag, fig.height=3.5, fig.width=7, echo=FALSE}
+#| code-summary: "▶ IV DAG: Z identifies X → Y despite unobserved U"
+.dag(
+  nodes      = list(Z=c(0,0), X=c(1,0), Y=c(2,0), U=c(1.5, 1.2)),
+  solid      = list(c("Z","X"), c("X","Y")),
+  dashed     = list(c("U","X"), c("U","Y")),
+  unobserved = "U",
+  title      = "IV: Z provides clean variation in X, bypassing the U backdoor"
+)
+```
+
+For $Z$ to be a valid instrument, three conditions must hold:
+
+| Condition | What it requires | Testable? |
+|---|---|---|
+| **Relevance** | $Z$ predicts $X$ (strong first stage) | Yes — run the first-stage regression and check $F > 10$ |
+| **Independence** | $Z$ is unrelated to $U$ (and to everything else that affects $Y$ except through $X$) | No — requires theory or design |
+| **Exclusion** | $Z$ affects $Y$ only through $X$, not through any direct path | No — requires theory |
+
+Relevance is the only condition you can test directly. Independence and exclusion are assumptions — they must be argued from the design, not demonstrated from the data.
+
+### The eco-label pilot: a concrete instrument
+
+The government randomly selects stores to participate in a subsidized eco-labelling pilot program ($Z = 1$ if selected). Not every selected store actually installs the label — some lack the shelf space, staff time, or interest — so $X \neq Z$. The instrument works as follows:
+
+- **Relevance**: being selected for the pilot substantially raises the probability of displaying a label (first stage)
+- **Independence**: pilot selection is random, so $Z$ is unrelated to neighbourhood eco-orientation $U$
+- **Exclusion**: being *selected* for the pilot affects consumer WTP only through the store actually *displaying* the label, not through any other route
+
+This is precisely the ITT / LATE framework from Part 1. Pilot selection is the encouragement ($Z$), label display is compliance ($X$), and the Wald estimator gives the causal effect for compliers — stores that display the label *because* they were selected for the pilot, not those that would have displayed it anyway.
+
+### The Wald estimator
+
+$$\hat{\beta}_{IV} = \frac{\widehat{\text{Cov}}(Y, Z)}{\widehat{\text{Cov}}(X, Z)} = \frac{\text{Effect of } Z \text{ on } Y}{\text{Effect of } Z \text{ on } X} = \frac{\text{ITT}}{\text{First stage}} = \text{LATE}$$
+
+This is also called two-stage least squares (2SLS): first regress $X$ on $Z$ to get predicted values $\hat{X}$; then regress $Y$ on $\hat{X}$. The second stage coefficient is $\hat{\beta}_{IV}$.
+
+### Simulation
+
+```{r iv-dgp}
+#| code-summary: "▶ Simulate IV setting: U confounds X → Y; Z is a valid instrument"
+set.seed(2024)
+N_iv <- 600
+# ── YOUR DATA: U is the unobserved confounder (not in your dataset);
+#    Z is your instrument (must be in your dataset); X is your endogenous treatment;
+#    Y is your outcome. The structural equations below define the DGP.
+U <- rnorm(N_iv)                                          # neighbourhood eco-orientation: UNOBSERVED
+Z <- rbinom(N_iv, 1, 0.5)                                 # random pilot selection: instrument
+# Compliance: high-U stores adopt even without the pilot (always-takers);
+# pilot selection tilts borderline stores into adoption (compliers)
+X <- rbinom(N_iv, 1, plogis(-2.0 + 2.5 * Z + 1.0 * U))  # label adoption
+# True causal effect of the label = $0.80; U creates confounding
+Y <- 5.00 + 0.80 * X + 0.60 * U + rnorm(N_iv, 0, 0.50)  # WTP
+df_iv <- tibble(Y, X, Z, U_true = U)
+
+# Compliance breakdown (visible only in simulation)
+compliance <- case_when(
+  X == 1 & Z == 0 ~ "Always-taker",
+  X == 0 & Z == 1 ~ "Never-taker",
+  X == Z          ~ "Complier",
+  TRUE            ~ "Defier"
+)
+cat("Compliance breakdown:\n")
+print(table(compliance))
+cat(sprintf("\nFirst-stage compliance rate: %.1f%%\n", 100 * (mean(X[Z==1]) - mean(X[Z==0]))))
+```
+
+```{r iv-estimate}
+#| code-summary: "▶ OLS vs. IV: OLS is biased; IV recovers the true effect"
+# ── YOUR DATA: replace Y ~ X with your outcome ~ treatment; replace | Z with
+#    | your_instrument. The pipe syntax means "instrument for X using Z".
+#    Add covariates on both sides of | to control for observed confounders
+#    (e.g., Y ~ X + age + income | Z + age + income).
+
+# OLS: biased — uses all variation in X, including the U-driven part
+ols_iv <- lm_robust(Y ~ X, data = df_iv)
+
+# IV (2SLS): uses only the Z-driven variation in X
+iv_est  <- iv_robust(Y ~ X | Z, data = df_iv)
+
+# ── CHECK: first-stage F-statistic should exceed 10 (rule of thumb for strong
+#    instruments). Weak instruments (F < 10) produce severely biased IV estimates
+#    and wide confidence intervals.
+fs_model <- lm_robust(X ~ Z, data = df_iv)
+fs_F <- summary(lm(X ~ Z, data = df_iv))$fstatistic[1]
+
+tibble(
+  Method     = c("OLS (biased — ignores U)", "IV / 2SLS (valid — uses Z only)"),
+  Estimate   = round(c(coef(ols_iv)["X"], coef(iv_est)["X"]), 3),
+  SE         = round(c(ols_iv$std.error["X"], iv_est$std.error["X"]), 3),
+  `95% CI`   = sprintf("[%.3f, %.3f]",
+                       c(ols_iv$conf.low["X"],  iv_est$conf.low["X"]),
+                       c(ols_iv$conf.high["X"], iv_est$conf.high["X"])),
+  `True effect` = 0.80
+) |> knitr::kable(caption = sprintf(
+  "OLS vs. IV: true eco-label effect = $0.80 | first-stage F = %.1f | N = %d", fs_F, N_iv))
+```
+
+```{r iv-first-stage-plot, fig.height=4, fig.width=9}
+#| code-summary: "▶ First stage: does Z predict X? And OLS vs. IV coefficient comparison"
+p_fs <- df_iv |>
+  group_by(Z) |>
+  summarise(P_X = mean(X), .groups="drop") |>
+  ggplot(aes(x = factor(Z, labels=c("Not selected\n(Z = 0)", "Selected\n(Z = 1)")),
+             y = P_X, fill = factor(Z))) +
+  geom_col(width = 0.5, alpha = 0.85) +
+  geom_text(aes(label = sprintf("%.0f%%", 100 * P_X)), vjust = -0.4, size = 4) +
+  scale_fill_manual(values = c("0" = clr_ctrl, "1" = clr_eco), guide = "none") +
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0, 1)) +
+  labs(x = "Pilot selection (instrument Z)", y = "Proportion implementing label (X)",
+       title = "First stage: pilot selection strongly predicts label adoption",
+       subtitle = sprintf("F = %.1f  —  well above the weak-instrument threshold of 10", fs_F)) +
+  theme_mod3()
+
+p_coef <- tibble(
+  Method   = c("OLS\n(biased)", "IV / 2SLS\n(valid)"),
+  Estimate = c(coef(ols_iv)["X"], coef(iv_est)["X"]),
+  lo       = c(ols_iv$conf.low["X"], iv_est$conf.low["X"]),
+  hi       = c(ols_iv$conf.high["X"], iv_est$conf.high["X"])
+) |>
+  ggplot(aes(x = Method, y = Estimate, ymin = lo, ymax = hi, colour = Method)) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 0.6, y = 0.82, label = "True effect = $0.80", hjust = 0, size = 3.5) +
+  geom_pointrange(size = 1, linewidth = 1.2) +
+  scale_colour_manual(values = c("OLS\n(biased)" = clr_ctrl, "IV / 2SLS\n(valid)" = clr_eco),
+                      guide = "none") +
+  scale_y_continuous(limits = c(0.5, 1.5)) +
+  labs(x = NULL, y = "Estimated eco-label effect ($)",
+       title = "OLS overstates the effect; IV recovers the truth",
+       subtitle = "OLS bias: U drives both adoption and WTP, inflating the naive comparison") +
+  theme_mod3()
+
+p_fs | p_coef
+```
+
+::: {.callout-note}
+## What IV identifies — and what it does not
+
+The IV estimate is the LATE: the causal effect of the eco-label **for complier stores** — those that installed the label because they were selected for the pilot, not those that would have installed it regardless. Always-takers (high-U stores that adopt with or without the pilot) and never-takers (stores that never adopt) do not contribute to the IV estimate.
+
+This is identical to the LATE from Part 1 of this module. The instrument is a different mechanism — a government lottery rather than a laboratory randomisation — but the estimand is the same: the average effect for units whose treatment status was actually changed by the instrument.
+
+**Practical limits of IV:**
+
+1. **Weak instruments** ($F < 10$) produce severely biased estimates that can be worse than OLS
+2. **Instrument validity is untestable in full** — independence and exclusion rest on argument, not data
+3. **LATE may not generalise** — compliers near the instrument may differ systematically from the full population of treated units
+:::
+
+---
+
+### From IV to Regression Discontinuity {#sec-iv-to-rdd}
+
+The eco-label pilot above exploited randomness that a government deliberately created. In most secondary data settings, no one ran a lottery. But sometimes nature or policy creates an instrument-like discontinuity: a threshold that sharply determines treatment for units near it, and that is effectively random in a narrow window around the cutoff.
+
+**Regression discontinuity is local IV.** The instrument is $Z_i = \mathbf{1}[\text{audit score}_i \geq 70]$ — being above the threshold. Near the cutoff, audit scores have measurement noise, so whether a product lands at 69 or 71 is close to random. This near-randomness makes $Z$ approximately independent of unobserved product quality $U$ *in that local window*. The exclusion restriction is that the audit score crossing 70 affects WTP only through badge receipt, not through any other route. And relevance is guaranteed — the badge is awarded precisely at 70.
+
+The RDD estimate is therefore a Wald estimator applied locally: the jump in WTP at 70 divided by the jump in badge receipt at 70. When all products comply (sharp RDD), the jump in badge receipt is exactly 1, and the estimate simplifies to the raw WTP jump — the LATE for products hovering near the threshold.
+
+---
+
+## Regression Discontinuity Design {#sec-rdd}
 
 AlterEco's retailer awards a **"Certified Sustainable"** badge to any coffee product scoring **70 or above** on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is *nearly random* near 70. We exploit this near-randomness.
 
@@ -123,7 +298,7 @@ Imagine two products with audit scores of 69 and 71. They have almost identical 
 
 This local near-randomness is what makes the jump causal. It is equivalent to a mini natural experiment: products just above and just below 70 are exchangeable in every way except for badge receipt. The jump in WTP at that threshold is therefore attributable *entirely* to the badge.
 
-**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently. This LATE is conceptually identical to the LATE from Part 1 of this module — both arise because the causal estimate is anchored to a specific sub-population (compliers near the threshold) rather than the full population.
+**The cost of this elegance**: the estimate is a *local* average treatment effect (LATE). It tells you the causal effect of receiving the badge for brands hovering around a 70-point score — not for the top-scoring 90s or the low-scoring 40s, which may respond to the badge very differently. This LATE is conceptually identical to the LATE from Part 1 of this module and from the IV section above — all three arise because the causal estimate is anchored to a specific sub-population (compliers near the threshold, or near the instrument) rather than the full population.
 
 **A Module 2 connection:** The "as-good-as-random near the cutoff" logic is local randomisation — a naturally occurring version of the randomised experiment studied in Module 2. The same assumption that makes experiments valid (exchangeability of treated and control) holds here, but only locally. In Module 2, randomisation made exchangeability a design guarantee; here, it is an *empirical claim* that must be verified through the diagnostics below.
 
@@ -132,7 +307,7 @@ This local near-randomness is what makes the jump causal. It is equivalent to a 
 **A practical check to run first**: If brands can game the audit score to land just above 70, the "as-good-as-random" assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.
 :::
 
-## Simulating an RDD {#sec-rdd-sim}
+### Simulating an RDD {#sec-rdd-sim}
 
 ```{r rdd-dgp, fig.height=4.5, fig.width=9}
 #| code-summary: "▶ Simulate 1,200 products near the 70-point certification threshold"
@@ -150,9 +325,6 @@ WTP_rdd <- 4.0 + 0.02*(audit_score-cutoff) - 0.0003*(audit_score-cutoff)^2 +
            true_jump*treat_rdd + rnorm(N_rdd, 0, 0.60)
 WTP_rdd <- pmax(1, pmin(10, WTP_rdd))
 df_rdd  <- tibble(audit_score, treat_rdd, WTP_rdd, running=audit_score-cutoff)
-# ── CHECK: plot outcome vs. running variable (as below) — a visible jump at
-#    the cutoff, with smooth trends on each side, is the visual signature of
-#    a valid RDD. Irregular or absent jumps warrant investigating the DGP.
 
 df_rdd |>
   ggplot(aes(x=audit_score, y=WTP_rdd, colour=factor(treat_rdd))) +
@@ -172,22 +344,15 @@ df_rdd |>
   theme_mod3()
 ```
 
-## Key Assumptions and How to Test Them {#sec-rdd-assumptions}
+### Key Assumptions and How to Test Them {#sec-rdd-assumptions}
 
-### Assumption 1: No Manipulation
+#### Assumption 1: No Manipulation
 
 ```{r rdd-density-test, fig.height=4, fig.width=7}
 # ── YOUR DATA: replace df_rdd$audit_score with your running variable column
 #    and c=cutoff with your policy threshold value.
-# ── KEY ARGS: rddensity(X, c) tests whether the density of the running variable
-#    is continuous at the cutoff; a significant p-value (< .05) means units are
-#    sorting — manipulating the running variable to land just above (or below)
-#    the threshold, which invalidates the "as-good-as-random" RDD assumption.
 dens_test <- rddensity(X=df_rdd$audit_score, c=cutoff)
 summary(dens_test)
-# ── CHECK: look at the p-value in the summary output; p > .05 is required for
-#    the no-manipulation assumption; also inspect the density plot for visible
-#    bunching or a gap immediately around the cutoff.
 invisible(rdplotdensity(dens_test, X=df_rdd$audit_score,
               title="Density test: checking for bunching at the 70-point cutoff",
               xlabel="Audit score", ylabel="Density"))
@@ -195,7 +360,7 @@ invisible(rdplotdensity(dens_test, X=df_rdd$audit_score,
 
 A significant p-value signals that brands are gaming audit scores to land just above 70. With our simulated uniform running variable, the density is continuous.
 
-### Assumption 2: Covariate Continuity
+#### Assumption 2: Covariate Continuity
 
 ```{r rdd-covariate-balance}
 env_rdd <- rnorm(N_rdd, 0 + 0.01*(audit_score-cutoff)/10, 1)
@@ -206,42 +371,27 @@ summary(rdd_env)
 
 The covariate continuity test is the RDD's randomisation check — conceptually identical to the balance tables you ran in Module 2 before analysing experimental data. In an experiment, balance across pre-treatment covariates is a consequence of random assignment; here it must be demonstrated empirically as evidence that the threshold is not systematically sorting units on unobserved characteristics.
 
-## Estimating the RDD Effect {#sec-rdd-estimate}
+### Estimating the RDD Effect {#sec-rdd-estimate}
 
 ```{r rdd-estimate, fig.height=4.5, fig.width=8}
 # ── YOUR DATA: replace y= with your outcome variable, x= with your running
-#    variable, and c= with your cutoff value. Both y and x must be numeric vectors
-#    of the same length with no missing values at the cutoff.
+#    variable, and c= with your cutoff value.
 # ── KEY ARGS: rdrobust() selects bandwidth automatically (MSE-optimal rule);
 #    you can override with h= to specify a fixed bandwidth, or kernel= to change
-#    from the default triangular kernel (options: "epanechnikov", "uniform").
-#    The default uses local linear regression on each side; p=2 switches to
-#    local quadratic (more flexible, higher variance).
+#    from the default triangular kernel.
 rdd_est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff)
 summary(rdd_est)
-# ── CHECK: in the summary output, look at "Conventional" coef for the point
-#    estimate and "Robust" CI for the bias-corrected confidence interval —
-#    use the Robust CI for inference. Also note the automatically chosen
-#    bandwidth (h) and effective sample size on each side of the cutoff.
+# ── CHECK: use the "Robust" CI for inference — it is bias-corrected.
 rdplot(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff,
        title="RDD estimate: causal effect of sustainability badge on WTP",
        x.label="Audit Score", y.label="WTP ($)")
 ```
 
 ```{r rdd-bandwidth-sensitivity, fig.height=4, fig.width=8}
-# ── YOUR DATA: adjust the bandwidth grid c(5,8,10,15,20,25,30) to be
-#    meaningful in your running variable's units — e.g., if your score runs
-#    0–1000, sensible bandwidths might be c(25,50,75,100,150,200).
-#    Keep the grid symmetric around the MSE-optimal h chosen by rdrobust() above.
-# ── KEY ARGS: h=bw fixes the bandwidth; est$coef["Conventional",1] is the
-#    point estimate; est$se["Robust",1] is the bias-corrected robust SE.
 bw_results <- map_dfr(c(5,8,10,15,20,25,30), function(bw) {
   est <- rdrobust(y=df_rdd$WTP_rdd, x=df_rdd$audit_score, c=cutoff, h=bw)
   tibble(bandwidth=bw, estimate=est$coef["Conventional",1], se=est$se["Robust",1])
 })
-# ── CHECK: estimates should be roughly flat across bandwidths — large swings
-#    indicate sensitivity to bandwidth choice (a red flag). If estimates collapse
-#    at very narrow bandwidths, the effective N is too small for precision.
 
 bw_results |>
   mutate(lo=estimate-1.96*se, hi=estimate+1.96*se) |>
@@ -267,18 +417,14 @@ The bandwidth $h$ controls which products are included in the RDD comparison —
 | Products are very similar to each other near the cutoff ✔ | More observations → tighter CI ✔ |
 | Few observations → wide CI ✖ | Products far from 70 differ systematically from each other ✖ |
 
-**`rdrobust` selects the bandwidth automatically** using a mean-squared-error optimal rule — it finds the $h$ that best balances bias and variance. The bandwidth-sensitivity plot above is a sanity check: stable estimates across a wide range of $h$ suggest the result is not an artefact of a specific choice.
-
-When estimates collapse or swing wildly as $h$ changes, it usually means the polynomial fit on one side of the cutoff is extrapolating too aggressively. That's a red flag that warrants narrowing $h$ or using a local linear fit.
+`rdrobust` selects the bandwidth automatically using a mean-squared-error optimal rule. The bandwidth-sensitivity plot above is a sanity check: stable estimates across a wide range of $h$ suggest the result is not an artefact of a specific choice.
 :::
 
-## Type I Error from Running Variable Manipulation {#sec-rdd-manipulation-mc}
+### Type I Error from Running Variable Manipulation {#sec-rdd-manipulation-mc}
 
 The density test and covariate continuity checks are the right diagnostics — but how much Type I error accumulates before those tests catch the problem? Here we simulate a concrete manipulation scenario and track false-positive rates as gaming becomes more common.
 
 **The mechanism.** Two independent variables matter: (1) the *audit score* — operational compliance across energy use, waste, and supply chain — and (2) latent *brand eco-reputation* Z, an unobserved dimension reflecting genuine brand prestige and loyal eco-customer base. A brand can have strong reputation yet score just below 70: a complex supply chain, an unfamiliar auditor, or a borderline factory can drag the score down through measurement noise. Z does two things: it **motivates gaming** (high-reputation brands near the threshold believe they deserve the badge and have marketing resources to appeal, re-audit, or make cosmetic improvements) and it **independently drives WTP** (eco-conscious customers already follow high-reputation brands regardless of the badge). **The true badge effect is zero.**
-
-The bias accumulates via *compositional sorting*. Most brands in the sample are clustered around the cutoff (audit scores ~ N(65, 12) — many borderline brands, fewer extreme ones). After gaming, just above 70 is flooded with high-Z departures from just below; just below 70 is left depleted of those same high-Z brands. The RDD compares these compositionally distinct groups and interprets the Z-driven WTP gap as a badge effect.
 
 ```{r rdd-manipulation-mc, fig.height=5, fig.width=10}
 #| code-summary: "▶ Monte Carlo: Type I error and density-test power vs. gaming rate (200 sims)"
@@ -286,69 +432,38 @@ set.seed(2025)
 N_SIM_RDD   <- 200
 N_RDD_MC    <- 500
 CUTOFF_MC   <- 70
-GAME_WINDOW <- 10   # brands within 10 pts below cutoff are eligible to game
-BW_RDD      <- 10   # fixed local-linear comparison window (±10 audit points)
+GAME_WINDOW <- 10
+BW_RDD      <- 10
 
 rdd_mc_one <- function(p_game) {
   mat <- replicate(N_SIM_RDD, {
-    # Z: unobserved brand eco-reputation — the confounder.
-    # Z is INDEPENDENT of audit score but drives both gaming and WTP.
-    Z <- rnorm(N_RDD_MC, 0, 1)
-
-    # Audit scores clustered near the threshold (most brands are borderline).
-    # The audit measures operational compliance; brand reputation Z is separate.
-    audit <- pmin(100, pmax(30, rnorm(N_RDD_MC, mean = CUTOFF_MC - 3, sd = 9)))
-
-    # High-reputation brands (Z > 0) near threshold appeal/re-audit to cross.
-    # cross_gap guarantees the brand actually crosses the threshold;
-    # extra scatter places them just above 70 (in [70.5, 77.5]).
+    Z_rep  <- rnorm(N_RDD_MC, 0, 1)
+    audit  <- pmin(100, pmax(30, rnorm(N_RDD_MC, mean = CUTOFF_MC - 3, sd = 9)))
     near_below <- audit >= (CUTOFF_MC - GAME_WINDOW) & audit < CUTOFF_MC
-    game_mask  <- near_below & (Z > 0) & (runif(N_RDD_MC) < p_game)
+    game_mask  <- near_below & (Z_rep > 0) & (runif(N_RDD_MC) < p_game)
     if (any(game_mask)) {
       cross_gap        <- CUTOFF_MC - audit[game_mask] + 0.5
-      audit[game_mask] <- pmin(100, audit[game_mask] + cross_gap +
-                                 runif(sum(game_mask), 0, 7))
+      audit[game_mask] <- pmin(100, audit[game_mask] + cross_gap + runif(sum(game_mask), 0, 7))
     }
-
-    # WTP driven entirely by brand eco-reputation Z — true badge effect = $0.
-    # After gaming: just-above 70 is flooded with high-Z brands (high WTP);
-    # just-below is depleted of them. Local comparison picks up this
-    # Z-sorting as a spurious badge discontinuity.
-    WTP_mc <- pmax(1, pmin(10, 5.5 + 1.5 * Z + rnorm(N_RDD_MC, 0, 0.30)))
-
-    # Local linear RDD with a fixed ±BW_RDD window.
-    # When WTP has no trend in audit score, rdrobust auto-selects a very wide
-    # bandwidth, diluting the gaming signal across hundreds of unaffected
-    # observations. A fixed narrow window keeps the comparison local enough
-    # that the Z-sorted gamers constitute a substantial fraction of just-above.
+    WTP_mc <- pmax(1, pmin(10, 5.5 + 1.5 * Z_rep + rnorm(N_RDD_MC, 0, 0.30)))
     D     <- as.integer(audit >= CUTOFF_MC)
     in_bw <- abs(audit - CUTOFF_MC) <= BW_RDD
     rdd_p <- tryCatch({
-      if (sum(in_bw) < 10 || !any(D[in_bw] == 0) || !any(D[in_bw] == 1)) {
-        NA_real_
-      } else {
-        df_bw <- data.frame(y  = WTP_mc[in_bw],
-                            xc = audit[in_bw] - CUTOFF_MC,
-                            D  = D[in_bw])
+      if (sum(in_bw) < 10 || !any(D[in_bw] == 0) || !any(D[in_bw] == 1)) NA_real_
+      else {
+        df_bw <- data.frame(y=WTP_mc[in_bw], xc=audit[in_bw]-CUTOFF_MC, D=D[in_bw])
         m  <- lm(y ~ D * xc, data = df_bw)
-        sm <- summary(m)$coefficients
-        2 * pt(-abs(sm["D", "t value"]), df = m$df.residual)
+        2 * pt(-abs(summary(m)$coefficients["D","t value"]), df = m$df.residual)
       }
     }, error = function(e) NA_real_)
-
-    # Density test: detects bunching of gamers just above the cutoff
     dens_p <- tryCatch({
       rd <- rddensity(X = audit, c = CUTOFF_MC)
       p  <- rd$test$p_jk
       if (is.null(p) || !is.finite(p)) 1.0 else as.numeric(p)[1]
     }, error = function(e) 1.0)
-
     c(rdd_p, dens_p)
   })
-
-  data.frame(p_game    = p_game,
-             rdd_pval  = mat[1, ],
-             dens_pval = mat[2, ])
+  data.frame(p_game=p_game, rdd_pval=mat[1,], dens_pval=mat[2,])
 }
 
 game_levels <- c(0, 0.10, 0.20, 0.30, 0.50, 0.70)
@@ -369,30 +484,25 @@ rdd_mc_summary <- sim_rdd_mc |>
 
 ggplot(rdd_mc_summary, aes(x = p_game * 100, y = Rate, colour = Metric, shape = Metric)) +
   geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
-  annotate("text", x = 2, y = 0.075, label = "Nominal 5%", size = 3.2,
-           colour = "grey40", hjust = 0) +
+  annotate("text", x = 2, y = 0.075, label = "Nominal 5%", size = 3.2, colour = "grey40", hjust = 0) +
   geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
   scale_colour_manual(values = c(
-    "RDD Type I error\n(false badge effect)"       = "firebrick",
+    "RDD Type I error\n(false badge effect)"      = "firebrick",
     "Density test power\n(catches manipulation)" = "#2563a8"
   )) +
   scale_shape_manual(values = c(
-    "RDD Type I error\n(false badge effect)"       = 17,
+    "RDD Type I error\n(false badge effect)"      = 17,
     "Density test power\n(catches manipulation)" = 16
   )) +
   scale_x_continuous(labels = function(x) paste0(x, "%")) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
-  labs(
-    x      = "Probability that an eligible firm games the audit score",
-    y      = "Rate",
-    colour = NULL, shape = NULL,
-    title  = "RDD Type I error from manipulation (true badge effect = $0)",
-    subtitle = sprintf(
-      "High-Z brands game into just-above 70; just-below is depleted — local linear comparison (±10 pts) picks up spurious WTP jump  |  %d sims",
-      N_SIM_RDD)
-  ) +
-  theme_mod3() +
-  theme(legend.key.width = unit(2, "cm"))
+  labs(x = "Probability that an eligible firm games the audit score", y = "Rate",
+       colour = NULL, shape = NULL,
+       title  = "RDD Type I error from manipulation (true badge effect = $0)",
+       subtitle = sprintf(
+         "High-Z brands game into just-above 70; just-below is depleted — local linear comparison (±10 pts) picks up spurious WTP jump  |  %d sims",
+         N_SIM_RDD)) +
+  theme_mod3() + theme(legend.key.width = unit(2, "cm"))
 ```
 
 ```{r rdd-mc-table, echo=FALSE}
@@ -403,30 +513,22 @@ sim_rdd_mc |>
     `Density test power` = sprintf("%.0f%%", 100 * mean(dens_pval < 0.05, na.rm = TRUE)),
     .groups = "drop"
   ) |>
-  transmute(
-    `Gaming rate` = sprintf("%.0f%%", p_game * 100),
-    `RDD Type I error`, `Density test power`
-  ) |>
-  knitr::kable(
-    caption = sprintf(
-      "RDD simulation: %d sims per condition, N = %d brands, local linear ±10 pts, true badge effect = $0. Gaming selects high-Z brands into just-above 70.",
-      N_SIM_RDD, N_RDD_MC)
-  )
+  transmute(`Gaming rate` = sprintf("%.0f%%", p_game * 100),
+            `RDD Type I error`, `Density test power`) |>
+  knitr::kable(caption = sprintf(
+    "RDD simulation: %d sims per condition, N = %d brands, local linear ±10 pts, true badge effect = $0.",
+    N_SIM_RDD, N_RDD_MC))
 ```
 
 ::: {.callout-warning}
 ## The key pattern: RDD Type I error races toward 100% while the density test lags
 
-As gaming becomes common, the density of audit scores just above 70 swells (gamers pile in from below) and the density just below depletes. The RDD treats this Z-sorted composition as a real treatment effect — **Type I error climbs steeply toward 100%**. The density test (McCrary/rddensity) eventually picks up the bunching, but it has substantially less power than the spurious RDD finding itself: a researcher who checks `rddensity`, sees a borderline p-value, and proceeds will still produce highly confident false positives.
+As gaming becomes common, the density of audit scores just above 70 swells and the density just below depletes. The RDD treats this Z-sorted composition as a real treatment effect — **Type I error climbs steeply toward 100%**. The density test eventually picks up the bunching, but it has substantially less power than the spurious RDD finding itself. A researcher who checks `rddensity`, sees a borderline p-value, and proceeds will still produce highly confident false positives.
 
-**Why does Z go undetected?** The audit score is observable; Z (brand reputation) is not. Standard covariate balance checks only test *observed* pre-treatment variables. If no survey measure of brand reputation was collected, the sorting on Z is completely invisible — yet it inflates Type I error just as severely.
-
-**What to do:** (1) Collect measures of *why* firms are near the threshold — if you can measure Z, include it as a covariate and check its continuity. (2) Run a donut RDD excluding observations within a narrow band of the cutoff, where gaming is most concentrated. (3) If gaming is plausible from domain knowledge, treat any RDD near a known incentivized threshold with extra skepticism regardless of what the density test says.
+**Why does Z go undetected?** The audit score is observable; brand reputation is not. Standard covariate balance checks only test *observed* pre-treatment variables. If no measure of brand reputation was collected, the sorting is completely invisible — yet it inflates Type I error just as severely.
 :::
 
----
-
-## Researcher Checklist: Regression Discontinuity Design {#sec-checklist-part3-m3}
+### Researcher Checklist: Regression Discontinuity Design {#sec-checklist-rdd}
 
 ::: {.callout-note}
 ## Key questions about your discontinuity
@@ -436,3 +538,477 @@ As gaming becomes common, the density of audit scores just above 70 swells (game
 - [ ] **Is the estimate stable across bandwidth choices?** If the point estimate changes dramatically as you narrow the bandwidth from the MSE-optimal value, the result depends on extrapolating far from the cutoff — not on the local quasi-experiment.
 - [ ] **Do you understand that your estimate is a LATE?** RDD identifies the effect only for units near the threshold — those on the margin of qualifying. This may or may not generalize to the broader population of treated units.
 :::
+
+---
+
+### From RDD to Difference-in-Differences {#sec-rdd-to-did}
+
+RDD requires a sharp threshold in a single continuous score. When no such threshold exists — but you have panel data spanning a policy change that affected some units and not others — difference-in-differences uses time as the source of identification.
+
+The identifying assumption shifts: instead of "units just above and below the threshold are exchangeable" (RDD), DiD assumes "treated and control units would have followed the same trend absent the treatment" (parallel trends). Both assumptions are forms of local exchangeability — in RDD it is spatial (near the cutoff); in DiD it is temporal (in the pre-treatment period). Both are empirically testable in part, and both can fail in ways that the available tests cannot detect.
+
+---
+
+## Difference-in-Differences {#sec-did}
+
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXVhKGWYmdPGDCK7MsNNmequAI9bYAUVNioz9v8w1kJukTxjUmh8kvzXF8mMg1OQ/pub?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 3: Difference-in-Differences"></iframe>
+
+The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
+
+### Simulating Panel Data {#sec-did-sim}
+
+```{r did-dgp, fig.height=4.5, fig.width=9}
+set.seed(2024)
+n_dutch <- 15; n_belgian <- 20; n_stores_did <- n_dutch+n_belgian
+years <- 2018:2024; T_treat <- 2022
+# ── YOUR DATA: replace n_dutch / n_belgian with your counts of treated and
+#    control units; replace years with your time periods; replace T_treat with
+#    the first period when treatment took effect.
+
+panel_did <- expand.grid(store=1:n_stores_did, year=years) |>
+  as_tibble() |>
+  mutate(
+    country      = ifelse(store<=n_dutch,"Netherlands","Belgium"),
+    treated      = (country=="Netherlands"),
+    post         = (year>=T_treat),
+    did_indicator= treated & post,
+    store_fe     = rnorm(n_stores_did, 0, 0.5)[store],
+    time_trend   = 0.10*(year-2018),
+    country_fe   = ifelse(country=="Netherlands", 0.30, 0),
+    treat_effect = did_indicator * 0.70,
+    WTP_did      = 5.20 + store_fe + time_trend + country_fe + treat_effect + rnorm(n(), 0, 0.35)
+  )
+
+panel_did |>
+  group_by(country, year) |>
+  summarise(mean_WTP=mean(WTP_did), .groups="drop") |>
+  ggplot(aes(x=year, y=mean_WTP, colour=country, group=country)) +
+  geom_vline(xintercept=T_treat-0.5, linetype="dashed", colour="grey50") +
+  geom_line(linewidth=1.2) + geom_point(size=2.5) +
+  annotate("text", x=T_treat+0.1, y=5.1,
+           label="Dutch eco-label\nlaw takes effect", hjust=0, size=3.2) +
+  scale_colour_manual(values=c("Netherlands"=clr_eco,"Belgium"=clr_ctrl)) +
+  labs(x="Year", y="Mean WTP ($)", colour=NULL,
+       title="DiD: parallel pre-trends are the key identifying assumption",
+       subtitle="Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after") +
+  theme_mod3()
+```
+
+::: {.callout-note}
+## What "parallel trends" actually means — and why Belgium is the key
+
+DiD hinges on one unanswerable question: *what would Dutch stores have done after 2022 if the eco-label law had never passed?* We can't observe this counterfactual. **The parallel trends assumption supplies the answer**: Belgian stores tell us.
+
+More precisely, the assumption states that **absent treatment, the Dutch–Belgian WTP gap would have remained constant** — both series drifting up or down by identical amounts each year. Under this assumption:
+
+$$\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_{\text{Belgian}}}_{\text{counterfactual proxy}} = \delta_{\text{DiD}}$$
+
+**What makes this assumption fail?** Anything that makes Dutch and Belgian stores diverge *for reasons unrelated to the law* — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.
+
+**The parallel trends assumption and Module 2:** Parallel trends is to DiD what exchangeability is to experimentation. In Module 2, you saw that even carefully randomised experiments can fail exchangeability — attrition, demand effects, and differential compliance all erode it. In DiD, parallel trends is unverifiable for the post-treatment period. Pre-treatment trend tests provide *some* diagnostic evidence, but just as a successful manipulation check does not *prove* the exclusion restriction (Module 2), clean pre-trends do not *prove* that post-treatment trends would have remained parallel.
+
+**A Module 1 parallel:** Fixed effects eliminate time-invariant confounders — but only if the *measurement* of the outcome variable is consistent across time and units. If the WTP question wording, scale, or survey protocol changes between periods (a measurement artefact from Module 1), the DiD estimate conflates treatment effects with measurement change.
+:::
+
+### Two-Way Fixed Effects (TWFE) {#sec-did-twfe}
+
+$$Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}$$
+
+```{r did-twfe}
+# ── YOUR DATA: replace WTP_did with your outcome, did_indicator with the
+#    column you created as treated * post, and replace factor(store)/factor(year)
+#    with your unit and time identifiers.
+did_twfe <- lm_robust(WTP_did ~ did_indicator + factor(store) + factor(year),
+                      data=panel_did, clusters=store)
+did_coef <- tidy(did_twfe) |> filter(term=="did_indicatorTRUE")
+cat(sprintf(
+  "True DiD effect  = 0.70\nEstimated DiD    = %.3f  (SE = %.3f, p = %.4f)\n95%% CI: [%.3f, %.3f]\n",
+  did_coef$estimate, did_coef$std.error, did_coef$p.value,
+  did_coef$conf.low, did_coef$conf.high
+))
+```
+
+::: {.callout-note}
+## What the two sets of fixed effects absorb
+
+| Term | What it controls for | Example here |
+|---|---|---|
+| $\alpha_i$ — store fixed effects | Time-invariant differences between stores | Store size, neighbourhood demographics, pre-existing customer base |
+| $\lambda_t$ — year fixed effects | Year-level shocks that hit *all* stores equally | Euro-area inflation, global supply chain costs, macro consumer sentiment |
+| $\delta$ — the DiD estimator | How much *more* the treated group changed *after* treatment vs. the control group | Causal effect of the Dutch eco-label law |
+
+**The critical residual $\varepsilon_{it}$**: whatever the fixed effects can't absorb — differential trends, time-varying store-specific shocks — ends up here. This is exactly where parallel-trends violations hide.
+:::
+
+### Testing Parallel Trends: Event Study {#sec-did-event}
+
+```{r did-event-study, fig.height=4.5, fig.width=9}
+panel_did <- panel_did |>
+  mutate(year_rel=year-T_treat,
+         year_rel_fac=relevel(factor(year_rel), ref="-1"))
+
+event_formula <- as.formula("WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)")
+did_event     <- lm_robust(event_formula, data=panel_did, clusters=store)
+
+event_tbl <- tidy(did_event) |>
+  filter(str_detect(term,"year_rel_fac")) |>
+  mutate(yr=as.integer(str_extract(term,"-?\\d+$")),
+         period=if_else(yr<0,"Pre-treatment","Post-treatment")) |>
+  add_row(yr=-1L, estimate=0, conf.low=0, conf.high=0, period="Reference (−1)")
+
+event_tbl |>
+  ggplot(aes(x=yr, y=estimate, ymin=conf.low, ymax=conf.high, colour=period)) +
+  geom_hline(yintercept=0, linetype="dashed", colour="grey50") +
+  geom_vline(xintercept=-0.5, linetype="dotted", colour="grey60") +
+  geom_pointrange(size=0.7) +
+  scale_colour_manual(values=c("Pre-treatment"=clr_ctrl,"Post-treatment"=clr_eco,
+                               "Reference (−1)"="grey40")) +
+  labs(x="Years relative to Dutch eco-label law (0 = 2022)", y="DiD coefficient ($)",
+       colour=NULL,
+       title="Event study: pre-treatment coefficients near zero — parallel trends supported",
+       subtitle="Post-treatment estimates rise consistently — evidence of a sustained law effect") +
+  theme_mod3()
+```
+
+### Synthetic Difference-in-Differences {#sec-synthdid}
+
+::: {.callout-warning}
+## The synthetic counterfactual is unverifiable
+
+Synthetic DiD — like classical synthetic controls — constructs a weighted combination of untreated units designed to reproduce the treated unit's pre-treatment trajectory. The pre-period fit can look compelling, but there is no way to verify that the synthetic world it generates is a sufficiently representative stand-in for the real counterfactual post-treatment. Use this approach when you have a credible pool of donor units and a long pre-treatment window — and always report sensitivity analyses varying the donor pool.
+:::
+
+```{r synthdid, fig.height=4, fig.width=8}
+sdid_wide <- panel_did |>
+  dplyr::select(store, year, WTP_did, treated) |>
+  pivot_wider(names_from=year, values_from=WTP_did) |>
+  arrange(treated)
+
+N0 <- sum(!sdid_wide$treated); T0 <- sum(years < T_treat)
+Y_matrix <- sdid_wide |> dplyr::select(-store,-treated) |> as.matrix()
+
+sdid_est <- synthdid_estimate(Y_matrix, N0, T0)
+sc_est   <- sc_estimate(Y_matrix, N0, T0)
+did_est  <- did_estimate(Y_matrix, N0, T0)
+
+tibble(
+  Method       = c("Standard DiD","Synthetic Control","Synthetic DiD"),
+  Estimate     = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est)), 3),
+  `True effect`= 0.70,
+  Bias         = round(c(as.numeric(did_est),as.numeric(sc_est),as.numeric(sdid_est))-0.70, 3)
+) |> knitr::kable(caption="All three estimators vs. the true effect of 0.70")
+```
+
+```{r synthdid-plot, fig.height=5, fig.width=8}
+plot(sdid_est, se.method="placebo")
+```
+
+### When Parallel Trends Fails — and Pre-Testing Cannot Always Save You {#sec-pt-failure}
+
+Parallel trends are **not directly testable** — you never observe what Dutch stores would have done without the eco-label law. What you *can* test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:
+
+1. **Too few pre-treatment periods.** Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.
+2. **You collect whatever data exists.** Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.
+
+**The Module 2 power connection:** In Module 2, you saw how underpowered studies inflate apparent effect sizes. The same logic applies here in reverse: a pre-trend test with only two pre-periods has low power to *detect* a violation, so a non-significant result tells you very little. A failure to find pre-trend divergence with few observations is not evidence that trends were parallel — it is evidence that your test had insufficient power.
+
+::: {.callout-important}
+## What the pre-trend test does — and does not — establish
+
+The event study tests whether *observed pre-treatment outcomes* moved in parallel. It does **not** test:
+
+- Whether unmeasured confounders were evolving differently for treated and control units
+- Whether the differential dynamic would have continued into the post-period absent treatment
+- Whether a violation is simply too small to detect given the available pre-periods
+
+Passing the pre-trend test is necessary but far from sufficient for causal identification.
+:::
+
+#### A Realistic Parallel Trends Violation {#sec-pt-violation-viz}
+
+Suppose Dutch stores were *already* attracting more environmentally conscious shoppers whose WTP grew \$0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there. **The true treatment effect is zero.**
+
+```{r pt-violation-dgp, fig.height=6.5, fig.width=10}
+#| code-summary: "▶ Same violation: unmistakeable with 8 pre-periods, invisible with 2"
+set.seed(2025)
+n_dutch_v  <- 15; n_belgian_v <- 20; n_stores_v <- n_dutch_v + n_belgian_v
+T_treat_v  <- 2022; n_post_v <- 3
+diff_slope_v <- 0.15
+store_fes_v  <- rnorm(n_stores_v, 0, 0.6)
+
+make_violation_panel <- function(yrs, true_eff = 0) {
+  expand.grid(store = 1:n_stores_v, year = yrs) |> as_tibble() |>
+    mutate(
+      treated       = as.numeric(store <= n_dutch_v),
+      country       = ifelse(treated == 1, "Netherlands", "Belgium"),
+      post          = as.numeric(year >= T_treat_v),
+      did_indicator = treated * post,
+      store_fe      = store_fes_v[store],
+      diff_trend    = treated * diff_slope_v * (year - T_treat_v),
+      WTP           = 5.20 + store_fe + 0.08 * (year - T_treat_v) +
+                      diff_trend + true_eff * did_indicator + rnorm(n(), 0, 0.40)
+    )
+}
+
+panel_many_v <- make_violation_panel(2014:2024)
+panel_few_v  <- make_violation_panel(2020:2024)
+
+plot_pt_panel <- function(panel, subtitle) {
+  panel |> group_by(country, year) |>
+    summarise(WTP = mean(WTP), .groups = "drop") |>
+    ggplot(aes(x = year, y = WTP, colour = country, group = country)) +
+    geom_vline(xintercept = T_treat_v - 0.5, linetype = "dashed",
+               colour = "grey50", linewidth = 0.9) +
+    geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+    scale_colour_manual(values = c("Netherlands" = clr_eco, "Belgium" = clr_ctrl)) +
+    scale_x_continuous(breaks = unique(panel$year)) +
+    labs(x = NULL, y = "Mean WTP ($)", colour = NULL, subtitle = subtitle) +
+    theme_mod3()
+}
+
+p_many_v <- plot_pt_panel(panel_many_v,
+  "8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here")
+p_few_v  <- plot_pt_panel(panel_few_v,
+  "2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged")
+
+(p_many_v / p_few_v) +
+  plot_annotation(
+    title    = "Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)",
+    subtitle = "How many pre-periods you happen to collect determines whether you can even see the problem",
+    theme    = theme(plot.title    = element_text(size = 13, face = "bold"),
+                     plot.subtitle = element_text(size = 11))
+  )
+```
+
+```{r pt-violation-did}
+#| code-summary: "▶ DiD on 2-pre-period data: statistically significant, entirely spurious"
+did_viol <- lm_robust(WTP ~ did_indicator + factor(store) + factor(year),
+                      data = panel_few_v, clusters = store)
+dv <- tidy(did_viol) |> dplyr::filter(term == "did_indicator")
+cat(sprintf(
+  "True treatment effect  = $0.000\nDiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)\n95%% CI: [$%.3f, $%.3f]\n\nThis looks like a meaningful, significant eco-label effect.\nIt is entirely spurious. The violation was undetectable with 2 pre-periods.\n",
+  dv$estimate, dv$std.error, dv$p.value, dv$conf.low, dv$conf.high
+))
+```
+
+#### Monte Carlo: Pre-Test Power and Type I Error {#sec-pt-mc}
+
+```{r pt-simulation}
+#| code-summary: "▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)"
+set.seed(2025)
+N_SIM_PT <- 300
+
+pt_sim_one <- function(n_pre) {
+  years_s <- c(seq(T_treat_v - n_pre, T_treat_v - 1),
+               T_treat_v:(T_treat_v + n_post_v - 1))
+  n_yrs <- length(years_s)
+  mat <- replicate(N_SIM_PT, {
+    n_obs     <- n_stores_v * n_yrs
+    store_s   <- rep(1:n_stores_v, each = n_yrs)
+    year_s    <- rep(years_s, times = n_stores_v)
+    treated_s <- as.numeric(store_s <= n_dutch_v)
+    post_s    <- as.numeric(year_s >= T_treat_v)
+    did_s     <- treated_s * post_s
+    diff_s    <- treated_s * diff_slope_v * (year_s - T_treat_v)
+    fe_s      <- rnorm(n_stores_v, 0, 0.6)[store_s]
+    WTP_s     <- 5.20 + fe_s + 0.08 * (year_s - T_treat_v) + diff_s + rnorm(n_obs, 0, 0.40)
+    df_s <- data.frame(WTP=WTP_s, did=did_s, store=factor(store_s),
+                       year=factor(year_s), treated=treated_s, post=post_s, year_num=year_s)
+    fit_d  <- lm(WTP ~ did + store + year, data = df_s)
+    pval_d <- coeftest(fit_d, vcovCL(fit_d, cluster = ~store))["did", 4]
+    if (n_pre >= 2) {
+      pre_s      <- df_s[df_s$post == 0, ]
+      pre_s$yr_c <- pre_s$year_num - mean(pre_s$year_num)
+      fit_p  <- lm(WTP ~ treated * yr_c + store, data = pre_s)
+      pval_p <- tryCatch(
+        coeftest(fit_p, vcovCL(fit_p, cluster = ~store))["treated:yr_c", 4],
+        error = function(e) 1.0)
+    } else {
+      pval_p <- 1.0
+    }
+    c(pval_d, pval_p)
+  })
+  data.frame(n_pre=n_pre, did_pval=mat[1,], pre_pval=mat[2,])
+}
+
+sim_all_pt <- map_dfr(1:6, pt_sim_one)
+cat(sprintf("Simulation complete: %d total runs across 6 pre-period conditions.\n", nrow(sim_all_pt)))
+```
+
+```{r pt-type1-plot, fig.height=5, fig.width=10, echo=FALSE}
+type1_pt <- sim_all_pt |>
+  group_by(n_pre) |>
+  summarise(
+    pwr_pretest = mean(pre_pval < 0.05, na.rm = TRUE),
+    t1_overall  = mean(did_pval < 0.05, na.rm = TRUE),
+    t1_cond     = {
+      pass_idx <- pre_pval >= 0.05 | is.na(pre_pval)
+      if (!any(pass_idx)) NA_real_ else mean(did_pval[pass_idx] < 0.05, na.rm = TRUE)
+    },
+    n_pass = sum(pre_pval >= 0.05 | is.na(pre_pval), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+type1_pt |>
+  transmute(n_pre,
+    `Pre-test power\n(detects violation)`         = pwr_pretest,
+    `Overall DiD\nType I error`                   = t1_overall,
+    `Conditional Type I\n(given pre-test passes)` = t1_cond) |>
+  pivot_longer(-n_pre, names_to = "Metric", values_to = "Rate") |>
+  mutate(Metric = factor(Metric, levels = c(
+    "Pre-test power\n(detects violation)",
+    "Overall DiD\nType I error",
+    "Conditional Type I\n(given pre-test passes)"))) |>
+  ggplot(aes(x = n_pre, y = Rate, colour = Metric, shape = Metric)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 1.15, y = 0.07, label = "Nominal 5%", size = 3.2, colour = "grey40", hjust = 0) +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "Pre-test power\n(detects violation)"         = "#2563a8",
+    "Overall DiD\nType I error"                   = "#e67e22",
+    "Conditional Type I\n(given pre-test passes)" = "firebrick"
+  )) +
+  scale_shape_manual(values = c(
+    "Pre-test power\n(detects violation)"         = 16,
+    "Overall DiD\nType I error"                   = 17,
+    "Conditional Type I\n(given pre-test passes)" = 18
+  )) +
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(x = "Number of pre-treatment periods collected", y = "Rate", colour = NULL, shape = NULL,
+       title = "Type I error inflation under parallel trends violation (true treatment effect = $0)",
+       subtitle = sprintf(
+         "Dutch stores grow $0.15/yr faster than Belgian — entirely spurious; %d sims per condition",
+         N_SIM_PT)) +
+  theme_mod3() + theme(legend.key.width = unit(2, "cm"))
+```
+
+```{r pt-summary-table, echo=FALSE}
+type1_pt |>
+  transmute(
+    `Pre-periods`        = n_pre,
+    `Pre-test power`     = sprintf("%.0f%%", 100 * pwr_pretest),
+    `Sims passing`       = sprintf("%d / %d", n_pass, N_SIM_PT),
+    `Overall Type I`     = sprintf("%.0f%%", 100 * t1_overall),
+    `Conditional Type I` = sprintf("%.0f%%", 100 * t1_cond)
+  ) |>
+  knitr::kable(caption = sprintf(
+    "Monte Carlo summary (%d sims per condition, true effect = $0, differential trend = $0.15/yr).",
+    N_SIM_PT))
+```
+
+::: {.callout-warning}
+## What this means for practice
+
+- With **1 pre-period**: the test is impossible; false-positive rates can exceed 40–70%.
+- With **2–3 pre-periods**: most violations slip through; conditional Type I error remains far above 5%.
+- With **5–6 pre-periods**: power improves substantially, but violations that slip through still produce inflated Type I error.
+
+**What to do:** Report the number of pre-treatment periods and be honest about the test's power. Run placebo DiDs. Use **Rambachan & Roth's (2023) `HonestDiD`** sensitivity analysis, which reframes the question from "is there a violation?" to "how large a violation would matter?" Treat a passing event study as weak evidence, not proof.
+:::
+
+#### How an Unobserved Variable Inflates Type I Error {#sec-pt-ov-severity}
+
+A more dangerous violation involves an **unobserved time-varying variable** that only appears post-treatment, making pre-trend tests completely blind to it.
+
+```{r pt-ov-simulation, fig.height=5, fig.width=10}
+#| code-summary: "▶ Monte Carlo: Type I error vs. omitted variable strength γ (300 sims, 2 pre-periods)"
+set.seed(2026)
+N_SIM_OV <- 300
+gamma_grid <- seq(0, 0.80, by = 0.10)
+
+pt_ov_one <- function(gamma) {
+  years_ov <- c(2020, 2021, 2022, 2023, 2024)
+  T_ov     <- 2022
+  mat <- replicate(N_SIM_OV, {
+    U_i <- c(rnorm(n_dutch_v,   +0.5, 1), rnorm(n_belgian_v, -0.5, 1))
+    fe  <- rnorm(n_stores_v, 0, 0.5)
+    panel <- expand.grid(store = seq_len(n_stores_v), year = years_ov) |>
+      as_tibble() |>
+      mutate(
+        treated = as.integer(store <= n_dutch_v),
+        post    = as.integer(year >= T_ov),
+        did     = treated * post,
+        U       = U_i[store],
+        WTP     = 5.20 + fe[store] + 0.08 * (year - T_ov) +
+                  gamma * U * post + rnorm(n(), 0, 0.40)
+      )
+    fit_d  <- lm(WTP ~ did + factor(store) + factor(year), data = panel)
+    pval_d <- tryCatch(
+      coeftest(fit_d, vcovCL(fit_d, cluster = ~store))["did", 4],
+      error = function(e) NA_real_)
+    pre      <- panel[panel$post == 0, ]
+    pre$yr_c <- pre$year - mean(pre$year)
+    fit_p    <- lm(WTP ~ treated * yr_c + factor(store), data = pre)
+    pval_p   <- tryCatch(
+      coeftest(fit_p, vcovCL(fit_p, cluster = ~store))["treated:yr_c", 4],
+      error = function(e) 1.0)
+    c(pval_d, pval_p)
+  })
+  data.frame(gamma=gamma, did_pval=mat[1,], pre_pval=mat[2,])
+}
+
+sim_ov <- map_dfr(gamma_grid, pt_ov_one)
+cat(sprintf("Omitted variable simulation: %d conditions × %d sims = %d total.\n",
+            length(gamma_grid), N_SIM_OV, nrow(sim_ov)))
+```
+
+```{r pt-ov-plot, fig.height=5, fig.width=10, echo=FALSE}
+ov_summary <- sim_ov |>
+  group_by(gamma) |>
+  summarise(
+    `DiD Type I error\n(false law effect)`      = mean(did_pval < 0.05, na.rm = TRUE),
+    `Pre-trend test power\n(detects violation)` = mean(pre_pval < 0.05, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_longer(-gamma, names_to = "Metric", values_to = "Rate")
+
+ggplot(ov_summary, aes(x = gamma, y = Rate, colour = Metric, shape = Metric)) +
+  geom_hline(yintercept = 0.05, linetype = "dotted", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 0.01, y = 0.075, label = "Nominal 5%", size = 3.2, colour = "grey40", hjust = 0) +
+  geom_vline(xintercept = 0.70, linetype = "dashed", colour = "#e67e22", linewidth = 0.8) +
+  annotate("text", x = 0.715, y = 0.55,
+           label = "γ = 0.70\nExpected bias = $0.70\n= entire true effect\nin main example",
+           hjust = 0, size = 2.9, colour = "#e67e22") +
+  geom_line(linewidth = 1.2) + geom_point(size = 3.5) +
+  scale_colour_manual(values = c(
+    "DiD Type I error\n(false law effect)"       = "firebrick",
+    "Pre-trend test power\n(detects violation)" = "#2563a8"
+  )) +
+  scale_shape_manual(values = c(
+    "DiD Type I error\n(false law effect)"       = 17,
+    "Pre-trend test power\n(detects violation)" = 16
+  )) +
+  scale_x_continuous(breaks = gamma_grid, labels = function(g) sprintf("$%.2f", g),
+    sec.axis = sec_axis(~ . * 1, name = "Expected DiD bias",
+                        labels = function(g) sprintf("$%.2f", g))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(x = "Strength of omitted variable (γ: WTP gain per 1 SD of eco-orientation in post-period)",
+       y = "Rate", colour = NULL, shape = NULL,
+       title = "DiD Type I error from omitted time-varying confounder (true law effect = $0)",
+       subtitle = sprintf(
+         "U absorbed by store FEs pre-treatment — pre-trend test stays flat while DiD Type I error soars  |  %d sims",
+         N_SIM_OV)) +
+  theme_mod3() + theme(legend.key.width = unit(2, "cm"))
+```
+
+::: {.callout-important}
+## The pre-trend test has zero power against this type of violation
+
+DiD Type I error rises steeply as γ increases — reaching near-certainty of a false positive when γ = 0.70. But the pre-trend test power **stays flat at the nominal 5%**. Because U is a fixed store characteristic captured by store FEs, its influence is absorbed away in pre-treatment periods. Only when U × post materialises after the treatment date does the confounder do damage — and by then, the event study has nothing left to test.
+:::
+
+### Researcher Checklist: Difference-in-Differences {#sec-checklist-did}
+
+::: {.callout-note}
+## Key questions about your parallel trends assumption
+
+- [ ] **Would the treated and control groups have followed the same trend absent the treatment?** This is the parallel trends assumption — it is not testable in the post-period, only arguable from theory and pre-treatment data.
+- [ ] **Did you run an event study with pre-treatment leads?** Significant pre-trend coefficients ("leads") are direct evidence of a violation. Be honest about the power of this test — with 1–2 pre-periods, most violations will slip through.
+- [ ] **Is the control group genuinely unaffected by the treatment?** Spillover effects (competitive responses, indirect exposure) make control units invalid counterfactuals and bias the DiD estimate.
+- [ ] **Is treatment staggered across units?** Standard two-way fixed effects DiD produces biased estimates under staggered timing with heterogeneous effects. Use a Callaway-Sant'Anna or Sun-Abraham estimator instead.
+:::
+
+```{r session-info}
+sessionInfo()
+```
