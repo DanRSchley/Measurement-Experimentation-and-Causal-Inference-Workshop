@@ -110,6 +110,8 @@ rob_extract <- function(fit) {
 The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
 :::
 
+<iframe src="https://docs.google.com/presentation/d/1tinC2e3yTcwJSDqN2L5nqAZuB4VWV4v0/embed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 3: Regression Discontinuity Design"></iframe>
+
 ## The Core Idea {#sec-rdd-idea}
 
 AlterEco's retailer awards a **"Certified Sustainable"** badge to any coffee product scoring **70 or above** on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is *nearly random* near 70. We exploit this near-randomness.

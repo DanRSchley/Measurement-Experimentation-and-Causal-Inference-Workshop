@@ -1,5 +1,5 @@
 ---
-title: "Part 2: Observational Methods for Causal Inference"
+title: "Part 2: Re-establishing Exchangeability"
 ---
 
 ```{r setup, include=FALSE}

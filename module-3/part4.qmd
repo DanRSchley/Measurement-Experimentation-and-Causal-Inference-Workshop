@@ -110,6 +110,8 @@ rob_extract <- function(fit) {
 The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
 :::
 
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXVhKGWYmdPGDCK7MsNNmequAI9bYAUVNioz9v8w1kJukTxjUmh8kvzXF8mMg1OQ/pub?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 4: Difference-in-Differences"></iframe>
+
 ## The Setup {#sec-did-setup}
 
 The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
