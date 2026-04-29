@@ -246,14 +246,14 @@ p_coef <- tibble(
   lo       = c(ols_iv$conf.low["X"], iv_est$conf.low["X"]),
   hi       = c(ols_iv$conf.high["X"], iv_est$conf.high["X"])
 ) |>
-  ggplot(aes(x = Method, y = Estimate, ymin = lo, ymax = hi, colour = Method)) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", colour = "grey40", linewidth = 0.9) +
-  annotate("text", x = 0.6, y = 0.82, label = "True effect = $0.80", hjust = 0, size = 3.5) +
+  ggplot(aes(y = Method, x = Estimate, xmin = lo, xmax = hi, colour = Method)) +
+  geom_vline(xintercept = 0.80, linetype = "dashed", colour = "grey40", linewidth = 0.9) +
+  annotate("text", x = 0.82, y = 2.45, label = "True effect = $0.80", hjust = 0, size = 3.5) +
   geom_pointrange(size = 1, linewidth = 1.2) +
   scale_colour_manual(values = c("OLS\n(biased)" = clr_ctrl, "IV / 2SLS\n(valid)" = clr_eco),
                       guide = "none") +
-  scale_y_continuous(limits = c(0.5, 1.5)) +
-  labs(x = NULL, y = "Estimated eco-label effect ($)",
+  scale_x_continuous(limits = c(0.5, 1.6)) +
+  labs(y = NULL, x = "Estimated eco-label effect ($)",
        title = "OLS overstates the effect; IV recovers the truth",
        subtitle = "OLS bias: U drives both adoption and WTP, inflating the naive comparison") +
   theme_mod3()
