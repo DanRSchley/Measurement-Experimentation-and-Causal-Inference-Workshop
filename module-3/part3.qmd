@@ -224,9 +224,9 @@ tibble(
   "OLS vs. IV: true eco-label effect = $0.80 | first-stage F = %.1f | N = %d", fs_F, N_iv))
 ```
 
-```{r iv-first-stage-plot, fig.height=4, fig.width=9}
-#| code-summary: "▶ First stage: does Z predict X? And OLS vs. IV coefficient comparison"
-p_fs <- df_iv |>
+```{r iv-first-stage-plot, fig.height=3.5, fig.width=6}
+#| code-summary: "▶ First stage: does Z predict X?"
+df_iv |>
   group_by(Z) |>
   summarise(P_X = mean(X), .groups="drop") |>
   ggplot(aes(x = factor(Z, labels=c("Not selected\n(Z = 0)", "Selected\n(Z = 1)")),
@@ -239,26 +239,28 @@ p_fs <- df_iv |>
        title = "First stage: pilot selection strongly predicts label adoption",
        subtitle = sprintf("F = %.1f  —  well above the weak-instrument threshold of 10", fs_F)) +
   theme_mod3()
+```
 
-p_coef <- tibble(
-  Method   = c("OLS\n(biased)", "IV / 2SLS\n(valid)"),
+```{r iv-coef-plot, fig.height=3, fig.width=6}
+#| code-summary: "▶ OLS vs. IV coefficient comparison"
+tibble(
+  Method   = factor(c("OLS (biased)", "IV / 2SLS (valid)"),
+                    levels = c("OLS (biased)", "IV / 2SLS (valid)")),
   Estimate = c(coef(ols_iv)["X"], coef(iv_est)["X"]),
   lo       = c(ols_iv$conf.low["X"], iv_est$conf.low["X"]),
   hi       = c(ols_iv$conf.high["X"], iv_est$conf.high["X"])
 ) |>
   ggplot(aes(y = Method, x = Estimate, xmin = lo, xmax = hi, colour = Method)) +
   geom_vline(xintercept = 0.80, linetype = "dashed", colour = "grey40", linewidth = 0.9) +
-  annotate("text", x = 0.82, y = 2.45, label = "True effect = $0.80", hjust = 0, size = 3.5) +
   geom_pointrange(size = 1, linewidth = 1.2) +
-  scale_colour_manual(values = c("OLS\n(biased)" = clr_ctrl, "IV / 2SLS\n(valid)" = clr_eco),
+  scale_colour_manual(values = c("OLS (biased)" = clr_ctrl, "IV / 2SLS (valid)" = clr_eco),
                       guide = "none") +
-  scale_x_continuous(limits = c(0.5, 1.6)) +
-  labs(y = NULL, x = "Estimated eco-label effect ($)",
+  scale_x_continuous(limits = c(0.5, 1.6),
+                     labels = function(x) sprintf("$%.2f", x)) +
+  labs(y = NULL, x = "Estimated eco-label effect",
        title = "OLS overstates the effect; IV recovers the truth",
-       subtitle = "OLS bias: U drives both adoption and WTP, inflating the naive comparison") +
+       subtitle = "Dashed line = true effect ($0.80)  |  OLS biased upward by U") +
   theme_mod3()
-
-p_fs | p_coef
 ```
 
 ::: {.callout-note}
