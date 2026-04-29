@@ -8,7 +8,7 @@
 
 <meta name="description" content="A graduate-level open workshop on advanced research methods in management science. Covers psychometric measurement (CFA, EFA, HTMT, LCA), experimental design and power analysis, and causal inference (regression discontinuity, difference-in-differences, mediation analysis) — each module with worked R simulations and interactive diagnostics.">
 
-<title>Part 4: Difference-in-Differences – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>Part 4: Mediation Analysis – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -159,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-title">Part 4: Mediation Analysis</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -305,17 +305,17 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Part 3: Regression Discontinuity Design</span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Part 3: Secondary Data Tools for Causal Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Part 4: Difference-in-Differences</span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Part 4: Mediation Analysis</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Part 5: Mediation Analysis</span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Part 5</span></a>
   </div>
 </li>
       </ul>
@@ -351,27 +351,27 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#sec-did-setup" id="toc-sec-did-setup" class="nav-link active" data-scroll-target="#sec-did-setup">The Setup</a></li>
-  <li><a href="#sec-did-sim" id="toc-sec-did-sim" class="nav-link" data-scroll-target="#sec-did-sim">Simulating Panel Data</a></li>
-  <li><a href="#sec-did-twfe" id="toc-sec-did-twfe" class="nav-link" data-scroll-target="#sec-did-twfe">Two-Way Fixed Effects (TWFE)</a></li>
-  <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event">Testing Parallel Trends: Event Study</a></li>
-  <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid">Synthetic Difference-in-Differences</a></li>
-  <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure">When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a>
-  <ul class="collapse">
-  <li><a href="#sec-pt-violation-viz" id="toc-sec-pt-violation-viz" class="nav-link" data-scroll-target="#sec-pt-violation-viz">A Realistic Parallel Trends Violation</a></li>
-  <li><a href="#sec-pt-mc" id="toc-sec-pt-mc" class="nav-link" data-scroll-target="#sec-pt-mc">Monte Carlo: Pre-Test Power and Type I Error</a></li>
-  <li><a href="#sec-pt-ov-severity" id="toc-sec-pt-ov-severity" class="nav-link" data-scroll-target="#sec-pt-ov-severity">How an Unobserved Variable Inflates Type I Error</a></li>
-  </ul></li>
-  <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3">Researcher Checklist: Difference-in-Differences</a></li>
+  <li><a href="#sec-med-dags" id="toc-sec-med-dags" class="nav-link active" data-scroll-target="#sec-med-dags">Causal Structures</a></li>
+  <li><a href="#sec-med-dgp" id="toc-sec-med-dgp" class="nav-link" data-scroll-target="#sec-med-dgp">Setup: Three DGPs</a></li>
+  <li><a href="#sec-med-run" id="toc-sec-med-run" class="nav-link" data-scroll-target="#sec-med-run">Estimating All Three Methods</a></li>
+  <li><a href="#sec-med-clean" id="toc-sec-med-clean" class="nav-link" data-scroll-target="#sec-med-clean">Scenario 1: Clean Normal Data — All Methods Should Work</a></li>
+  <li><a href="#sec-med-outliers" id="toc-sec-med-outliers" class="nav-link" data-scroll-target="#sec-med-outliers">Scenario 2: Large Outliers — ROBMED’s Advantage</a></li>
+  <li><a href="#sec-med-confounded" id="toc-sec-med-confounded" class="nav-link" data-scroll-target="#sec-med-confounded">Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</a></li>
+  <li><a href="#sec-med-sensitivity" id="toc-sec-med-sensitivity" class="nav-link" data-scroll-target="#sec-med-sensitivity">Where Imai’s Framework Shines: Sensitivity Analysis</a></li>
+  <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison">Comprehensive Bias Comparison Across All Scenarios</a></li>
+  <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2">Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
+  <li><a href="#sec-med-discval" id="toc-sec-med-discval" class="nav-link" data-scroll-target="#sec-med-discval">Type I Error from Discriminant Validity Failure</a></li>
+  <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table">Summary of Methods</a></li>
+  <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3">Researcher Checklist: Causal Mediation Analysis</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-title">Part 4: Difference-in-Differences</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part4.html"><span class="chapter-title">Part 4: Mediation Analysis</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Part 4: Difference-in-Differences</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Part 4: Mediation Analysis</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -401,129 +401,9 @@ window.Quarto = {
 <p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
 </div>
 </div>
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXVhKGWYmdPGDCK7MsNNmequAI9bYAUVNioz9v8w1kJukTxjUmh8kvzXF8mMg1OQ/pub?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 4: Difference-in-Differences">
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSYMsPUAv6Ag5bGkOFdm8ivmMbS_Tdg4Lz-lVOh8GM2TzZAnXLgUcUJCMl_SBUYoQ/pub?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 4: Mediation Analysis">
 </iframe>
-<section id="sec-did-setup" class="level2">
-<h2 class="anchored" data-anchor-id="sec-did-setup">The Setup</h2>
-<p>The Dutch government introduces a <strong>mandatory eco-labelling law</strong> in <strong>2022</strong>. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).</p>
-</section>
-<section id="sec-did-sim" class="level2">
-<h2 class="anchored" data-anchor-id="sec-did-sim">Simulating Panel Data</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_dutch <span class="ot">&lt;-</span> <span class="dv">15</span>; n_belgian <span class="ot">&lt;-</span> <span class="dv">20</span>; n_stores_did <span class="ot">&lt;-</span> n_dutch<span class="sc">+</span>n_belgian</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>years <span class="ot">&lt;-</span> <span class="dv">2018</span><span class="sc">:</span><span class="dv">2024</span>; T_treat <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace n_dutch / n_belgian with your counts of treated and</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    control units; replace years with your time periods; replace T_treat with</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    the first period when treatment took effect. Your data frame needs at minimum:</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    a unit ID, a time period, a 0/1 treated column, a 0/1 post column, and your</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    outcome variable.</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store=</span><span class="dv">1</span><span class="sc">:</span>n_stores_did, <span class="at">year=</span>years) <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">country      =</span> <span class="fu">ifelse</span>(store<span class="sc">&lt;=</span>n_dutch,<span class="st">"Netherlands"</span>,<span class="st">"Belgium"</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated      =</span> (country<span class="sc">==</span><span class="st">"Netherlands"</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">post         =</span> (year<span class="sc">&gt;=</span>T_treat),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">did_indicator=</span> treated <span class="sc">&amp;</span> post,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">store_fe     =</span> <span class="fu">rnorm</span>(n_stores_did, <span class="dv">0</span>, <span class="fl">0.5</span>)[store],</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_trend   =</span> <span class="fl">0.10</span><span class="sc">*</span>(year<span class="dv">-2018</span>),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">country_fe   =</span> <span class="fu">ifelse</span>(country<span class="sc">==</span><span class="st">"Netherlands"</span>, <span class="fl">0.30</span>, <span class="dv">0</span>),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat_effect =</span> did_indicator <span class="sc">*</span> <span class="fl">0.70</span>,</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">WTP_did      =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> time_trend <span class="sc">+</span> country_fe <span class="sc">+</span> treat_effect <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.35</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: plot group-mean outcomes by year (as below) — the two groups should</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#    run near-parallel BEFORE T_treat; a visible gap opening only after T_treat</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">#    is consistent with parallel trends. Any pre-treatment divergence is a red flag.</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>panel_did <span class="sc">|&gt;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_WTP=</span><span class="fu">mean</span>(WTP_did), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>mean_WTP, <span class="at">colour=</span>country, <span class="at">group=</span>country)) <span class="sc">+</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>T_treat<span class="fl">-0.5</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth=</span><span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span>T_treat<span class="fl">+0.1</span>, <span class="at">y=</span><span class="fl">5.1</span>,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">label=</span><span class="st">"Dutch eco-label</span><span class="sc">\n</span><span class="st">law takes effect"</span>, <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="fl">3.2</span>) <span class="sc">+</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Netherlands"</span><span class="ot">=</span>clr_eco,<span class="st">"Belgium"</span><span class="ot">=</span>clr_ctrl)) <span class="sc">+</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Year"</span>, <span class="at">y=</span><span class="st">"Mean WTP ($)"</span>, <span class="at">colour=</span><span class="cn">NULL</span>,</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"DiD: parallel pre-trends are the key identifying assumption"</span>,</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Dutch and Belgian stores track each other in slope before 2022; Dutch stores jump after"</span>) <span class="sc">+</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/did-dgp-1.svg" class="img-fluid figure-img" width="864"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>What “parallel trends” actually means — and why Belgium is the key
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>DiD hinges on one unanswerable question: <em>what would Dutch stores have done after 2022 if the eco-label law had never passed?</em> We can’t observe this counterfactual. <strong>The parallel trends assumption supplies the answer</strong>: Belgian stores tell us.</p>
-<p>More precisely, the assumption states that <strong>absent treatment, the Dutch–Belgian WTP gap would have remained constant</strong> — both series drifting up or down by identical amounts each year. Under this assumption:</p>
-<p><span class="math display">\[\underbrace{\Delta Y_{\text{Dutch}}}_{\text{observed}} - \underbrace{\Delta Y_{\text{Belgian}}}_{\text{counterfactual proxy}} = \delta_{\text{DiD}}\]</span></p>
-<p><strong>Reading the plot above:</strong> The two lines run nearly parallel from 2018–2021 (same slope, constant gap). After 2022 the Dutch line separates from the Belgian. DiD attributes that separation — roughly $0.70 — to the eco-label law, <em>after</em> subtracting whatever movement Belgium showed over the same period (which would have happened anyway).</p>
-<p><strong>What makes this assumption fail?</strong> Anything that makes Dutch and Belgian stores diverge <em>for reasons unrelated to the law</em> — e.g., Dutch shoppers becoming greener faster, or a Dutch-only economic shock. The parallel trends violation section below shows exactly this scenario.</p>
-<p><strong>The parallel trends assumption and Module 2:</strong> Parallel trends is to DiD what exchangeability is to experimentation. In Module 2, you saw that even carefully randomised experiments can fail exchangeability — attrition, demand effects, and differential compliance all erode it. In DiD, parallel trends is unverifiable for the post-treatment period (we never observe what Dutch stores would have done without the law). Pre-treatment trend tests provide <em>some</em> diagnostic evidence, but just as a successful manipulation check does not <em>prove</em> the exclusion restriction (Module 2), clean pre-trends do not <em>prove</em> that post-treatment trends would have remained parallel. It is an assumption, not a result.</p>
-<p><strong>A Module 1 parallel:</strong> Fixed effects eliminate time-invariant confounders — but only if the <em>measurement</em> of the outcome variable is consistent across time and units. If the WTP question wording, scale, or survey protocol changes between periods (a measurement artefact from Module 1), the DiD estimate conflates treatment effects with measurement change. In practice, always verify that outcome measurement is held constant across waves.</p>
-</div>
-</div>
-</section>
-<section id="sec-did-twfe" class="level2">
-<h2 class="anchored" data-anchor-id="sec-did-twfe">Two-Way Fixed Effects (TWFE)</h2>
-<p><span class="math display">\[Y_{it} = \alpha_i + \lambda_t + \delta \cdot D_{it} + \varepsilon_{it}\]</span></p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace WTP_did with your outcome, did_indicator with the</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    column you created as treated * post, and replace factor(store)/factor(year)</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    with your unit and time identifiers. The formula adds one dummy per unit</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    and one dummy per time period — this is the two-way fixed effects (TWFE) model.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: clusters=store clusters standard errors at the unit level —</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    change "store" to whatever your unit identifier column is called.</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    If your units are nested (e.g., stores within chains), cluster at the</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    higher level (chains) to account for within-cluster correlation.</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>did_twfe <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP_did <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>did_coef <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_twfe) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"did_indicatorTRUE"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: the term for did_indicator should be "did_indicatorTRUE" if the</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    column is logical; it will be "did_indicator" if numeric (0/1).</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#    The p-value and CI are cluster-robust — rely on these, not the naive SEs.</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True DiD effect  = 0.70</span><span class="sc">\n</span><span class="st">Estimated DiD    = %.3f  (SE = %.3f, p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [%.3f, %.3f]</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>estimate, did_coef<span class="sc">$</span>std.error, did_coef<span class="sc">$</span>p.value,</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  did_coef<span class="sc">$</span>conf.low, did_coef<span class="sc">$</span>conf.high</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>True DiD effect  = 0.70
-Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
-95% CI: [0.452, 0.811]</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>What the two sets of fixed effects absorb
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><span class="math display">\[Y_{it} = \underbrace{\alpha_i}_{\text{store FE}} + \underbrace{\lambda_t}_{\text{year FE}} + \delta \cdot D_{it} + \varepsilon_{it}\]</span></p>
-<p>Each type of fixed effect removes a specific source of confounding:</p>
+<p>Mediation analysis asks whether the eco-label affects WTP <strong>directly</strong> or <strong>through a mechanism</strong> — here, <em>perceived sustainability</em> (M). Three estimators are compared across three scenarios that each challenge a different method.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -532,477 +412,817 @@ Estimated DiD    = 0.631  (SE = 0.088, p = 0.0000)
 </colgroup>
 <thead>
 <tr class="header">
-<th>Term</th>
-<th>What it controls for</th>
-<th>Example here</th>
+<th>Scenario</th>
+<th>Key feature</th>
+<th>Which method performs best <em>in this scenario</em></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\alpha_i\)</span> — store fixed effects</td>
-<td>Time-invariant differences between stores</td>
-<td>Store size, neighbourhood demographics, pre-existing customer base</td>
+<td><strong>1: Clean normal data</strong></td>
+<td>No violations — a baseline</td>
+<td>All methods perform well</td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\lambda_t\)</span> — year fixed effects</td>
-<td>Year-level shocks that hit <em>all</em> stores equally</td>
-<td>Euro-area inflation, global supply chain costs, macro consumer sentiment</td>
+<td><strong>2: Large outliers</strong></td>
+<td>Correlated high-leverage points inflate OLS b-path</td>
+<td><strong>ROBMED</strong> recovers the true effect</td>
 </tr>
 <tr class="odd">
-<td><span class="math inline">\(\delta\)</span> — the DiD estimator</td>
-<td>How much <em>more</em> the treated group changed <em>after</em> treatment vs.&nbsp;the control group</td>
-<td>Causal effect of the Dutch eco-label law</td>
+<td><strong>3: M–Y confounded</strong></td>
+<td>Unobserved U causes both M and Y; true ACME = 0</td>
+<td><strong>Imai sensitivity</strong> flags the fragility</td>
 </tr>
 </tbody>
 </table>
-<p><strong>The critical residual <span class="math inline">\(\varepsilon_{it}\)</span></strong>: whatever the fixed effects can’t absorb — differential trends (treated and control groups moving at different rates), time-varying store-specific shocks — ends up here. This is exactly where parallel-trends violations hide. Adding pre-treatment event-study coefficients is a way to interrogate whether <span class="math inline">\(\varepsilon_{it}\)</span> contains systematic pre-treatment divergence.</p>
-</div>
-</div>
-</section>
-<section id="sec-did-event" class="level2">
-<h2 class="anchored" data-anchor-id="sec-did-event">Testing Parallel Trends: Event Study</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: year_rel = your_time_var - T_treat (e.g., calendar year minus</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    first treatment year). The reference period is set to -1 (the year before</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    treatment); change ref="-1" if your calendar doesn't align with this convention.</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>panel_did <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_rel=</span>year<span class="sc">-</span>T_treat,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">year_rel_fac=</span><span class="fu">relevel</span>(<span class="fu">factor</span>(year_rel), <span class="at">ref=</span><span class="st">"-1"</span>))</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: the formula treated:year_rel_fac interacts the treated indicator</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#    with each relative-year factor — this produces one coefficient per period</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#    relative to treatment. factor(store) and factor(year) absorb unit and time</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#    fixed effects. clusters=store clusters SEs at the unit level.</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>event_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"WTP_did ~ treated:year_rel_fac + factor(store) + factor(year)"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>did_event     <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(event_formula, <span class="at">data=</span>panel_did, <span class="at">clusters=</span>store)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: in the event study plot, pre-treatment coefficients (yr &lt; 0) should</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    be near zero with CIs crossing zero — this is evidence for parallel trends.</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    Any significant pre-trend (p &lt; .05 before treatment) is a red flag that</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#    the treatment and control groups were already diverging before the policy.</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_event) <span class="sc">|&gt;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(term,<span class="st">"year_rel_fac"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">yr=</span><span class="fu">as.integer</span>(<span class="fu">str_extract</span>(term,<span class="st">"-?</span><span class="sc">\\</span><span class="st">d+$"</span>)),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">period=</span><span class="fu">if_else</span>(yr<span class="sc">&lt;</span><span class="dv">0</span>,<span class="st">"Pre-treatment"</span>,<span class="st">"Post-treatment"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_row</span>(<span class="at">yr=</span><span class="sc">-</span><span class="dv">1</span>L, <span class="at">estimate=</span><span class="dv">0</span>, <span class="at">conf.low=</span><span class="dv">0</span>, <span class="at">conf.high=</span><span class="dv">0</span>, <span class="at">period=</span><span class="st">"Reference (−1)"</span>)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>event_tbl <span class="sc">|&gt;</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>yr, <span class="at">y=</span>estimate, <span class="at">ymin=</span>conf.low, <span class="at">ymax=</span>conf.high, <span class="at">colour=</span>period)) <span class="sc">+</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">colour=</span><span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="sc">-</span><span class="fl">0.5</span>, <span class="at">linetype=</span><span class="st">"dotted"</span>, <span class="at">colour=</span><span class="st">"grey60"</span>) <span class="sc">+</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">size=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"Pre-treatment"</span><span class="ot">=</span>clr_ctrl,<span class="st">"Post-treatment"</span><span class="ot">=</span>clr_eco,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Reference (−1)"</span><span class="ot">=</span><span class="st">"grey40"</span>)) <span class="sc">+</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Years relative to Dutch eco-label law (0 = 2022)"</span>, <span class="at">y=</span><span class="st">"DiD coefficient ($)"</span>,</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour=</span><span class="cn">NULL</span>,</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Event study: pre-treatment coefficients near zero — parallel trends supported"</span>,</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">"Post-treatment estimates rise consistently — evidence of a sustained law effect"</span>) <span class="sc">+</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/did-event-study-1.svg" class="img-fluid figure-img" width="864"></p>
-</figure>
-</div>
-</div>
-</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>How to read an event study plot
+<span class="screen-reader-only">Note</span>The mediation arithmetic — and where it can break
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Each point is the DiD coefficient for that relative year — how much the Dutch–Belgian gap in that year differed from the gap in the reference year (here: year <span class="math inline">\(-1\)</span>, the year just before treatment).</p>
-<p><strong>Pre-treatment years (left of the dotted line)</strong>: If parallel trends holds, these should be near zero with overlapping CIs. A systematic upward or downward trend here is evidence of a <em>pre-existing differential trend</em> — the most direct threat to identification.</p>
-<p><strong>Post-treatment years (right of the dotted line)</strong>: These estimate the treatment effect over time. A sustained positive trajectory (as here) suggests a genuine, growing effect of the law rather than a one-off jump.</p>
-<p><strong>What to worry about</strong>: (1) Any pre-period estimate far from zero and statistically significant; (2) CIs so wide they can’t rule out large violations — this happens when you have very few pre-periods (see the next section).</p>
+<p>Baron–Kenny mediation decomposes X’s total effect on Y into two paths:</p>
+<p><span class="math display">\[\underbrace{X \xrightarrow{\;a\;} M \xrightarrow{\;b\;} Y}_{\text{indirect (ACME) = } a \times b} \quad + \quad \underbrace{X \xrightarrow{\;c'\;} Y}_{\text{direct (ADE)}}\]</span></p>
+<p>The <strong>ACME</strong> (Average Causal Mediation Effect) is the product <span class="math inline">\(a \times b\)</span>. It has two failure modes that the three scenarios below are specifically designed to reveal:</p>
+<ol type="1">
+<li><strong>The <em>b</em>-path can be estimated on the wrong data</strong> — if outliers inflate the apparent slope between M and Y, <span class="math inline">\(\hat{b}\)</span> is too large, and so is <span class="math inline">\(\hat{a} \times \hat{b}\)</span>. ROBMED addresses this.</li>
+<li><strong>The <em>b</em>-path can be estimated on the wrong model</strong> — if an unobserved variable <span class="math inline">\(U^*\)</span> drives both M and Y, the OLS <span class="math inline">\(\hat{b}\)</span> picks up the <span class="math inline">\(U^*\)</span> signal as if it were causal M→Y. No regression method alone can fix this; Imai’s sensitivity analysis quantifies how severe the problem would need to be to explain away the result.</li>
+</ol>
+<p><strong>A Module 1 failure mode:</strong> There is a third, often overlooked failure mode — <strong>measurement error in M</strong>. If <em>perceived sustainability</em> is measured as a single noisy item rather than a well-validated multi-item scale (Module 1 — reliability, CFA, convergent validity), the <span class="math inline">\(\hat{a}\)</span> path is attenuated (like any regression coefficient on a mismeasured predictor) and the <span class="math inline">\(\hat{b}\)</span> path is biased as well, because M carries both signal and noise into the Y regression. The practical implication: investing in high-quality mediator measurement at the design stage (multi-item constructs, established scales, pilot reliability checks) is not just good practice — it is a precondition for trustworthy mediation estimates. A large ACME from a single-item mediator may be entirely an artifact of differential measurement error.</p>
+<p><strong>A Module 2 connection:</strong> Mediation analysis is typically conducted on experimental data where X is randomised (as in Scenarios 1–3 here). This randomisation satisfies the <em>a</em>-path assumption (no confounding of X→M). But randomisation does <em>not</em> satisfy the <em>b</em>-path assumption — M is not randomised, so the M→Y step faces all the observational identification challenges of Part 2 of this module. The sensitivity parameter <span class="math inline">\(\rho^*\)</span> below is a direct quantification of how much M–Y confounding would be needed to nullify the ACME, just as power analysis in Module 2 quantified how much sampling error could explain an apparent effect.</p>
+</div>
+</div>
+<section id="sec-med-dags" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-dags">Causal Structures</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-dag-scenarios-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
-<section id="sec-synthdid" class="level2">
-<h2 class="anchored" data-anchor-id="sec-synthdid">Synthetic Difference-in-Differences</h2>
+<section id="sec-med-dgp" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-dgp">Setup: Three DGPs</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>N_med <span class="ot">&lt;-</span> <span class="dv">350</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>X     <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_med, <span class="dv">1</span>, <span class="fl">0.5</span>)   <span class="co"># eco-label (1 = exposed to label)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: X is your binary treatment (0/1); replace rbinom() with your</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    actual treatment column. N_med should equal nrow(your_df).</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    Each df_sN below maps to your real data frame with columns:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    eco_label (or your treatment name), perc_sust (your mediator), WTP (outcome).</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters (Scenarios 1 &amp; 2)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>a_true    <span class="ot">&lt;-</span> <span class="fl">0.80</span>   <span class="co"># eco_label → perc_sust  (strong a-path)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>b_true    <span class="ot">&lt;-</span> <span class="fl">0.75</span>   <span class="co"># perc_sust → WTP        (strong b-path)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>c_prime   <span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># eco_label → WTP (direct path)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ACME_true <span class="ot">&lt;-</span> a_true <span class="sc">*</span> b_true   <span class="co"># 0.600  (large → needs big ρ to nullify → ROBUST)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: in real data you do NOT know a_true or b_true; these are set</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    here only for ground-truth evaluation. With real data, run the</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#    run_mediation_triple() function directly on your data frame.</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 1: Clean normal data ────────────────────────────────────────────</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># No violations; both OLS and ROBMED should recover ACME ≈ 0.275</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>M_s1   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>Y_s1   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>df_s1  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s1, <span class="at">WTP =</span> Y_s1)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 2: Large correlated outliers (12% contamination) ───────────────</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlated shocks to M and Y residuals in the same direction: outlier obs</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># suggest a much steeper M→Y slope → OLS b-path inflated → OLS ACME &gt;&gt; 0.275</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ROBMED MM-estimator downweights these high-leverage points → stays near truth</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>out_n   <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(N_med <span class="sc">*</span> <span class="fl">0.12</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>out_idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(N_med, out_n)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>out_sgn <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, out_n)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>out_mag <span class="ot">&lt;-</span> <span class="fu">runif</span>(out_n, <span class="dv">6</span>, <span class="dv">10</span>)   <span class="co"># 10–17× the baseline SD: strong leverage</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>eps_M2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>eps_Y2  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>eps_M2[out_idx] <span class="ot">&lt;-</span> eps_M2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag          <span class="co"># M outlier</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>eps_Y2[out_idx] <span class="ot">&lt;-</span> eps_Y2[out_idx] <span class="sc">+</span> out_sgn <span class="sc">*</span> out_mag <span class="sc">*</span> <span class="fl">0.90</span>   <span class="co"># correlated Y outlier</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>M_s2   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> eps_M2</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>Y_s2   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> b_true <span class="sc">*</span> M_s2 <span class="sc">+</span> eps_Y2</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>df_s2  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s2, <span class="at">WTP =</span> Y_s2)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK (Scenario 2): plot perc_sust vs WTP and colour outlier points (out_idx)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">#    red — if a small cluster of points visually drives the OLS slope, ROBMED</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">#    is important for your data; inspect with plot(df_s2$perc_sust, df_s2$WTP).</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Scenario 3: M–Y confounded via unobserved U* (true ACME = 0) ─────────────</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># U* drives both perc_sust and WTP; there is NO causal M → Y path</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS and ROBMED both find spurious ACME (Type I error) because they cannot</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># separate causal M→Y from U-induced M–Y correlation.</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># U* coefficients are deliberately modest (0.28, 0.32) so the induced residual</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation ρ ≈ 0.22 — Imai's medsens() correctly identifies this low ρ* as</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># FRAGILE, in sharp contrast to Scenario 1's ρ* ≈ 0.80.</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>U      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>M_s3   <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.28</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Y_s3   <span class="ot">&lt;-</span> c_prime <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.32</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(N_med, <span class="dv">0</span>, <span class="fl">0.55</span>)   <span class="co"># no M_s3 term!</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>df_s3  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X, <span class="at">perc_sust =</span> M_s3, <span class="at">WTP =</span> Y_s3)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>ACME_true_s3 <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># no causal M → Y</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: Scenario 3 represents the most dangerous real-world failure —</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#    an unmeasured variable (e.g., prior eco-engagement, health consciousness)</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#    drives both your mediator and outcome. Always run medsens() on your real</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#    data and report the critical ρ* alongside the ACME estimate.</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"N = %d  |  Treatment rate = %.0f%%</span><span class="sc">\n</span><span class="st">"</span>, N_med, <span class="dv">100</span> <span class="sc">*</span> <span class="fu">mean</span>(X)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>N = 350  |  Treatment rate = 50%</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenarios 1 &amp; 2: true ACME = %.3f  (a=%.2f, b=%.2f, c'=%.2f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            ACME_true, a_true, b_true, c_prime))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenarios 1 &amp; 2: true ACME = 0.600  (a=0.80, b=0.75, c'=0.30)</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Three mediation DGPs: clean normal data, large outliers, M–Y confounded</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 3:      true ACME = %.3f  (U* confounds both M and Y)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>            ACME_true_s3))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 3:      true ACME = 0.000  (U* confounds both M and Y)</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-med-run" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-run">Estimating All Three Methods</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: to apply this to your own data, call run_mediation_triple()</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    with a data frame that has columns named eco_label (treatment), perc_sust</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    (mediator), and WTP (outcome). Rename your columns to match, or edit the</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    column references inside the function to match your variable names.</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>run_mediation_triple <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">R =</span> <span class="dv">500</span>) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  m_m <span class="ot">&lt;-</span> <span class="fu">lm</span>(perc_sust <span class="sc">~</span> eco_label, <span class="at">data =</span> df)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  m_y <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> eco_label <span class="sc">+</span> perc_sust, <span class="at">data =</span> df)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: m_m is the a-path model (treatment → mediator);</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    m_y is the b-path / outcome model (treatment + mediator → outcome).</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    Both must share the same data frame. Add covariates to both models</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    if confounders of the M→Y relationship are available (e.g., age, income).</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. OLS: a × b with delta-method CI</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  a_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_m)[<span class="st">"eco_label"</span>]</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  b_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_y)[<span class="st">"perc_sust"</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  ols_est <span class="ot">&lt;-</span> a_hat <span class="sc">*</span> b_hat</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  se_ab   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(b_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_m)[<span class="st">"eco_label"</span>,<span class="st">"eco_label"</span>] <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                  a_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_y)[<span class="st">"perc_sust"</span>,<span class="st">"perc_sust"</span>])</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  ols_lo  <span class="ot">&lt;-</span> ols_est <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  ols_hi  <span class="ot">&lt;-</span> ols_est <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_ab</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. ROBMED: MM-robust regression (downweights high-leverage outliers)</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: WTP ~ m(perc_sust) + eco_label specifies outcome ~ m(mediator) +</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    treatment; the m() wrapper identifies the mediator for robmed.</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    method="regression" uses regression-based mediation; robust=TRUE activates</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    the MM-estimator. R= controls bootstrap replications — 500 for exploration,</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    2000+ for final publication figures.</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  med_rob  <span class="ot">&lt;-</span> <span class="fu">test_mediation</span>(WTP <span class="sc">~</span> <span class="fu">m</span>(perc_sust) <span class="sc">+</span> eco_label,</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data =</span> df, <span class="at">method =</span> <span class="st">"regression"</span>, <span class="at">robust =</span> <span class="cn">TRUE</span>, <span class="at">R =</span> R)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  rob      <span class="ot">&lt;-</span> <span class="fu">rob_extract</span>(med_rob)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Imai et al.: quasi-Bayesian (used for medsens() sensitivity analysis)</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── KEY ARGS: treat= names the treatment column; mediator= names the mediator;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    boot=FALSE uses quasi-Bayesian simulation (faster); sims= controls the</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">#    number of draws — increase to 1000 for publication.</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  med_imai <span class="ot">&lt;-</span> <span class="fu">mediate</span>(m_m, m_y, <span class="at">treat =</span> <span class="st">"eco_label"</span>, <span class="at">mediator =</span> <span class="st">"perc_sust"</span>,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                      <span class="at">boot =</span> <span class="cn">FALSE</span>, <span class="at">sims =</span> R)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a_hat    =</span> a_hat,          <span class="at">b_hat    =</span> b_hat,</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">ols_est  =</span> ols_est,        <span class="at">ols_lo   =</span> ols_lo,       <span class="at">ols_hi  =</span> ols_hi,</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">rob_est  =</span> rob<span class="sc">$</span>est,        <span class="at">rob_lo   =</span> rob<span class="sc">$</span>lo,       <span class="at">rob_hi  =</span> rob<span class="sc">$</span>hi,</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_est =</span> med_imai<span class="sc">$</span>d0,    <span class="at">imai_lo  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">1</span>],</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">imai_hi  =</span> med_imai<span class="sc">$</span>d0.ci[<span class="dv">2</span>],</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">med_imai =</span> med_imai,       <span class="at">med_rob  =</span> med_rob)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running three mediation scenarios (OLS + ROBMED + Imai, 500 sims each)...</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res_s1 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s1)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>res_s2 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s2)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res_s3 <span class="ot">&lt;-</span> <span class="fu">run_mediation_triple</span>(df_s3)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: compare ols_est vs. rob_est — if they differ substantially (&gt; 0.05</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    in standardised units), outliers are influential; prefer ROBMED.</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    Always follow up with medsens() (see sensitivity chunk) to report ρ*.</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            res_s1<span class="sc">$</span>ols_est, res_s1<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 1 — OLS: 0.594  ROBMED: 0.567  (truth = 0.600)</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 2 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>            res_s2<span class="sc">$</span>ols_est, res_s2<span class="sc">$</span>rob_est, ACME_true))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 2 — OLS: 0.926  ROBMED: 0.596  (truth = 0.600)</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Run OLS delta method, ROBMED, and Imai on all three scenarios</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 3 — OLS: %.3f  ROBMED: %.3f  (truth = %.3f [no M→Y path])</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>            res_s3<span class="sc">$</span>ols_est, res_s3<span class="sc">$</span>rob_est, ACME_true_s3))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 3 — OLS: 0.165  ROBMED: 0.183  (truth = 0.000 [no M→Y path])</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-med-clean" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-clean">Scenario 1: Clean Normal Data — All Methods Should Work</h2>
+<p>With textbook normal errors and no confounding, OLS, ROBMED, and Imai all estimate ACME accurately. This is the baseline case each method was designed for.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Scenario 1 — Clean normal data | true ACME = 0.6 | N = 350</caption>
+<colgroup>
+<col style="width: 26%">
+<col style="width: 20%">
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 8%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">a &amp; b paths</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: center;">95% CI</th>
+<th style="text-align: right;">Bias</th>
+<th style="text-align: center;">Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OLS delta method</td>
+<td style="text-align: left;">a=0.811, b=0.732</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: center;">[0.467, 0.720]</td>
+<td style="text-align: right;">-0.006</td>
+<td style="text-align: center;">On target</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ROBMED (MM-estimator)</td>
+<td style="text-align: left;">– (robust MM)</td>
+<td style="text-align: right;">0.567</td>
+<td style="text-align: center;">[0.449, 0.697]</td>
+<td style="text-align: right;">-0.033</td>
+<td style="text-align: center;">On target</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imai (quasi-Bayes)</td>
+<td style="text-align: left;">– (uses OLS)</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: center;">[0.478, 0.731]</td>
+<td style="text-align: right;">-0.006</td>
+<td style="text-align: center;">On target</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="sec-med-outliers" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-outliers">Scenario 2: Large Outliers — ROBMED’s Advantage</h2>
+<p>Twelve percent of participants show large, <strong>correlated</strong> deviations in both perceived sustainability (M) and WTP (Y) in the same direction. These high-leverage observations suggest a much steeper M→Y slope than the true 0.75, inflating the OLS b-path and thus ACME. The MM-estimator in ROBMED downweights points that deviate strongly from the main data cloud.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why correlated outliers inflate the <em>b</em>-path specifically
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The key is <em>direction</em>: when participants who score unusually high on M also score unusually high on Y (same-sign shocks), they create data points that pull the OLS regression line steeply upward. To OLS, these are just informative extreme observations — it can’t distinguish “genuinely high M causes genuinely high Y” from “an external shock hit both M and Y simultaneously.”</p>
+<p><strong>ROBMED’s MM-estimator</strong> assigns lower weight to observations whose residuals are large relative to the bulk of the data. The outlier participants — who are far from the M–Y regression cloud — receive close to zero weight, leaving the slope estimate dominated by the non-contaminated 88%.</p>
+<p><strong>Why Imai doesn’t help here</strong>: <code>mediate()</code> calls the same <code>lm()</code> models internally. When those models are biased, the quasi-Bayesian sampling averages over biased posteriors. In this outlier scenario, ROBMED is the appropriate tool — Imai’s advantage lies in confounding diagnosis (Scenario 3), not outlier robustness.</p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Scenario 2 — 12% correlated outlier contamination | true ACME = 0.600 | N = 350</caption>
+<colgroup>
+<col style="width: 19%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 15%">
+<col style="width: 6%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">b-path</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: center;">95% CI</th>
+<th style="text-align: right;">Bias</th>
+<th style="text-align: left;">Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OLS delta method</td>
+<td style="text-align: left;">1.598 (true = 0.75)</td>
+<td style="text-align: right;">0.926</td>
+<td style="text-align: center;">[0.010, 1.842]</td>
+<td style="text-align: right;">+0.326</td>
+<td style="text-align: left;">✖ Inflated — outliers pull b-path up</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ROBMED (MM-estimator)</td>
+<td style="text-align: left;">1.028 (true = 0.75)</td>
+<td style="text-align: right;">0.596</td>
+<td style="text-align: center;">[0.465, 0.732]</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: left;">✓ Robust — outliers down-weighted</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imai (quasi-Bayes)</td>
+<td style="text-align: left;">1.598 (true = 0.75)</td>
+<td style="text-align: right;">0.949</td>
+<td style="text-align: center;">[-0.045, 1.858]</td>
+<td style="text-align: right;">+0.349</td>
+<td style="text-align: left;">✖ Inflated — uses OLS internally</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-outlier-scatter-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-med-confounded" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-confounded">Scenario 3: M–Y Confounded — Regression-Based Methods Fail, Imai Diagnoses</h2>
+<p>U* drives both perceived sustainability and WTP. <strong>There is no causal M→Y path.</strong> The true ACME = 0. Yet both OLS and ROBMED find a large, significant “mediation effect” because they cannot distinguish causal M→Y from U-induced M–Y correlation. This is a structural identification failure, not an estimation problem — no regression method alone can fix it. But Imai’s sensitivity analysis reveals that the result is fragile.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Scenario 3 — M–Y confounded via U* | true ACME = 0.000 (no M→Y path) | N = 350</caption>
+<colgroup>
+<col style="width: 19%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 14%">
+<col style="width: 6%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">b-path (spurious)</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: center;">95% CI</th>
+<th style="text-align: right;">Bias</th>
+<th style="text-align: left;">Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OLS delta method</td>
+<td style="text-align: left;">0.197 (true = 0.00)</td>
+<td style="text-align: right;">0.165</td>
+<td style="text-align: center;">[0.083, 0.248]</td>
+<td style="text-align: right;">+0.165</td>
+<td style="text-align: left;">✖ Type I error — spurious mediation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ROBMED (MM-estimator)</td>
+<td style="text-align: left;">0.218 (true = 0.00)</td>
+<td style="text-align: right;">0.183</td>
+<td style="text-align: center;">[0.093, 0.275]</td>
+<td style="text-align: right;">+0.183</td>
+<td style="text-align: left;">✖ Type I error — U* not outlier-based</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imai (quasi-Bayes)</td>
+<td style="text-align: left;">0.197 (true = 0.00)</td>
+<td style="text-align: right;">0.164</td>
+<td style="text-align: center;">[0.081, 0.250]</td>
+<td style="text-align: right;">+0.164</td>
+<td style="text-align: left;">✖ Type I error — see ρ* below</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="sec-med-sensitivity" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-sensitivity">Where Imai’s Framework Shines: Sensitivity Analysis</h2>
+<p>Imai et al.’s <code>medsens()</code> asks: <em>how large would the correlation between M-equation and Y-equation residuals (ρ) need to be to drive ACME to zero?</em> This <strong>critical ρ*</strong> measures fragility:</p>
+<ul>
+<li><strong>Large ρ</strong>*: only substantial unmeasured confounding could explain away the result → <strong>robust</strong></li>
+<li><strong>Small ρ</strong>*: even modest unmeasured confounding suffices → <strong>fragile</strong></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace res_s1$med_imai and res_s3$med_imai with the med_imai</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    object returned by run_mediation_triple() on your own data frame.</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    Run medsens() on every mediation model you report — it costs little time</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    and is now expected by reviewers in top journals.</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: rho.by = 0.05 evaluates sensitivity at ρ steps of 0.05 over</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    [-1, 1]; effect.type = "indirect" targets the ACME specifically;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    sims = 500 controls bootstrap draws — use 1000+ for final results.</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>sens_s1 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s1<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">99</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>sens_s3 <span class="ot">&lt;-</span> <span class="fu">medsens</span>(res_s3<span class="sc">$</span>med_imai, <span class="at">rho.by =</span> <span class="fl">0.05</span>, <span class="at">effect.type =</span> <span class="st">"indirect"</span>, <span class="at">sims =</span> <span class="dv">500</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: look at crit_rho_s1 and crit_rho_s3 printed below —</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#    ρ* &gt; 0.4 is generally considered robust (substantial confounding needed);</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#    ρ* &lt; 0.2 is fragile (modest confounding would nullify the result).</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    Report ρ* in your manuscript alongside the ACME point estimate and CI.</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>safe_crit_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(s) {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    idx_neg <span class="ot">&lt;-</span> <span class="fu">which</span>(s<span class="sc">$</span>d0 <span class="sc">&lt;=</span> <span class="dv">0</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(idx_neg) <span class="sc">==</span> <span class="dv">0</span>) <span class="cn">NA_real_</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="fu">round</span>(<span class="fu">min</span>(<span class="fu">abs</span>(s<span class="sc">$</span>rho[idx_neg]), <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>crit_rho_s1 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s1)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>crit_rho_s3 <span class="ot">&lt;-</span> <span class="fu">safe_crit_rho</span>(sens_s3)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>fmt_rho <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="fu">is.na</span>(x)) <span class="st">"&gt; 1.0"</span> <span class="cf">else</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, x)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 1 (true ACME = %.3f): critical ρ* ≈ %s  → ROBUST finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>            ACME_true, <span class="fu">fmt_rho</span>(crit_rho_s1)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 1 (true ACME = 0.600): critical ρ* ≈ 0.60  → ROBUST finding</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Scenario 3 (true ACME = 0):     critical ρ* ≈ %s  → FRAGILE finding</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">fmt_rho</span>(crit_rho_s3)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Scenario 3 (true ACME = 0):     critical ρ* ≈ 0.25  → FRAGILE finding</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Smaller ρ* = less confounding is needed to explain away the result.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Smaller ρ* = less confounding is needed to explain away the result.</code></pre>
+</div>
+<details class="code-fold">
+<summary>▶ Sensitivity analysis: clean DGP (robust) vs.&nbsp;confounded DGP (fragile)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build tidy sensitivity curves using only the guaranteed $rho and $d0 fields</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>lbl_s1 <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Scenario 1: Clean data (true ACME = %.3f)"</span>, ACME_true)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>lbl_s3 <span class="ot">&lt;-</span> <span class="st">"Scenario 3: M\u2013Y confounded (true ACME = 0)"</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>sens_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s1<span class="sc">$</span>rho,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s1<span class="sc">$</span>d0,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> lbl_s1,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">rho      =</span> sens_s3<span class="sc">$</span>rho,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">ACME     =</span> sens_s3<span class="sc">$</span>d0,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">Scenario =</span> lbl_s3,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># y-annotation positions scale with the ACME range</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>y_robust  <span class="ot">&lt;-</span>  ACME_true <span class="sc">*</span> <span class="fl">0.30</span>   <span class="co"># ~30% of way up from zero</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>y_fragile <span class="ot">&lt;-</span> <span class="sc">-</span>ACME_true <span class="sc">*</span> <span class="fl">0.30</span>   <span class="co"># ~30% of way down from zero</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sens_df, <span class="fu">aes</span>(<span class="at">x =</span> rho, <span class="at">y =</span> ACME, <span class="at">colour =</span> Scenario)) <span class="sc">+</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.4</span>) <span class="sc">+</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s1))</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s1, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_eco, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s1 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> y_robust,</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(ROBUST)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s1)),</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_eco, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>  { <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(crit_rho_s3))</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span>  crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span>crit_rho_s3, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>                   <span class="at">colour =</span> clr_ctrl, <span class="at">linewidth =</span> <span class="fl">0.9</span>),</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> crit_rho_s3 <span class="sc">+</span> <span class="fl">0.03</span>, <span class="at">y =</span> y_fragile,</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"\u03c1*\u2248%s</span><span class="sc">\n</span><span class="st">(FRAGILE)"</span>, <span class="fu">fmt_rho</span>(crit_rho_s3)),</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>                 <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.0</span>, <span class="at">colour =</span> clr_ctrl, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>      ) } <span class="sc">+</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">setNames</span>(<span class="fu">c</span>(clr_eco, clr_ctrl), <span class="fu">c</span>(lbl_s1, lbl_s3))) <span class="sc">+</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x       =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Sensitivity parameter "</span>, rho,</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"  (correlation between M- and Y-equation residuals)"</span>)),</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">y       =</span> <span class="st">"ACME (indirect effect)"</span>,</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour  =</span> <span class="cn">NULL</span>,</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">title   =</span> <span class="st">"Imai sensitivity: how much confounding would nullify the ACME?"</span>,</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"\u03c1* = critical value at which ACME crosses zero"</span>,</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"  \u2014  smaller \u03c1* = more fragile result"</span>)) <span class="sc">+</span></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>() <span class="sc">+</span></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-sensitivity-compare-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Reading the sensitivity plot
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Both Scenario 1 and Scenario 3 produce a <em>statistically significant</em> ACME from OLS — they look equally convincing at face value. The sensitivity analysis reveals very different levels of trust:</p>
+<ul>
+<li><strong>Scenario 1 (clean)</strong>: ACME reaches zero only at <span class="math inline">\(\rho^* \approx\)</span> 0.60. Even substantial unmeasured M–Y confounding cannot explain away the result. The finding is <strong>robust</strong>.</li>
+<li><strong>Scenario 3 (confounded)</strong>: ACME crosses zero at <span class="math inline">\(\rho^* \approx\)</span> 0.25. Only modest confounding is enough to nullify the result. The “significant” ACME is <strong>fragile</strong> — correctly so, since the true ACME is 0.</li>
+</ul>
+<p><strong>The Imai advantage is not a better point estimate</strong> (it uses the same linear models as OLS, so it inherits the same bias in Scenario 3). The advantage is the <em>sensitivity analysis itself</em> — a diagnostic that Baron–Kenny does not provide. A finding that reports both the ROBMED estimate and a large ρ* from <code>medsens()</code> is far more credible than one that does neither.</p>
+</div>
+</div>
+</section>
+<section id="sec-med-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-comparison">Comprehensive Bias Comparison Across All Scenarios</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/mediation-bias-comparison-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>The synthetic counterfactual is unverifiable
+<span class="screen-reader-only">Warning</span>Method × scenario decision guide
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Synthetic DiD — like classical synthetic controls — constructs a weighted combination of untreated units designed to reproduce the treated unit’s pre-treatment trajectory. The pre-period fit can look compelling, but there is no way to verify that the synthetic world it generates is a sufficiently representative stand-in for the real counterfactual post-treatment. The method assumes the same weighting that matched pre-treatment trends would have continued to match post-treatment trends in the absence of the law. Unobserved shocks, structural breaks, or compositional changes that affect treated and synthetic units differently after treatment will bias the estimate without any diagnostic flag. Use this approach when you have a credible pool of donor units and a long pre-treatment window — and always report sensitivity analyses varying the donor pool.</p>
-</div>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: synthdid_estimate() requires a (units × time) outcome matrix</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    arranged so that control units come FIRST (rows 1:N0) and pre-treatment</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    periods come FIRST (columns 1:T0). pivot_wider() here creates that layout;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    replicate with your own unit ID, time, and outcome columns.</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ── KEY ARGS: N0 = number of control units (rows before treated units);</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    T0 = number of pre-treatment time periods (columns before treatment onset).</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    These must exactly match the row/column layout of Y_matrix.</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>sdid_wide <span class="ot">&lt;-</span> panel_did <span class="sc">|&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(store, year, WTP_did, treated) <span class="sc">|&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>year, <span class="at">values_from=</span>WTP_did) <span class="sc">|&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(treated)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>N0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span>sdid_wide<span class="sc">$</span>treated); T0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(years <span class="sc">&lt;</span> T_treat)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>Y_matrix <span class="ot">&lt;-</span> sdid_wide <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>store,<span class="sc">-</span>treated) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>sdid_est <span class="ot">&lt;-</span> <span class="fu">synthdid_estimate</span>(Y_matrix, N0, T0)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>sc_est   <span class="ot">&lt;-</span> <span class="fu">sc_estimate</span>(Y_matrix, N0, T0)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>did_est  <span class="ot">&lt;-</span> <span class="fu">did_estimate</span>(Y_matrix, N0, T0)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method       =</span> <span class="fu">c</span>(<span class="st">"Standard DiD"</span>,<span class="st">"Synthetic Control"</span>,<span class="st">"Synthetic DiD"</span>),</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate     =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est)), <span class="dv">3</span>),</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True effect</span><span class="st">`</span><span class="ot">=</span> <span class="fl">0.70</span>,</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bias         =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(did_est),<span class="fu">as.numeric</span>(sc_est),<span class="fu">as.numeric</span>(sdid_est))<span class="sc">-</span><span class="fl">0.70</span>, <span class="dv">3</span>)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">"All three estimators vs. the true effect of 0.70"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>All three estimators vs.&nbsp;the true effect of 0.70</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Method</th>
-<th style="text-align: right;">Estimate</th>
-<th style="text-align: right;">True effect</th>
-<th style="text-align: right;">Bias</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Standard DiD</td>
-<td style="text-align: right;">0.631</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">-0.069</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Synthetic Control</td>
-<td style="text-align: right;">0.618</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">-0.082</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Synthetic DiD</td>
-<td style="text-align: right;">0.618</td>
-<td style="text-align: right;">0.7</td>
-<td style="text-align: right;">-0.082</td>
-</tr>
-</tbody>
-</table>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ── CHECK: compare the three estimates — large divergence between standard DiD</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    and Synthetic DiD suggests the parallel-trends assumption is strained and</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    the synthetic approach is finding a materially different counterfactual.</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    Use plot(sdid_est) to visualise the synthetic control trajectory.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sdid_est, <span class="at">se.method=</span><span class="st">"placebo"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/synthdid-plot-1.svg" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="sec-pt-failure" class="level2">
-<h2 class="anchored" data-anchor-id="sec-pt-failure">When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</h2>
-<p>Parallel trends are <strong>not directly testable</strong> — you never observe what Dutch stores would have done without the eco-label law. What you <em>can</em> test is whether pre-treatment trajectories were parallel. The event study above is exactly this test. But two practical problems cripple it in most real datasets:</p>
-<ol type="1">
-<li><strong>Too few pre-treatment periods.</strong> Most DiD studies in marketing and management observe units for only 2–4 years before treatment. With so few periods, the event study has very low statistical power to detect violations.</li>
-<li><strong>You collect whatever data exists.</strong> Pre-treatment archives are often limited — the number of pre-periods is determined by data availability, not statistical power considerations.</li>
-</ol>
-<p><strong>The Module 2 power connection:</strong> In Module 2, you saw how underpowered studies inflate apparent effect sizes — only the most extreme estimates cross the significance threshold, leading to an inflated published literature. The same logic applies here in reverse: a pre-trend test with only two pre-periods has low power to <em>detect</em> a violation, so a non-significant result tells you very little. A failure to find pre-trend divergence with few observations is not evidence that trends were parallel — it is evidence that your test had insufficient power to catch the divergence that may have been there. This is one reason Callaway–Sant’Anna and other modern DiD estimators require researchers to be explicit about the number of clean pre-periods available.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>What the pre-trend test does — and does not — establish
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The event study tests whether <em>observed pre-treatment outcomes</em> moved in parallel. It does <strong>not</strong> test:</p>
-<ul>
-<li>Whether unmeasured confounders were evolving differently for treated and control units</li>
-<li>Whether the differential dynamic would have continued into the post-period absent treatment</li>
-<li>Whether a violation is simply too small to detect given the available pre-periods</li>
-</ul>
-<p>Passing the pre-trend test is necessary but far from sufficient for causal identification.</p>
-</div>
-</div>
-<section id="sec-pt-violation-viz" class="level3">
-<h3 class="anchored" data-anchor-id="sec-pt-violation-viz">A Realistic Parallel Trends Violation</h3>
-<p>Suppose Dutch stores were <em>already</em> attracting more environmentally conscious shoppers whose WTP grew $0.15/year faster than Belgian shoppers — not because of any law, but because of who was already shopping there (selection). <strong>The true treatment effect is zero.</strong> The eco-label law is irrelevant. But this ongoing differential growth will trick DiD into finding one.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>▶ Same violation: unmistakeable with 8 pre-periods, invisible with 2</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_dutch_v  <span class="ot">&lt;-</span> <span class="dv">15</span>; n_belgian_v <span class="ot">&lt;-</span> <span class="dv">20</span>; n_stores_v <span class="ot">&lt;-</span> n_dutch_v <span class="sc">+</span> n_belgian_v</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>T_treat_v  <span class="ot">&lt;-</span> <span class="dv">2022</span>; n_post_v <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>diff_slope_v <span class="ot">&lt;-</span> <span class="fl">0.15</span>   <span class="co"># Dutch stores grow $0.15/yr faster throughout (selection, not treatment)</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>store_fes_v  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>make_violation_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(yrs, <span class="at">true_eff =</span> <span class="dv">0</span>) {</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand.grid</span>(<span class="at">store =</span> <span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">year =</span> yrs) <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated       =</span> <span class="fu">as.numeric</span>(store <span class="sc">&lt;=</span> n_dutch_v),</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">country       =</span> <span class="fu">ifelse</span>(treated <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"Netherlands"</span>, <span class="st">"Belgium"</span>),</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">post          =</span> <span class="fu">as.numeric</span>(year <span class="sc">&gt;=</span> T_treat_v),</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">did_indicator =</span> treated <span class="sc">*</span> post,</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">store_fe      =</span> store_fes_v[store],</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">diff_trend    =</span> treated <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v),</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP           =</span> <span class="fl">5.20</span> <span class="sc">+</span> store_fe <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year <span class="sc">-</span> T_treat_v) <span class="sc">+</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                      diff_trend <span class="sc">+</span> true_eff <span class="sc">*</span> did_indicator <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>panel_many_v <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2014</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 8 pre-periods</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>panel_few_v  <span class="ot">&lt;-</span> <span class="fu">make_violation_panel</span>(<span class="dv">2020</span><span class="sc">:</span><span class="dv">2024</span>)   <span class="co"># 2 pre-periods</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>plot_pt_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(panel, subtitle) {</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  panel <span class="sc">|&gt;</span> <span class="fu">group_by</span>(country, year) <span class="sc">|&gt;</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">WTP =</span> <span class="fu">mean</span>(WTP), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> WTP, <span class="at">colour =</span> country, <span class="at">group =</span> country)) <span class="sc">+</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> T_treat_v <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>               <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Netherlands"</span> <span class="ot">=</span> clr_eco, <span class="st">"Belgium"</span> <span class="ot">=</span> clr_ctrl)) <span class="sc">+</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">unique</span>(panel<span class="sc">$</span>year)) <span class="sc">+</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Mean WTP ($)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>, <span class="at">subtitle =</span> subtitle) <span class="sc">+</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_mod3</span>()</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>p_many_v <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_many_v,</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">"8 pre-periods: the differential trend is unmistakeable — you would never trust DiD here"</span>)</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>p_few_v  <span class="ot">&lt;-</span> <span class="fu">plot_pt_panel</span>(panel_few_v,</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">"2 pre-periods: SAME DGP — the violation is invisible and DiD proceeds unchallenged"</span>)</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>(p_many_v <span class="sc">/</span> p_few_v) <span class="sc">+</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Parallel trends violation: Dutch WTP grows $0.15/yr faster than Belgian (true effect = $0)"</span>,</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How many pre-periods you happen to collect determines whether you can even see the problem"</span>,</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme    =</span> <span class="fu">theme</span>(<span class="at">plot.title    =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>                     <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>))</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/pt-violation-dgp-1.svg" class="img-fluid figure-img" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>With 8 pre-periods, the violation is glaringly obvious — you would never run DiD here. With 2 pre-periods, the same violation is invisible. Yet the DiD estimate is equally spurious in both cases:</p>
-<div class="cell">
-<details class="code-fold">
-<summary>▶ DiD on 2-pre-period data: statistically significant, entirely spurious</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>did_viol <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP <span class="sc">~</span> did_indicator <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> panel_few_v, <span class="at">clusters =</span> store)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dv <span class="ot">&lt;-</span> <span class="fu">tidy</span>(did_viol) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"did_indicator"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"True treatment effect  = $0.000</span><span class="sc">\n</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">DiD estimate           = $%.3f  (SE = %.3f,  p = %.4f)</span><span class="sc">\n</span><span class="st">95%% CI: [$%.3f, $%.3f]</span><span class="sc">\n\n</span><span class="st">This looks like a meaningful, significant eco-label effect.</span><span class="sc">\n</span><span class="st">It is entirely spurious. The violation was undetectable with 2 pre-periods.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  dv<span class="sc">$</span>estimate, dv<span class="sc">$</span>std.error, dv<span class="sc">$</span>p.value, dv<span class="sc">$</span>conf.low, dv<span class="sc">$</span>conf.high</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>True treatment effect  = $0.000
-
-DiD estimate           = $0.376  (SE = 0.109,  p = 0.0017)
-95% CI: [$0.153, $0.599]
-
-This looks like a meaningful, significant eco-label effect.
-It is entirely spurious. The violation was undetectable with 2 pre-periods.</code></pre>
-</div>
-</div>
-</section>
-<section id="sec-pt-mc" class="level3">
-<h3 class="anchored" data-anchor-id="sec-pt-mc">Monte Carlo: Pre-Test Power and Type I Error</h3>
-<p>We now formalise this with 300 simulations per condition. <strong>True effect = $0 throughout.</strong> We vary the number of pre-treatment periods from 1 to 6 and track three quantities:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Quantity</th>
-<th>What it means</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Pre-test power</strong></td>
-<td>How often does the pre-trend test detect the violation? (p &lt; .05)</td>
-</tr>
-<tr class="even">
-<td><strong>Overall Type I error</strong></td>
-<td>How often does DiD falsely reject H₀?</td>
-</tr>
-<tr class="odd">
-<td><strong>Conditional Type I error</strong></td>
-<td>Given the pre-test <em>passes</em> (p ≥ .05), how often does DiD still falsely reject?</td>
-</tr>
-</tbody>
-</table>
-<p>The conditional rate is what matters most: it is the false-positive rate faced by researchers who <em>did their due diligence</em> with an event study and got clean-looking pre-trends.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>▶ Monte Carlo: 300 sims × 6 pre-period counts (true effect = 0)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>N_SIM_PT <span class="ot">&lt;-</span> <span class="dv">300</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>pt_sim_one <span class="ot">&lt;-</span> <span class="cf">function</span>(n_pre) {</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  years_s <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(T_treat_v <span class="sc">-</span> n_pre, T_treat_v <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>               T_treat_v<span class="sc">:</span>(T_treat_v <span class="sc">+</span> n_post_v <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  n_yrs <span class="ot">&lt;-</span> <span class="fu">length</span>(years_s)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_PT, {</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    n_obs     <span class="ot">&lt;-</span> n_stores_v <span class="sc">*</span> n_yrs</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    store_s   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_stores_v, <span class="at">each =</span> n_yrs)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    year_s    <span class="ot">&lt;-</span> <span class="fu">rep</span>(years_s, <span class="at">times =</span> n_stores_v)</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    treated_s <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(store_s <span class="sc">&lt;=</span> n_dutch_v)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    post_s    <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(year_s <span class="sc">&gt;=</span> T_treat_v)</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    did_s     <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> post_s</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    diff_s    <span class="ot">&lt;-</span> treated_s <span class="sc">*</span> diff_slope_v <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v)</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    fe_s      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.6</span>)[store_s]</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    WTP_s     <span class="ot">&lt;-</span> <span class="fl">5.20</span> <span class="sc">+</span> fe_s <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year_s <span class="sc">-</span> T_treat_v) <span class="sc">+</span> diff_s <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    df_s <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">WTP     =</span> WTP_s,</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">did     =</span> did_s,</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">store   =</span> <span class="fu">factor</span>(store_s),</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">year    =</span> <span class="fu">factor</span>(year_s),</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">treated =</span> treated_s,</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">post    =</span> post_s,</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">year_num=</span> year_s</span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># DiD p-value with clustered SEs</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    fit_d  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> did <span class="sc">+</span> store <span class="sc">+</span> year, <span class="at">data =</span> df_s)</span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    pval_d <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_d, <span class="fu">vcovCL</span>(fit_d, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"did"</span>, <span class="dv">4</span>]</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-trend test: treated x linear year interaction in pre-period only</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (n_pre <span class="sc">&gt;=</span> <span class="dv">2</span>) {</span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>      pre_s      <span class="ot">&lt;-</span> df_s[df_s<span class="sc">$</span>post <span class="sc">==</span> <span class="dv">0</span>, ]</span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>      pre_s<span class="sc">$</span>yr_c <span class="ot">&lt;-</span> pre_s<span class="sc">$</span>year_num <span class="sc">-</span> <span class="fu">mean</span>(pre_s<span class="sc">$</span>year_num)</span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>      fit_p  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> treated <span class="sc">*</span> yr_c <span class="sc">+</span> store, <span class="at">data =</span> pre_s)</span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>      ct_p   <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(fit_p, <span class="fu">vcovCL</span>(fit_p, <span class="at">cluster =</span> <span class="sc">~</span>store))</span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(ct_p[<span class="st">"treated:yr_c"</span>, <span class="dv">4</span>], <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>      pval_p <span class="ot">&lt;-</span> <span class="fl">1.0</span>   <span class="co"># Cannot test with only 1 pre-period — always "passes"</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(pval_d, pval_p)</span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  })  <span class="co"># 2 × N_SIM_PT matrix</span></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">n_pre    =</span> n_pre,</span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>             <span class="at">did_pval =</span> mat[<span class="dv">1</span>, ],</span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>             <span class="at">pre_pval =</span> mat[<span class="dv">2</span>, ])</span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>sim_all_pt <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, pt_sim_one)</span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Simulation complete: %d total runs across 6 pre-period conditions.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>            <span class="fu">nrow</span>(sim_all_pt)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Simulation complete: 1800 total runs across 6 pre-period conditions.</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/pt-type1-plot-1.svg" class="img-fluid figure-img" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>Monte Carlo summary (300 sims per condition, true effect = $0, differential trend = $0.15/yr). ‘Conditional’ = false positive rate among studies where the pre-trend test passed.</caption>
-<colgroup>
-<col style="width: 16%">
-<col style="width: 20%">
-<col style="width: 17%">
-<col style="width: 20%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 <col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Pre-periods</th>
-<th style="text-align: left;">Pre-test power</th>
-<th style="text-align: left;">Sims passing</th>
-<th style="text-align: left;">Overall Type I</th>
-<th style="text-align: left;">Conditional Type I</th>
+<th>Scenario</th>
+<th>OLS</th>
+<th>ROBMED</th>
+<th>Imai <code>medsens()</code></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">1</td>
+<td><strong>Clean normal data</strong></td>
+<td>✔ Unbiased</td>
+<td>✔ Unbiased</td>
+<td>✔ Large ρ* confirms robustness</td>
+</tr>
+<tr class="even">
+<td><strong>Large outliers</strong></td>
+<td>✖ Biased upward</td>
+<td>✔ Downweights outliers</td>
+<td>✖ Inherits OLS bias</td>
+</tr>
+<tr class="odd">
+<td><strong>M–Y confounded</strong></td>
+<td>✖ Type I error</td>
+<td>✖ Type I error</td>
+<td>✔ Small ρ* flags fragility</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key lesson</strong>: ROBMED addresses <em>estimation</em> failures (non-normality, outliers). Imai’s sensitivity analysis addresses <em>identification</em> failures (unmeasured confounding). They solve different problems and should be used together.</p>
+<p><strong>In practice</strong>: report ROBMED as your primary ACME estimate (robustness to outliers) <em>and</em> <code>medsens()</code> to quantify fragility to unmeasured confounding. A finding that survives both tests — ROBMED agrees with OLS, and ρ* is large — is the most credible mediation result you can report.</p>
+</div>
+</div>
+</section>
+<section id="sec-med-2x2" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-2x2">Why Confounding Causes Type I Errors: The 2×2 Design</h2>
+<p>The three-scenario analysis above treats confounding as a special case. The 2×2 design below makes the mechanism explicit by crossing two independent dimensions:</p>
+<ul>
+<li><strong>Rows</strong>: true mediation exists vs.&nbsp;does not exist (b = 0)</li>
+<li><strong>Columns</strong>: M–Y confounded vs.&nbsp;unconfounded</li>
+</ul>
+<p>The critical cell is <strong>top-right</strong> — no true mediation, but confounding is active. Both OLS and ROBMED report a large, significant indirect effect despite b = 0. This is a Type I error caused entirely by the unmeasured confounder U*, not by any true mediation.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-2x2-dags-1.svg" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-2x2-plot-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Type I error mechanism in one sentence
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When both U→M and U→Y are active, M and Y share a hidden common cause. The mediation model mistakes their spurious correlation for a real b path — and the bootstrap CI confidently narrows around a biased estimate, making the false positive look decisive.</p>
+<p><strong>The fix is not a better estimator.</strong> Imai’s <code>medsens()</code> reveals how fragile the finding is; ROBMED guards against estimation errors from outliers. But neither can eliminate the Type I error if U* is real and unmeasured. The only solutions are design-based: measure U*, block the back-door path by design, or use an instrument for M.</p>
+</div>
+</div>
+</section>
+<section id="sec-med-discval" class="level2">
+<h2 class="anchored" data-anchor-id="sec-med-discval">Type I Error from Discriminant Validity Failure</h2>
+<p>Scenarios 1–3 above assumed that perceived sustainability (M) and WTP (Y) are measuring distinct constructs. But what if they partially reflect the same underlying disposition — “eco-identity” — that a researcher has failed to separate? This is the discriminant validity problem from Module 1 applied directly to mediation.</p>
+<p><strong>The mechanism.</strong> Suppose there is a latent factor η (“eco-identity”) that independently causes both high perceived sustainability ratings and high WTP. The researcher does not measure η — they only see M and Y. When η is active, M and Y are correlated <em>even when there is no causal M → Y path</em>. The mediation model mistakes this construct-induced correlation for evidence of a b-path. <strong>The true ACME = 0</strong>, but OLS reports a large, significant indirect effect.</p>
+<p>The parameter <code>prop_shared</code> below is the proportion of M’s variance (and Y’s variance) attributable to η. At <code>prop_shared = 0.40</code>, 40% of what drives M — and 40% of what drives Y — is the same latent construct. This produces r(M, Y) ≈ 0.40: a moderate correlation that most researchers would not question. Yet with no true b-path, it generates massive Type I error.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Monte Carlo: Type I error from shared latent construct (500 sims × 8 levels)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>N_SIM_DV  <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>N_MED_DV  <span class="ot">&lt;-</span> <span class="dv">350</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>a_dv      <span class="ot">&lt;-</span> <span class="fl">0.80</span>   <span class="co"># X → M (a-path; unchanged)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>c_prime_dv<span class="ot">&lt;-</span> <span class="fl">0.30</span>   <span class="co"># X → Y direct path</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># prop_shared = proportion of M and Y variance explained by shared latent η</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># r(M, Y | X) ≈ prop_shared (construct-induced correlation)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True b = 0: no causal M → Y path</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>prop_levels <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.70</span>, <span class="at">by =</span> <span class="fl">0.10</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>discval_sim_one <span class="ot">&lt;-</span> <span class="cf">function</span>(prop_shared) {</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  load <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(prop_shared)   <span class="co"># factor loading: M = load*η + sqrt(1-load²)*ε_M</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  pvec <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_DV, {</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    X   <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_MED_DV, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    eta <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N_MED_DV, <span class="dv">0</span>, <span class="dv">1</span>)              <span class="co"># shared latent construct</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    M_obs <span class="ot">&lt;-</span> a_dv <span class="sc">*</span> X <span class="sc">+</span> load <span class="sc">*</span> eta <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(N_MED_DV)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># No M term in Y: true b = 0; Y depends on η directly (not through M)</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    Y_obs <span class="ot">&lt;-</span> c_prime_dv <span class="sc">*</span> X <span class="sc">+</span> load <span class="sc">*</span> eta <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(N_MED_DV)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    df_dv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X =</span> X, <span class="at">M =</span> M_obs, <span class="at">Y =</span> Y_obs)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    m_m   <span class="ot">&lt;-</span> <span class="fu">lm</span>(M <span class="sc">~</span> X,     <span class="at">data =</span> df_dv)</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    m_y   <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> M, <span class="at">data =</span> df_dv)</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    a_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_m)[<span class="st">"X"</span>]</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    b_hat   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_y)[<span class="st">"M"</span>]</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    ab_hat  <span class="ot">&lt;-</span> a_hat <span class="sc">*</span> b_hat</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    se_ab   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(b_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_m)[<span class="st">"X"</span>, <span class="st">"X"</span>] <span class="sc">+</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>                    a_hat<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">vcov</span>(m_y)[<span class="st">"M"</span>, <span class="st">"M"</span>])</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(ab_hat <span class="sc">/</span> se_ab))</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Also compute the empirical r(M, Y) to label the x-axis</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  X_ex  <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">5000</span>, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>  eta_ex<span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>  M_ex  <span class="ot">&lt;-</span> a_dv <span class="sc">*</span> X_ex <span class="sc">+</span> load <span class="sc">*</span> eta_ex <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>  Y_ex  <span class="ot">&lt;-</span> c_prime_dv <span class="sc">*</span> X_ex <span class="sc">+</span> load <span class="sc">*</span> eta_ex <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="fu">max</span>(<span class="dv">1</span> <span class="sc">-</span> load<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">5000</span>)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>  r_my  <span class="ot">&lt;-</span> <span class="fu">cor</span>(M_ex, Y_ex)</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">prop_shared =</span> prop_shared, <span class="at">pval =</span> pvec, <span class="at">r_my =</span> r_my)</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>sim_dv <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(prop_levels, discval_sim_one)</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Discriminant validity simulation: %d levels × %d sims = %d total runs.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(prop_levels), N_SIM_DV, <span class="fu">nrow</span>(sim_dv)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Discriminant validity simulation: 8 levels × 500 sims = 4000 total runs.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/med-discval-plot-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Mediation Type I error by discriminant validity failure: true b = 0, 500 sims per level, N = 350. HTMT ≈ r(M,Y) for perfectly reliable single-item composites.</caption>
+<colgroup>
+<col style="width: 28%">
+<col style="width: 11%">
+<col style="width: 20%">
+<col style="width: 18%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">% variance from eta</th>
+<th style="text-align: left;">r(M, Y)</th>
+<th style="text-align: left;">HTMT ~ r(M,Y)</th>
+<th style="text-align: left;">Type I error</th>
+<th style="text-align: left;">Relative to 5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
 <td style="text-align: left;">0%</td>
-<td style="text-align: left;">300 / 300</td>
-<td style="text-align: left;">34%</td>
-<td style="text-align: left;">34%</td>
+<td style="text-align: left;">0.06</td>
+<td style="text-align: left;">0.06</td>
+<td style="text-align: left;">5%</td>
+<td style="text-align: left;">1.0x</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">4%</td>
-<td style="text-align: left;">288 / 300</td>
-<td style="text-align: left;">78%</td>
-<td style="text-align: left;">77%</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: left;">0.16</td>
+<td style="text-align: left;">0.16</td>
+<td style="text-align: left;">42%</td>
+<td style="text-align: left;">8.4x</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">23%</td>
-<td style="text-align: left;">230 / 300</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: left;">0.23</td>
+<td style="text-align: left;">0.23</td>
 <td style="text-align: left;">97%</td>
-<td style="text-align: left;">98%</td>
+<td style="text-align: left;">19.4x</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">59%</td>
-<td style="text-align: left;">122 / 300</td>
+<td style="text-align: left;">30%</td>
+<td style="text-align: left;">0.34</td>
+<td style="text-align: left;">0.34</td>
 <td style="text-align: left;">100%</td>
-<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">92%</td>
-<td style="text-align: left;">24 / 300</td>
+<td style="text-align: left;">40%</td>
+<td style="text-align: left;">0.43</td>
+<td style="text-align: left;">0.43</td>
 <td style="text-align: left;">100%</td>
-<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: left;">98%</td>
-<td style="text-align: left;">5 / 300</td>
+<td style="text-align: left;">50%</td>
+<td style="text-align: left;">0.53</td>
+<td style="text-align: left;">0.53</td>
 <td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60%</td>
+<td style="text-align: left;">0.60</td>
+<td style="text-align: left;">0.60</td>
 <td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70%</td>
+<td style="text-align: left;">0.68</td>
+<td style="text-align: left;">0.68</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">20.0x</td>
 </tr>
 </tbody>
 </table>
@@ -1014,221 +1234,226 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>What this means for practice
+<span class="screen-reader-only">Warning</span>What this means for mediation practice
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>The key pattern:</strong></p>
-<ul>
-<li>With <strong>1 pre-period</strong>: The test is impossible. The false-positive rate can be 40–70% — a researcher following standard practice would be nearly flipping a coin.</li>
-<li>With <strong>2–3 pre-periods</strong>: Pre-test power is low. Most violations slip through. Conditional Type I error is still far above the nominal 5%.</li>
-<li>With <strong>5–6 pre-periods</strong>: Power improves substantially. But violations that slip through the test still produce inflated Type I error. Note that at 5–6 pre-periods, very few of the 300 simulations pass the pre-test (see “Sims passing” in the table) — the conditional Type I estimate rests on a small denominator and should be read cautiously.</li>
-</ul>
-<p><strong>The fundamental problem is not the test — it is the data.</strong> Researchers often have no choice but to use available archives, which may span only 1–3 pre-treatment periods. This is structurally similar to mediation: just as researchers rarely measure all possible confounders of the M→Y path, they rarely collect enough pre-treatment history to reliably test parallel trends.</p>
-<p><strong>What to do:</strong></p>
-<ul>
-<li>Report the number of pre-treatment periods and be honest about the test’s power</li>
-<li>Run placebo DiDs — apply the treatment label to earlier years or non-treated units and check that “effects” are near zero</li>
-<li>Use <strong>Rambachan &amp; Roth’s (2023) <code>HonestDiD</code></strong> sensitivity analysis, which asks: <em>how large a pre-trend violation would be required to explain away your result?</em> This reframes the question from “is there a violation?” (often unknowable) to “how large a violation would matter?” (estimable and reportable)</li>
-<li>Treat a passing event study as weak evidence, not proof, of parallel trends</li>
-</ul>
+<p><strong>A moderate r(M, Y) of 0.40 already produces Type I error around 40–50%.</strong> Most researchers would not flag r = 0.40 as a discriminant validity crisis — HTMT would be around 0.40 as well, well below the 0.85 warning threshold. Yet the indirect effect estimate is almost certainly spurious if M and Y share a latent common cause.</p>
+<p><strong>The connection to Module 1 is direct.</strong> If you would not accept two scales as measuring <em>different</em> constructs in a CFA (Module 1, Case 1), you cannot treat their relationship as evidence of a mediation <em>mechanism</em>. The b-path in mediation is the OLS slope from M on Y — if M and Y are both imperfect measures of the same thing (eco-identity, health consciousness, general positivity), that slope estimates the reliability of the shared dimension, not a causal effect.</p>
+<p><strong>Practical implication:</strong> Before running mediation, test HTMT(M, Y). Values above 0.70 warrant explicit theoretical justification for why M and Y measure distinct constructs. Values above 0.85 indicate that any apparent ACME is more parsimoniously explained by discriminant validity failure than by a real mechanism. The Imai sensitivity parameter ρ* will be small in exactly this scenario — run <code>medsens()</code> and treat a ρ* below 0.30 as a red flag that the result is artefactual.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="sec-pt-ov-severity" class="level3">
-<h3 class="anchored" data-anchor-id="sec-pt-ov-severity">How an Unobserved Variable Inflates Type I Error</h3>
-<p>The previous simulation assumed a differential slope — a pre-existing divergence visible in pre-trend data. A more dangerous violation involves an <strong>unobserved time-varying variable</strong> that only appears post-treatment, making pre-trend tests completely blind to it.</p>
-<p><strong>The mechanism.</strong> Suppose eco-orientation of a store’s customer base (call it U) is unobserved. Dutch stores were already in more eco-conscious neighbourhoods — they have higher U. Post-2022, a global sustainability wave means U increasingly drives WTP everywhere: eco-conscious shoppers are willing to pay more for sustainable products regardless of labelling laws. Stores with higher U benefit disproportionately in the post-period — but not because of the Dutch law. <strong>True law effect = $0.</strong> Yet DiD attributes the U-driven post-period WTP gain to the law.</p>
-<p><strong>Why the pre-trend test is blind to this.</strong> U is a fixed store characteristic. Store fixed effects absorb U completely — so in pre-treatment periods, the Dutch–Belgian trend difference from U is zero. The violation only materialises in the post-period when U interacts with time. An event study with 100 pre-periods would show perfectly parallel pre-trends even as this confounder grows post-treatment.</p>
-<p><strong>The OVB connection.</strong> DiD bias ≈ γ × (Ē[U | Dutch] − Ē[U | Belgian]). With Dutch stores 1 SD higher in eco-orientation, bias ≈ γ × 1.0 = γ. This is the same formula as omitted variable bias from Module 1 — the coefficient on the omitted variable (γ) times its correlation with the treatment indicator.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>▶ Monte Carlo: Type I error vs.&nbsp;omitted variable strength γ (300 sims, 2 pre-periods)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>N_SIM_OV <span class="ot">&lt;-</span> <span class="dv">300</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># γ: additional WTP per 1-SD unit of eco-orientation U in the post-period</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Dutch stores: E[U] = +0.5 SD; Belgian: E[U] = -0.5 SD</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected DiD bias ≈ γ × (0.5 − (−0.5)) = γ × 1.0 = γ</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>gamma_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.80</span>, <span class="at">by =</span> <span class="fl">0.10</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>pt_ov_one <span class="ot">&lt;-</span> <span class="cf">function</span>(gamma) {</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  years_ov <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2021</span>, <span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>)   <span class="co"># 2 pre, 3 post (modal setting)</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  T_ov     <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(N_SIM_OV, {</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># U_i: unobserved eco-orientation — researcher does not observe this</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    U_i <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_dutch_v,   <span class="sc">+</span><span class="fl">0.5</span>, <span class="dv">1</span>),   <span class="co"># Dutch stores: higher eco-orientation</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(n_belgian_v, <span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))    <span class="co"># Belgian: lower eco-orientation</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    fe  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores_v, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    panel <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">store =</span> <span class="fu">seq_len</span>(n_stores_v), <span class="at">year =</span> years_ov) <span class="sc">|&gt;</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">treated =</span> <span class="fu">as.integer</span>(store <span class="sc">&lt;=</span> n_dutch_v),</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">post    =</span> <span class="fu">as.integer</span>(year <span class="sc">&gt;=</span> T_ov),</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">did     =</span> treated <span class="sc">*</span> post,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">U       =</span> U_i[store],</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># U × post: the omitted confounder is only active post-treatment</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store FEs absorb U; year FEs absorb post; but U × post is not absorbed</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">WTP     =</span> <span class="fl">5.20</span> <span class="sc">+</span> fe[store] <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> (year <span class="sc">-</span> T_ov) <span class="sc">+</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                  gamma <span class="sc">*</span> U <span class="sc">*</span> post <span class="sc">+</span>        <span class="co"># omitted time-varying confounder</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.40</span>)</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Note: no did term — true law effect = $0</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># DiD estimate (TWFE)</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    fit_d  <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> did <span class="sc">+</span> <span class="fu">factor</span>(store) <span class="sc">+</span> <span class="fu">factor</span>(year), <span class="at">data =</span> panel)</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    pval_d <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coeftest</span>(fit_d, <span class="fu">vcovCL</span>(fit_d, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"did"</span>, <span class="dv">4</span>],</span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-trend test in pre-periods only (should be blind to U × post)</span></span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    pre      <span class="ot">&lt;-</span> panel[panel<span class="sc">$</span>post <span class="sc">==</span> <span class="dv">0</span>, ]</span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    pre<span class="sc">$</span>yr_c <span class="ot">&lt;-</span> pre<span class="sc">$</span>year <span class="sc">-</span> <span class="fu">mean</span>(pre<span class="sc">$</span>year)</span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    fit_p    <span class="ot">&lt;-</span> <span class="fu">lm</span>(WTP <span class="sc">~</span> treated <span class="sc">*</span> yr_c <span class="sc">+</span> <span class="fu">factor</span>(store), <span class="at">data =</span> pre)</span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    pval_p   <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coeftest</span>(fit_p, <span class="fu">vcovCL</span>(fit_p, <span class="at">cluster =</span> <span class="sc">~</span>store))[<span class="st">"treated:yr_c"</span>, <span class="dv">4</span>]</span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fl">1.0</span>)</span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(pval_d, pval_p)</span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>  })  <span class="co"># 2 × N_SIM_OV matrix</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">gamma    =</span> gamma,</span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>             <span class="at">did_pval =</span> mat[<span class="dv">1</span>, ],</span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>             <span class="at">pre_pval =</span> mat[<span class="dv">2</span>, ])</span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>sim_ov <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(gamma_grid, pt_ov_one)</span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Omitted variable simulation: %d conditions × %d sims = %d total.</span><span class="sc">\n</span><span class="st">"</span>,</span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(gamma_grid), N_SIM_OV, <span class="fu">nrow</span>(sim_ov)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Omitted variable simulation: 9 conditions × 300 sims = 2700 total.</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="figs/pt-ov-plot-1.svg" class="img-fluid figure-img" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
+<section id="sec-summary-table" class="level2">
+<h2 class="anchored" data-anchor-id="sec-summary-table">Summary of Methods</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>DiD Type I error from omitted variable U: 300 sims per condition, 2 pre-periods, true law effect = $0. Expected bias ≈ γ because Dutch and Belgian stores differ by 1 SD in U.</caption>
+<caption>All methods in Module 3: assumptions, estimands, and use cases</caption>
 <colgroup>
-<col style="width: 34%">
-<col style="width: 20%">
-<col style="width: 19%">
-<col style="width: 24%">
+<col style="width: 18%">
+<col style="width: 36%">
+<col style="width: 12%">
+<col style="width: 32%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">gamma (omitted var. strength)</th>
-<th style="text-align: left;">Expected DiD bias</th>
-<th style="text-align: left;">DiD Type I error</th>
-<th style="text-align: left;">Pre-trend test power</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Key identifying assumption</th>
+<th style="text-align: left;">Target estimand</th>
+<th style="text-align: left;">When to use</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">$0.00</td>
-<td style="text-align: left;">$0.00</td>
-<td style="text-align: left;">3%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">Randomised Experiment</td>
+<td style="text-align: left;">Random assignment; SUTVA</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Can randomise</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">$0.10</td>
-<td style="text-align: left;">$0.10</td>
-<td style="text-align: left;">5%</td>
-<td style="text-align: left;">0%</td>
+<td style="text-align: left;">Linear Regression Adjustment</td>
+<td style="text-align: left;">All confounders measured; linear functional form</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Observational; confounders measured; linear DGP</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">$0.20</td>
-<td style="text-align: left;">$0.20</td>
-<td style="text-align: left;">23%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">Flexible Regression Adjustment</td>
+<td style="text-align: left;">All confounders measured; correct non-linear specification</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Observational; confounders measured; non-linear DGP</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">$0.30</td>
-<td style="text-align: left;">$0.30</td>
-<td style="text-align: left;">35%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">IPW (stabilised)</td>
+<td style="text-align: left;">All confounders measured; positivity (overlap)</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Observational; want ATE; good PS overlap</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">$0.40</td>
-<td style="text-align: left;">$0.40</td>
-<td style="text-align: left;">47%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">Entropy Balancing (WeightIt)</td>
+<td style="text-align: left;">All confounders measured; moment balance sufficient</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Observational; want ATE; many covariates to balance</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">$0.50</td>
-<td style="text-align: left;">$0.50</td>
-<td style="text-align: left;">53%</td>
-<td style="text-align: left;">0%</td>
+<td style="text-align: left;">Covariate Matching (Mahalanobis)</td>
+<td style="text-align: left;">All confounders measured; sufficient overlap</td>
+<td style="text-align: left;">ATT</td>
+<td style="text-align: left;">Observational; want ATT; sufficient control units</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">$0.60</td>
-<td style="text-align: left;">$0.60</td>
-<td style="text-align: left;">63%</td>
-<td style="text-align: left;">0%</td>
+<td style="text-align: left;">Propensity Score Matching</td>
+<td style="text-align: left;">All confounders measured; PS model correctly specified</td>
+<td style="text-align: left;">ATT</td>
+<td style="text-align: left;">Observational; many covariates; report PS model sensitivity</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">$0.70</td>
-<td style="text-align: left;">$0.70</td>
-<td style="text-align: left;">65%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">Doubly Robust (AIPW)</td>
+<td style="text-align: left;">Either PS model OR outcome model is correctly specified</td>
+<td style="text-align: left;">ATE</td>
+<td style="text-align: left;">Observational; insurance against one misspecified model</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">$0.80</td>
-<td style="text-align: left;">$0.80</td>
-<td style="text-align: left;">68%</td>
-<td style="text-align: left;">1%</td>
+<td style="text-align: left;">Synthetic Control</td>
+<td style="text-align: left;">Good pre-treatment fit; no interference</td>
+<td style="text-align: left;">ATT (one treated unit)</td>
+<td style="text-align: left;">Few treated units; many pre-treatment periods</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression Discontinuity</td>
+<td style="text-align: left;">Continuity at cutoff; no manipulation; no other discontinuities</td>
+<td style="text-align: left;">LATE (near threshold)</td>
+<td style="text-align: left;">Sharp threshold in a running variable</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Difference-in-Differences (TWFE)</td>
+<td style="text-align: left;">Parallel trends (in absence of treatment)</td>
+<td style="text-align: left;">ATT</td>
+<td style="text-align: left;">Panel data; policy change in subset of units</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Synthetic DiD</td>
+<td style="text-align: left;">Parallel trends after reweighting control units</td>
+<td style="text-align: left;">ATT</td>
+<td style="text-align: left;">Panel data; parallel trends may not hold exactly</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mediation (Baron–Kenny OLS)</td>
+<td style="text-align: left;">Sequential ignorability; no M–Y confounders</td>
+<td style="text-align: left;">ACME</td>
+<td style="text-align: left;">Mediation hypothesis; well-controlled experiment</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mediation (Imai et al.)</td>
+<td style="text-align: left;">Sequential ignorability; sensitivity analysis quantifies fragility</td>
+<td style="text-align: left;">ACME</td>
+<td style="text-align: left;">Mediation with explicit assumptions + sensitivity analysis</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ROBMED</td>
+<td style="text-align: left;">Sequential ignorability; robust to outliers and non-normality</td>
+<td style="text-align: left;">ACME</td>
+<td style="text-align: left;">Mediation; non-normal WTP data or suspected outliers</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>The pre-trend test has zero power against this type of violation
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The two lines tell the whole story. DiD Type I error rises steeply as γ increases — reaching near-certainty of a false positive when γ = 0.70 (a bias equal to the full true effect size from the main example). But the pre-trend test power <strong>stays flat at the nominal 5%</strong>. It never detects the violation regardless of how severe it becomes.</p>
-<p><strong>Why?</strong> Because U is a fixed store characteristic (captured by store FEs) with a post-period interaction. In pre-treatment periods, U’s influence is absorbed away. Only when U × post materialises after the treatment date does the confounder do damage — and by then, the event study has nothing left to test.</p>
-<p><strong>What this means for practice:</strong> Pre-trend tests are informative about one specific type of violation — pre-existing differential trends. They are completely uninformative about post-treatment-only confounders: macro shocks, secular trends in consumer attitudes, or any force that affects treated and control groups differently only after the treatment date. This is why theoretical justification for control group comparability is not a box-ticking exercise. Ask: <em>is there any mechanism — observable or not — that could have changed the Dutch–Belgian WTP gap post-2022 for reasons unrelated to the eco-label law?</em></p>
-</div>
-</div>
 <hr>
 </section>
-</section>
 <section id="sec-checklist-part4-m3" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part4-m3">Researcher Checklist: Difference-in-Differences</h2>
+<h2 class="anchored" data-anchor-id="sec-checklist-part4-m3">Researcher Checklist: Causal Mediation Analysis</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Key questions about your parallel trends assumption
+<span class="screen-reader-only">Note</span>Key questions about your mediation claim
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Would the treated and control groups have followed the same trend absent the treatment?</strong> This is the parallel trends assumption — it is not testable in the post-period, only arguable from theory and pre-treatment data.</label></li>
-<li><label><input type="checkbox"><strong>Did you run an event study with pre-treatment leads?</strong> Significant pre-trend coefficients (“leads”) are direct evidence of a violation. Be honest about the power of this test — with 1–2 pre-periods, most violations will slip through.</label></li>
-<li><label><input type="checkbox"><strong>Is the control group genuinely unaffected by the treatment?</strong> Spillover effects (competitive responses, indirect exposure) make control units invalid counterfactuals and bias the DiD estimate.</label></li>
-<li><label><input type="checkbox"><strong>Is treatment staggered across units?</strong> Standard two-way fixed effects DiD produces biased estimates under staggered timing with heterogeneous effects. Use a Callaway-Sant’Anna or Sun-Abraham estimator instead.</label></li>
+<li><label><input type="checkbox"><strong>Is M genuinely intermediate — does it temporally follow X and causally precede Y?</strong> Cross-sectional designs where X, M, and Y are measured simultaneously cannot establish mediation.</label></li>
+<li><label><input type="checkbox"><strong>Can you defend sequential ignorability — no unmeasured M→Y confounders?</strong> Run Imai’s sensitivity analysis and report ρ*: how large would residual confounding need to be to reduce the ACME to zero?</label></li>
+<li><label><input type="checkbox"><strong>Is the mediator measured reliably and discriminantly valid from the outcome?</strong> Measurement error in M attenuates the a-path; HTMT(M, Y) near 1.0 means mediation is picking up measurement contamination, not a causal pathway.</label></li>
+<li><label><input type="checkbox"><strong>Are you distinguishing a significant indirect effect from a proven causal mechanism?</strong> Statistical mediation is consistent with M→Y confounding. The sensitivity analysis quantifies the ambiguity — report it.</label></li>
 </ul>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.4.0 (2024-04-24)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 24.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+ [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+ [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+[10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
+
+time zone: UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] synthdid_0.0.9    lmtest_0.9-40     zoo_1.8-15        estimatr_1.0.6   
+ [5] robmed_1.3.0      robustbase_0.99-7 mediation_4.5.1   sandwich_3.1-1   
+ [9] mvtnorm_1.3-7     Matrix_1.7-0      MASS_7.3-60.2     did_2.3.0        
+[13] rddensity_2.6     rdrobust_3.0.0    cobalt_4.6.2      WeightIt_1.7.0   
+[17] MatchIt_4.7.2     conflicted_1.2.0  patchwork_1.3.2   knitr_1.51       
+[21] broom_1.0.12      lubridate_1.9.5   forcats_1.0.1     stringr_1.6.0    
+[25] dplyr_1.2.1       purrr_1.2.2       readr_2.2.0       tidyr_1.3.2      
+[29] tibble_3.3.1      ggplot2_4.0.3     tidyverse_2.0.0  
+
+loaded via a namespace (and not attached):
+  [1] RColorBrewer_1.1-3   rstudioapi_0.18.0    jsonlite_2.0.0      
+  [4] magrittr_2.0.5       farver_2.1.2         nloptr_2.2.1        
+  [7] rmarkdown_2.31       vctrs_0.7.3          memoise_2.0.1       
+ [10] minqa_1.2.8          base64enc_0.1-6      htmltools_0.5.9     
+ [13] Formula_1.2-5        pROC_1.19.0.1        caret_7.0-1         
+ [16] parallelly_1.47.0    htmlwidgets_1.6.4    plyr_1.8.9          
+ [19] cachem_1.1.0         uuid_1.2-2           lifecycle_1.0.5     
+ [22] iterators_1.0.14     pkgconfig_2.0.3      R6_2.6.1            
+ [25] fastmap_1.2.0        rbibutils_2.4.1      future_1.70.0       
+ [28] numDeriv_2016.8-1.1  digest_0.6.39        colorspace_2.1-2    
+ [31] Hmisc_5.2-5          labeling_0.4.3       timechange_0.4.0    
+ [34] mgcv_1.9-1           compiler_4.4.0       remotes_2.5.0       
+ [37] withr_3.0.2          htmlTable_2.5.0      S7_0.2.2            
+ [40] backports_1.5.1      lava_1.9.0           quantreg_6.1        
+ [43] ModelMetrics_1.2.2.2 tools_4.4.0          foreign_0.8-86      
+ [46] trust_0.1-9          future.apply_1.20.2  nnet_7.3-19         
+ [49] glue_1.8.1           nlme_3.1-164         stringmagic_1.2.0   
+ [52] grid_4.4.0           checkmate_2.3.4      cluster_2.1.6       
+ [55] reshape2_1.4.5       generics_0.1.4       lpSolve_5.6.23      
+ [58] recipes_1.3.2        gtable_0.3.6         tzdb_0.5.0          
+ [61] class_7.3-22         fastglm_0.0.4        sn_2.1.3            
+ [64] data.table_1.18.2.1  hms_1.1.4            foreach_1.5.2       
+ [67] pillar_1.11.1        lpdensity_2.5        splines_4.4.0       
+ [70] lattice_0.22-6       survival_3.5-8       dreamerr_1.5.0      
+ [73] SparseM_1.84-2       tidyselect_1.2.1     BMisc_1.4.8         
+ [76] bigmemory.sri_0.1.8  reformulas_0.4.4     gridExtra_2.3       
+ [79] stats4_4.4.0         xfun_0.57            DRDID_1.2.3         
+ [82] hardhat_1.4.3        timeDate_4052.112    DEoptimR_1.1-4      
+ [85] stringi_1.8.7        yaml_2.3.12          boot_1.3-30         
+ [88] evaluate_1.0.5       codetools_0.2-20     cli_3.6.6           
+ [91] rpart_4.1.23         Rdpack_2.6.6         Rcpp_1.1.1-1.1      
+ [94] globals_0.19.1       bigmemory_4.6.4      parallel_4.4.0      
+ [97] MatrixModels_0.5-4   gower_1.0.2          lme4_2.0-1          
+[100] listenv_0.10.1       ipred_0.9-15         scales_1.4.0        
+[103] prodlim_2026.03.11   rlang_1.2.0          mnormt_2.1.2        </code></pre>
 </div>
 </div>
 
@@ -1689,13 +1914,13 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Regression Discontinuity Design">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Part 3: Regression Discontinuity Design</span></span>
+      <a href="../module-3/part3.html" class="pagination-link" aria-label="Part 3: Secondary Data Tools for Causal Identification">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Part 3: Secondary Data Tools for Causal Identification</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-3/part5.html" class="pagination-link" aria-label="Part 5: Mediation Analysis">
-        <span class="nav-page-text"><span class="chapter-title">Part 5: Mediation Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-3/part5.html" class="pagination-link" aria-label="Part 5">
+        <span class="nav-page-text"><span class="chapter-title">Part 5</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
