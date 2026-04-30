@@ -8,7 +8,7 @@
 
 <meta name="description" content="A graduate-level open workshop on advanced research methods in management science. Covers psychometric measurement (CFA, EFA, HTMT, LCA), experimental design and power analysis, and causal inference (regression discontinuity, difference-in-differences, mediation analysis) — each module with worked R simulations and interactive diagnostics.">
 
-<title>Part 5 – Measurement, Experimentation, &amp; Causal Inference</title>
+<title>Part 5: Experimental Causal Chain Designs – Measurement, Experimentation, &amp; Causal Inference</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -74,6 +109,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Measurement, Experimentation, &amp; Causal Inference — RSM Workshop">
@@ -95,7 +159,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-title">Part 5</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-title">Part 5: Experimental Causal Chain Designs</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -251,7 +315,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Part 5</span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Part 5: Experimental Causal Chain Designs</span></a>
   </div>
 </li>
       </ul>
@@ -282,15 +346,46 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-ecc" id="toc-sec-ecc" class="nav-link active" data-scroll-target="#sec-ecc">Part 5: Experimental Causal Chain Designs</a>
+  <ul class="collapse">
+  <li><a href="#sec-ecc-motivation" id="toc-sec-ecc-motivation" class="nav-link" data-scroll-target="#sec-ecc-motivation">Section 1: Why the Statistical Approach Alone Is Not Enough</a></li>
+  <li><a href="#sec-ecc-design" id="toc-sec-ecc-design" class="nav-link" data-scroll-target="#sec-ecc-design">Section 2: The Two-Study Experimental Causal Chain (ECC) Design</a>
+  <ul class="collapse">
+  <li><a href="#what-the-ecc-design-achieves" id="toc-what-the-ecc-design-achieves" class="nav-link" data-scroll-target="#what-the-ecc-design-achieves">What the ECC design achieves</a></li>
+  <li><a href="#a-simulation-the-ecc-design-under-ideal-conditions" id="toc-a-simulation-the-ecc-design-under-ideal-conditions" class="nav-link" data-scroll-target="#a-simulation-the-ecc-design-under-ideal-conditions">A simulation: the ECC design under ideal conditions</a></li>
+  </ul></li>
+  <li><a href="#sec-mom-designs" id="toc-sec-mom-designs" class="nav-link" data-scroll-target="#sec-mom-designs">Section 3: Manipulation-of-Mediator Designs</a>
+  <ul class="collapse">
+  <li><a href="#concurrent-double-randomisation-22-factorial" id="toc-concurrent-double-randomisation-22-factorial" class="nav-link" data-scroll-target="#concurrent-double-randomisation-22-factorial">Concurrent double randomisation (2×2 factorial)</a></li>
+  <li><a href="#blockage-and-enhancement-designs" id="toc-blockage-and-enhancement-designs" class="nav-link" data-scroll-target="#blockage-and-enhancement-designs">Blockage and enhancement designs</a></li>
+  </ul></li>
+  <li><a href="#sec-construct-equiv" id="toc-sec-construct-equiv" class="nav-link" data-scroll-target="#sec-construct-equiv">Section 4: The Construct Equivalence Assumption</a>
+  <ul class="collapse">
+  <li><a href="#the-module-1-and-module-2-connection-made-concrete" id="toc-the-module-1-and-module-2-connection-made-concrete" class="nav-link" data-scroll-target="#the-module-1-and-module-2-connection-made-concrete">The Module 1 and Module 2 connection made concrete</a></li>
+  <li><a href="#a-simulation-what-happens-when-construct-equivalence-fails" id="toc-a-simulation-what-happens-when-construct-equivalence-fails" class="nav-link" data-scroll-target="#a-simulation-what-happens-when-construct-equivalence-fails">A simulation: what happens when construct equivalence fails</a></li>
+  </ul></li>
+  <li><a href="#sec-ecc-limits" id="toc-sec-ecc-limits" class="nav-link" data-scroll-target="#sec-ecc-limits">Section 5: What the Design Can and Cannot Establish</a>
+  <ul class="collapse">
+  <li><a href="#what-it-does-establish" id="toc-what-it-does-establish" class="nav-link" data-scroll-target="#what-it-does-establish">What it does establish</a></li>
+  <li><a href="#what-it-does-not-establish" id="toc-what-it-does-not-establish" class="nav-link" data-scroll-target="#what-it-does-not-establish">What it does not establish</a></li>
+  </ul></li>
+  <li><a href="#sec-forward-part5" id="toc-sec-forward-part5" class="nav-link" data-scroll-target="#sec-forward-part5">Forward Connections</a></li>
+  <li><a href="#sec-checklist-part5-m3" id="toc-sec-checklist-part5-m3" class="nav-link" data-scroll-target="#sec-checklist-part5-m3">Researcher Checklist: Experimental Causal Chain Designs</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-title">Part 5</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Causal Inference</a></li><li class="breadcrumb-item"><a href="../module-3/part5.html"><span class="chapter-title">Part 5: Experimental Causal Chain Designs</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Part 5</span></h1>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Part 5: Experimental Causal Chain Designs</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -307,9 +402,567 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Content coming soon.</em></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>How to use the code in this section
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The code blocks throughout this section contain inline annotations explaining <strong>what data structures go in</strong>, <strong>what the key function arguments control</strong>, and <strong>what to look for in the output</strong>. Click any “▶ Code” triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with <code># ──</code>, it marks a decision point you would need to revisit with your own data.</p>
+</div>
+</div>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSG3mUm8-kBoU8pn9Enxiufo8e0azR2f9v7F3_XPgmmgfgpZfBXiz3W4GgzcpXrxA/pubembed?start=false&amp;loop=false&amp;delayms=3000" frameborder="0" width="1280" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true">
+</iframe>
+<section id="sec-ecc" class="level1">
+<h1>Part 5: Experimental Causal Chain Designs</h1>
+<p>Part 4 showed how to estimate a mediation effect statistically — fitting a path model, computing the indirect effect <span class="math inline">\(a \times b\)</span>, and testing its sensitivity to unmeasured confounding between M and Y. The trouble with that approach is that the <span class="math inline">\(b\)</span>-path (M → Y) is observational. Randomisation of X establishes the <span class="math inline">\(a\)</span>-path cleanly, but M is never randomised. As Part 4 noted, an unobserved variable that drives both M and Y can produce an apparent indirect effect that is entirely spurious.</p>
+<p>This part addresses that problem directly. Rather than estimating the causal chain from correlations in a single study, <strong>experimental causal chain designs</strong> test each link in the chain with a separate experimental manipulation:</p>
+<ol type="1">
+<li><strong>Study 1:</strong> Randomise X → measure M. Does X causally influence M?</li>
+<li><strong>Study 2:</strong> Randomise M* → measure Y. Does M causally influence Y?</li>
+</ol>
+<p>The logic is clean: if the eco-label moves perceived sustainability (Study 1), and if experimentally inducing perceived sustainability increases WTP (Study 2), then we have experimental evidence for both links in the chain. The inferential foundation no longer depends on the observational <span class="math inline">\(b\)</span>-path.</p>
+<p>But this two-study strategy rests on one assumption that is so fundamental it is often left unstated, and it is <strong>a heavy one</strong>: the M you measured in Study 1 and the M* you manipulated in Study 2 must refer to the same underlying construct. If they do not — if “perceived sustainability” as measured by a five-item scale in Study 1 captures something meaningfully different from what a three-sentence manipulation in Study 2 actually induces — then the chain you claim to have established is an illusion. You have shown that a label increases one construct and that a manipulation of a different construct increases WTP. The two studies need not connect at all.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The three-module connection
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Module 1</strong> was about measuring the latent dimension of Y: does your scale capture the right construct, or is it contaminated by method variance, confounds, and poor discriminant validity? The same measurement challenge applies to M in Study 1. If your mediator measure has poor construct validity — low reliability, poor discriminant validity from adjacent constructs, sensitivity to measurement artefacts — then the <span class="math inline">\(a\)</span>-path estimate is attenuated and the construct you think you have measured may not be the one that actually matters.</p>
+<p><strong>Module 2</strong> was about what is in X: when you randomise participants to an eco-label vs.&nbsp;no-label condition, what exactly have you manipulated? The same validity question applies to the M* manipulation in Study 2. A high-vs.-low sustainability framing manipulates something, but is it specifically <em>perceived sustainability</em>, or does it simultaneously activate perceptions of product quality, price-worthiness, brand authenticity, and personal identity? All the construct validity problems from Module 2 reappear here — not for the treatment, but for the mediator manipulation.</p>
+<p>Experimental causal chain designs require you to solve both measurement problems simultaneously: M must be measured validly in Study 1 <strong>and</strong> manipulated purely and specifically in Study 2. These two demands point directly back to what Modules 1 and 2 taught.</p>
+</div>
+</div>
+<hr>
+<section id="sec-ecc-motivation" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ecc-motivation">Section 1: Why the Statistical Approach Alone Is Not Enough</h2>
+<p>The key identification problem in standard mediation was foreshadowed at the end of Part 4. Randomising X satisfies the first of two sequential ignorability conditions — no confounding of X → M — but it does nothing for the second: no confounding of M → Y. The diagram below shows the structural problem.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/ecc-motivation-dag-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the left panel, the dashed arrow from U* to both M and Y means the observed M–Y correlation mixes causal signal with confounding. In the right panel, M* is randomised — the <span class="math inline">\(b\)</span>-path is clean by design. The price is a <strong>new structural assumption</strong>: M (measured in Study 1) and M* (manipulated in Study 2) must represent the same causal quantity. That assumption is shown as an implicit connection between M and M* — a bridge that the design itself cannot verify.</p>
+<p>Spencer, Zanna &amp; Fong (2005) introduced this two-study logic under the label <em>experimental causal chain design</em> and illustrated it with a classic example from social psychology. Word, Zanna &amp; Cooper (1974) conducted two studies on racial bias in interviewing. Study 1 showed that White interviewers behaved more coldly toward Black applicants (less eye contact, more errors, shorter interviews). Study 2 showed that when interviewers were <em>trained to behave coldly</em> toward White applicants, those applicants performed worse in interview tasks. Together, the studies established a causal chain: race → interviewer coldness → applicant performance. Neither study alone could have done this.</p>
+<hr>
+</section>
+<section id="sec-ecc-design" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ecc-design">Section 2: The Two-Study Experimental Causal Chain (ECC) Design</h2>
+<p>The ECC design is the cleanest experimental approach to mediation. Its structure is:</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>ECC Design Structure
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Study 1:</strong> Participants are randomly assigned to X = 1 (treatment) or X = 0 (control). At the end of the study, M is measured. The analysis asks: does X significantly and substantially change M?</p>
+<p><strong>Study 2:</strong> A new sample of participants is randomly assigned to M* = high or M* = low — a direct manipulation of the mediator. Y is then measured. The analysis asks: does M* significantly and substantially change Y?</p>
+<p><strong>The inferential conclusion:</strong> If both links are established, the causal chain X → M → Y is supported — provided that M and M* reflect the same underlying construct.</p>
+</div>
+</div>
+<p>Applied to the eco-label example: Study 1 randomly shows participants either the eco-label or no label, then measures perceived sustainability on a validated five-item scale. Study 2 randomly assigns a new sample to read either a compelling sustainability brief (high M*) or a neutral product description (low M*), then measures WTP. If eco-labels raise perceived sustainability and high perceived sustainability raises WTP, the chain is established experimentally.</p>
+<section id="what-the-ecc-design-achieves" class="level3">
+<h3 class="anchored" data-anchor-id="what-the-ecc-design-achieves">What the ECC design achieves</h3>
+<p>The ECC design provides two clean causal estimates where statistical mediation provides one clean and one observational estimate:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 55%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Path</th>
+<th>Statistical mediation</th>
+<th>ECC design</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a\)</span>-path: X → M</td>
+<td>Causal (X randomised)</td>
+<td>Causal (X randomised)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b\)</span>-path: M → Y</td>
+<td><strong>Observational</strong> (M not randomised)</td>
+<td><strong>Causal</strong> (M* randomised)</td>
+</tr>
+</tbody>
+</table>
+<p>The gain is substantial. But the ECC design cannot directly estimate the <em>magnitude</em> of the indirect effect — that requires knowing both <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> on a common scale and combining them, which brings back the construct equivalence problem. What the ECC design provides is <strong>qualitative confirmation</strong>: each link in the chain is causal.</p>
+</section>
+<section id="a-simulation-the-ecc-design-under-ideal-conditions" class="level3">
+<h3 class="anchored" data-anchor-id="a-simulation-the-ecc-design-under-ideal-conditions">A simulation: the ECC design under ideal conditions</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate a successful two-study ECC design</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>N_s1 <span class="ot">&lt;-</span> <span class="dv">200</span>    <span class="co"># Study 1 participants</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>N_s2 <span class="ot">&lt;-</span> <span class="dv">200</span>    <span class="co"># Study 2 participants</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters for the eco-label chain</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>a_true <span class="ot">&lt;-</span> <span class="fl">0.90</span>   <span class="co"># eco-label raises perceived sustainability by 0.90 SD</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>b_true <span class="ot">&lt;-</span> <span class="fl">0.70</span>   <span class="co"># each SD of perceived sustainability raises WTP by 0.70</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Study 1: Randomise eco-label → measure perceived sustainability ─────────────</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X: 0 = no label, 1 = eco-label</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>X_s1           <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_s1, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>perc_sust_meas <span class="ot">&lt;-</span> a_true <span class="sc">*</span> X_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N_s1, <span class="dv">0</span>, <span class="fl">0.80</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace X_s1 with your treatment assignment column and</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#    perc_sust_meas with your mediator scale score (standardise it).</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>df_s1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X_s1, <span class="at">perc_sust =</span> perc_sust_meas)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Study 2: Randomise sustainability framing → measure WTP ───────────────────</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># M_manip: 0 = low sustainability framing, 1 = high sustainability framing</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>M_manip <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N_s2, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>WTP     <span class="ot">&lt;-</span> b_true <span class="sc">*</span> M_manip <span class="sc">+</span> <span class="fu">rnorm</span>(N_s2, <span class="dv">0</span>, <span class="fl">0.80</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ── YOUR DATA: replace M_manip with your mediator manipulation (0/1) and</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">#    WTP with your continuous outcome measure.</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>df_s2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">sust_manip =</span> M_manip, <span class="at">WTP =</span> WTP)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Estimate both paths ────────────────────────────────────────────────────────</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>fit_a <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(perc_sust <span class="sc">~</span> eco_label,  <span class="at">data =</span> df_s1)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>fit_b <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP        <span class="sc">~</span> sust_manip, <span class="at">data =</span> df_s2)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit_a) <span class="sc">|&gt;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"eco_label"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, p.value, conf.low, conf.high) <span class="sc">|&gt;</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Study 1: a-path (eco-label → perceived sustainability)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Study 1: a-path (eco-label → perceived sustainability)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">p.value</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">eco_label</td>
+<td style="text-align: right;">0.793</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.577</td>
+<td style="text-align: right;">1.01</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="code-fold">
+<summary>▶ Simulate a successful two-study ECC design</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit_b) <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sust_manip"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, p.value, conf.low, conf.high) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Study 2: b-path (sustainability framing → WTP)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Study 2: b-path (sustainability framing → WTP)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">p.value</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">sust_manip</td>
+<td style="text-align: right;">0.593</td>
+<td style="text-align: right;">0.121</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.355</td>
+<td style="text-align: right;">0.832</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Both paths recover the true parameters well. But note what we <strong>cannot</strong> do from these two studies alone: we cannot compute <span class="math inline">\(\hat{a} \times \hat{b}\)</span> and call it the causal indirect effect of the eco-label on WTP. The <span class="math inline">\(a\)</span>-path is estimated in units of the measured mediator scale. The <span class="math inline">\(b\)</span>-path is estimated in units of the binary manipulation dummy. These are not the same metric, and the quantitative product has no clean causal interpretation unless we make a very strong additional assumption about how the binary manipulation maps onto the continuous measurement scale.</p>
+<hr>
+</section>
+</section>
+<section id="sec-mom-designs" class="level2">
+<h2 class="anchored" data-anchor-id="sec-mom-designs">Section 3: Manipulation-of-Mediator Designs</h2>
+<p>Pirlott &amp; MacKinnon (2016) provide a comprehensive taxonomy of designs that manipulate the mediator rather than merely measuring it. The two-study ECC design is the most common, but two other designs deserve particular attention: the <strong>concurrent double randomisation</strong> (2×2 factorial) design and the <strong>blockage/enhancement</strong> design.</p>
+<section id="concurrent-double-randomisation-22-factorial" class="level3">
+<h3 class="anchored" data-anchor-id="concurrent-double-randomisation-22-factorial">Concurrent double randomisation (2×2 factorial)</h3>
+<p>Rather than running two separate studies, both X and M* are randomised simultaneously in a single 2×2 design. Participants are assigned to one of four cells:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Low M* (low sustainability framing)</th>
+<th>High M* (high sustainability framing)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>X = 0 (no eco-label)</strong></td>
+<td>Control–Low M*</td>
+<td>Control–High M*</td>
+</tr>
+<tr class="even">
+<td><strong>X = 1 (eco-label)</strong></td>
+<td>Treated–Low M*</td>
+<td>Treated–High M*</td>
+</tr>
+</tbody>
+</table>
+<p>The main effect of X estimates the total treatment effect. The main effect of M* estimates the causal effect of the mediator on Y. The critical test is the <strong>interaction</strong>: if X works <em>through</em> M, then the effect of X on Y should be attenuated when M* is held at a constant high level (because treatment can no longer move M — it is already maxed out by the manipulation), and should be present when M* is at the low level.</p>
+<p>Spencer et al.&nbsp;(2005) call this the <em>manipulation-of-mediator-with-moderator</em> (MOM) design. Pirlott &amp; MacKinnon (2016) call it <strong>concurrent double randomisation</strong> and note that it is the most statistically efficient of the experimental mediator designs — two manipulations in one study.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/ecc-factorial-dag-1.svg" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="blockage-and-enhancement-designs" class="level3">
+<h3 class="anchored" data-anchor-id="blockage-and-enhancement-designs">Blockage and enhancement designs</h3>
+<p>The <strong>blockage design</strong> is particularly compelling as a causal test. Rather than directly manipulating M, the researcher introduces an experimental factor that <em>prevents</em> M from varying. If the eco-label truly works through perceived sustainability, then blocking perceived sustainability — holding it constant at a low level regardless of label condition — should eliminate the label’s effect on WTP. If the effect persists even when M is blocked, M is not the mechanism.</p>
+<p>The <strong>enhancement design</strong> works in the opposite direction: an enhancement factor aligns M* with the treatment, amplifying the expected effect of X on Y if M is the true path. In combination, blockage and enhancement designs can triangulate the causal role of a mediator in a way that correlational methods cannot.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design</th>
+<th>What is randomised</th>
+<th>What you can conclude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Two-study ECC</td>
+<td>X in Study 1; M* in Study 2</td>
+<td>Both causal links established separately</td>
+</tr>
+<tr class="even">
+<td>Concurrent (2×2)</td>
+<td>Both X and M* simultaneously</td>
+<td>Efficient; tests interaction pattern expected under mediation</td>
+</tr>
+<tr class="odd">
+<td>Blockage</td>
+<td>X plus a blocker of M</td>
+<td>If effect disappears when M is blocked, M is the mechanism</td>
+</tr>
+<tr class="even">
+<td>Enhancement</td>
+<td>X plus an enhancer of M</td>
+<td>If effect is amplified when M is boosted, M is the mechanism</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="sec-construct-equiv" class="level2">
+<h2 class="anchored" data-anchor-id="sec-construct-equiv">Section 4: The Construct Equivalence Assumption</h2>
+<p>Every design in this part shares one assumption that cannot be satisfied by randomisation alone. It is, as the user of these methods should acknowledge plainly: a heavy assumption.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The construct equivalence assumption
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>The M measured in Study 1 and the M* manipulated in Study 2 must tap the same underlying psychological construct.</strong></p>
+<p>Without this assumption, the two-study design does not establish a causal chain. It establishes two separate causal facts that may have nothing to do with each other.</p>
+</div>
+</div>
+<p>What makes this assumption non-trivial? Consider what each operation actually does:</p>
+<p><strong>Measuring M (Study 1):</strong> A five-item scale asking participants to rate the product’s environmental benefit, carbon footprint awareness, long-term sustainability, and eco-friendliness. The latent construct captured by this scale reflects the entire network of beliefs and affects that participants associate with <em>environmental impact</em> — built up from prior experience, media exposure, personal values, and in-study processing.</p>
+<p><strong>Manipulating M* (Study 2):</strong> A three-sentence paragraph describing a product as “made with sustainably sourced materials from certified suppliers, produced using renewable energy, and designed to minimise packaging waste.” This paragraph activates something — but what? Perceptions of environmental benefit, yes. But also product quality signals, price-worthiness inferences, brand authenticity judgements, and perhaps identity-relevant motivations (“I’m the kind of person who chooses sustainable products”).</p>
+<p>The construct activated by the Study 2 manipulation may overlap substantially with what the Study 1 scale measures — but it is not the same operation. And if the part of the Study 2 manipulation that drives WTP is product quality signals rather than environmental perceptions, then the ECC design has established that eco-labels raise environmental perceptions (Study 1) and that product quality signals raise WTP (Study 2), while the actual operative link between the two studies is broken.</p>
+<section id="the-module-1-and-module-2-connection-made-concrete" class="level3">
+<h3 class="anchored" data-anchor-id="the-module-1-and-module-2-connection-made-concrete">The Module 1 and Module 2 connection made concrete</h3>
+<p>Module 1 showed that a measurement instrument can be contaminated by adjacent constructs — that a scale intended to measure perceived sustainability might also be loading on general product affect, trust in brands, or environmental identity. The solution was discriminant validity testing, CFA, and HTMT analysis.</p>
+<p>Module 2 showed that a manipulation that ostensibly operationalises “eco-label exposure” might simultaneously change product quality inferences, perceived price fairness, and brand associations — what Spencer et al.&nbsp;(2005) called the <em>exclusion restriction</em> for the treatment (Module 2, Part 2). The solution was careful manipulation checks and attention to what the manipulation uniquely activated.</p>
+<p>Both of these disciplines are required <strong>simultaneously</strong> for the ECC design to be interpretable:</p>
+<ul>
+<li>The Study 1 mediator measure needs the measurement validity demonstrated in Module 1: high reliability, good convergent validity, adequate discriminant validity from quality, authenticity, and identity constructs.</li>
+<li>The Study 2 mediator manipulation needs the manipulation validity examined in Module 2: a focused, narrow experimental operationalisation that moves M* specifically, with process checks showing <em>what</em> changed and what did not.</li>
+</ul>
+<p>Without both, construct equivalence is an assumption asserted, not a condition verified.</p>
+</section>
+<section id="a-simulation-what-happens-when-construct-equivalence-fails" class="level3">
+<h3 class="anchored" data-anchor-id="a-simulation-what-happens-when-construct-equivalence-fails">A simulation: what happens when construct equivalence fails</h3>
+<p>The following simulation makes the failure concrete. Two researchers run an ECC design on the eco-label effect. The Study 1 scale is valid — it measures environmental sustainability perceptions well. But the Study 2 manipulation inadvertently conflates sustainability with perceived product naturalness/purity — a related but distinct construct. Researchers who ignore this report a supported causal chain. The simulation shows how the estimates can be misleading.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Simulate ECC with construct non-equivalence</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── True latent constructs ─────────────────────────────────────────────────────</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Two constructs: sustainability (S) and naturalness/purity (P)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># They are correlated (r ≈ 0.55) but distinct</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N)                          <span class="co"># latent sustainability</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="fl">0.55</span> <span class="sc">*</span> S <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.55</span><span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(N)  <span class="co"># latent purity (correlated)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Study 1: Eco-label → measured perceived sustainability ────────────────────</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The eco-label primarily increases S (a_true = 0.85)</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>X_s1          <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>S_s1          <span class="ot">&lt;-</span> <span class="fl">0.85</span> <span class="sc">*</span> X_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Measured M in Study 1 taps S well (loading = 0.90) with minor P contamination</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>M_measured    <span class="ot">&lt;-</span> <span class="fl">0.90</span> <span class="sc">*</span> S_s1 <span class="sc">+</span> <span class="fl">0.10</span> <span class="sc">*</span> (<span class="fl">0.55</span> <span class="sc">*</span> S_s1 <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.80</span>)) <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.30</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>df_study1     <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">eco_label =</span> X_s1, <span class="at">M_measured =</span> M_measured)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Study 2: Manipulation moves P, not S ──────────────────────────────────────</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># The "sustainability framing" used in Study 2 primarily activates P (naturalness)</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># rather than S (environmental concern). The two constructs are correlated (r ≈ 0.55)</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># so M* is not orthogonal to S — but the direct causal driver of Y is S, not P.</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>X_s2          <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, <span class="fl">0.5</span>)   <span class="co"># assigned to high vs. low "sustainability" framing</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>P_s2          <span class="ot">&lt;-</span> <span class="fl">0.80</span> <span class="sc">*</span> X_s2 <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.60</span>)   <span class="co"># manip primarily moves P</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>S_s2          <span class="ot">&lt;-</span> <span class="fl">0.55</span> <span class="sc">*</span> P_s2 <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.55</span><span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.70</span>) <span class="co"># S moves via P</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Y is caused by S (the true mechanism), not P</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>b_true_S <span class="ot">&lt;-</span> <span class="fl">0.70</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>WTP_s2   <span class="ot">&lt;-</span> b_true_S <span class="sc">*</span> S_s2 <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="fl">0.60</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>df_study2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">sust_manip =</span> X_s2, <span class="at">WTP =</span> WTP_s2)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># ── What the researcher observes ──────────────────────────────────────────────</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>fit_a_obs <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(M_measured <span class="sc">~</span> eco_label,  <span class="at">data =</span> df_study1)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>fit_b_obs <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(WTP        <span class="sc">~</span> sust_manip, <span class="at">data =</span> df_study2)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(fit_a_obs) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"eco_label"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Study =</span> <span class="st">"Study 1"</span>, <span class="at">Path =</span> <span class="st">"a-path: eco-label → perc. sustainability (measured)"</span>),</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(fit_b_obs) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sust_manip"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Study =</span> <span class="st">"Study 2"</span>, <span class="at">Path =</span> <span class="st">"b-path: sust. manipulation → WTP"</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Study, Path, estimate, std.error, p.value, conf.low, conf.high) <span class="sc">|&gt;</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"ECC results under construct non-equivalence: both paths appear significant"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>ECC results under construct non-equivalence: both paths appear significant</caption>
+<colgroup>
+<col style="width: 7%">
+<col style="width: 49%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Study</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">p.value</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Study 1</td>
+<td style="text-align: left;">a-path: eco-label → perc. sustainability (measured)</td>
+<td style="text-align: right;">0.723</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.578</td>
+<td style="text-align: right;">0.868</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Study 2</td>
+<td style="text-align: left;">b-path: sust. manipulation → WTP</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0.087</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.196</td>
+<td style="text-align: right;">0.540</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Both paths are statistically significant and substantially sized — a researcher would conclude that the eco-label works through sustainability perceptions. Yet the Study 2 manipulation primarily activated purity/naturalness, not environmental sustainability. The true mechanism (S → Y) is present, but the Study 2 manipulation triggers it <em>indirectly</em>, through the S–P correlation. The causal chain that is “established” is partly an artefact of construct overlap rather than construct equivalence.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Visualise the true vs.&nbsp;activated constructs across studies</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>construct_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Study       =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Study 1:</span><span class="sc">\n</span><span class="st">Eco-label → M (measured)"</span>, N),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Study 2:</span><span class="sc">\n</span><span class="st">M* manipulation → WTP"</span>, N)),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Construct   =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Sustainability (S)</span><span class="sc">\n</span><span class="st">primary target"</span>, N),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rep</span>(<span class="st">"Purity (P)</span><span class="sc">\n</span><span class="st">actually activated"</span>, N)),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Score       =</span> <span class="fu">c</span>(M_measured, P_s2),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Treatment   =</span> <span class="fu">c</span>(X_s1, X_s2)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Study     =</span> <span class="fu">factor</span>(Study, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Study 1:</span><span class="sc">\n</span><span class="st">Eco-label → M (measured)"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">"Study 2:</span><span class="sc">\n</span><span class="st">M* manipulation → WTP"</span>)),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Condition =</span> <span class="fu">ifelse</span>(Treatment <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"Treatment"</span>, <span class="st">"Control"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(construct_df, <span class="fu">aes</span>(<span class="at">x =</span> Score, <span class="at">fill =</span> Condition, <span class="at">colour =</span> Condition)) <span class="sc">+</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Study, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values  =</span> <span class="fu">c</span>(<span class="at">Control =</span> clr_ctrl, <span class="at">Treatment =</span> clr_eco)) <span class="sc">+</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">Control =</span> clr_ctrl, <span class="at">Treatment =</span> clr_eco)) <span class="sc">+</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Construct non-equivalence: what each study actually moves"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Study 1 moves sustainability perceptions; Study 2 primarily moves purity/naturalness"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Construct score"</span>, <span class="at">y =</span> <span class="st">"Density"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>, <span class="at">colour =</span> <span class="cn">NULL</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_mod3</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/ecc-nonequiv-plot-1.svg" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The two distributions overlap — which is why the chain appears to hold — but the <em>mechanism</em> in each study is different. This is exactly the kind of failure that measurement validity work (Module 1) and manipulation validity work (Module 2) are designed to detect before the ECC design is published.</p>
+<hr>
+</section>
+</section>
+<section id="sec-ecc-limits" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ecc-limits">Section 5: What the Design Can and Cannot Establish</h2>
+<p>A well-executed ECC design provides stronger evidence for a causal chain than statistical mediation in a single study. But it is important to be precise about what the design establishes and what it does not.</p>
+<section id="what-it-does-establish" class="level3">
+<h3 class="anchored" data-anchor-id="what-it-does-establish">What it does establish</h3>
+<ul>
+<li><strong>Causal sufficiency of the chain:</strong> If the eco-label increases M and if manipulated M* increases Y, then <em>a</em> chain from X through M to Y is causally possible. The evidence is experimental at both links.</li>
+<li><strong>Process evidence:</strong> The ECC design provides qualitative evidence that the mediator is not merely correlating with the treatment — it can be experimentally activated to produce the outcome independently of X.</li>
+</ul>
+</section>
+<section id="what-it-does-not-establish" class="level3">
+<h3 class="anchored" data-anchor-id="what-it-does-not-establish">What it does not establish</h3>
+<ul>
+<li><strong>The indirect effect magnitude.</strong> The product <span class="math inline">\(\hat{a} \times \hat{b}\)</span> from two separate studies using different operationalisations of M is not a clean estimate of the causal indirect effect. The two estimates are in different units and were obtained from different samples under different conditions.</li>
+<li><strong>Construct equivalence.</strong> The design assumes but cannot verify that M and M* reflect the same construct. Demonstrating this requires external validation: (a) showing that the Study 2 manipulation produces scores on the Study 1 measurement scale that differ by the amount the Study 1 treatment difference implies; (b) showing that the manipulation check for M* loads on the same factor as the Study 1 measure; (c) ruling out alternative constructs activated by the Study 2 manipulation.</li>
+<li><strong>Freedom from alternative explanations in Study 2.</strong> The Study 2 manipulation may have effects beyond M* — any experimentally induced change that covaries with Y and is not the intended mediator is a threat to the inference. Pirlott &amp; MacKinnon (2016) call these <em>alternative explanations</em>: confounds of the M* manipulation itself.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Practical implication: treat construct equivalence as a hypothesis, not an assumption
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The construct equivalence assumption is strong enough that it should be approached empirically wherever possible. Practical steps:</p>
+<ol type="1">
+<li><p><strong>Measure M in Study 2 as well.</strong> Even though Study 2 is designed to manipulate M*, also administer the Study 1 mediator scale after the manipulation. Check that (a) the manipulation changes the scale scores and (b) the manipulation-induced scale shift is in the direction and of the magnitude implied by Study 1. This is the closest available empirical check on construct equivalence.</p></li>
+<li><p><strong>Use multiple operationalisations of M*.</strong> If construct equivalence is critical, run a Study 2b with a different manipulation of M* and confirm that results replicate. Replication across operationalisations strengthens the inference that it is the construct — not a specific manipulation feature — that matters.</p></li>
+<li><p><strong>Report manipulation checks that distinguish M from adjacent constructs.</strong> Following Module 2 logic, show that the manipulation moved <em>perceived sustainability</em> but did not move <em>perceived quality</em>, <em>perceived naturalness</em>, or <em>price expectations</em>. The more adjacent constructs are measured and shown not to change, the stronger the claim that M* is a specific manipulation of M.</p></li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-forward-part5" class="level2">
+<h2 class="anchored" data-anchor-id="sec-forward-part5">Forward Connections</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Where this fits in the three-module arc
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This part completes the causal inference module by returning to experimentation — but with the full weight of the preceding methods as context.</p>
+<p><strong>Part 4 (Mediation Analysis)</strong> provided the statistical framework for estimating indirect effects and assessing their sensitivity to unmeasured confounding. The ECC design in this part is a complement, not a substitute: in many research programmes, statistical mediation in Study 1 motivates the design of a confirmatory ECC sequence in Studies 2 and 3.</p>
+<p><strong>Module 2, Part 2 (The Exclusion Restriction)</strong> established that a treatment manipulation is only as valid as the narrow construct it uniquely activates. That principle now applies twice in the ECC design — once to the treatment X and once to the mediator manipulation M*.</p>
+<p><strong>Module 1 (Measurement)</strong> provided the tools — CFA, reliability, discriminant validity, HTMT — to evaluate whether a measure captures its intended construct. Every one of those tools is directly applicable to evaluating the Study 1 mediator measure and to verifying that the Study 2 manipulation check reflects the intended construct rather than a neighbouring one.</p>
+<p>The full evidential chain — from latent construct measurement (Module 1) through treatment design validity (Module 2) to causal identification (Module 3) — is what makes a confident claim that an eco-label increases WTP <em>because it raises perceived sustainability</em> possible. Weakness at any link weakens the whole.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-checklist-part5-m3" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-part5-m3">Researcher Checklist: Experimental Causal Chain Designs</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key questions before, during, and after an ECC design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Design stage</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Can M be both measured and manipulated validly?</strong> If there is no credible way to experimentally operationalise M* as a pure, specific manipulation of the mediator construct, the two-study design cannot work. Measure validity is a prerequisite, not an afterthought.</label></li>
+<li><label><input type="checkbox"><strong>Are Study 1 and Study 2 samples from the same population?</strong> If Study 1 uses students and Study 2 uses MTurk workers, the chain may not replicate for reasons unrelated to construct equivalence.</label></li>
+<li><label><input type="checkbox"><strong>Have you pre-specified the expected direction and approximate magnitude of each path?</strong> ECC designs often report “the chain is supported” without noting that the estimated path sizes were far from what the underlying theory predicts. Specify a priori.</label></li>
+</ul>
+<p><strong>Analysis stage</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Report both paths with confidence intervals and effect sizes.</strong> A significant <span class="math inline">\(a\)</span>-path and a significant <span class="math inline">\(b\)</span>-path are necessary but not sufficient. Report the magnitude — a trivially small <span class="math inline">\(a\)</span>-path with a narrow CI still fails to support the chain practically.</label></li>
+<li><label><input type="checkbox"><strong>Measure M in Study 2 and verify construct equivalence empirically.</strong> Check that the Study 2 manipulation moves Study 1’s mediator scale, in the expected direction, by approximately the amount Study 1 suggests.</label></li>
+<li><label><input type="checkbox"><strong>Report manipulation checks distinguishing M* from adjacent constructs.</strong> Show what the Study 2 manipulation changed <em>and what it did not change</em>. This is the Module 2 validity check applied to the mediator manipulation.</label></li>
+</ul>
+<p><strong>Interpretation stage</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Do not quantitatively combine <span class="math inline">\(\hat{a}\)</span> and <span class="math inline">\(\hat{b}\)</span> into an indirect effect without justification.</strong> The two estimates use different operationalisations and different samples. The product is not a clean causal quantity without additional assumptions about the mapping between the measured and manipulated versions of M.</label></li>
+<li><label><input type="checkbox"><strong>Acknowledge construct equivalence as an assumption that has been evaluated but not proven.</strong> No design can fully verify that M and M* are the same — only accumulating evidence across multiple operationalisations can build the case.</label></li>
+<li><label><input type="checkbox"><strong>Check for alternative explanations of the M* effect in Study 2.</strong> List plausible alternative constructs activated by the manipulation and report whether they were measured and shown not to predict Y above and beyond M*.</label></li>
+</ul>
+</div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -780,4 +1433,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
