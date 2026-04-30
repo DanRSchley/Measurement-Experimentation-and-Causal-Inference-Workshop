@@ -102,13 +102,7 @@ rob_extract <- function(fit) {
 }
 ```
 
-::: {.callout-tip}
-## How to use the code in this section
-
-The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
-:::
-
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRzPx0bxzC-JTpMGSSrT5utfFXHKKh848MyYUNfzdWJDRn14MFoDQ8HpwdXURqyFCPZWSmn9-gV1OHN/pubembed?start=false&loop=false&delayms=3000" frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRzPx0bxzC-JTpMGSSrT5utfFXHKKh848MyYUNfzdWJDRn14MFoDQ8HpwdXURqyFCPZWSmn9-gV1OHN/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
 This part covers three secondary-data tools for causal identification — instrumental variables (IV), regression discontinuity design (RDD), and difference-in-differences (DiD). They are not three unrelated methods. They share a common logic: find variation in the treatment that is *as good as random* — variation that is unrelated to the unobserved confounders that make simple comparisons misleading. IV finds that variation through an external lever; RDD finds it at a sharp threshold; DiD finds it in a policy timing that differs across groups. Understanding IV first makes RDD and DiD easier to see as extensions of the same core idea.
 
@@ -552,8 +546,6 @@ The identifying assumption shifts: instead of "units just above and below the th
 ---
 
 ## Difference-in-Differences {#sec-did}
-
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSXVhKGWYmdPGDCK7MsNNmequAI9bYAUVNioz9v8w1kJukTxjUmh8kvzXF8mMg1OQ/pub?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 3 Part 3: Difference-in-Differences"></iframe>
 
 The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
 
@@ -1011,6 +1003,3 @@ DiD Type I error rises steeply as γ increases — reaching near-certainty of a 
 - [ ] **Is treatment staggered across units?** Standard two-way fixed effects DiD produces biased estimates under staggered timing with heterogeneous effects. Use a Callaway-Sant'Anna or Sun-Abraham estimator instead.
 :::
 
-```{r session-info}
-sessionInfo()
-```

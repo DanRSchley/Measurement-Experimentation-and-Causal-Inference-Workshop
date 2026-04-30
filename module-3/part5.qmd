@@ -89,13 +89,7 @@ theme_mod3 <- function() {
 }
 ```
 
-::: {.callout-tip}
-## How to use the code in this section
-
-The code blocks throughout this section contain inline annotations explaining **what data structures go in**, **what the key function arguments control**, and **what to look for in the output**. Click any "▶ Code" triangle to expand a block and read the annotations alongside the code. Treat them as a guided checklist: wherever you see a comment starting with `# ──`, it marks a decision point you would need to revisit with your own data.
-:::
-
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSG3mUm8-kBoU8pn9Enxiufo8e0azR2f9v7F3_XPgmmgfgpZfBXiz3W4GgzcpXrxA/pubembed?start=false&loop=false&delayms=3000" frameborder="0" width="1280" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSG3mUm8-kBoU8pn9Enxiufo8e0azR2f9v7F3_XPgmmgfgpZfBXiz3W4GgzcpXrxA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
 # Part 5: Experimental Causal Chain Designs {#sec-ecc}
 
@@ -431,24 +425,6 @@ The construct equivalence assumption is strong enough that it should be approach
 2. **Use multiple operationalisations of M\*.** If construct equivalence is critical, run a Study 2b with a different manipulation of M\* and confirm that results replicate. Replication across operationalisations strengthens the inference that it is the construct — not a specific manipulation feature — that matters.
 
 3. **Report manipulation checks that distinguish M from adjacent constructs.** Following Module 2 logic, show that the manipulation moved *perceived sustainability* but did not move *perceived quality*, *perceived naturalness*, or *price expectations*. The more adjacent constructs are measured and shown not to change, the stronger the claim that M\* is a specific manipulation of M.
-:::
-
----
-
-## Forward Connections {#sec-forward-part5}
-
-::: {.callout-note}
-## Where this fits in the three-module arc
-
-This part completes the causal inference module by returning to experimentation — but with the full weight of the preceding methods as context.
-
-**Part 4 (Mediation Analysis)** provided the statistical framework for estimating indirect effects and assessing their sensitivity to unmeasured confounding. The ECC design in this part is a complement, not a substitute: in many research programmes, statistical mediation in Study 1 motivates the design of a confirmatory ECC sequence in Studies 2 and 3.
-
-**Module 2, Part 2 (The Exclusion Restriction)** established that a treatment manipulation is only as valid as the narrow construct it uniquely activates. That principle now applies twice in the ECC design — once to the treatment X and once to the mediator manipulation M\*.
-
-**Module 1 (Measurement)** provided the tools — CFA, reliability, discriminant validity, HTMT — to evaluate whether a measure captures its intended construct. Every one of those tools is directly applicable to evaluating the Study 1 mediator measure and to verifying that the Study 2 manipulation check reflects the intended construct rather than a neighbouring one.
-
-The full evidential chain — from latent construct measurement (Module 1) through treatment design validity (Module 2) to causal identification (Module 3) — is what makes a confident claim that an eco-label increases WTP *because it raises perceived sustainability* possible. Weakness at any link weakens the whole.
 :::
 
 ---
