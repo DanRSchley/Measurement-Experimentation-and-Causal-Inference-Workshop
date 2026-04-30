@@ -85,13 +85,15 @@ The simulator below shows the *observed* (truncated) distribution — what resea
 //| code-fold: false
 viewof bound_mu  = Inputs.range([1, 99], {step: 1, value: 50, label: "True mean (population)"})
 viewof bound_sd  = Inputs.range([2, 40], {step: 1, value: 15, label: "True SD (variability / noise)"})
-viewof bound_lo  = Inputs.select(["Bounded at 0", "No lower bound"], {value: "Bounded at 0", label: "Lower bound"})
-viewof bound_hi  = Inputs.select(["Bounded at 100", "No upper bound"], {value: "Bounded at 100", label: "Upper bound"})
 ```
 
 ```{ojs}
 //| echo: false
 //| code-fold: false
+
+// Scale always bounded at 0 (lower) and 100 (upper)
+loB = 0
+hiB = 100
 
 // Normal PDF and CDF utilities
 function phi_fn(x) {
@@ -126,53 +128,39 @@ function qnorm(p) {
   }
 }
 
-loB = bound_lo === "Bounded at 0"   ?   0 : -Infinity
-hiB = bound_hi === "Bounded at 100" ? 100 :  Infinity
-
 // Truncated normal moments (analytical)
 trunc_moments = {
   const mu = bound_mu, sigma = bound_sd;
   const lo = loB, hi = hiB;
-  const alpha = lo === -Infinity ? -Infinity : (lo - mu) / sigma;
-  const beta  = hi ===  Infinity ?  Infinity : (hi - mu) / sigma;
-  const pA = alpha === -Infinity ? 0 : Phi_fn(alpha);
-  const pB = beta  ===  Infinity ? 1 : Phi_fn(beta);
+  const alpha = (lo - mu) / sigma;
+  const beta  = (hi - mu) / sigma;
+  const pA = Phi_fn(alpha);
+  const pB = Phi_fn(beta);
   const Z  = pB - pA;
-  const fA = alpha === -Infinity ? 0 : phi_fn(alpha);
-  const fB = beta  ===  Infinity ? 0 : phi_fn(beta);
+  const fA = phi_fn(alpha);
+  const fB = phi_fn(beta);
   const obs_mean = mu + sigma * (fA - fB) / Z;
   const obs_med  = mu + sigma * qnorm((pA + pB) / 2);
-  const obs_var  = sigma*sigma * (1 + (alpha*fA - beta*fB)/Z - ((fA-fB)/Z)**2);
-  return {obs_mean, obs_med, obs_sd: Math.sqrt(Math.max(0, obs_var)), Z};
+  // Note: alpha*fA and beta*fB must be computed explicitly to avoid Infinity*0 = NaN
+  const alphaFa  = isFinite(alpha) ? alpha * fA : 0;
+  const betaFb   = isFinite(beta)  ? beta  * fB : 0;
+  const obs_var  = sigma*sigma * (1 + (alphaFa - betaFb)/Z - ((fA-fB)/Z)**2);
+  const obs_sd   = isFinite(obs_var) && obs_var >= 0 ? Math.sqrt(obs_var) : 0;
+  return {obs_mean, obs_med, obs_sd, Z};
 }
 
 // Truncated (observed) density
 density_data = {
   const mu = bound_mu, sigma = bound_sd;
   const lo = loB, hi = hiB;
-  const pA = lo === -Infinity ? 0 : Phi_fn((lo - mu)/sigma);
-  const pB = hi ===  Infinity ? 1 : Phi_fn((hi - mu)/sigma);
+  const pA = Phi_fn((lo - mu)/sigma);
+  const pB = Phi_fn((hi - mu)/sigma);
   const Z  = pB - pA;
-
-  const xlo = Math.max(lo === -Infinity ? mu - 4.5*sigma : lo, -5);
-  const xhi = Math.min(hi ===  Infinity ? mu + 4.5*sigma : hi, 105);
-  const n   = 300;
+  const n  = 300;
   return Array.from({length: n}, (_, i) => {
-    const x = xlo + (i / (n-1)) * (xhi - xlo);
-    const pdf = (x < lo || x > hi) ? 0 : phi_fn((x-mu)/sigma) / (sigma * Z);
+    const x = lo + (i / (n-1)) * (hi - lo);
+    const pdf = phi_fn((x-mu)/sigma) / (sigma * Z);
     return {x, pdf};
-  });
-}
-
-// True (untruncated) normal density — what the distribution would be without bounds
-density_true = {
-  const mu = bound_mu, sigma = bound_sd;
-  const xlo = Math.max((loB === -Infinity ? mu - 4.5*sigma : loB) - 2, -5);
-  const xhi = Math.min((hiB ===  Infinity ? mu + 4.5*sigma : hiB) + 2, 105);
-  const n   = 300;
-  return Array.from({length: n}, (_, i) => {
-    const x = xlo + (i / (n-1)) * (xhi - xlo);
-    return {x, pdf: phi_fn((x - mu) / sigma) / sigma};
   });
 }
 
@@ -185,19 +173,17 @@ obs_skewness = {
   // Numerical integration of the 3rd standardised central moment of the truncated distribution
   const mu = bound_mu, sigma = bound_sd;
   const lo = loB, hi = hiB;
-  const pA = lo === -Infinity ? 0 : Phi_fn((lo - mu) / sigma);
-  const pB = hi ===  Infinity ? 1 : Phi_fn((hi - mu) / sigma);
+  const pA = Phi_fn((lo - mu) / sigma);
+  const pB = Phi_fn((hi - mu) / sigma);
   const Z  = pB - pA;
   const mu_obs = trunc_moments.obs_mean;
   const sd_obs = trunc_moments.obs_sd;
   if (sd_obs < 1e-10) return 0;
-  const n   = 800;
-  const xlo = lo === -Infinity ? mu - 5 * sigma : lo;
-  const xhi = hi ===  Infinity ? mu + 5 * sigma : hi;
-  const dx  = (xhi - xlo) / n;
+  const n  = 800;
+  const dx = (hi - lo) / n;
   let s3 = 0;
   for (let i = 0; i < n; i++) {
-    const x = xlo + (i + 0.5) * dx;
+    const x = lo + (i + 0.5) * dx;
     s3 += Math.pow((x - mu_obs) / sd_obs, 3) * phi_fn((x - mu) / sigma) / (sigma * Z) * dx;
   }
   return s3;
@@ -260,24 +246,18 @@ html`<div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;font-size:.8
 Plot.plot({
   width: 650, height: 300,
   marginLeft: 55, marginBottom: 45, marginTop: 20, marginRight: 20,
-  x: {
-    label: "Scale value →",
-    domain: [
-      Math.max((loB === -Infinity ? bound_mu - 4.5*bound_sd : loB) - 2, -5),
-      Math.min((hiB ===  Infinity ? bound_mu + 4.5*bound_sd : hiB) + 2, 105)
-    ]
-  },
+  x: {label: "Scale value →", domain: [-2, 102]},
   y: {label: "Density", zero: true},
   marks: [
     // Observed (truncated) distribution — what researchers actually record
     Plot.areaY(density_data, {x: d => d.x, y: d => d.pdf, fill: "#457b9d", fillOpacity: 0.45}),
     Plot.line(density_data,  {x: d => d.x, y: d => d.pdf, stroke: "#457b9d", strokeWidth: 2.2}),
     // Reference lines
-    Plot.ruleX([bound_mu],               {stroke: "#222",     strokeDasharray: "6,3",  strokeWidth: 2.2}),
-    Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d",                           strokeWidth: 2.5}),
-    Plot.ruleX([trunc_moments.obs_med],  {stroke: "#e63946",  strokeDasharray: "4,3",  strokeWidth: 2.5}),
-    ...(loB > -Infinity ? [Plot.ruleX([loB], {stroke: "#aaa", strokeWidth: 1.5})] : []),
-    ...(hiB <  Infinity ? [Plot.ruleX([hiB], {stroke: "#aaa", strokeWidth: 1.5})] : [])
+    Plot.ruleX([bound_mu],               {stroke: "#222",    strokeDasharray: "6,3", strokeWidth: 2.2}),
+    Plot.ruleX([trunc_moments.obs_mean], {stroke: "#457b9d",                         strokeWidth: 2.5}),
+    Plot.ruleX([trunc_moments.obs_med],  {stroke: "#e63946", strokeDasharray: "4,3", strokeWidth: 2.5}),
+    Plot.ruleX([loB], {stroke: "#aaa", strokeWidth: 1.5}),
+    Plot.ruleX([hiB], {stroke: "#aaa", strokeWidth: 1.5})
   ]
 })
 ```
