@@ -361,6 +361,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sec-rdd" id="toc-sec-rdd" class="nav-link" data-scroll-target="#sec-rdd">Regression Discontinuity Design</a>
   <ul class="collapse">
+  <li><a href="#sec-rdd-measurement" id="toc-sec-rdd-measurement" class="nav-link" data-scroll-target="#sec-rdd-measurement">When the Ruler Is Noisy: Measurement Error in the Running Variable</a></li>
   <li><a href="#sec-rdd-sim" id="toc-sec-rdd-sim" class="nav-link" data-scroll-target="#sec-rdd-sim">Simulating an RDD</a></li>
   <li><a href="#sec-rdd-assumptions" id="toc-sec-rdd-assumptions" class="nav-link" data-scroll-target="#sec-rdd-assumptions">Key Assumptions and How to Test Them</a></li>
   <li><a href="#sec-rdd-estimate" id="toc-sec-rdd-estimate" class="nav-link" data-scroll-target="#sec-rdd-estimate">Estimating the RDD Effect</a></li>
@@ -375,6 +376,7 @@ window.Quarto = {
   <li><a href="#sec-did-event" id="toc-sec-did-event" class="nav-link" data-scroll-target="#sec-did-event">Testing Parallel Trends: Event Study</a></li>
   <li><a href="#sec-synthdid" id="toc-sec-synthdid" class="nav-link" data-scroll-target="#sec-synthdid">Synthetic Difference-in-Differences</a></li>
   <li><a href="#sec-pt-failure" id="toc-sec-pt-failure" class="nav-link" data-scroll-target="#sec-pt-failure">When Parallel Trends Fails — and Pre-Testing Cannot Always Save You</a></li>
+  <li><a href="#sec-pt-thought-experiment" id="toc-sec-pt-thought-experiment" class="nav-link" data-scroll-target="#sec-pt-thought-experiment">The Parallel Trends Thought Experiment</a></li>
   <li><a href="#sec-checklist-did" id="toc-sec-checklist-did" class="nav-link" data-scroll-target="#sec-checklist-did">Researcher Checklist: Difference-in-Differences</a></li>
   </ul></li>
   </ul>
@@ -408,6 +410,19 @@ window.Quarto = {
 <hr>
 <section id="sec-iv" class="level2">
 <h2 class="anchored" data-anchor-id="sec-iv">Instrumental Variables</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Further reading
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Scott Cunningham’s <em>Causal Inference: The Mixtape</em> provides an excellent, accessible treatment of IV with additional examples and intuition. Chapter 7 is freely available at <a href="https://mixtape.scunning.com/07-instrumental_variables">mixtape.scunning.com/07-instrumental_variables</a>.</p>
+</div>
+</div>
 <section id="the-core-problem" class="level3">
 <h3 class="anchored" data-anchor-id="the-core-problem">The core problem</h3>
 <p>Part 2 showed that when an unobserved variable <span class="math inline">\(U\)</span> causes both treatment <span class="math inline">\(X\)</span> and outcome <span class="math inline">\(Y\)</span>, no amount of regression adjustment on observed covariates can recover the causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>. The path <span class="math inline">\(X \leftarrow U \rightarrow Y\)</span> is a backdoor that remains open whenever <span class="math inline">\(U\)</span> is unmeasured.</p>
@@ -679,6 +694,19 @@ First-stage compliance rate: 43.8%</code></pre>
 </section>
 <section id="sec-rdd" class="level2">
 <h2 class="anchored" data-anchor-id="sec-rdd">Regression Discontinuity Design</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Further reading
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For a thorough treatment of RDD with worked examples, see Chapter 6 of Scott Cunningham’s <em>Causal Inference: The Mixtape</em>, freely available at <a href="https://mixtape.scunning.com/06-regression_discontinuity">mixtape.scunning.com/06-regression_discontinuity</a>.</p>
+</div>
+</div>
 <p>AlterEco’s retailer awards a <strong>“Certified Sustainable”</strong> badge to any coffee product scoring <strong>70 or above</strong> on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is <em>nearly random</em> near 70. We exploit this near-randomness.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -698,6 +726,38 @@ First-stage compliance rate: 43.8%</code></pre>
 <p><strong>A practical check to run first</strong>: If brands can game the audit score to land just above 70, the “as-good-as-random” assumption breaks down. The density test below checks for suspicious bunching right at the cutoff.</p>
 </div>
 </div>
+<section id="sec-rdd-measurement" class="level3">
+<h3 class="anchored" data-anchor-id="sec-rdd-measurement">When the Ruler Is Noisy: Measurement Error in the Running Variable</h3>
+<p>The “as-good-as-random near the cutoff” logic is only as strong as the running variable is accurate. This is a direct application of the lesson from Module 1 to the problem of causal identification — and it is routinely overlooked.</p>
+<p>Recall the Classical Test Theory decomposition from Module 1, Part 1:</p>
+<p><span class="math display">\[X_{\text{obs}} = T_{\text{true}} + \varepsilon\]</span></p>
+<p>Applied to the audit score: the score a product <em>receives</em> equals its true environmental quality <em>plus</em> auditor noise — different auditors weight criteria differently, visit the factory on different days, and bring different thresholds to bear. The reliability of the audit score is <span class="math inline">\(\rho = \sigma^2_{T} / (\sigma^2_{T} + \sigma^2_{\varepsilon})\)</span>. When reliability is high, the observed score closely tracks the truth. When reliability is low, the score is largely noise.</p>
+<p><strong>Why reliability of the running variable is not a minor detail.</strong> The near-threshold quasi-randomness that makes RDD valid depends on units just above and just below the cutoff being genuinely similar in their <em>true</em> score. If the audit score is reliable, this is plausible: a product scoring 69 vs.&nbsp;71 likely has nearly identical true quality, and the two-point gap reflects noise in the measurement instrument. That noise is what creates the local randomness.</p>
+<p>But if the audit score is <em>unreliable</em> — say, reliability <span class="math inline">\(\rho = 0.60\)</span> — then a product scoring 69 might have a true score of 55 or 80; a product scoring 71 might have a true score anywhere in a wide range. The observed scores of 69 and 71 no longer tell you these products are similar. They are close in the <em>observed</em> metric but may be far apart in their <em>true</em> quality. Near-threshold units are not quasi-randomly assigned — they are just noisily measured.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Three ways poor measurement undermines RDD
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. Attenuation of the estimate.</strong> Measurement error in the running variable attenuates the estimated discontinuity toward zero. Because noisy scores misclassify some high-true-score units as below the threshold and vice versa, the sharp step at the cutoff is blurred into a gradual slope. The apparent jump is smaller than the true causal effect — the same attenuation bias that reduces regression coefficients in OLS when predictors are measured with error (Module 1, Part 2).</p>
+<p><strong>2. Corruption of the “as-good-as-random” assumption.</strong> The near-threshold population is only exchangeable when score differences of a few points near the cutoff are attributable to noise, not to genuine differences in true quality. When reliability is low, a two-point gap in observed score could reflect a ten-point gap in true quality. The units on either side of the cutoff are not comparable — the instrument itself has sorted them by its own noise.</p>
+<p><strong>3. Amplification of strategic manipulation.</strong> Units that know the threshold can exploit measurement unreliability to game the score. The Monte Carlo simulation above showed how brands near the cutoff can nudge audit scores across 70. That gaming is <em>easier</em> when auditor standards are variable — a second audit or a minor procedural appeal has a higher chance of crossing the threshold when the score has high within-unit variance. Higher noise amplifies the incentive and the feasibility of gaming, making the density test and Type I error problems above even more severe.</p>
+</div>
+</div>
+<p><strong>The Module 1 checklist applied to your running variable.</strong> Before running an RDD, ask the measurement validity questions from Module 1 about the running variable itself:</p>
+<ul>
+<li><strong>Reliability</strong>: How consistent are scores across repeated assessments of the same unit? If auditors systematically disagree (low inter-rater reliability), the score is noisy, and near-threshold units may not be comparable. Report the inter-rater reliability coefficient.</li>
+<li><strong>Construct validity</strong>: Does the score measure what it claims to measure, or does it pick up irrelevant variance? An audit that weights easily observable features (energy-efficient lighting) over harder-to-observe ones (supply chain practices) may not reflect the true environmental footprint — and the cutoff then assigns badges based partly on the wrong construct.</li>
+<li><strong>Convergent validity</strong>: If a second, independent measure of the same underlying construct exists, do they agree? Large disagreement between two audit schemes is evidence of low reliability or construct invalidity in at least one of them.</li>
+<li><strong>Measurement invariance</strong>: Are audit standards applied consistently across the types of products in your sample? If the same score of 70 means different things for small artisan producers vs.&nbsp;large multinational brands (a form of non-invariance from Module 1, Part 3), the threshold is not a uniform treatment assignment rule.</li>
+</ul>
+<p>The practical implication is uncomfortable but important: <strong>the causal precision of an RDD is bounded above by the reliability of its running variable</strong>, in exactly the same way that the power of a mediation analysis is bounded by the reliability of the mediator (Part 4 of this module). A high-quality regression discontinuity study begins with a high-quality measurement instrument for the running variable — not as a convenience, but as a prerequisite for identification.</p>
+</section>
 <section id="sec-rdd-sim" class="level3">
 <h3 class="anchored" data-anchor-id="sec-rdd-sim">Simulating an RDD</h3>
 <div class="cell">
@@ -1124,6 +1184,19 @@ Unique Obs.                     677          523
 </section>
 <section id="sec-did" class="level2">
 <h2 class="anchored" data-anchor-id="sec-did">Difference-in-Differences</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Further reading
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chapter 9 of Scott Cunningham’s <em>Causal Inference: The Mixtape</em> covers DiD in depth, including staggered adoption and the recent critiques of TWFE. Freely available at <a href="https://mixtape.scunning.com/09-difference_in_differences">mixtape.scunning.com/09-difference_in_differences</a>.</p>
+</div>
+</div>
 <p>The Dutch government introduces a <strong>mandatory eco-labelling law</strong> in <strong>2022</strong>. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).</p>
 <section id="sec-did-sim" class="level3">
 <h3 class="anchored" data-anchor-id="sec-did-sim">Simulating Panel Data</h3>
@@ -1712,6 +1785,40 @@ It is entirely spurious. The violation was undetectable with 2 pre-periods.</cod
 </div>
 </div>
 </section>
+</section>
+<section id="sec-pt-thought-experiment" class="level3">
+<h3 class="anchored" data-anchor-id="sec-pt-thought-experiment">The Parallel Trends Thought Experiment</h3>
+<p>The formal diagnostics above — event studies, omitted-variable simulations, HonestDiD sensitivity — are essential tools. But before reaching for any of them, it is worth stepping back and asking the foundational question with brutal honesty: <strong>how plausible is it that parallel trends holds at all?</strong></p>
+<p>Here is a thought experiment that makes the implausibility concrete.</p>
+<p><strong>The asteroid analogy.</strong> Think of the outcome variable — consumer WTP — as an asteroid moving through space. Time is the x-axis: the asteroid moves forward through time, and its trajectory encodes the trend in WTP. Now think of every factor that shapes WTP — consumer income growth, eco-consciousness trends, media coverage of sustainability, competitive dynamics, supply chain costs, regulatory climate, brand lifecycle — as additional dimensions. The asteroid is moving through a <span class="math inline">\(k\)</span>-dimensional space, where <span class="math inline">\(k\)</span> equals the number of forces acting on WTP.</p>
+<p>Now a collision happens. The Dutch government passes the eco-label law. This collision affects Dutch stores but not Belgian stores. The collision splits our single asteroid into two pieces that separate along one dimension — the treated group (Dutch stores) receives the treatment shock while the control group (Belgian stores) does not.</p>
+<p><strong>The parallel trends assumption asks:</strong> after the collision, would the two pieces have continued moving on exactly parallel trajectories through this <span class="math inline">\(k\)</span>-dimensional space?</p>
+<p>In three-dimensional physics — where <span class="math inline">\(k = 3\)</span> — this would almost never happen. A collision that separates two objects along one dimension will almost certainly impart different forces along the other dimensions as well. The pieces move apart not just in the y-direction but in x and z too. The probability that two colliding objects continue on perfectly parallel paths in three-dimensional space is essentially zero, because that would require the off-axis force components to be exactly equal and opposite.</p>
+<p>Now move to <span class="math inline">\(k\)</span> dimensions. Every additional dimension multiplies the implausibility. Parallel movement requires equal rates of change along <em>all</em> <span class="math inline">\(k - 1\)</span> non-treatment dimensions simultaneously. If the probability of parallelism along each dimension is <span class="math inline">\(p &lt; 1\)</span>, the joint probability of parallelism across all <span class="math inline">\(k - 1\)</span> dimensions is <span class="math inline">\(p^{k-1} \to 0\)</span> as <span class="math inline">\(k\)</span> grows. The assumption becomes exponentially more implausible as the outcome variable is richer and more multi-determined.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The parallel trends assumption is asking for something remarkable
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Think about what DiD is actually claiming: that the <em>only</em> thing that made Dutch and Belgian stores diverge after 2022 was the eco-label law — and that, absent the law, every other force acting on WTP (income shocks, consumer attitude trends, competitive retailer behaviour, media effects, seasonal patterns, product mix evolution) would have moved Dutch and Belgian stores at exactly the same rate.</p>
+<p>This is not a modest claim. It requires that every dimension of the data-generating process for WTP was either (a) equally shared by Dutch and Belgian stores, or (b) perfectly cancelled by other forces. In reality, the Dutch law was passed because Dutch consumers were already moving in a particular direction. The very political economy that produced the treatment is almost certainly correlated with the trajectory of WTP that would have occurred without the treatment.</p>
+</div>
+</div>
+<p><strong>The connection to Module 2, Part 3.</strong> In Module 2, you saw that random assignment does not guarantee exchangeability — it only makes it probabilistically likely, and even then only when the sample is large relative to the number of dimensions of the outcome construct. The playing cards analogy made this vivid: a 52-card deck requires seven riffle shuffles, not one, to approach randomness, because the number of possible orderings grows exponentially with deck size.</p>
+<p>DiD is in a harder position than a randomised experiment. At least in a randomised experiment, a <em>deliberate</em> randomisation procedure is applied with the specific intent of achieving exchangeability. In DiD, the “treatment assignment” — which country’s government happened to pass an eco-label law in 2022 — was determined by political history, lobbying, coalition dynamics, and economic timing. None of these were designed with the goal of creating parallel counterfactual trends. The policy timing is correlated with exactly the forces that drive WTP, because policymakers respond to the same consumer trends and economic conditions that drive WTP.</p>
+<p>In the Module 2 framework: the “deck” here has many dimensions (every force that drives WTP over time), and the “shuffle” (policy timing) was not random — it was systematically determined by variables that also affect the outcome. An unrandom shuffle with a large deck is not going to produce anything close to exchangeability.</p>
+<p><strong>What this means for practice.</strong> This is not an argument that DiD is never useful — it is an argument for intellectual honesty about the assumption that underlies it.</p>
+<ul>
+<li><strong>Name the dimensions explicitly.</strong> For your specific context, list the forces that could plausibly drive your outcome differently in treated and control groups over time. Each one is a dimension along which the parallel trends assumption could fail.</li>
+<li><strong>Ask: why was this policy passed here and not there?</strong> The answer will almost always reveal correlates with the outcome trajectory. Those correlates are the potential violations.</li>
+<li><strong>Treat parallel trends as a maintained assumption, not a verified fact.</strong> No test can establish it; it can only be falsified. Reporting a non-significant event study with two pre-periods as evidence of parallel trends is like reporting one shuffle of a 52-card deck as evidence of randomness — the test had no power to detect the problem.</li>
+<li><strong>Use DiD for what it is: a productive disciplining device, not a causal proof machine.</strong> The DiD framework forces you to be explicit about what the counterfactual is, who the control group is, and what parallel trends means for your context. That discipline has value even when the assumption is imperfect. But the conclusions should be presented as conditional on the assumption — not as established causal facts.</li>
+</ul>
 </section>
 <section id="sec-checklist-did" class="level3">
 <h3 class="anchored" data-anchor-id="sec-checklist-did">Researcher Checklist: Difference-in-Differences</h3>
