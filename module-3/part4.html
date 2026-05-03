@@ -359,7 +359,7 @@ window.Quarto = {
   <li><a href="#sec-med-sensitivity" id="toc-sec-med-sensitivity" class="nav-link" data-scroll-target="#sec-med-sensitivity">Where Imai’s Framework Shines: Sensitivity Analysis</a></li>
   <li><a href="#sec-med-comparison" id="toc-sec-med-comparison" class="nav-link" data-scroll-target="#sec-med-comparison">Comprehensive Bias Comparison Across All Scenarios</a></li>
   <li><a href="#sec-med-2x2" id="toc-sec-med-2x2" class="nav-link" data-scroll-target="#sec-med-2x2">Why Confounding Causes Type I Errors: The 2×2 Design</a></li>
-  <li><a href="#sec-med-discval" id="toc-sec-med-discval" class="nav-link" data-scroll-target="#sec-med-discval">Type I Error from Discriminant Validity Failure</a></li>
+  <li><a href="#sec-med-discval" id="toc-sec-med-discval" class="nav-link" data-scroll-target="#sec-med-discval">Type I Error from a Shared Common Cause</a></li>
   <li><a href="#sec-summary-table" id="toc-sec-summary-table" class="nav-link" data-scroll-target="#sec-summary-table">Summary of Methods</a></li>
   <li><a href="#sec-checklist-part4-m3" id="toc-sec-checklist-part4-m3" class="nav-link" data-scroll-target="#sec-checklist-part4-m3">Researcher Checklist: Causal Mediation Analysis</a></li>
   </ul>
@@ -1066,9 +1066,28 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 </section>
 <section id="sec-med-discval" class="level2">
-<h2 class="anchored" data-anchor-id="sec-med-discval">Type I Error from Discriminant Validity Failure</h2>
-<p>Scenarios 1–3 above assumed that perceived sustainability (M) and WTP (Y) are measuring distinct constructs. But what if they partially reflect the same underlying disposition — “eco-identity” — that a researcher has failed to separate? This is the discriminant validity problem from Module 1 applied directly to mediation.</p>
-<p><strong>The mechanism.</strong> Suppose there is a latent factor η (“eco-identity”) that independently causes both high perceived sustainability ratings and high WTP. The researcher does not measure η — they only see M and Y. When η is active, M and Y are correlated <em>even when there is no causal M → Y path</em>. The mediation model mistakes this construct-induced correlation for evidence of a b-path. <strong>The true ACME = 0</strong>, but OLS reports a large, significant indirect effect.</p>
+<h2 class="anchored" data-anchor-id="sec-med-discval">Type I Error from a Shared Common Cause</h2>
+<p>Scenarios 1–3 above assumed that perceived sustainability (M) and WTP (Y) are measuring distinct constructs and that any confounding between them would come from an identifiable external variable. This section examines what happens when M and Y share a latent common cause — a factor that simultaneously inflates both, producing a spurious M–Y correlation that the b-path picks up as if it were causal.</p>
+<p><strong>The mechanism.</strong> Suppose there is a latent factor η (“eco-identity”) that independently causes both high perceived sustainability ratings and high WTP. The researcher does not measure η — they only see M and Y. When η is active, M and Y are correlated <em>even when there is no causal M → Y path</em>. The mediation model mistakes this shared-cause correlation for evidence of a b-path. <strong>The true ACME = 0</strong>, but OLS reports a large, significant indirect effect.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>This is the same structural problem as Scenario 3
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Scenario 3 showed that an unobserved variable U* causing both M and Y produces a spurious ACME — a Type I error that neither OLS nor ROBMED can eliminate. The simulation in this section is structurally identical. The only difference is the narrative frame: Scenario 3 calls the shared cause a “confounding variable” (prior eco-engagement); here we call it a “shared latent construct” (eco-identity). Both produce the same observed data: the same r(M, Y), the same a-path, the same b-path, the same ACME. With a single measure of M and a single measure of Y, you <strong>cannot distinguish</strong> these three causal structures from the data alone:</p>
+<ol type="1">
+<li>M genuinely causes Y (b ≠ 0) — what mediation is trying to detect</li>
+<li>M and Y share a latent common cause η (construct overlap)</li>
+<li>An unmeasured confounder U* independently causes both M and Y</li>
+</ol>
+<p>All three produce the same pattern of associations. This is not an estimation problem; it is an identification problem.</p>
+</div>
+</div>
 <p>The parameter <code>prop_shared</code> below is the proportion of M’s variance (and Y’s variance) attributable to η. At <code>prop_shared = 0.40</code>, 40% of what drives M — and 40% of what drives Y — is the same latent construct. This produces r(M, Y) ≈ 0.40: a moderate correlation that most researchers would not question. Yet with no true b-path, it generates massive Type I error.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1224,9 +1243,15 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>A moderate r(M, Y) of 0.40 already produces Type I error around 40–50%.</strong> Most researchers would not flag r = 0.40 as a discriminant validity crisis — HTMT would be around 0.40 as well, well below the 0.85 warning threshold. Yet the indirect effect estimate is almost certainly spurious if M and Y share a latent common cause.</p>
-<p><strong>The connection to Module 1 is direct.</strong> If you would not accept two scales as measuring <em>different</em> constructs in a CFA (Module 1, Case 1), you cannot treat their relationship as evidence of a mediation <em>mechanism</em>. The b-path in mediation is the OLS slope from M on Y — if M and Y are both imperfect measures of the same thing (eco-identity, health consciousness, general positivity), that slope estimates the reliability of the shared dimension, not a causal effect.</p>
-<p><strong>Practical implication:</strong> Before running mediation, test HTMT(M, Y). Values above 0.70 warrant explicit theoretical justification for why M and Y measure distinct constructs. Values above 0.85 indicate that any apparent ACME is more parsimoniously explained by discriminant validity failure than by a real mechanism. The Imai sensitivity parameter ρ* will be small in exactly this scenario — run <code>medsens()</code> and treat a ρ* below 0.30 as a red flag that the result is artefactual.</p>
+<p><strong>A moderate r(M, Y) of 0.40 already produces Type I error around 40–50%.</strong> Most researchers would not flag r = 0.40 as a problem — it is often interpreted as evidence that the mediator is correlated with the outcome, which is what the mediation model requires. Yet when that correlation is driven by a shared latent cause rather than a genuine b-path, it is entirely artefactual.</p>
+<p><strong>The b-path in mediation is the OLS slope of Y on M.</strong> If M and Y are both influenced by the same unmeasured source — whether you call it a confounding variable (Scenario 3) or a shared latent construct (this section) — that slope is not estimating a causal effect. It is estimating the strength of the shared influence, whatever its origin. The two framings are mathematically equivalent.</p>
+<p><strong>What HTMT can and cannot do.</strong> HTMT requires <em>multiple items per construct</em>. If M is a single-item measure and Y is a single-item measure, HTMT cannot be computed — there are no within-construct correlations to compare against. Even with multi-item scales, HTMT tests whether the <em>constructs are measured distinctly</em>, not whether their relationship is causal. HTMT being low (&lt; 0.70) is evidence that the constructs do not share a common measurement dimension — a useful check that addresses the construct-overlap story. But it does not rule out an unmeasured third variable that causes both constructs independently, which is the Scenario 3 story. Both problems generate the same statistical bias; neither is diagnosable from the b-path alone.</p>
+<p><strong>Practical implications:</strong></p>
+<ul>
+<li><em>With single-item M and Y</em>: you have no discriminant validity information at all, and the observed r(M, Y) is entirely ambiguous — you cannot separate the causal b-path from any shared-cause bias. The Imai sensitivity parameter ρ* is your only quantitative handle on fragility; small ρ* means the finding collapses under even modest confounding.</li>
+<li><em>With multi-item scales</em>: run CFA and report HTMT(M, Y). Values above 0.70 are a warning; above 0.85, the apparent ACME is more parsimoniously explained by construct overlap than a real mechanism. Even passing HTMT, always run <code>medsens()</code> — good discriminant validity does not eliminate the Scenario 3 confounding problem.</li>
+<li><em>The most reliable remedy is design-based</em>: measure the hypothesised shared cause and include it as a covariate, or use an experimental causal chain design that manipulates M directly (Part 5). Statistical methods can diagnose fragility but cannot recover identification that the design never provided.</li>
+</ul>
 </div>
 </div>
 <hr>
@@ -1363,7 +1388,7 @@ Smaller ρ* = less confounding is needed to explain away the result.</code></pre
 <ul class="task-list">
 <li><label><input type="checkbox"><strong>Is M genuinely intermediate — does it temporally follow X and causally precede Y?</strong> Cross-sectional designs where X, M, and Y are measured simultaneously cannot establish mediation.</label></li>
 <li><label><input type="checkbox"><strong>Can you defend sequential ignorability — no unmeasured M→Y confounders?</strong> Run Imai’s sensitivity analysis and report ρ*: how large would residual confounding need to be to reduce the ACME to zero?</label></li>
-<li><label><input type="checkbox"><strong>Is the mediator measured reliably and discriminantly valid from the outcome?</strong> Measurement error in M attenuates the a-path; HTMT(M, Y) near 1.0 means mediation is picking up measurement contamination, not a causal pathway.</label></li>
+<li><label><input type="checkbox"><strong>Is the mediator measured reliably and discriminantly valid from the outcome?</strong> Measurement error in M attenuates the a-path and biases the b-path. If you have multi-item scales, report HTMT(M, Y): values above 0.70 are a warning that construct overlap may be producing a spurious b-path. With single-item M and Y, HTMT cannot be computed — the observed r(M, Y) is ambiguous between genuine causation and shared latent cause. This is structurally identical to M–Y confounding (Scenario 3); use Imai sensitivity and treat small ρ* as a red flag.</label></li>
 <li><label><input type="checkbox"><strong>Are you distinguishing a significant indirect effect from a proven causal mechanism?</strong> Statistical mediation is consistent with M→Y confounding. The sensitivity analysis quantifies the ambiguity — report it.</label></li>
 </ul>
 </div>
