@@ -112,7 +112,7 @@ This part covers three secondary-data tools for causal identification — instru
 
 ::: {.callout-tip}
 ## Further reading
-Scott Cunningham's *Causal Inference: The Mixtape* provides an excellent, accessible treatment of IV with additional examples and intuition. Chapter 7 is freely available at [mixtape.scunning.com/07-instrumental_variables](https://mixtape.scunning.com/07-instrumental_variables).
+Scott Cunningham's *Causal Inference: The Mixtape* has a fantastic, and more thorough, deep dive into instrumental variables at [mixtape.scunning.com/07-instrumental_variables](https://mixtape.scunning.com/07-instrumental_variables).
 :::
 
 ### The core problem
@@ -262,6 +262,93 @@ tibble(
   theme_mod3()
 ```
 
+### The Danger of a Weak Instrument {#sec-iv-weak}
+
+The simulation above uses a strong instrument — pilot selection has a large, reliable first-stage relationship with label adoption. Real instruments are rarely so clean. A **weak instrument** is one where $Z$ barely predicts $X$: the first-stage $F$ is low, and only a small fraction of the variation in $X$ can be traced to $Z$.
+
+The consequence is severe and somewhat counterintuitive. Recall the Wald estimator:
+
+$$\hat{\beta}_{IV} = \frac{\text{Cov}(Y,\, Z)}{\text{Cov}(X,\, Z)}$$
+
+When the denominator — the first stage — is close to zero, two things go wrong simultaneously. First, the estimator's variance explodes: dividing by a small number amplifies every source of noise, producing confidence intervals that are orders of magnitude wider than OLS. Second, any slight violation of the exclusion restriction gets amplified by the same factor. Even if $Z$ has a tiny direct effect on $Y$ that would normally be negligible — say, the announcement of pilot selection itself slightly changed consumer expectations — a weak denominator turns that small violation into a large bias in the numerator. The result is an IV estimate that can be **more biased than OLS**, not less, accompanied by wide confidence intervals that give a false impression of informative inference.
+
+```{r iv-weak-dgp}
+#| code-summary: "▶ Simulate a weak instrument: low first-stage F leads to biased, imprecise IV"
+set.seed(2024)
+N_wk <- 600
+U_wk <- rnorm(N_wk)
+Z_wk <- rbinom(N_wk, 1, 0.5)
+# Weak compliance: pilot selection barely shifts adoption probability
+X_wk <- rbinom(N_wk, 1, plogis(-1.5 + 0.30 * Z_wk + 1.2 * U_wk))
+Y_wk <- 5.00 + 0.80 * X_wk + 0.60 * U_wk + rnorm(N_wk, 0, 0.50)
+df_wk <- tibble(Y = Y_wk, X = X_wk, Z = Z_wk)
+
+ols_wk <- lm_robust(Y ~ X, data = df_wk)
+iv_wk  <- iv_robust(Y ~ X | Z, data = df_wk)
+fs_wk  <- summary(lm(X ~ Z, data = df_wk))$fstatistic[1]
+cat(sprintf("Weak first-stage F = %.1f  (well below the threshold of 10)\n", fs_wk))
+```
+
+```{r iv-weak-compare}
+#| code-summary: "▶ Strong vs. weak instrument: estimates, SEs, and confidence intervals"
+bind_rows(
+  tibble(Instrument = sprintf("Strong (F = %.0f)", fs_F),
+         Method   = c("OLS", "IV / 2SLS"),
+         Estimate = c(coef(ols_iv)["X"], coef(iv_est)["X"]),
+         SE       = c(ols_iv$std.error["X"], iv_est$std.error["X"]),
+         lo       = c(ols_iv$conf.low["X"],  iv_est$conf.low["X"]),
+         hi       = c(ols_iv$conf.high["X"], iv_est$conf.high["X"])),
+  tibble(Instrument = sprintf("Weak (F = %.0f)", fs_wk),
+         Method   = c("OLS", "IV / 2SLS"),
+         Estimate = c(coef(ols_wk)["X"], coef(iv_wk)["X"]),
+         SE       = c(ols_wk$std.error["X"], iv_wk$std.error["X"]),
+         lo       = c(ols_wk$conf.low["X"],  iv_wk$conf.low["X"]),
+         hi       = c(ols_wk$conf.high["X"], iv_wk$conf.high["X"]))
+) |>
+  mutate(`95% CI` = sprintf("[%.2f, %.2f]", lo, hi),
+         Estimate  = round(Estimate, 3),
+         SE        = round(SE, 3)) |>
+  select(Instrument, Method, Estimate, SE, `95% CI`) |>
+  knitr::kable(caption = "Strong vs. weak instrument: true eco-label effect = $0.80. Weak IV is imprecise and biased.")
+```
+
+```{r iv-weak-plot, fig.height=3.5, fig.width=9}
+#| code-summary: "▶ Visualise strong vs. weak IV: coefficient estimates and CIs"
+bind_rows(
+  tibble(Instrument = factor("Strong instrument", levels = c("Strong instrument","Weak instrument")),
+         Method   = factor(c("OLS","IV / 2SLS"), levels = c("OLS","IV / 2SLS")),
+         Estimate = c(coef(ols_iv)["X"], coef(iv_est)["X"]),
+         lo       = c(ols_iv$conf.low["X"],  iv_est$conf.low["X"]),
+         hi       = c(ols_iv$conf.high["X"], iv_est$conf.high["X"])),
+  tibble(Instrument = factor("Weak instrument", levels = c("Strong instrument","Weak instrument")),
+         Method   = factor(c("OLS","IV / 2SLS"), levels = c("OLS","IV / 2SLS")),
+         Estimate = c(coef(ols_wk)["X"], coef(iv_wk)["X"]),
+         lo       = c(ols_wk$conf.low["X"],  iv_wk$conf.low["X"]),
+         hi       = c(ols_wk$conf.high["X"], iv_wk$conf.high["X"]))
+) |>
+  ggplot(aes(y = Method, x = Estimate, xmin = lo, xmax = hi, colour = Method)) +
+  geom_vline(xintercept = 0.80, linetype = "dashed", colour = "grey40", linewidth = 0.9) +
+  geom_pointrange(size = 0.9, linewidth = 1.1) +
+  facet_wrap(~Instrument) +
+  scale_colour_manual(values = c("OLS" = clr_ctrl, "IV / 2SLS" = clr_eco), guide = "none") +
+  labs(y = NULL, x = "Estimated eco-label effect ($)",
+       title = "Weak instruments: the CI explodes and the estimate may be worse than OLS",
+       subtitle = "Dashed line = true effect ($0.80)  |  Weak IV amplifies noise and exclusion-restriction violations") +
+  theme_mod3()
+```
+
+::: {.callout-warning}
+## Weak instruments and discriminant validity — the same underlying problem
+
+The weak instrument problem has a direct parallel in Module 1's concept of **discriminant validity**. Recall that discriminant validity requires a scale to clearly differentiate its target construct from adjacent constructs. A scale with poor discriminant validity picks up variance from multiple constructs simultaneously — it cannot cleanly isolate what it is supposed to measure.
+
+A weak instrument fails for the same structural reason, but at the causal level. The instrument $Z$ is supposed to isolate a specific pathway — $Z \rightarrow X \rightarrow Y$ — and exclude all others. When $Z$ weakly predicts $X$, it fails to adequately differentiate the intended causal channel from background noise. Just as a scale with a high HTMT ratio cannot clearly separate itself from an adjacent construct, a weak instrument cannot clearly separate the X-pathway from the confounding pathways. The clean variation in $X$ that $Z$ provides is so small that any contamination from unmeasured channels dominates the estimate.
+
+The Wald estimator makes this explicit: whatever tiny amount of $Z$-driven variation exists in $X$, the second stage amplifies it to recover the causal effect — but the amplification is indiscriminate. It magnifies the causal signal and any violation of independence or exclusion equally. A negligible exclusion-restriction violation that would be safely ignorable with a strong instrument becomes the dominant source of bias when the instrument is weak. This mirrors what happens in Module 1 when a scale has poor discriminant validity: contamination from adjacent constructs overwhelms the target signal.
+
+**Practical takeaway:** Test the first stage before trusting your IV estimate, just as you would run HTMT and CFA before trusting scale scores. An F-statistic below 10 is a warning that your instrument does not isolate its intended pathway clearly enough for IV to be informative.
+:::
+
 ::: {.callout-note}
 ## What IV identifies — and what it does not
 
@@ -292,7 +379,7 @@ The RDD estimate is therefore a Wald estimator applied locally: the jump in WTP 
 
 ::: {.callout-tip}
 ## Further reading
-For a thorough treatment of RDD with worked examples, see Chapter 6 of Scott Cunningham's *Causal Inference: The Mixtape*, freely available at [mixtape.scunning.com/06-regression_discontinuity](https://mixtape.scunning.com/06-regression_discontinuity).
+Scott Cunningham's *Causal Inference: The Mixtape* has a fantastic, and more thorough, deep dive into regression discontinuity design at [mixtape.scunning.com/06-regression_discontinuity](https://mixtape.scunning.com/06-regression_discontinuity).
 :::
 
 AlterEco's retailer awards a **"Certified Sustainable"** badge to any coffee product scoring **70 or above** on a third-party environmental audit (scored 0–100). Products at 69 miss the badge; products at 71 get it. Because the audit score has measurement noise, which side of the cutoff a product lands on is *nearly random* near 70. We exploit this near-randomness.
@@ -334,17 +421,16 @@ But if the audit score is *unreliable* — say, reliability $\rho = 0.60$ — th
 
 **2. Corruption of the "as-good-as-random" assumption.** The near-threshold population is only exchangeable when score differences of a few points near the cutoff are attributable to noise, not to genuine differences in true quality. When reliability is low, a two-point gap in observed score could reflect a ten-point gap in true quality. The units on either side of the cutoff are not comparable — the instrument itself has sorted them by its own noise.
 
-**3. Amplification of strategic manipulation.** Units that know the threshold can exploit measurement unreliability to game the score. The Monte Carlo simulation above showed how brands near the cutoff can nudge audit scores across 70. That gaming is *easier* when auditor standards are variable — a second audit or a minor procedural appeal has a higher chance of crossing the threshold when the score has high within-unit variance. Higher noise amplifies the incentive and the feasibility of gaming, making the density test and Type I error problems above even more severe.
+**3. Amplification of strategic manipulation.** Units that know the threshold can exploit measurement unreliability to game the score. The Monte Carlo simulation below shows how brands near the cutoff can nudge audit scores across 70. That gaming is *easier* when auditor standards are variable — a second audit or a minor procedural appeal has a higher chance of crossing the threshold when the score has high within-unit variance. Higher noise amplifies the incentive and the feasibility of gaming, making the density test and Type I error problems shown below even more severe.
 :::
 
 **The Module 1 checklist applied to your running variable.** Before running an RDD, ask the measurement validity questions from Module 1 about the running variable itself:
 
-- **Reliability**: How consistent are scores across repeated assessments of the same unit? If auditors systematically disagree (low inter-rater reliability), the score is noisy, and near-threshold units may not be comparable. Report the inter-rater reliability coefficient.
-- **Construct validity**: Does the score measure what it claims to measure, or does it pick up irrelevant variance? An audit that weights easily observable features (energy-efficient lighting) over harder-to-observe ones (supply chain practices) may not reflect the true environmental footprint — and the cutoff then assigns badges based partly on the wrong construct.
-- **Convergent validity**: If a second, independent measure of the same underlying construct exists, do they agree? Large disagreement between two audit schemes is evidence of low reliability or construct invalidity in at least one of them.
-- **Measurement invariance**: Are audit standards applied consistently across the types of products in your sample? If the same score of 70 means different things for small artisan producers vs. large multinational brands (a form of non-invariance from Module 1, Part 3), the threshold is not a uniform treatment assignment rule.
+- **Content validity**: Does the running variable actually cover the full domain of the construct it is supposed to measure? An environmental audit that focuses heavily on energy use and packaging but ignores supply chain labour practices, land-use impact, or end-of-life product handling has poor content validity. It measures some aspects of sustainability, but not the construct in full. A cutoff on this score is then a cutoff on a narrow slice of the construct, not on sustainability itself — and products that score well on the measured facets while performing poorly on the unmeasured ones receive the badge as if they were comprehensively sustainable.
+- **Construct validity — especially discriminant validity**: Does the running variable pick up primarily its intended construct, or does it also load on adjacent ones? This is the key question. Construct validity requires both convergent validity (the score correlates with other measures of the same construct) and — above all — **discriminant validity** (the score does *not* correlate highly with measures of *different* constructs). In the audit example: if a product's audit score is partially determined by firm size, lobbying capacity, or the brand's pre-existing relationship with the certifying body, the score fails discriminant validity. It conflates environmental quality with political and economic power. Products near the threshold will then differ not just in sustainability — they will differ in size, connections, and resources. The RDD is no longer estimating the effect of crossing a sustainability threshold; it is estimating the effect of crossing a composite threshold that mixes sustainability, size, and influence. This is precisely the Module 1 problem: a scale with a high HTMT ratio to an adjacent construct cannot cleanly isolate its target, and neither can a running variable that picks up adjacent constructs.
+- **Measurement invariance**: Are audit standards applied consistently across the types of products in your sample? If the same score of 70 means different things for small artisan producers vs. large multinational brands (a form of non-invariance from Module 1, Part 3), the threshold is not a uniform treatment assignment rule — it assigns badges based on different underlying quality levels for different types of firms.
 
-The practical implication is uncomfortable but important: **the causal precision of an RDD is bounded above by the reliability of its running variable**, in exactly the same way that the power of a mediation analysis is bounded by the reliability of the mediator (Part 4 of this module). A high-quality regression discontinuity study begins with a high-quality measurement instrument for the running variable — not as a convenience, but as a prerequisite for identification.
+The practical implication is uncomfortable but important: **the causal precision of an RDD is bounded above by the discriminant validity of its running variable**, in exactly the same way that a scale with poor discriminant validity cannot cleanly estimate the effect of its target construct. A high-quality regression discontinuity study begins with a running variable that demonstrably measures what it claims to measure — and demonstrably does not measure what it claims not to measure.
 
 ### Simulating an RDD {#sec-rdd-sim}
 
@@ -565,6 +651,8 @@ sim_rdd_mc |>
 As gaming becomes common, the density of audit scores just above 70 swells and the density just below depletes. The RDD treats this Z-sorted composition as a real treatment effect — **Type I error climbs steeply toward 100%**. The density test eventually picks up the bunching, but it has substantially less power than the spurious RDD finding itself. A researcher who checks `rddensity`, sees a borderline p-value, and proceeds will still produce highly confident false positives.
 
 **Why does Z go undetected?** The audit score is observable; brand reputation is not. Standard covariate balance checks only test *observed* pre-treatment variables. If no measure of brand reputation was collected, the sorting is completely invisible — yet it inflates Type I error just as severely.
+
+**The link to the measurement discussion above.** This is the discriminant validity failure made concrete. A running variable with strong discriminant validity would measure environmental quality and *only* environmental quality — cleanly separable from brand reputation, firm size, and lobbying capacity. When it fails discriminant validity, those adjacent constructs are embedded in the score itself, and near-threshold units differ not just on the measured dimension but on every construct the score inadvertently absorbs. The "covariate balance" check — the RDD's primary diagnostic — then tests the wrong thing: it checks balance on the variables *you measured*, but it cannot detect imbalance on the latent constructs the running variable conflates with its target. An audit score that picks up brand reputation will produce near-threshold imbalance on brand reputation whether or not any active gaming occurred — simply because the score already sorted units by a contaminated composite. Better discriminant validity of the running variable is not just a measurement virtue; it is a precondition for the covariate-balance check to be meaningful at all.
 :::
 
 ### Researcher Checklist: Regression Discontinuity Design {#sec-checklist-rdd}
@@ -592,7 +680,7 @@ The identifying assumption shifts: instead of "units just above and below the th
 
 ::: {.callout-tip}
 ## Further reading
-Chapter 9 of Scott Cunningham's *Causal Inference: The Mixtape* covers DiD in depth, including staggered adoption and the recent critiques of TWFE. Freely available at [mixtape.scunning.com/09-difference_in_differences](https://mixtape.scunning.com/09-difference_in_differences).
+Scott Cunningham's *Causal Inference: The Mixtape* has a fantastic, and more thorough, deep dive into difference-in-differences — including staggered adoption and the recent critiques of TWFE — at [mixtape.scunning.com/09-difference_in_differences](https://mixtape.scunning.com/09-difference_in_differences).
 :::
 
 The Dutch government introduces a **mandatory eco-labelling law** in **2022**. Belgian supermarkets are not subject to it. We observe mean WTP in 15 Dutch stores (treated) and 20 Belgian stores (control).
@@ -1064,11 +1152,13 @@ Think about what DiD is actually claiming: that the *only* thing that made Dutch
 This is not a modest claim. It requires that every dimension of the data-generating process for WTP was either (a) equally shared by Dutch and Belgian stores, or (b) perfectly cancelled by other forces. In reality, the Dutch law was passed because Dutch consumers were already moving in a particular direction. The very political economy that produced the treatment is almost certainly correlated with the trajectory of WTP that would have occurred without the treatment.
 :::
 
-**The connection to Module 2, Part 3.** In Module 2, you saw that random assignment does not guarantee exchangeability — it only makes it probabilistically likely, and even then only when the sample is large relative to the number of dimensions of the outcome construct. The playing cards analogy made this vivid: a 52-card deck requires seven riffle shuffles, not one, to approach randomness, because the number of possible orderings grows exponentially with deck size.
+**The connection to Module 2, Part 2.** In Module 2, Part 2, you saw that even in a carefully controlled laboratory experiment, treatments almost never input only a single latent construct. A persuasive message designed to target environmental concern will simultaneously activate social norms, identity, guilt, and product-quality inferences. A pricing manipulation targeting perceived value also inputs feelings of financial constraint and quality signalling. Module 2, Part 2 demonstrated this through the exclusion restriction: a treatment variable is like an instrument — it is valid only if it operates through a single pathway, and that is extremely difficult to guarantee even under tight experimental control.
 
-DiD is in a harder position than a randomised experiment. At least in a randomised experiment, a *deliberate* randomisation procedure is applied with the specific intent of achieving exchangeability. In DiD, the "treatment assignment" — which country's government happened to pass an eco-label law in 2022 — was determined by political history, lobbying, coalition dynamics, and economic timing. None of these were designed with the goal of creating parallel counterfactual trends. The policy timing is correlated with exactly the forces that drive WTP, because policymakers respond to the same consumer trends and economic conditions that drive WTP.
+Now consider what a natural policy shock does. The Dutch eco-label law was not designed by researchers to isolate a single causal pathway. It was passed by a legislature responding to voter sentiment, industry lobbying, coalition negotiations, and macroeconomic conditions. That single event simultaneously changed the information environment for eco-conscious consumers, the competitive dynamics among Dutch retailers, the media and advertising landscape around sustainability, and the social-norm signal about what kind of purchasing is expected. Each of these changes operates on WTP through a different causal pathway. The probability that a policy shock in a complex, endogenous social system inputs *only one dimension* of the outcome is, practically speaking, zero.
 
-In the Module 2 framework: the "deck" here has many dimensions (every force that drives WTP over time), and the "shuffle" (policy timing) was not random — it was systematically determined by variables that also affect the outcome. An unrandom shuffle with a large deck is not going to produce anything close to exchangeability.
+This is the deepest reason to distrust parallel trends: it is not just that treated and control groups might have had different trends — it is that the treatment itself almost certainly influenced multiple dimensions of WTP simultaneously, and each of those dimensions evolves differently in Dutch and Belgian stores. Parallel trends requires that all of these multi-dimensional influences happened to cancel out perfectly in the counterfactual, leaving only the badge-receipt pathway as the "true" effect. That is an extraordinarily demanding assumption.
+
+**A secondary connection to Module 2, Part 3.** The exchangeability argument from Module 2, Part 3 reinforces the point from a different angle: even deliberate random assignment does not guarantee exchangeability as the number of dimensions of the outcome construct grows. DiD is in a harder position still — the "assignment mechanism" (which government passed a law, and when) was driven by the same forces that shape WTP trajectories, not by a randomisation procedure. The dimensions of WTP and the determinants of policy timing are not independent. An unrandom shuffle with a large deck is not going to produce anything close to exchangeability.
 
 **What this means for practice.** This is not an argument that DiD is never useful — it is an argument for intellectual honesty about the assumption that underlies it.
 
