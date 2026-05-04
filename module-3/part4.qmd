@@ -131,7 +131,226 @@ The **ACME** (Average Causal Mediation Effect) is the product $a \times b$. It h
 **A Module 2 connection:** Mediation analysis is typically conducted on experimental data where X is randomised (as in Scenarios 1–3 here). This randomisation satisfies the *a*-path assumption (no confounding of X→M). But randomisation does *not* satisfy the *b*-path assumption — M is not randomised, so the M→Y step faces all the observational identification challenges of Part 2 of this module. The sensitivity parameter $\rho^*$ below is a direct quantification of how much M–Y confounding would be needed to nullify the ACME, just as power analysis in Module 2 quantified how much sampling error could explain an apparent effect.
 :::
 
+Before we draw the mediation DAG, we need to ask whether the proposed mediator and outcome are actually distinct causal variables.
+
+## Before Drawing the DAG: Mediation or Measurement? {#sec-med-validity}
+
+Causal mediation is a causal claim about a process, not merely a statistical claim about correlated variables. The core assertion is that X changes M, and M changes Y. This requires that M and Y be defined as *causal variables* — entities with well-defined counterfactual states whose relationship involves influence, not just co-occurrence. Pearl (2001) defines mediation in terms of path-specific effects along well-specified causal structures. Imai, Keele, and Yamamoto (2010a) show that causal mediation estimands require assumptions connecting the observed mediator and outcome to counterfactual quantities — assumptions that are not satisfied simply by observing that M and Y are correlated. Imbens (2019) frames the contrast between potential-outcome and directed-acyclic-graph approaches as a question about defining causal effects rather than associations among measured variables.
+
+The practical implication is direct: *mediation requires that the mediator be capable of causing the outcome*. This is different from saying that the mediator and outcome are highly related, or that they are two ways of measuring the same underlying reaction. If perceived sustainability is one item inside an overall product evaluation scale, the association between perceived sustainability and overall product evaluation may be partly mechanical — a product of how the scale was constructed, not of a causal process. In that case, the analysis may be decomposing a measurement scale rather than estimating a causal mechanism.
+
+However, overlap does not automatically invalidate mediation. Many real constructs overlap conceptually and empirically. The key question is whether the proposed M → Y path operates through the part of M that is merely *shared* with Y, or through a part of M that is *distinct* from Y. If the link between M and Y exists only because of shared construct content, the result is measurement overlap, not mechanism. If the distinct part of M plausibly changes a distinct part of Y, mediation may still be possible even when M and Y are moderately correlated.
+
+::: {.callout-note}
+### Overlap is a warning sign, not an automatic veto
+
+A mediator can be related to the outcome. It can even partially overlap with the outcome conceptually. The problem arises when the estimated mediator–outcome relationship is driven primarily by the *shared* part of the constructs. In that case, the "indirect effect" is not evidence of a causal mechanism — it is evidence that the researcher measured similar content twice and called the correlation a pathway.
+:::
+
+::: {.callout-warning}
+### DAGs assume well-defined variables
+
+A simple mediation DAG treats X, M, and Y as construct-level causal variables. It does not know whether "perceived sustainability" and "overall product evaluation" are distinct constructs or overlapping indicators of the same latent evaluation. If M and Y are mostly shared measurement content, the DAG is misspecified. The problem is not solved by drawing arrows.
+:::
+
+### Five cases: from strong mediation to measurement overlap
+
+The cases below illustrate the spectrum from clean causal mediation to pure measurement overlap. Each is shown with a DAG representing the causal claim and a Venn diagram representing conceptual and measurement overlap between M and Y.
+
+---
+
+**Case 1: Clean mediation, low conceptual overlap**
+
+*X* = eco-label exposure · *M* = perceived sustainability · *Y* = actual spending in an incentive-aligned field experiment
+
+```{mermaid}
+graph LR
+  X[Eco-label exposure] --> M[Perceived sustainability]
+  M --> Y[Actual spending]
+  X --> Y
+```
+
+<div style="text-align:center;margin:0.6em 0 1em">
+<svg viewBox="0 0 340 155" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;display:inline-block">
+  <circle cx="105" cy="77" r="63" fill="#4a90d9" fill-opacity="0.18" stroke="#4a90d9" stroke-width="1.8"/>
+  <circle cx="218" cy="77" r="63" fill="#2d6a4f" fill-opacity="0.18" stroke="#2d6a4f" stroke-width="1.8"/>
+  <text x="75" y="72" text-anchor="middle" font-size="11.5" fill="#1a5276" font-family="sans-serif" font-weight="bold">Perceived</text>
+  <text x="75" y="88" text-anchor="middle" font-size="11.5" fill="#1a5276" font-family="sans-serif" font-weight="bold">sustainability</text>
+  <text x="248" y="72" text-anchor="middle" font-size="11.5" fill="#145a32" font-family="sans-serif" font-weight="bold">Actual</text>
+  <text x="248" y="88" text-anchor="middle" font-size="11.5" fill="#145a32" font-family="sans-serif" font-weight="bold">spending</text>
+</svg>
+<p style="font-size:0.83em;color:#666;margin:0.2em 0 0"><em>Low overlap. The mediator and outcome are conceptually distinct. This is the clearest mediation case.</em></p>
+</div>
+
+This is the strongest mediation design. The mediator is a belief or perception; the outcome is real economic behaviour — how much of an endowment the participant actually spends on the product, or whether they choose it when it has a real cost. The two constructs share little conceptual territory, and the b-path is unlikely to be driven by shared item content because spending is not a survey rating.
+
+---
+
+**Case 2: Plausible but weaker mediation, moderate overlap**
+
+*X* = eco-label exposure · *M* = perceived sustainability · *Y* = hypothetical WTP in an online survey
+
+```{mermaid}
+graph LR
+  X[Eco-label exposure] --> M[Perceived sustainability]
+  M --> Y[Hypothetical WTP]
+  X --> Y
+```
+
+<div style="text-align:center;margin:0.6em 0 1em">
+<svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;display:inline-block">
+  <circle cx="115" cy="82" r="67" fill="#4a90d9" fill-opacity="0.18" stroke="#4a90d9" stroke-width="1.8"/>
+  <circle cx="215" cy="82" r="67" fill="#2d6a4f" fill-opacity="0.18" stroke="#2d6a4f" stroke-width="1.8"/>
+  <text x="165" y="75" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif" font-style="italic">general</text>
+  <text x="165" y="88" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif" font-style="italic">favorable</text>
+  <text x="165" y="101" text-anchor="middle" font-size="9.5" fill="#777" font-family="sans-serif" font-style="italic">evaluation</text>
+  <text x="67" y="76" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">Perceived</text>
+  <text x="67" y="90" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">sustainability</text>
+  <text x="263" y="76" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">Hypothetical</text>
+  <text x="263" y="90" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">WTP</text>
+</svg>
+<p style="font-size:0.83em;color:#666;margin:0.2em 0 0"><em>Moderate overlap. Hypothetical WTP may partly reflect the same evaluative response translated into a dollar amount.</em></p>
+</div>
+
+This is the design used throughout this module, and it can still support a mediation claim — but it is weaker than actual spending. In an online survey, hypothetical WTP can function like a continuous version of overall product evaluation: both capture "how much do I like this product." The mediation interpretation is more convincing when WTP is incentive-compatible, consequential, or tied to a real choice. We use WTP below because it is easy to simulate; in a real design, a behavioural spending or choice outcome would give the mediation claim stronger discriminant validity.
+
+---
+
+**Case 3: Mostly measurement overlap, high conceptual overlap**
+
+*X* = eco-label exposure · *M* = perceived sustainability · *Y* = overall product evaluation (good, high quality, responsible, eco-friendly, sustainable — Likert items)
+
+```{mermaid}
+graph LR
+  X[Eco-label exposure] --> M[Perceived sustainability]
+  M -. questionable .-> Y[Overall product evaluation]
+  X --> Y
+```
+
+<div style="text-align:center;margin:0.6em 0 1em">
+<svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;display:inline-block">
+  <circle cx="128" cy="82" r="67" fill="#4a90d9" fill-opacity="0.18" stroke="#4a90d9" stroke-width="1.8"/>
+  <circle cx="202" cy="82" r="67" fill="#2d6a4f" fill-opacity="0.18" stroke="#2d6a4f" stroke-width="1.8"/>
+  <text x="165" y="72" text-anchor="middle" font-size="9.5" fill="#888" font-family="sans-serif" font-style="italic">green /</text>
+  <text x="165" y="85" text-anchor="middle" font-size="9.5" fill="#888" font-family="sans-serif" font-style="italic">favorable</text>
+  <text x="165" y="98" text-anchor="middle" font-size="9.5" fill="#888" font-family="sans-serif" font-style="italic">evaluation</text>
+  <text x="72" y="76" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">Perceived</text>
+  <text x="72" y="90" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">sustainability</text>
+  <text x="258" y="76" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">Overall product</text>
+  <text x="258" y="90" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">evaluation</text>
+</svg>
+<p style="font-size:0.83em;color:#666;margin:0.2em 0 0"><em>High overlap. The M → Y association may reflect shared item content rather than a causal mechanism.</em></p>
+</div>
+
+If the M → Y link is mainly driven by the shared green evaluative content, this is measurement overlap rather than mediation. The eco-label changes a general green evaluation factor, and both perceived sustainability and overall product evaluation are indicators of that factor — not cause and effect. The dashed arrow signals that the b-path is questionable, not established.
+
+---
+
+**Case 4: Not mediation — M is inside Y**
+
+*X* = eco-label exposure · *M* = perceived sustainability · *Y* = a sustainability index that includes perceived sustainability as one of its component items
+
+```{mermaid}
+graph LR
+  X[Eco-label exposure] --> M[Perceived sustainability]
+  M -. not causal .-> Y[Sustainability index]
+  X --> Y
+```
+
+<div style="text-align:center;margin:0.6em 0 1em">
+<svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;display:inline-block">
+  <circle cx="172" cy="82" r="72" fill="#2d6a4f" fill-opacity="0.15" stroke="#2d6a4f" stroke-width="1.8"/>
+  <circle cx="148" cy="72" r="33" fill="#4a90d9" fill-opacity="0.30" stroke="#4a90d9" stroke-width="1.8"/>
+  <text x="148" y="68" text-anchor="middle" font-size="10.5" fill="#1a5276" font-family="sans-serif" font-weight="bold">Perceived</text>
+  <text x="148" y="82" text-anchor="middle" font-size="10.5" fill="#1a5276" font-family="sans-serif" font-weight="bold">sustainability</text>
+  <text x="210" y="103" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">Sustainability</text>
+  <text x="210" y="118" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">index</text>
+  <text x="207" y="46" text-anchor="middle" font-size="9.5" fill="#888" font-family="sans-serif" font-style="italic">M is part of Y</text>
+</svg>
+<p style="font-size:0.83em;color:#666;margin:0.2em 0 0"><em>Sub-measure case. The mediator is literally part of the outcome measure.</em></p>
+</div>
+
+This is not a mediation design. The b-path is partly mechanical because Y includes M as an input — M will always predict Y regardless of any causal relationship. The indirect effect cannot be interpreted as evidence that perceived sustainability caused the index outcome. It reflects, at least in part, how the index was constructed.
+
+---
+
+**Case 5: Overlap exists, but mediation may still be possible**
+
+*X* = eco-label exposure · *M* = perceived sustainability · *Y* = overall product evaluation — where the researcher theorises that the *non-overlapping* component of M (a distinct environmental belief) affects a *non-overlapping* component of Y (perceived durability, expected social approval, or anticipated brand reliability)
+
+```{mermaid}
+graph LR
+  X[Eco-label exposure] --> M[Perceived sustainability]
+  M --> Y[Distinct product judgment]
+  X --> Y
+```
+
+<div style="text-align:center;margin:0.6em 0 1em">
+<svg viewBox="0 0 370 185" xmlns="http://www.w3.org/2000/svg" style="max-width:400px;display:inline-block">
+  <defs>
+    <marker id="arrowCase5" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#e63946"/>
+    </marker>
+  </defs>
+  <circle cx="130" cy="88" r="72" fill="#4a90d9" fill-opacity="0.18" stroke="#4a90d9" stroke-width="1.8"/>
+  <circle cx="228" cy="88" r="72" fill="#2d6a4f" fill-opacity="0.18" stroke="#2d6a4f" stroke-width="1.8"/>
+  <text x="179" y="82" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif" font-style="italic">green eval.</text>
+  <text x="179" y="94" text-anchor="middle" font-size="9" fill="#999" font-family="sans-serif" font-style="italic">overlap</text>
+  <text x="108" y="22" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">Perceived</text>
+  <text x="108" y="36" text-anchor="middle" font-size="11" fill="#1a5276" font-family="sans-serif" font-weight="bold">sustainability</text>
+  <text x="248" y="22" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">Overall product</text>
+  <text x="248" y="36" text-anchor="middle" font-size="11" fill="#145a32" font-family="sans-serif" font-weight="bold">evaluation</text>
+  <text x="72" y="85" text-anchor="middle" font-size="9" fill="#1a5276" font-family="sans-serif">distinct</text>
+  <text x="72" y="97" text-anchor="middle" font-size="9" fill="#1a5276" font-family="sans-serif">sustainability</text>
+  <text x="72" y="109" text-anchor="middle" font-size="9" fill="#1a5276" font-family="sans-serif">belief</text>
+  <text x="286" y="85" text-anchor="middle" font-size="9" fill="#145a32" font-family="sans-serif">distinct</text>
+  <text x="286" y="97" text-anchor="middle" font-size="9" fill="#145a32" font-family="sans-serif">product</text>
+  <text x="286" y="109" text-anchor="middle" font-size="9" fill="#145a32" font-family="sans-serif">judgment</text>
+  <line x1="95" y1="130" x2="263" y2="130" stroke="#e63946" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#arrowCase5)"/>
+  <text x="179" y="147" text-anchor="middle" font-size="9" fill="#e63946" font-family="sans-serif">causal path through distinct parts</text>
+</svg>
+<p style="font-size:0.83em;color:#666;margin:0.2em 0 0"><em>Overlap does not automatically rule out mediation. The causal claim is strongest when the M → Y path runs through the distinct part of M, not the shared region.</em></p>
+</div>
+
+This is the key conceptual point. If perceived sustainability predicts overall product evaluation *only* because both contain the same "green evaluation" content, that is measurement overlap. But if the *distinct* part of perceived sustainability — the belief that this product has genuinely lower environmental impact — changes a distinct downstream judgment such as perceived durability or expected social approval, mediation may still be defensible. The researcher must justify this theoretically and, where possible, demonstrate it through careful measurement design.
+
+---
+
+The Venn diagrams above represent conceptual and measurement overlap. The DAGs represent causal claims. A valid mediation argument requires both: a plausible causal DAG, and enough discriminant validity that M and Y are not merely duplicate measures of the same construct.
+
+| Case | Conceptual overlap | DAG interpretation | Venn interpretation | Verdict |
+|---|---|---|---|---|
+| Perceived sustainability → actual spending | Low | Plausible mediation | Mostly separate constructs | Strong mediation case |
+| Perceived sustainability → hypothetical WTP | Moderate | Plausible but weaker | Some shared evaluation content | Use caution; incentive-align if possible |
+| Perceived sustainability → overall product evaluation | High | Questionable M → Y path | Large shared construct region | Often measurement overlap |
+| Perceived sustainability as item inside sustainability index | Complete / sub-measure | Invalid as mediation | M contained inside Y | Not mediation |
+| Distinct part of M affects distinct part of Y | Partial | Possible mediation | Arrow from non-overlapping M to non-overlapping Y | Defensible with theory and design |
+
+**Before estimating ACME, ask:**
+
+- [ ] Is the mediator a cause of the outcome, or is it part of how the outcome is measured?
+- [ ] Does the M → Y relationship come from shared item wording, shared scale content, or shared latent meaning?
+- [ ] What part of M is supposed to change Y — the shared part or the distinct part?
+- [ ] Would a CFA or discriminant validity test separate M and Y as distinct constructs?
+- [ ] Could you remove the mediator item from the outcome scale and still have a meaningful outcome?
+- [ ] Is the outcome behavioural, incentive-aligned, delayed, or otherwise downstream from M?
+- [ ] Does the temporal ordering clearly support X → M → Y?
+- [ ] Would the mediation claim still make sense if M and Y were measured with entirely different methods?
+
+In the eco-label example, perceived sustainability is a strong candidate mediator for actual spending, real product choice, or later repeat purchase — those outcomes are downstream, behaviourally distinct, and share no item content with the mediator. It is a weaker mediator for hypothetical WTP because survey WTP can function as a continuous product evaluation. It is weakest when the outcome is another immediate survey evaluation, and invalid when the mediator is literally included in the outcome scale. The central question is always whether the estimated indirect effect reflects a causal process or shared measurement content.
+
+::: {.callout-note collapse="true"}
+## References
+
+- Pearl, J. (2001). Direct and indirect effects. *Proceedings of the Seventeenth Conference on Uncertainty in Artificial Intelligence*, 411–420.
+- Imai, K., Keele, L., & Yamamoto, T. (2010a). Identification, inference and sensitivity analysis for causal mediation effects. *Statistical Science*, 25(1), 51–71.
+- Imai, K., Keele, L., & Tingley, D. (2010b). A general approach to causal mediation analysis. *Psychological Methods*, 15(4), 309–334.
+- Imbens, G. W. (2019). Potential outcome and directed acyclic graph approaches to causality: Relevance for empirical practice in economics. *NBER Working Paper No. 26104*.
+:::
+
 ## Causal Structures {#sec-med-dags}
+
+Now assume that X, M, and Y have passed the conceptual distinctness check above. Under that assumption, we can represent the mediation claim with a DAG.
 
 ```{r med-dag-scenarios, fig.height=4.5, fig.width=10, echo=FALSE}
 #| code-summary: "▶ DAGs: true mediation (Scenarios 1 & 2) vs. confounded (Scenario 3)"
@@ -309,6 +528,12 @@ tibble(
     align     = c("l","l","r","c","r","c")
   )
 ```
+
+::: {.callout-note}
+## Interpreting Scenario 1
+
+All three methods recover the true ACME accurately here because the data meet all modelling assumptions. This interpretation depends on treating perceived sustainability and WTP as distinct enough constructs. If WTP is functioning as a disguised product evaluation scale — a continuous "how much do I like this product" rating in dollar form — the mediation interpretation is weaker, because the b-path may be driven partly by shared evaluative content rather than a genuine causal process. A behavioural outcome (actual spending, real choice) would give the mediation claim stronger discriminant validity. We use WTP throughout because it is easy to simulate continuously; in a real design, consider whether a more behaviourally distinct outcome is feasible.
+:::
 
 ## Scenario 2: Large Outliers — ROBMED's Advantage {#sec-med-outliers}
 
