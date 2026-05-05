@@ -73,7 +73,7 @@ This tutorial covers four ideas:
 
 - **Part 1 — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
 
-- **Part 2 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When this happens, your "experiment" is really a quasi-experiment — and the single coefficient on treatment conflates several distinct causal pathways.
+- **Part 2 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.
 
 - **Part 3 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
 

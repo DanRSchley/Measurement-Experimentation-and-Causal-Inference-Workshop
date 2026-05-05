@@ -59,11 +59,11 @@ The exclusion restriction is the assumption that X affects Y through **exactly o
 | Statistics | **Omitted variable bias** — a variable that belongs in the model is left out |
 | Causal inference (DAGs) | **Backdoor path** — a non-causal association flows through an unmeasured variable |
 
-All of these are the same problem viewed through different disciplinary lenses: **there is more than one latent link between X and Y**.
+These terms are related family resemblances, not exact synonyms — they arose in different empirical traditions to describe structurally distinct scenarios. The coffee example in this section is closest to **stimulus confounding** or **treatment-bundle ambiguity**: the manipulation packages multiple causal signals into a single condition label, creating mechanism ambiguity even when assignment is random. Classic backdoor confounding and endogeneity typically involve non-random exposure to a treatment, not a bundled randomized manipulation. What all share is the common diagnosis: **there is more than one latent link between X and Y**.
 
-If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated "treatment effect" is a weighted mixture of several distinct causal effects, not a single clean estimate of any one of them.
+If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated "treatment effect" is a weighted mixture of several distinct causal effects, not a clean estimate of any one mechanism. **Note that this is a problem of interpretation, not identification.** When assignment is random, the coefficient on the treatment dummy still identifies the average causal effect of the full bundle. What cannot be recovered from that single coefficient is which component of the bundle generated the effect.
 
-**This is the fundamental identification problem in causal inference**, and it is the experimental analogue of discriminant invalidity in measurement. In Module 1 you saw that **measured Y can measure too much**. Here you will see that **manipulated X can inject too much**.
+**This is the mechanism ambiguity problem in experimentation**, and it is the direct analogue of discriminant invalidity in measurement. In Module 1 you saw that **measured Y can measure too much**. Here you will see that **manipulated X can inject too much**.
 :::
 
 ## Simulating a Confounded Study
@@ -209,9 +209,9 @@ ggplot(path_long, aes(x = n_eco_traits, y = contribution, color = pathway)) +
 
 The plot shows what a researcher cannot see from the t-test alone. **Path A** — the true eco-certification effect — varies by participant: participants with many eco-responsive traits gain more from the label, while those with few traits gain little. **Path B** — the premium design effect — is a flat $`r avg_B` lift for everyone in the eco-label condition, regardless of any trait.
 
-When the researcher reports the overall WTP difference of $`r naive`, they attribute the entire effect to eco-certification. But roughly $`r avg_B` of that is driven by the premium package design — a confound that was never randomized away because it was never measured. The true average eco-label effect across participants is only $`r avg_A`, not $`r naive`.
+When the researcher reports the overall WTP difference of $`r naive`, they attribute the entire effect to eco-certification. But roughly $`r avg_B` of that is driven by the premium package design — a signal that was perfectly confounded with the eco-label because it was never measured or separated. The eco-certification-specific effect across participants is only $`r avg_A`, not $`r naive`.
 
-The exclusion restriction failed: **the manipulation injected two latent signals into a single condition dummy**, and the treatment coefficient absorbs both.
+**A compound manipulation does not destroy causal identification.** Because assignment was random, the treatment coefficient does estimate the causal effect of the package participants actually saw — eco-label plus premium design. What fails is the narrower interpretation: we cannot say from this coefficient alone whether the effect came from eco-certification, the premium packaging, demand cues, perceived quality, or their interaction. The coefficient is a valid **bundle effect** estimate. It is not a valid estimate of any single mechanism within that bundle.
 
 ## What Participants Say: Template-Based Open-Ended Responses
 

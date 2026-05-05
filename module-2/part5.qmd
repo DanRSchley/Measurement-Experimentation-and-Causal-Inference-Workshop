@@ -453,13 +453,14 @@ When ICC is low:
 
 Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
 
-The tradeoff is well known: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), and **fatigue or practice effects**. These are most severe when:
+The tradeoff is real: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), **order effects** (earlier conditions shift baseline responding), and **fatigue or practice effects** all threaten the validity of within-person contrasts. These threats are most severe when:
 
-- The treatment induces lasting attitude change (hard to reverse)
-- The conditions are highly transparent (easy to guess the hypothesis)
-- The outcome requires learning or practice (performance tasks)
+- The treatment induces lasting attitude change (e.g., persuasion studies, value activation)
+- The conditions are highly transparent and the hypothesis is easy to infer
+- The outcome requires skill or memory that improves with practice
+- Conditions cannot be effectively counterbalanced (e.g., one condition is a natural "first" experience)
 
-For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient.
+For short perceptual or preference tasks — including most WTP and product evaluation paradigms — within-participant designs are often feasible and substantially more efficient, provided conditions are counterbalanced and order effects are checked. Choose deliberately based on the construct; do not adopt within-participant designs as a default efficiency gain without verifying that the tradeoffs are acceptable for your specific question.
 
 
 ## Metastudies: Pooling Power Across Multiple Factors
@@ -604,6 +605,18 @@ ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
 The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
 
 **The connection to Section 3:** a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
+
+::: {.callout-note}
+## Structural designs: what each buys and what each costs
+
+Structural designs buy efficiency by moving variance from the error term into the design itself. But each changes the estimand and introduces its own assumptions:
+
+- **Within-person designs** remove stable between-person confounding for within-person contrasts — but introduce carryover, order, fatigue, practice, and demand risks. The efficiency gain is largest when between-person ICC is high and conditions are easy to counterbalance; it may be erased or reversed when conditions are transparent or treatments have lasting effects.
+- **Latin squares** achieve approximate balance on main effects with fewer cells than a full factorial — but standard unreplicated Latin squares cannot estimate interactions, and if interactions are present, the main-effect estimates are uninterpretable. Use a Latin Square only when interaction effects are theoretically implausible or unimportant.
+- **Metastudies** improve power for the **average effect across sampled scenarios**, not for any individual microstudy. The individual microstudy is necessarily underpowered. But testing the average effect is typically the right estimand when a hypothesis is supposed to hold generally — which is precisely what most social-science hypotheses claim.
+
+No single design dominates all others. Choose based on which threats are most dangerous for your specific construct and question.
+:::
 
 ---
 

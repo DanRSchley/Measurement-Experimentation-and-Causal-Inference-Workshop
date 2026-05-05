@@ -31,14 +31,14 @@ set.seed(2025)
 
 Part 3 established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
 
-This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 3, these are not fixable by running more participants. They are structural. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions.
+This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 3, these are not fixable by random assignment alone — the selection process operates outside the researcher's randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike Part 3 failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.
 
 The distinction is worth making precise:
 
 | Part 3 failure | Part 4 failure |
 |---|---|
 | Random assignment is executed, but the sample is too small to achieve exchangeability by chance | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
-| Fixable with more data, blocked randomization, or structural designs (Part 5) | Not fixable by better randomization — the selection process operates outside the researcher's randomization step |
+| Fixable with more data, blocked randomization, or structural designs (Part 5) | Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions |
 | Creates imbalance between conditions on pre-existing covariates | Creates a sample that misrepresents the intended population or analysis set |
 
 ::: {.callout-important}
