@@ -443,6 +443,25 @@ window.Quarto = {
 <p><strong>Never assume that random assignment has achieved actual randomization.</strong> Random assignment is a <em>procedure</em> — clicking “Randomize” in Qualtrics, running <code>sample()</code> in R. What that procedure is supposed to deliver is <strong>exchangeability</strong> — the latent property that treatment and control groups are interchangeable with respect to every potential cause of Y, so that any difference in outcomes can be attributed solely to the treatment. The procedure does not guarantee the property. Whether it does depends on (1) how complex your outcome variable Y is and (2) how many participants you have. This section develops the gap between the two and equips you to evaluate — not assume — whether exchangeability was achieved.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Three failure modes that can produce imbalanced groups
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Not all imbalance has the same cause or the same remedy:</p>
+<ol type="1">
+<li><strong>A flawed assignment mechanism</strong> — the procedure itself was not truly random (e.g., participants self-selected into conditions, blocks were allocated predictably, or the algorithm had a bug). The imbalance is structural; better analysis cannot fix a broken procedure.</li>
+<li><strong>A valid randomization with unlucky realized imbalance</strong> — the procedure was correct, but any finite-sample draw will produce some imbalance by chance. The diagnostic reflects the <em>realized sample</em>, not the quality of the procedure. Failed balance is not the same thing as failed randomization.</li>
+<li><strong>Latent imbalance on unmeasured dimensions</strong> — measured covariates balance out, but unobserved antecedents of Y do not. This is undetectable from the balance table and is the primary threat this section addresses.</li>
+</ol>
+<p>The right language for cases 2 and 3 is “realized imbalance” or “failed balance diagnostic” — not “randomization failed.” A valid randomization can produce an unlucky balance outcome in a finite sample. The question is always whether that imbalance is small enough, relative to the covariate’s effect on Y, that the treatment contrast remains substantively credible.</p>
+</div>
+</div>
 <section id="the-measurement-analogy-observable-vs.-latent" class="level2">
 <h2 class="anchored" data-anchor-id="the-measurement-analogy-observable-vs.-latent">The Measurement Analogy: Observable vs.&nbsp;Latent</h2>
 <p>In Module 1, we introduced a distinction that runs through all of empirical research:</p>
@@ -1524,7 +1543,7 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>Top plot — P(achieving orthogonality):</strong> Scenario A (ρ = 0.75, tiny uniform betas) is the <em>easiest</em> case. The very strong correlation among dimensions collapses the effective number of independent checks, so a smaller N achieves the 95% target. This is the helpful force at work. Scenario B (ρ = 0.35, large varied betas) offers little advantage over independent dimensions on this metric.</p>
 <p><strong>Middle plot — bias when randomization fails:</strong> This is where the scenarios diverge dramatically. When Scenario A fails, it fails on a highly clustered bloc with tiny β values — cumulative bias remains small. When Scenario B fails, it fails on moderately correlated dimensions each with large independent β effects — the bias distribution has a fat right tail, with individual experiments easily incurring &gt; 1.0 SD of cumulative confound. Notice how much wider the Scenario B distribution is compared to A.</p>
-<p><strong>Bottom plot — Type-1 error rate (given orthogonality failed):</strong> Conditional on at least one covariate being imbalanced (|r| &gt; 0.10), Scenario B’s large betas turn even small residual correlations into substantial bias — false positive rates rise well above 5% <strong>and continue rising as N increases</strong>. Scenario A stays near 5% because its tiny betas keep the omitted-variable bias small even when imbalance exists.</p>
+<p><strong>Bottom plot — Type-1 error rate (given orthogonality failed):</strong> Conditional on at least one covariate being imbalanced (|r| &gt; 0.10), Scenario B’s large betas turn even small residual correlations into substantial bias — false positive rates rise well above 5% <strong>and continue rising as N increases</strong>. Scenario A stays near 5% because its tiny betas keep the omitted-variable bias small even when imbalance exists. This plot conditions on experiments with bad <em>realized</em> balance — it is a stylized sensitivity demonstration showing how dangerous residual imbalance can become when covariates strongly predict Y. It is not the unconditional false-positive rate of a properly randomized design, which remains near 5% regardless of N.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1980,11 +1999,16 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Diagnostic</th>
-<th>Good randomization</th>
-<th>Potential problem</th>
+<th>Well-balanced realized sample</th>
+<th>Potential realized imbalance</th>
 </tr>
 </thead>
 <tbody>
@@ -2010,7 +2034,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>These checks only evaluate the <strong>observable</strong> dimensions you measured. The latent dimensions — all the antecedents of Y you did not think to measure — remain unverified. The exchangeability assumption is always partly an act of faith, and that faith becomes more tenuous the broader and more complex Y is.</p>
+<p>These diagnostics provide <strong>evidence about the realized sample</strong> — they are not certification that the randomization procedure did or did not work. A balance table with all p &gt; .05 shows you got a well-balanced draw from your randomization procedure; it does not prove the procedure was valid, nor does a failed balance check prove it was not. The deeper issue is that these checks only evaluate the <strong>observable</strong> dimensions you measured. The latent dimensions — all the antecedents of Y you did not think to measure — remain unverified regardless of what the balance table says.</p>
 </div>
 </div>
 <hr>

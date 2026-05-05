@@ -437,9 +437,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>All of these are the same problem viewed through different disciplinary lenses: <strong>there is more than one latent link between X and Y</strong>.</p>
-<p>If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated “treatment effect” is a weighted mixture of several distinct causal effects, not a single clean estimate of any one of them.</p>
-<p><strong>This is the fundamental identification problem in causal inference</strong>, and it is the experimental analogue of discriminant invalidity in measurement. In Module 1 you saw that <strong>measured Y can measure too much</strong>. Here you will see that <strong>manipulated X can inject too much</strong>.</p>
+<p>These terms are related family resemblances, not exact synonyms — they arose in different empirical traditions to describe structurally distinct scenarios. The coffee example in this section is closest to <strong>stimulus confounding</strong> or <strong>treatment-bundle ambiguity</strong>: the manipulation packages multiple causal signals into a single condition label, creating mechanism ambiguity even when assignment is random. Classic backdoor confounding and endogeneity typically involve non-random exposure to a treatment, not a bundled randomized manipulation. What all share is the common diagnosis: <strong>there is more than one latent link between X and Y</strong>.</p>
+<p>If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated “treatment effect” is a weighted mixture of several distinct causal effects, not a clean estimate of any one mechanism. <strong>Note that this is a problem of interpretation, not identification.</strong> When assignment is random, the coefficient on the treatment dummy still identifies the average causal effect of the full bundle. What cannot be recovered from that single coefficient is which component of the bundle generated the effect.</p>
+<p><strong>This is the mechanism ambiguity problem in experimentation</strong>, and it is the direct analogue of discriminant invalidity in measurement. In Module 1 you saw that <strong>measured Y can measure too much</strong>. Here you will see that <strong>manipulated X can inject too much</strong>.</p>
 </div>
 </div>
 </section>
@@ -615,8 +615,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The plot shows what a researcher cannot see from the t-test alone. <strong>Path A</strong> — the true eco-certification effect — varies by participant: participants with many eco-responsive traits gain more from the label, while those with few traits gain little. <strong>Path B</strong> — the premium design effect — is a flat $0.7 lift for everyone in the eco-label condition, regardless of any trait.</p>
-<p>When the researcher reports the overall WTP difference of $2.65, they attribute the entire effect to eco-certification. But roughly $0.7 of that is driven by the premium package design — a confound that was never randomized away because it was never measured. The true average eco-label effect across participants is only $1.88, not $2.65.</p>
-<p>The exclusion restriction failed: <strong>the manipulation injected two latent signals into a single condition dummy</strong>, and the treatment coefficient absorbs both.</p>
+<p>When the researcher reports the overall WTP difference of $2.65, they attribute the entire effect to eco-certification. But roughly $0.7 of that is driven by the premium package design — a signal that was perfectly confounded with the eco-label because it was never measured or separated. The eco-certification-specific effect across participants is only $1.88, not $2.65.</p>
+<p><strong>A compound manipulation does not destroy causal identification.</strong> Because assignment was random, the treatment coefficient does estimate the causal effect of the package participants actually saw — eco-label plus premium design. What fails is the narrower interpretation: we cannot say from this coefficient alone whether the effect came from eco-certification, the premium packaging, demand cues, perceived quality, or their interaction. The coefficient is a valid <strong>bundle effect</strong> estimate. It is not a valid estimate of any single mechanism within that bundle.</p>
 </section>
 <section id="what-participants-say-template-based-open-ended-responses" class="level2">
 <h2 class="anchored" data-anchor-id="what-participants-say-template-based-open-ended-responses">What Participants Say: Template-Based Open-Ended Responses</h2>
