@@ -142,22 +142,77 @@ Use the controls below to design your own Latin Square experiment. Set the numbe
 //| echo: false
 //| code-fold: false
 
-viewof ls_config = Inputs.form({
-  n_fac:      Inputs.range([2, 5], {step: 1, value: 3,
-                label: "Number of factors to study"}),
-  a_name:     Inputs.text({label: "Factor A — name",   value: "Eco badge",    width: 160}),
-  a_levels:   Inputs.select([2, 3, 4], {label: "Factor A — levels", value: 3}),
-  b_name:     Inputs.text({label: "Factor B — name",   value: "Price level",  width: 160}),
-  b_levels:   Inputs.select([2, 3, 4], {label: "Factor B — levels", value: 3}),
-  c_name:     Inputs.text({label: "Factor C — name",   value: "Framing",      width: 160}),
-  c_levels:   Inputs.select([2, 3, 4], {label: "Factor C — levels", value: 3}),
-  d_name:     Inputs.text({label: "Factor D — name",   value: "Source cred.", width: 160}),
-  d_levels:   Inputs.select([2, 3, 4], {label: "Factor D — levels", value: 2}),
-  e_name:     Inputs.text({label: "Factor E — name",   value: "Ad copy",      width: 160}),
-  e_levels:   Inputs.select([2, 3, 4], {label: "Factor E — levels", value: 2}),
-  n_per_cell: Inputs.range([1, 30], {step: 1, value: 5,
-                label: "Participants per cell"}),
-})
+viewof ls_config = {
+  // ── individual inputs ─────────────────────────────────────────
+  const i_nfac  = Inputs.range([2, 5], {step: 1, value: 3,
+                    label: "Number of factors to study"})
+  const i_aname = Inputs.text({ label: "Factor A — name",   value: "Eco badge",    width: 160 })
+  const i_alev  = Inputs.select([2, 3, 4], { label: "Factor A — levels", value: 3 })
+  const i_bname = Inputs.text({ label: "Factor B — name",   value: "Price level",  width: 160 })
+  const i_blev  = Inputs.select([2, 3, 4], { label: "Factor B — levels", value: 3 })
+  const i_cname = Inputs.text({ label: "Factor C — name",   value: "Framing",      width: 160 })
+  const i_clev  = Inputs.select([2, 3, 4], { label: "Factor C — levels", value: 3 })
+  const i_dname = Inputs.text({ label: "Factor D — name",   value: "Source cred.", width: 160 })
+  const i_dlev  = Inputs.select([2, 3, 4], { label: "Factor D — levels", value: 2 })
+  const i_ename = Inputs.text({ label: "Factor E — name",   value: "Ad copy",      width: 160 })
+  const i_elev  = Inputs.select([2, 3, 4], { label: "Factor E — levels", value: 2 })
+  const i_npc   = Inputs.range([1, 30], { step: 1, value: 5,
+                    label: "Participants per cell" })
+
+  // helper: put name + levels side-by-side in one row
+  const frow = (...inputs) =>
+    html`<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;margin-bottom:2px">
+      ${inputs}
+    </div>`
+
+  // ── row wrappers for factors C / D / E (shown conditionally) ─
+  const rowC = frow(i_cname, i_clev)
+  const rowD = frow(i_dname, i_dlev)
+  const rowE = frow(i_ename, i_elev)
+
+  // ── assembled container ───────────────────────────────────────
+  const form = html`<div>
+    ${i_nfac}
+    ${frow(i_aname, i_alev)}
+    ${frow(i_bname, i_blev)}
+    ${rowC}
+    ${rowD}
+    ${rowE}
+    ${i_npc}
+  </div>`
+
+  // ── show C when nf≥3, D when nf≥4, E when nf≥5 ───────────────
+  const syncVis = () => {
+    const nf = i_nfac.value
+    rowC.style.display = nf >= 3 ? "" : "none"
+    rowD.style.display = nf >= 4 ? "" : "none"
+    rowE.style.display = nf >= 5 ? "" : "none"
+  }
+
+  // ── emit combined value to OJS runtime ───────────────────────
+  const emit = () => {
+    form.value = {
+      n_fac:      i_nfac.value,
+      a_name:     i_aname.value,  a_levels: i_alev.value,
+      b_name:     i_bname.value,  b_levels: i_blev.value,
+      c_name:     i_cname.value,  c_levels: i_clev.value,
+      d_name:     i_dname.value,  d_levels: i_dlev.value,
+      e_name:     i_ename.value,  e_levels: i_elev.value,
+      n_per_cell: i_npc.value
+    }
+    form.dispatchEvent(new CustomEvent("input"))
+  }
+
+  // ── wire all inputs ───────────────────────────────────────────
+  for (const inp of [i_nfac, i_aname, i_alev, i_bname, i_blev,
+                     i_cname, i_clev, i_dname, i_dlev, i_ename, i_elev, i_npc]) {
+    inp.addEventListener("input", () => { syncVis(); emit() })
+  }
+
+  syncVis()  // apply initial visibility (C visible, D/E hidden)
+  emit()     // publish initial value
+  return form
+}
 ```
 
 ```{ojs}
