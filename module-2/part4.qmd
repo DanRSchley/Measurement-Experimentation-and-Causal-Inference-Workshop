@@ -1,5 +1,5 @@
 ---
-title: "Part 4: Selection Effects"
+title: "Part 4: The Exclusion Restriction"
 ---
 
 ```{r setup, include=FALSE}
@@ -15,686 +15,1202 @@ dir.create("figs", recursive = TRUE, showWarnings = FALSE)
 
 ```{r packages}
 #| code-summary: "▶ Load required packages"
+# install.packages(c("tidyverse","ggplot2","knitr","scales","patchwork"))
+
 library(tidyverse)
 library(ggplot2)
 library(knitr)
 library(scales)
 library(patchwork)
+if (!requireNamespace("lavaan", quietly = TRUE)) install.packages("lavaan")
+library(lavaan)
+
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcAa2V8uu318T1xdpXblV_-5vE6cA3ei0aNEbsJkLyPRdBV5QZvW8y_hgogfyxqg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Selection Effects"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTampW1IhJLthWX0znIsCs4Dsz_AGj8VDEErcPXdRQ02wugmdGKE4RBi86qp-PSQQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 4: Exclusion Restriction"></iframe>
 
-# Part 4: Selection Effects — Structural Threats to Exchangeability {#sec-selection}
+# Part 4: The Exclusion Restriction — What Else Is in Your Treatment? {#sec-exclusion}
 
-## The Problem That Randomization Cannot Fix
+## One Button, Many Signals
 
-Part 3 established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
+In Part 1 we treated the eco-label manipulation as a clean, unidimensional intervention: it either increases WTP (H₁) or it does not (H₀). This framing is convenient, but it hides a problem that is exactly analogous to what Module 1 revealed about *measuring* Y.
 
-This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 3, these are not fixable by random assignment alone — the selection process operates outside the researcher's randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike Part 3 failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.
+Recall the core lesson from Module 1:
 
-The distinction is worth making precise:
+> A scale item labeled "Green Purchase Intention" often captures several distinct latent constructs simultaneously — environmental values, social signaling, perceived quality, price expectations, and more. The scale *appears* to measure one thing while actually measuring many. This is a violation of **discriminant validity**.
 
-| Part 3 failure | Part 4 failure |
-|---|---|
-| Random assignment is executed, but the sample is too small to achieve exchangeability by chance | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
-| Fixable with more data, blocked randomization, or structural designs (Part 5) | Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions |
-| Creates imbalance between conditions on pre-existing covariates | Creates a sample that misrepresents the intended population or analysis set |
+Now ask the same question about your treatment variable:
+
+> When a participant sees an eco-certification badge on a coffee package, what does that label actually *do*?
+
+It does not inject a single, clean signal of "eco-friendliness." It activates — simultaneously and heterogeneously — a cluster of inferences, associations, and motivations that vary across people. This is a violation of **the exclusion restriction**: the assumption that the treatment variable affects the outcome *only* through the intended pathway.
 
 ::: {.callout-important}
-## The Module 1 parallel
+## The Exclusion Restriction — the single-mechanism assumption
 
-Module 1 showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed *sample* can fail to reflect your intended *population* or *analysis group* for parallel reasons.
+The exclusion restriction is the assumption that X affects Y through **exactly one latent pathway** — the one the researcher intends. Every field has a name for what happens when this assumption breaks:
 
-> Just as a biased scale gives you the wrong latent score for a respondent, a biased sampling or exclusion process gives you the wrong set of respondents.
+| Field | Term for the violation |
+|---|---|
+| Psychology / Marketing | **Confound** — the manipulation activates an unintended construct alongside the intended one |
+| Econometrics | **Endogeneity** — the regressor correlates with the error term via unmodelled channels |
+| Epidemiology | **Confounding** — exposure and outcome share a common cause |
+| Statistics | **Omitted variable bias** — a variable that belongs in the model is left out |
+| Causal inference (DAGs) | **Backdoor path** — a non-causal association flows through an unmeasured variable |
+
+These terms are related family resemblances, not exact synonyms — they arose in different empirical traditions to describe structurally distinct scenarios. The coffee example in this section is closest to **stimulus confounding** or **treatment-bundle ambiguity**: the manipulation packages multiple causal signals into a single condition label, creating mechanism ambiguity even when assignment is random. Classic backdoor confounding and endogeneity typically involve non-random exposure to a treatment, not a bundled randomized manipulation. What all share is the common diagnosis: **there is more than one latent link between X and Y**.
+
+If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated "treatment effect" is a weighted mixture of several distinct causal effects, not a clean estimate of any one mechanism. **Note that this is a problem of interpretation, not identification.** When assignment is random, the coefficient on the treatment dummy still identifies the average causal effect of the full bundle. What cannot be recovered from that single coefficient is which component of the bundle generated the effect.
+
+**This is the mechanism ambiguity problem in experimentation**, and it is the direct analogue of discriminant invalidity in measurement. In Module 1 you saw that **measured Y can measure too much**. Here you will see that **manipulated X can inject too much**.
 :::
 
-Selection effects appear in four structural forms. We cover each in turn.
+## Simulating a Confounded Study
 
----
+We now simulate the coffee experiment with a realistic data-generating process that captures how the exclusion restriction fails in practice.
 
-# 1. Non-Representativeness {#sec-non-rep}
+The researcher intends the eco-label to be the only thing that differs between conditions. But in preparing the stimuli, the two versions of the coffee bag were not held perfectly equal: the eco-label condition was also given a **more premium-looking package design** — darker color scheme, cleaner typography, higher perceived quality cues. This is a deliberate feature of the simulation, representing the kind of oversight that slips through stimuli review in real studies (see the `premium_design <- eco` assignment in the code below — the confound is perfect, r = 1.0). Participants in the eco-label condition therefore receive a *bundle*: eco-certification **plus** a premium visual presentation. Both signals independently increase WTP through different pathways.
 
-Non-representativeness means the observations that enter your study are systematically unlike the population you intend to generalize to. The groups may still be exchangeable with each other — the randomization may have worked — but the entire study is anchored to the wrong population.
+This is the exclusion restriction failure in concrete form: the treatment variable injects two distinct latent signals, not one. Any estimated "eco-label effect" is a conflation of the two.
 
-## Secondary Data: Polling the 2016 US Presidential Election
+```{r part4-setup}
+#| code-summary: "▶ Simulate 120 participants with confounded eco-label and premium design"
 
-The 2016 US presidential election produced one of the most widely analyzed forecasting failures in modern polling history. Many pre-election polls — particularly online opt-in panels — showed Hillary Clinton with a consistent and comfortable lead in key swing states. The final result was a Trump victory.
+set.seed(2026)
+N_p2  <- 120
+half2 <- N_p2 / 2
 
-The core problem was not that polls are inherently flawed — carefully conducted probability samples were closer to the final result. The problem was **sample composition**. Online opt-in panels draw participants who choose to participate. That group over-represented:
+# ── Participant-level binary traits ───────────────────────────────────────────
+ptrait <- function(p) rbinom(N_p2, 1, p)
 
-- College-educated voters (more likely to see and respond to online political surveys)
-- Urban voters
-- Politically engaged individuals
-
-All three of these characteristics predicted support for Clinton in 2016. The sample was not representative of likely voters in the midwest and rust belt states that determined the electoral college outcome. Pollsters could build a perfectly valid internal random sample from their panel — comparing Clinton- and Trump-leaning respondents with exact balance — while their whole panel remained systematically unrepresentative of the electorate.
-
-```{r polling-bias, fig.height=5, fig.width=10}
-#| code-summary: "▶ Simulate: biased opt-in sample vs. random sample for election polling"
-
-set.seed(2025)
-N_pop <- 10000
-
-# True population: 51% Trump, 49% Clinton
-# College-educated: 35% of population; 65% Clinton-leaning among college-educated
-# Non-college: 65% of population; 40% Clinton-leaning
-
-pop <- tibble(
-  college    = rbinom(N_pop, 1, 0.35),
-  clinton    = ifelse(college == 1,
-                      rbinom(N_pop, 1, 0.65),
-                      rbinom(N_pop, 1, 0.40))
-)
-true_clinton <- mean(pop$clinton)
-
-# Random sample: 800 participants drawn at random
-rand_idx     <- sample(N_pop, 800)
-rand_clinton <- mean(pop$clinton[rand_idx])
-
-# Biased opt-in sample: college-educated 3× more likely to respond
-response_prob <- ifelse(pop$college == 1, 0.15, 0.05)
-responded     <- rbinom(N_pop, 1, response_prob) == 1
-# Subsample to ~800 from those who responded
-opt_in_idx    <- sample(which(responded), min(800, sum(responded)))
-opt_clinton   <- mean(pop$clinton[opt_in_idx])
-
-# College composition of each sample
-college_pop     <- mean(pop$college)
-college_rand    <- mean(pop$college[rand_idx])
-college_opt     <- mean(pop$college[opt_in_idx])
-
-results_df <- tibble(
-  Sample      = factor(c("True population", "Random sample\n(n = 800)",
-                          "Opt-in online panel\n(n ≈ 800)"),
-                        levels = c("True population", "Random sample\n(n = 800)",
-                                   "Opt-in online panel\n(n ≈ 800)")),
-  Clinton_pct = c(true_clinton, rand_clinton, opt_clinton) * 100,
-  College_pct = c(college_pop, college_rand, college_opt) * 100,
-  Source      = c("truth", "random", "biased")
+traits <- data.frame(
+  env_values      = ptrait(0.45),  # cares about environment
+  quality_seek    = ptrait(0.50),  # focuses on quality / taste
+  price_sensitive = ptrait(0.50),  # price-conscious
+  social_identity = ptrait(0.40),  # identity / values-driven purchasing
+  health_focus    = ptrait(0.45),  # health / natural-ingredient preference
+  brand_trust     = ptrait(0.55),  # responds to certification cues
+  guilt_prone     = ptrait(0.35),  # guilt-reducing / compensatory consumption
+  hedonic         = ptrait(0.50),  # pleasure-driven; taste is paramount
+  habitual        = ptrait(0.40),  # habitual buyer; resists stretching budget
+  demand_aware    = ptrait(0.40)   # susceptible to experimenter demand / social desirability cues
 )
 
-p_vote <- ggplot(results_df, aes(x = Sample, y = Clinton_pct, fill = Source)) +
-  geom_col(width = 0.6, alpha = 0.88) +
-  geom_hline(yintercept = 50, linetype = "dashed", color = "gray40", linewidth = 0.8) +
-  geom_text(aes(label = sprintf("%.1f%%", Clinton_pct)),
-            vjust = -0.5, size = 4.5, fontface = "bold") +
-  annotate("text", x = 3.45, y = 51.5, label = "50% threshold",
-           color = "gray40", size = 3.2, hjust = 1) +
-  scale_fill_manual(values = c("truth" = "#457b9d", "random" = "#52b788",
-                                "biased" = "#e63946"), guide = "none") +
-  scale_y_continuous(limits = c(0, 75), labels = function(x) paste0(x, "%")) +
-  labs(x = NULL, y = "Estimated Clinton support (%)",
-       title = "Biased Sample Overstates Clinton Support",
-       subtitle = paste0("True: ", sprintf("%.1f", true_clinton * 100),
-                         "% Clinton  \u00b7  Opt-in panel skews college-educated")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+# ── Equal random assignment ───────────────────────────────────────────────────
+condition_p2 <- rep(c("Control", "Eco-label"), each = half2)
+eco          <- as.integer(condition_p2 == "Eco-label")
 
-p_college <- ggplot(results_df, aes(x = Sample, y = College_pct, fill = Source)) +
-  geom_col(width = 0.6, alpha = 0.88) +
-  geom_text(aes(label = sprintf("%.0f%%\ncollege", College_pct)),
-            vjust = -0.4, size = 3.5, lineheight = 0.85) +
-  scale_fill_manual(values = c("truth" = "#457b9d", "random" = "#52b788",
-                                "biased" = "#e63946"), guide = "none") +
-  scale_y_continuous(limits = c(0, 85), labels = function(x) paste0(x, "%")) +
-  labs(x = NULL, y = "% college-educated",
-       title = "Opt-In Panels Over-Sample\nCollege-Educated Respondents",
-       subtitle = "College-educated respond ~3\u00d7 more often to online surveys") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+# ── The confound: premium design is perfectly tied to the eco-label condition ─
+# In a real study this could be a subtly different image, font, or color scheme
+# that slipped through stimuli review. It is unobserved by the researcher.
+premium_design <- eco  # r = 1.0 with treatment — impossible to separate without measuring
 
-p_vote + p_college
+# ── WTP simulation (in dollars, clamped to $1–$10) ────────────────────────────
+# True causal structure:
+#   Path A (eco-certification): activates eco-responsive traits → conditional premium
+#   Path B (premium design):    boosts perceived quality for EVERYONE → unconditional lift
+#   Both paths are real effects; the researcher cannot separate them from the t-test alone.
+WTP_p2 <- with(traits, {
+  # Path A — eco-certification effect (heterogeneous: depends on eco-responsive traits)
+  eco_effect <-
+    1.00 * env_values      * eco  +  # env concern → eco premium
+    0.65 * quality_seek    * eco  +  # quality-seekers respond to certification
+    0.80 * social_identity * eco  +  # identity-driven eco premium
+    0.50 * health_focus    * eco  +  # health focus eco premium
+    0.45 * brand_trust     * eco  +  # certification trust premium
+    0.30 * guilt_prone     * eco  +  # guilt-offset premium
+    0.50 * demand_aware    * eco     # demand effects in eco context
+
+  # Path B — premium design effect (homogeneous: affects everyone in eco condition)
+  design_effect <- 0.70 * premium_design  # unconditional quality-perception lift
+
+  # Baseline WTP (trait-driven, condition-independent)
+  base <-
+    4.50 +
+    0.30 * quality_seek    +  # quality-seekers have higher baseline WTP
+   -0.70 * price_sensitive +  # price sensitivity suppresses WTP
+    0.30 * hedonic         +  # hedonic adds WTP in both
+   -0.45 * habitual           # habitual buyers resist stretching
+
+  v <- base + eco_effect + design_effect + rnorm(N_p2, 0, 0.75)
+  pmax(pmin(round(v, 2), 10), 1)
+})
+
+df_p2 <- data.frame(traits, condition = condition_p2,
+                    premium_design = premium_design, WTP = WTP_p2)
+
+# ── What the researcher sees: a clean-looking treatment effect ────────────────
+df_p2 |>
+  group_by(condition) |>
+  summarise(n = n(), mean_WTP = round(mean(WTP), 2),
+            sd_WTP = round(sd(WTP), 2), .groups = "drop") |>
+  kable(col.names = c("Condition", "n", "Mean WTP", "SD WTP"),
+        align   = c("l", "c", "c", "c"),
+        caption = "WTP summary by condition — what the researcher observes")
 ```
 
-The left panel shows the vote-share estimate from each source. The random sample closely tracks the true population; the opt-in panel substantially overstates Clinton support. The right panel explains why: college-educated respondents are dramatically overrepresented in the opt-in panel. This is not a failure of the pollster's internal analysis — it is a failure of the sampling mechanism that determined who entered the study.
+The summary table shows a clean, positive treatment effect. The researcher would likely report this as evidence that eco-certification raises WTP. But the figure below shows what is actually happening:
 
-**The key point for experimenters:** selecting participants from an online panel and then randomly assigning them to conditions achieves exchangeability *within the panel*. It does not solve the problem that the panel itself is non-representative. Your internal validity can be high while your external validity is zero.
+```{r confound-decomposition-plot, fig.height=5}
+#| code-summary: "▶ Plot: decompose observed effect into eco-certification vs. premium design paths"
 
-## Experimental Context: Crowdsourcing Platforms (MTurk, Prolific)
+# Reconstruct each path's contribution at the participant level
+df_p2 <- df_p2 |>
+  mutate(
+    eco_int = as.integer(condition == "Eco-label"),
+    # Path A: eco-responsive traits × eco condition
+    path_A = (1.00 * env_values + 0.65 * quality_seek + 0.80 * social_identity +
+              0.50 * health_focus + 0.45 * brand_trust + 0.30 * guilt_prone +
+              0.50 * demand_aware) * eco_int,
+    # Path B: premium design (everyone in eco condition gets +0.70)
+    path_B = 0.70 * premium_design,
+    # Eco-responsive trait count for x-axis ordering
+    n_eco_traits = env_values + quality_seek + social_identity +
+                   health_focus + brand_trust + guilt_prone
+  )
 
-MTurk and Prolific are the dominant platforms for online behavioral research. Participants on these platforms self-select in based on three features:
+# Group-level averages for the annotation
+avg_A <- round(mean(df_p2$path_A[df_p2$condition == "Eco-label"]), 2)
+avg_B <- round(mean(df_p2$path_B[df_p2$condition == "Eco-label"]), 2)
+naive <- round(mean(df_p2$WTP[df_p2$condition == "Eco-label"]) -
+               mean(df_p2$WTP[df_p2$condition == "Control"]), 2)
 
-- **Reward rate** — higher-paying studies attract different participant profiles. Higher reward rates draw more experienced workers and participants who rely more heavily on platform income; lower rates draw those with fewer outside options or those with high intrinsic interest in research.
-- **Study duration** — stated completion times filter for participants' availability and patience. Studies labeled as short attract more participants who are multitasking.
-- **Study topic** — participants read titles and descriptions and choose whether to participate. A study on "eco-friendly consumption" will attract participants who are already interested in environmental issues.
+path_long <- df_p2 |>
+  filter(condition == "Eco-label") |>
+  select(n_eco_traits, path_A, path_B) |>
+  pivot_longer(c(path_A, path_B),
+               names_to = "pathway",
+               values_to = "contribution") |>
+  mutate(pathway = recode(pathway,
+    "path_A" = "Path A: Eco-certification\n(heterogeneous — depends on traits)",
+    "path_B" = "Path B: Premium design\n(homogeneous — same for everyone)"))
 
-Each of these features creates a different non-representative subsample of the platform population — and the platform population is itself non-representative of any general population. MTurk workers are younger, more educated, more liberal, and more tech-savvy than the US general public. Prolific users are similarly skewed, though in somewhat different ways and with better demographic controls available.
+ggplot(path_long, aes(x = n_eco_traits, y = contribution, color = pathway)) +
+  geom_jitter(width = 0.2, alpha = 0.55, size = 2.5) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.4, span = 0.9) +
+  annotate("label", x = 5.8, y = 2.8,
+           label = sprintf("Observed \u0394WTP = $%.2f\n  Path A (eco) = $%.2f avg\n  Path B (design) = $%.2f avg",
+                           naive, avg_A, avg_B),
+           size = 3.2, hjust = 1, fill = "#fff8e1", label.size = 0.3) +
+  scale_color_manual(values = c("Path A: Eco-certification\n(heterogeneous — depends on traits)" = "#2d6a4f",
+                                "Path B: Premium design\n(homogeneous — same for everyone)"     = "#e07b39"),
+                     name = NULL) +
+  scale_y_continuous(labels = function(x) paste0("$", x)) +
+  scale_x_continuous(breaks = 0:6) +
+  labs(x = "Number of eco-responsive traits (participant characteristic)",
+       y = "WTP contribution ($)",
+       title = "The Observed Treatment Effect Bundles Two Distinct Causal Paths",
+       subtitle = "Path A varies by participant; Path B is constant — both are invisible to the researcher") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", panel.grid.minor = element_blank(),
+        legend.text = element_text(size = 9))
+```
+
+The plot shows what a researcher cannot see from the t-test alone. **Path A** — the true eco-certification effect — varies by participant: participants with many eco-responsive traits gain more from the label, while those with few traits gain little. **Path B** — the premium design effect — is a flat $`r avg_B` lift for everyone in the eco-label condition, regardless of any trait.
+
+When the researcher reports the overall WTP difference of $`r naive`, they attribute the entire effect to eco-certification. But roughly $`r avg_B` of that is driven by the premium package design — a signal that was perfectly confounded with the eco-label because it was never measured or separated. The eco-certification-specific effect across participants is only $`r avg_A`, not $`r naive`.
+
+**A compound manipulation does not destroy causal identification.** Because assignment was random, the treatment coefficient does estimate the causal effect of the package participants actually saw — eco-label plus premium design. What fails is the narrower interpretation: we cannot say from this coefficient alone whether the effect came from eco-certification, the premium packaging, demand cues, perceived quality, or their interaction. The coefficient is a valid **bundle effect** estimate. It is not a valid estimate of any single mechanism within that bundle.
+
+## What Participants Say: Template-Based Open-Ended Responses
+
+To make the multi-signal nature of the treatment visible, we generate short open-ended responses from each simulated participant. These represent **(a)** what they infer about the product and **(b)** why they chose their WTP. We use template-based generation — each participant's active traits and condition determine which phrases they contribute.
+
+> **Note:** We are using template-based text here to keep everything reproducible without an LLM API. In a real study you would collect actual open-ended responses. The patterns illustrated below — differential concept activation by condition, and concept–WTP correlations — would be recovered from those real responses using the same analysis pipeline.
+
+```{r generate-text}
+#| code-summary: "▶ Generate template-based open-ended text for each participant"
+
+set.seed(2026)
+
+# ── Product perception text ───────────────────────────────────────────────────
+gen_product_text <- function(i) {
+  cond <- condition_p2[i]
+  ev   <- traits$env_values[i]
+  qs   <- traits$quality_seek[i]
+  ps   <- traits$price_sensitive[i]
+  si   <- traits$social_identity[i]
+  hf   <- traits$health_focus[i]
+  bt   <- traits$brand_trust[i]
+  gp   <- traits$guilt_prone[i]
+  hed  <- traits$hedonic[i]
+  da   <- traits$demand_aware[i]
+
+  parts <- character(0)
+
+  if (cond == "Control") {
+    parts <- c(parts, sample(c(
+      "This looks like a standard coffee blend.",
+      "A fairly typical coffee package — nothing unusual.",
+      "The packaging is clean and straightforward."
+    ), 1))
+    if (qs  == 1) parts <- c(parts, "The blend seems like decent, everyday quality.")
+    if (ps  == 1) parts <- c(parts, "The price point appears reasonable and fair.")
+    if (bt  == 1) parts <- c(parts, "The packaging gives a professional, trustworthy impression.")
+    if (hed == 1) parts <- c(parts, "I am curious how the flavor compares to my usual brand.")
+    if (length(parts) == 1)
+      parts <- c(parts, "Nothing in particular stands out about this product.")
+  } else {
+    parts <- c(parts, "The eco-certification badge is immediately noticeable.")
+    if (ev == 1) parts <- c(parts, "The sustainability label signals that this coffee is responsibly and environmentally sourced.")
+    if (qs == 1) parts <- c(parts, "Eco-certified products suggest a higher standard of care in production, which I associate with better quality and taste.")
+    if (ps == 1) parts <- c(parts, "Certifications usually carry a price premium, so I expect this to cost more than a standard option.")
+    if (si == 1) parts <- c(parts, "This brand's values align with mine — I actively look for and support products like this.")
+    if (hf == 1) parts <- c(parts, "Eco-certified means fewer pesticides and more natural farming practices, which I find very appealing.")
+    if (bt == 1) parts <- c(parts, "A third-party certification badge means independent accountability — that increases my trust in the product significantly.")
+    if (gp == 1) parts <- c(parts, "Buying a certified sustainable product lets me offset some of my everyday environmental footprint.")
+    if (da == 1) parts <- c(parts, "The research context makes it clear this study is about eco-labeling, which makes me more conscious of how much I should value green products.")
+    if (length(parts) == 1)
+      parts <- c(parts, "The label catches my eye, though I am not sure how much weight I give eco-certifications in practice.")
+  }
+
+  paste(sample(parts, min(2L, length(parts))), collapse = " ")
+}
+
+# ── WTP justification text ────────────────────────────────────────────────────
+gen_wtp_text <- function(i) {
+  cond <- condition_p2[i]
+  ev   <- traits$env_values[i]
+  qs   <- traits$quality_seek[i]
+  ps   <- traits$price_sensitive[i]
+  si   <- traits$social_identity[i]
+  hf   <- traits$health_focus[i]
+  hed  <- traits$hedonic[i]
+  hab  <- traits$habitual[i]
+  da   <- traits$demand_aware[i]
+
+  parts <- character(0)
+
+  if (hab == 1 & ps == 1)
+    parts <- c(parts, "I am fairly budget-conscious about coffee and set my limit based on what I can realistically afford each week.")
+  if (qs == 1)
+    parts <- c(parts, "I am willing to pay more when I believe the quality genuinely delivers on taste and enjoyment.")
+  if (ev == 1 & cond == "Eco-label")
+    parts <- c(parts, "I factored in the environmental benefits — supporting sustainable production is worth a modest premium to me.")
+  if (si == 1 & cond == "Eco-label")
+    parts <- c(parts, "I would pay more for a product that represents my values, even if cheaper alternatives are available.")
+  if (hf == 1 & cond == "Eco-label")
+    parts <- c(parts, "Cleaner and more natural sourcing justifies a higher price — I think of it as an investment in my health.")
+  if (ps == 1)
+    parts <- c(parts, "Price matters a great deal to me — I try not to overpay regardless of how appealing the product looks.")
+  if (hab == 1)
+    parts <- c(parts, "My spending on coffee tends to stay fairly consistent — habit guides my budget more than any single product feature.")
+  if (hed == 1)
+    parts <- c(parts, "If I expect genuinely exceptional taste, I am happy to stretch my usual budget.")
+  if (da == 1 & cond == "Eco-label")
+    parts <- c(parts, "Being in a study about eco products made me want to demonstrate my environmental awareness, which may have inflated my stated price slightly.")
+  if (length(parts) == 0)
+    parts <- "I set my price based on the overall value I expect — quality relative to cost."
+
+  paste(sample(parts, min(2L, length(parts))), collapse = " ")
+}
+
+# Generate product text first so we can use WTP amounts in WTP text generation
+product_text <- sapply(seq_len(N_p2), gen_product_text)
+
+# Add a WTP-amount-anchored phrase to the WTP text to ensure the open-ended
+# responses actually correlate with stated WTP (as real responses would).
+# Four tiers ensure continuous WTP correlates well with text-derived concept scores.
+# High WTP → quality/trust/sustainability language.
+# Mid-high WTP → moderate value framing.
+# Mid-low WTP → neutral / cost-aware framing.
+# Low WTP → price/budget/overpay language (matches price_cost concept negatively).
+add_wtp_anchor <- function(i, base_text) {
+  w <- WTP_p2[i]
+  anchor <- if (w >= 7.5) {
+    "Summing it up: the quality, trustworthiness, and sustainability of this product make it genuinely worth a significant premium — I would pay well above my usual coffee budget for it."
+  } else if (w >= 6.0) {
+    "Summing it up: I see real quality and value here — a moderate premium feels fully justified, and I am comfortable stretching a bit beyond my typical spend."
+  } else if (w >= 4.5) {
+    "Summing it up: the value seems fair but nothing exceptional — I would not pay much of a premium over what a comparable standard product costs."
+  } else {
+    "Summing it up: I am quite price-sensitive and budget-conscious about coffee — I would not want to overpay, and my price ceiling here is close to what I normally spend."
+  }
+  paste(base_text, anchor)
+}
+
+wtp_text_raw <- sapply(seq_len(N_p2), gen_wtp_text)
+wtp_text     <- mapply(add_wtp_anchor, seq_len(N_p2), wtp_text_raw)
+
+# Preview a few responses
+preview <- data.frame(
+  Condition        = condition_p2[c(1, half2 + 1)],
+  `Product text`   = product_text[c(1, half2 + 1)],
+  `WTP text`       = wtp_text[c(1, half2 + 1)],
+  check.names = FALSE
+)
+kable(preview, caption = "Example responses (one control, one eco-label participant)")
+```
+
+## Text Analysis: How Concept Composition Shifts Across Conditions
+
+We now run a simple concept-count analysis — no API, no black-box model. Each concept is defined by a set of keywords; a participant "mentions" a concept if any keyword appears in their text.
+
+```{r text-analysis}
+#| code-summary: "▶ Count concept mentions and compare across conditions"
+
+# ── Concept dictionary (regex patterns) ──────────────────────────────────────
+concept_dict <- c(
+  sustainability  = "sustainab|eco.certif|environmental|responsib",
+  quality_taste   = "quality|taste|flavor|blend",
+  price_cost      = "price|premium|afford|budget|overpay",
+  social_values   = "values|align|represent|support products",
+  health_natural  = "health|natural|pesticide|farming|cleaner",
+  trust_cert      = "certif|accountab|trustworth",
+  guilt_offset    = "footprint|guilt|offset",
+  demand_effect   = "research context|study.*eco|should value|demonstrate.*environ|inflated.*stated|awareness.*study",
+  hedonic         = "exceptional|happy to stretch|enjoyment",
+  habit_routine   = "habit|consistent|weekly"
+)
+
+# Concept presence (1/0) per participant
+prod_conc <- as.data.frame(
+  lapply(concept_dict, function(pat) as.integer(grepl(pat, tolower(product_text)))))
+
+wtp_conc <- as.data.frame(
+  lapply(concept_dict, function(pat) as.integer(grepl(pat, tolower(wtp_text)))))
+
+prod_conc$condition <- condition_p2
+wtp_conc$condition  <- condition_p2
+wtp_conc$WTP        <- WTP_p2
+
+# ── Log-odds: how much more often is each concept in eco-label vs control? ───
+log_odds <- function(x, cond, target = "Eco-label") {
+  p_t <- (sum(x[cond == target])       + 0.5) / (sum(cond == target)       + 1)
+  p_c <- (sum(x[cond != target])       + 0.5) / (sum(cond != target)       + 1)
+  log(p_t / (1 - p_t)) - log(p_c / (1 - p_c))
+}
+
+lo_prod <- sapply(names(concept_dict), function(v)
+  log_odds(prod_conc[[v]], prod_conc$condition))
+
+lo_wtp  <- sapply(names(concept_dict), function(v)
+  log_odds(wtp_conc[[v]],  wtp_conc$condition))
+
+# ── Correlation of concept mentions with WTP ──────────────────────────────────
+wtp_cor_prod <- sapply(names(concept_dict), function(v) {
+  x <- prod_conc[[v]]
+  if (sd(x) < 1e-9) 0 else cor(x, WTP_p2, method = "spearman")
+})
+
+wtp_cor_wtp <- sapply(names(concept_dict), function(v) {
+  x <- wtp_conc[[v]]
+  # If concept never appears in WTP text, correlation is undefined → treat as 0
+  if (sd(x) < 1e-9) 0 else cor(x, WTP_p2, method = "spearman")
+})
+
+# ── Summary table ─────────────────────────────────────────────────────────────
+concept_summary <- data.frame(
+  Concept      = names(concept_dict),
+  pct_ctrl     = round(colMeans(prod_conc[prod_conc$condition == "Control",
+                                          names(concept_dict)]) * 100, 0),
+  pct_eco      = round(colMeans(prod_conc[prod_conc$condition == "Eco-label",
+                                          names(concept_dict)]) * 100, 0),
+  log_odds_col = round(lo_prod, 2),
+  r_prod       = round(wtp_cor_prod, 2),
+  r_wtp        = round(wtp_cor_wtp, 2)
+)
+
+kable(concept_summary,
+      col.names = c("Concept", "Control (%)", "Eco-label (%)",
+                    "Log-odds (product text)", "r with WTP (product)", "r with WTP (WTP text)"),
+      caption = "Concept prevalence and associations by condition (product perception text)")
+```
+
+```{r concept-plot, fig.height=5.5, fig.width=10}
+#| code-summary: "▶ Plot: log-odds ratios and WTP correlations"
+
+lo_df <- data.frame(
+  concept  = rep(names(concept_dict), 2),
+  log_odds = c(lo_prod, lo_wtp),
+  source   = rep(c("Product perception text", "WTP justification text"), each = length(concept_dict))
+) |>
+  mutate(concept = factor(concept, levels = names(concept_dict)[order(lo_prod)]))
+
+ggplot(lo_df, aes(x = log_odds, y = concept, fill = source)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6, alpha = 0.85) +
+  geom_vline(xintercept = 0, color = "gray30", linewidth = 0.8) +
+  scale_fill_manual(values = c("Product perception text" = "#4a90d9",
+                                "WTP justification text"  = "#2d6a4f"),
+                    name = NULL) +
+  labs(x = "Log-odds ratio (Eco-label vs. Control)",
+       y = NULL,
+       title = "How the Eco-Label Shifts the Concepts People Reach For",
+       subtitle = "Positive = concept mentioned more in eco-label condition") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top", panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+The eco-label dramatically increases mentions of sustainability, quality, social values, health, and trust in the *product perception* text. The effect bleeds through — though more weakly — into the *WTP justification* text. Note that `habit_routine` and `hedonic` show no shift at all: they are driven by participant characteristics, not by the experimental manipulation.
+
+## What's in X? What's in Y? {#sec-whats-in-xy}
+
+::: {.callout-important}
+## The 100%/0% problem — you cannot know which pathway matters without measuring each one
+
+When multiple latent constructs connect X to Y, the share of the total treatment effect flowing through the *intended* pathway could be anywhere from **0% to 100%** — and you cannot tell from the treatment coefficient alone.
+
+Think of it like giving a clinical trial patient a **multivitamin**: the pill contains 12 different compounds, the patient improves, and you report "the multivitamin works." But which compound drove the improvement? Was it Vitamin D (the one your theory was about)? Vitamin B12? The zinc? The folic acid? Or is the pill inert and the patient improved for an unrelated reason? The single outcome measurement — patient health — cannot tell you.
+
+The eco-label experiment has the same structure. The manipulation bundle injects multiple signals — eco-certification, premium packaging, quality cues, social identity primes, demand effects — all simultaneously. The observed WTP increase is a weighted sum of contributions from each pathway. **The eco-certification pathway could account for 100% of the effect, or for 0%.** Unless you measure each latent input (and its relationship to WTP), the coefficient on "eco-label" conflates all of them.
+
+This is why the diagram below is not just a theoretical concern. Every blue line in it is a pathway that *could* be carrying the entire treatment effect.
+:::
+
+::: {.callout-important}
+## This is the most important figure in Section 2 — read it carefully
+
+The diagram below is *not* just a summary of our coffee simulation. It represents the fundamental challenge of experimental interpretation.
+
+**The left column (X)** shows every latent construct injected into the system by the eco-label manipulation. Only **one** of these — environmental responsibility — is the researcher's *account of interest* (the intended mechanism). Every other entry in the X column is a **confounder**: a pathway that the treatment activates alongside the intended one.
+
+**The right column (Y)** shows every latent construct that causally drives WTP. Some overlap with X (shared constructs = blue lines). Some do not (orange boxes).
+
+**The blue lines are the problem.** Each blue line is a latent pathway from X to Y that exists *in addition to* the one the researcher intends. When any of these additional pathways carry variance, the treatment coefficient in a regression is not "the effect of eco-labeling on environmental value". It is a conflation of all connected pathways, weighted by how strongly each latent construct in Y is activated by X.
+
+**The researcher's responsibility** is to:
+
+1. *Before* running the study: use the measurement tools from Module 1 (pilot text analysis, CFA, construct mapping) to enumerate the latent space of both X and Y. Every construct in that space that is common to both columns is a pathway you must account for — either by measuring it (so you can check balance) or by designing the manipulation to deactivate it.
+
+2. *After* data collection: check balance on every measured common construct. Acknowledge that unmeasured common constructs remain a threat.
+
+The question "What's in the X?" is the discriminant validity question asked about a *manipulation* rather than a *scale*. The tools are the same; the object of inquiry has shifted from the outcome variable to the treatment variable.
+:::
+
+The analysis above lets us ask the same question we posed in Module 1 about outcome measurement, but now about the treatment:
+
+> **"What's in the X?" and "What's in the Y?" — and where do they overlap?**
+
+The diagram below maps the constructs injected by the eco-label manipulation (left column) against the constructs that drive WTP (right column). **Blue lines are the confounds** — shared constructs that create additional latent pathways from X to Y beyond the intended one. Orange boxes mark constructs that are unique to one side.
+
+```{r whats-in-xy, fig.height=8.5, fig.width=10}
+#| code-summary: "▶ Plot: construct overlap diagram (What's in X? What's in Y?)"
+
+x_topics <- c(
+  "Environmental\nresponsibility\n[account of interest]",
+  "Premium quality\nperception",
+  "Price expectation\n(eco = premium)",
+  "Social identity\n& values alignment",
+  "Health &\nnaturalness",
+  "Certification\ntrust",
+  "Demand effects\n(context signals\n'eco is expected')",
+  "Guilt\nreduction"
+)
+
+y_topics <- c(
+  "Personal\nenvironmental values",
+  "Perceived product\nquality",
+  "Price sensitivity\n& budget",
+  "Social identity",
+  "Health concern",
+  "Brand trust",
+  "Social desirability\n& demand compliance",
+  "Hedonic taste\nexpectations",
+  "Habitual spending\npatterns"
+)
+
+# First 7 x-topics are shared with first 7 y-topics; last in each column are unique
+nx <- length(x_topics)
+ny <- length(y_topics)
+
+plot_x <- data.frame(
+  topic  = x_topics,
+  xpos   = 0.15,
+  ypos   = seq(nx, 1, by = -1L),
+  shared = c(rep(TRUE, 7L), FALSE),
+  stringsAsFactors = FALSE
+)
+
+plot_y <- data.frame(
+  topic  = y_topics,
+  xpos   = 0.85,
+  ypos   = seq(nx, nx / ny, length.out = ny),
+  shared = c(rep(TRUE, 7L), FALSE, FALSE),
+  stringsAsFactors = FALSE
+)
+
+conn_df <- data.frame(
+  x1 = 0.265, x2 = 0.735,
+  y1 = plot_x$ypos[plot_x$shared],
+  y2 = plot_y$ypos[plot_y$shared],
+  is_demand = c(rep(FALSE, 6L), TRUE)   # flag the demand-effect link
+)
+
+ggplot() +
+  # Non-demand links — standard blue
+  geom_segment(data = conn_df[!conn_df$is_demand, ],
+               aes(x = x1, xend = x2, y = y1, yend = y2),
+               color = "#4a90d9", linewidth = 1.4, alpha = 0.55) +
+  # Demand-effect link — highlighted red-orange
+  geom_segment(data = conn_df[conn_df$is_demand, ],
+               aes(x = x1, xend = x2, y = y1, yend = y2),
+               color = "#d7301f", linewidth = 2.0, alpha = 0.80,
+               arrow = arrow(ends = "both", length = unit(0.08, "inches"),
+                             type = "open")) +
+  geom_label(data = plot_x,
+             aes(x = xpos, y = ypos, label = topic, fill = shared),
+             size = 2.7, fontface = "bold", lineheight = 0.88,
+             label.padding = unit(0.38, "lines"),
+             label.r       = unit(0.15, "lines"), hjust = 0.5) +
+  geom_label(data = plot_y,
+             aes(x = xpos, y = ypos, label = topic, fill = shared),
+             size = 2.7, fontface = "bold", lineheight = 0.88,
+             label.padding = unit(0.38, "lines"),
+             label.r       = unit(0.15, "lines"), hjust = 0.5) +
+  # Column header boxes
+  annotate("rect", xmin = 0.02, xmax = 0.28, ymin = 8.55, ymax = 9.20,
+           fill = "#1e3a5f", color = NA) +
+  annotate("text", x = 0.15, y = 8.88,
+           label = "What's in X?\n(Eco-label Manipulation)",
+           color = "white", fontface = "bold", size = 3.5, lineheight = 0.9) +
+  annotate("rect", xmin = 0.72, xmax = 0.98, ymin = 8.55, ymax = 9.20,
+           fill = "#2d6a4f", color = NA) +
+  annotate("text", x = 0.85, y = 8.88,
+           label = "What's in Y?\n(Willingness to Pay)",
+           color = "white", fontface = "bold", size = 3.5, lineheight = 0.9) +
+  # Demand-effect annotation
+  annotate("label", x = 0.50, y = plot_x$ypos[7] + 0.30,
+           label = "Demand effect confounder",
+           fill = "#fff0ed", color = "#d7301f", fontface = "bold",
+           size = 2.6, label.padding = unit(0.25, "lines")) +
+  scale_fill_manual(
+    values = c("TRUE" = "#d6ecff", "FALSE" = "#ffe0b2"),
+    labels = c("Shared construct (confound)", "Unique to this variable"),
+    name   = NULL
+  ) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(0.4, 9.5)) +
+  labs(
+    title    = "Construct Overlap Between Treatment (X) and Outcome (Y)",
+    subtitle = paste0(
+      "Blue lines = shared constructs (confounds)  \u00b7  Red line = demand effect  \u00b7  Orange boxes = unique to one side\n",
+      "The account of interest is ONE pathway. Every other shared link is a confounder the researcher must account for."
+    )
+  ) +
+  theme_void(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold", hjust = 0.5, size = 14,
+                                 margin = margin(b = 6)),
+    plot.subtitle = element_text(hjust = 0.5, color = "#555555", size = 10,
+                                 lineheight = 1.3),
+    legend.position = "bottom",
+    plot.margin = margin(15, 15, 15, 15)
+  )
+```
+
+::: {.callout-important}
+## The parallel with Module 1: discriminant validity for manipulations
+
+In Module 1, we said that a *scale* violates discriminant validity when it correlates too strongly with constructs it is not supposed to measure. The scale "measures too much."
+
+Here, the *eco-label manipulation* violates an analogous principle: it injects multiple independent constructs simultaneously — not just "environmental responsibility" but also quality expectations, price priors, social identity signals, health inferences, certification trust, and guilt-offset motivation. The manipulation "does too much."
+
+**Constructs unique to X (not in Y):** Guilt reduction. This signal is activated by the eco-label but does not translate into WTP variance in this simulation.
+
+**Constructs unique to Y (not activated by X):** Hedonic taste expectations and habitual spending patterns. These explain variance in WTP in both conditions but are not triggered by the eco-label.
+
+**The demand effect:** This is a particularly insidious shared pathway. The eco-label condition signals to demand-aware participants that the study is *about* eco-labeling — and they respond by inflating their stated WTP to comply with what they perceive the researcher expects. This is a confound that lives entirely in the experimental context itself: it is not driven by any genuine product attribute, but by the act of conducting the experiment. Notice that this pathway appears in *both* the treatment (X injects the cue) *and* the outcome (Y picks up the compliance). In the real world, researchers cannot remove this pathway by controlling the manipulation — they must measure it explicitly and either partial it out or interpret the treatment effect as "eco-label + demand context" rather than "eco-label alone."
+
+**The practical implication:** Your treatment coefficient in a regression is a weighted average across all the shared constructs, confounded by whatever imbalance exists in the unshared ones. This is not a clean estimate of "the effect of eco-labeling" — it is the effect of a bundle of simultaneous signals, filtered through a population of heterogeneous responders.
+:::
+
+### How to Map the Construct Space in Practice: Nomological Net Scanning
+
+The diagram above gives the theoretical picture — the full overlap between X and Y. In practice, you rarely have complete knowledge of this overlap at the start of a study. **Open-ended text responses** from a small pilot give you an empirical window into both sides of the diagram.
+
+The approach: ask a small pilot sample (n ≈ 20–30) to write briefly about their response to the stimulus (for X) and about their reasoning for the outcome variable (for Y). Then use text analysis — either keyword-based or unsupervised — to extract which constructs are active.
+
+**This is the nomological net scan.** It serves three purposes simultaneously:
+
+1. **Enumeration:** it tells you *how many* latent pathways from X to Y exist — the practical answer to "What's in X? What's in Y?"
+2. **Measurement guidance:** every concept the text reveals is a mediator you should measure quantitatively in the main study (using the scale construction tools from Module 1)
+3. **Identification strategy:** once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in detail in Module 3)
+
+::: {.callout-important}
+## The identification problem and its resolution
+
+In Module 1 we showed that a scale conflates multiple latent constructs (discriminant invalidity) — and the fix was to *measure* those constructs separately and check that they can be discriminated.
+
+Here, the treatment X activates multiple causal pathways to Y. The fix is identical: *measure* those pathways as mediators, then use a structural model to identify which channels carry the effect. Without measurement, you are left with an identification problem — no statistical model can tell you which pathway generated the observed X→Y association.
+
+**The nomological net scan gives you the list. Quantitative measurement gives you the data. Structural modeling gives you the decomposition.**
+:::
+
+```{r nomological-net-scan}
+#| code-summary: "▶ Use WTP text to scan for unmeasured Y dimensions (pilot)"
+
+# Recall: we already have wtp_text and wtp_conc from earlier in Part 4.
+# Simulate a "pre-study pilot" where only 30 participants write about their WTP.
+# The goal: identify which concepts are active and should become measured mediators.
+
+set.seed(999)
+pilot_idx  <- sample(seq_len(N_p2), 30)
+pilot_text <- wtp_text[pilot_idx]
+
+# Concept frequency in the pilot
+pilot_freq <- sapply(concept_dict, function(pat)
+  mean(grepl(pat, tolower(pilot_text))))
+
+pilot_freq_df <- data.frame(
+  Concept    = names(pilot_freq),
+  Prevalence = round(pilot_freq * 100, 0)
+) |>
+  arrange(desc(Prevalence)) |>
+  mutate(
+    include = ifelse(Prevalence >= 25, "\u2713 Yes (prevalent)",
+                     "\u2715 No (rare in this sample)"),
+    Concept = factor(Concept, levels = Concept)
+  )
+
+kable(pilot_freq_df,
+      col.names = c("Y-dimension concept", "% pilot participants mentioning it",
+                    "Recommendation"),
+      caption   = "Pilot text scan: which sub-dimensions of WTP are active in this sample?")
+```
+
+```{r nom-net-plot, fig.height=4.5, fig.width=9}
+#| code-summary: "▶ Plot: active Y-dimensions from pilot scan"
+
+ggplot(pilot_freq_df, aes(x = Prevalence, y = Concept, fill = include)) +
+  geom_col(alpha = 0.85, color = "white") +
+  geom_vline(xintercept = 25, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  annotate("text", x = 26, y = 1.0, label = "25% threshold",
+           color = "gray40", hjust = 0, size = 3.2) +
+  scale_fill_manual(values = c("\u2713 Yes (prevalent)" = "#2d6a4f",
+                               "\u2715 No (rare in this sample)" = "#b0c4de"),
+                    name = NULL) +
+  labs(x = "% of pilot participants mentioning this concept",
+       y = NULL,
+       title = "Scanning the Nomological Net of WTP via Open-Ended Text",
+       subtitle = "Prevalent concepts become measured mediators in the main study") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+### Alternative: LDA Topic Modeling (Unsupervised Discovery)
+
+The keyword approach above requires you to specify patterns in advance. **Latent Dirichlet Allocation (LDA)** flips this: it automatically discovers clusters of co-occurring words across responses, with no keywords required. Each cluster is a *topic* — a statistical summary of what participants tended to write about together.
+
+**The intuition:** Imagine sorting all WTP responses by word similarity. Responses mentioning "environment", "sustainable", "planet" cluster together naturally. Responses mentioning "organic", "healthy", "fresh" form a different cluster. LDA finds these clusters by asking: *what grouping of words best explains which responses sound similar?* The number of topics `k` is chosen by you — start with k ≈ number of expected sub-dimensions.
+
+```{r lda-topic-model, fig.height=5, fig.width=10}
+#| code-summary: "▶ LDA topic model: unsupervised discovery of Y-dimensions from text"
+
+if (!requireNamespace("topicmodels", quietly = TRUE)) install.packages("topicmodels")
+if (!requireNamespace("tidytext",    quietly = TRUE)) install.packages("tidytext")
+library(topicmodels)
+library(tidytext)
+
+# ── Tokenize pilot text → document-term matrix ────────────────────────────────
+pilot_tidy <- data.frame(
+  doc_id = seq_along(pilot_text),
+  text   = pilot_text
+) |>
+  unnest_tokens(word, text) |>
+  anti_join(stop_words, by = "word") |>        # remove "the", "and", etc.
+  filter(nchar(word) > 2) |>                   # drop 1-2 character tokens
+  count(doc_id, word, sort = TRUE)
+
+pilot_dtm <- pilot_tidy |>
+  cast_dtm(doc_id, word, n)                    # convert to document-term matrix
+
+# ── Fit LDA with k = 5 topics ─────────────────────────────────────────────────
+# k = 5 is a reasonable start; in a real pilot you might try k = 3 to 8 and
+# inspect coherence scores (e.g. via ldatuning package) to pick the best k.
+set.seed(42)
+lda_fit <- LDA(pilot_dtm, k = 5, control = list(seed = 42))
+
+# ── Extract top words per topic ────────────────────────────────────────────────
+top_words <- tidy(lda_fit, matrix = "beta") |>      # beta = P(word | topic)
+  group_by(topic) |>
+  slice_max(beta, n = 8, with_ties = FALSE) |>
+  ungroup() |>
+  mutate(topic_label = paste0("Topic ", topic))
+
+# ── Assign human-readable labels (inspect top words to name each topic) ───────
+# In a real analysis YOU read the top words and assign a substantive label.
+# Here we auto-label by the single highest-probability word for illustration.
+topic_labels <- top_words |>
+  group_by(topic) |>
+  slice_max(beta, n = 1) |>
+  mutate(label = paste0("Topic ", topic, "\n(e.g. '", term, "')")) |>
+  dplyr::select(topic, label)
+
+top_words <- top_words |>
+  left_join(topic_labels, by = "topic")
+
+ggplot(top_words, aes(x = reorder_within(term, beta, label),
+                       y = beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE, alpha = 0.85) +
+  scale_x_reordered() +
+  facet_wrap(~ label, nrow = 1, scales = "free_y") +
+  coord_flip() +
+  scale_fill_manual(values = c("#08519c","#2d6a4f","#d7301f","#f4a261","#6a0572")) +
+  labs(x = NULL, y = "P(word | topic)",
+       title = "LDA Topic Model: Automatically Discovered Themes in WTP Text",
+       subtitle = paste0("k = 5 topics  \u00b7  Each facet = one discovered theme  \u00b7  ",
+                         "Top 8 words ordered by probability")) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(size = 7),
+        strip.text = element_text(face = "bold", size = 8))
+```
 
 ::: {.callout-note}
-## What this means for the eco-coffee experiment
+## Keyword search vs. LDA: when to use each
 
-In our running example, a study titled "Opinions about eco-certified coffee" on MTurk is not drawing from a population of general coffee consumers. It is drawing from a subset of MTurk workers who:
-
-- Have time and interest to complete a study on that topic right now
-- Find the compensation acceptable
-- Were browsing available tasks at that moment
-
-The randomization within that sample may be perfectly executed — eco-label vs. control groups may be fully exchangeable in terms of every measured covariate. But the effect you estimate is the eco-label effect for *that particular self-selected group*, not for coffee consumers in general. Whether the effect generalizes depends on whether the self-selection process is correlated with the moderators of the eco-label effect (e.g., environmental values, income, brand awareness).
-:::
-
-## Stimulus Non-Representativeness: Bahník & Vranka (2017)
-
-Non-representativeness does not only afflict participant samples — it also afflicts **stimulus samples**. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells & Windschitl (1999) stimulus sampling reading in the Module 2 introduction.
-
-**The original finding.** Song & Schwarz (2009) reported that food additives and amusement-park rides with difficult-to-pronounce names were judged as more hazardous than easier-to-pronounce versions. The explanation was *processing fluency*: names that are hard to process feel unfamiliar and foreign, activating a heuristic that foreign = risky. The result became a widely cited demonstration of how subtle perceptual cues influence risk judgment.
-
-**The problem.** Song & Schwarz did not randomly sample their stimuli from the population of food additives and roller coasters. They selected specific stimuli and then assigned pronounceability labels to them. Bahník & Vranka (2017) noticed that the stimuli assigned to the "hard to pronounce" condition were not merely harder to pronounce — they had other features that genuinely made them seem more exotic or obscure. The conditions were not exchangeable at the stimulus level.
-
-**The replication.** When Bahník & Vranka drew stimuli randomly from a broader population of additives and rides and assigned them to pronunciation conditions, the fluency-risk effect did not replicate. The observed correlation between pronounceability and perceived risk in the original study reflected the non-random selection of specific stimuli, not a generalizable cognitive effect.
-
-::: {.callout-important}
-## The conceptual parallel to Part 3
-
-Recall from Part 3 that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:
-
-> The "hard to pronounce" stimuli and "easy to pronounce" stimuli may differ on dimensions other than pronounceability — and those other dimensions may independently predict the outcome.
-
-This is why **treating stimuli as fixed effects** — using a single advertisement, a single brand name, a single vignette — is a validity threat. Your conditions are not exchangeable if your stimuli were selected rather than randomly sampled. The fluency-risk finding is a high-profile example of what can go wrong.
-:::
-
----
-
-# 2. Self-Selection {#sec-self-select}
-
-Self-selection occurs when individuals determine their own membership in the observed group rather than being assigned by the researcher. The resulting group is not exchangeable with those who selected out — not because randomization failed, but because there was never any randomization to speak of.
-
-## Secondary Data: The J-Shaped Distribution of Customer Reviews
-
-If you have shopped on Amazon, you have noticed that product reviews tend to cluster at the extremes. Few products have a normally distributed spread of ratings. Instead, the distribution is J-shaped (or reverse-J-shaped): lots of 1-star reviews, lots of 5-star reviews, and relatively few 2, 3, and 4-star reviews.
-
-The true distribution of product experiences is approximately normal — most purchases are satisfactory, some are excellent, some are disappointing. The observed distribution is J-shaped because **people self-select into submitting a review**. The selection mechanism is asymmetric:
-
-- Customers who are very satisfied (5-star) have high motivation to share their enthusiasm
-- Customers who are very dissatisfied (1-star) have high motivation to warn others or vent frustration
-- Customers with middling experiences (2, 3, 4-star) have little motivation to write anything
-
-```{r j_curve, fig.height=5.5, fig.width=11}
-#| code-summary: "▶ Simulate: J-shaped review distribution from normal true experiences"
-
-set.seed(2025)
-N_cust <- 50000
-
-# True experience: roughly normal, clipped to 1–5
-true_exp <- pmax(1, pmin(5, round(rnorm(N_cust, mean = 3.5, sd = 1.1))))
-
-# Review submission probability by star rating
-# Mirrors empirically observed patterns: high at extremes, low in middle
-submit_prob <- c("1" = 0.72, "2" = 0.12, "3" = 0.08, "4" = 0.15, "5" = 0.70)
-prob_vec    <- submit_prob[as.character(true_exp)]
-submitted   <- rbinom(N_cust, 1, prob_vec) == 1
-obs_exp     <- true_exp[submitted]
-
-# Build plotting data
-true_df <- tibble(stars = true_exp) |>
-  count(stars) |>
-  mutate(pct = n / sum(n), source = "True experience distribution\n(all customers)")
-
-obs_df <- tibble(stars = obs_exp) |>
-  count(stars) |>
-  mutate(pct = n / sum(n), source = "Observed reviews\n(self-selected submitters)")
-
-plot_df <- bind_rows(true_df, obs_df) |>
-  mutate(source = factor(source,
-    levels = c("True experience distribution\n(all customers)",
-               "Observed reviews\n(self-selected submitters)")))
-
-ggplot(plot_df, aes(x = factor(stars), y = pct, fill = source)) +
-  geom_col(position = position_dodge(0.75), width = 0.68, alpha = 0.88) +
-  geom_text(aes(label = sprintf("%.0f%%", pct * 100)),
-            position = position_dodge(0.75), vjust = -0.4, size = 3.5) +
-  scale_fill_manual(values = c(
-    "True experience distribution\n(all customers)"  = "#4a90d9",
-    "Observed reviews\n(self-selected submitters)"   = "#e63946"
-  ), name = NULL) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 0.55)) +
-  labs(x = "Star rating", y = "Share of observations (%)",
-       title = "The J-Shaped Review Distribution: Self-Selection, Not Reality",
-       subtitle = paste0(
-         "True experiences are roughly normal (mean \u2248 3.5)  \u00b7  ",
-         "Observed reviews are J-shaped because extreme raters disproportionately submit\n",
-         "Submission probability: 1\u2605 = 72%  \u00b7  2\u2605 = 12%  \u00b7  ",
-         "3\u2605 = 8%  \u00b7  4\u2605 = 15%  \u00b7  5\u2605 = 70%")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        legend.position = "top")
-```
-
-The red bars (observed reviews) are dramatically different from the blue bars (true experience distribution). A researcher who draws conclusions from the review data alone — "most buyers either love or hate this product" — is drawing conclusions from a self-selected sample, not from customer experience. Average star ratings systematically overstate dissatisfaction (1-star submitters are overrepresented) and overstate exceptional satisfaction (5-star submitters are overrepresented), while the large middle group of satisfied-but-not-enthusiastic customers is nearly invisible.
-
-## Secondary Data: Non-Response Bias in Email Marketing
-
-Email marketing analytics provide another common source of self-selection bias. Open rates, click rates, and conversion rates are calculated on the denominator of *people who chose to open the email*. That group is not a random draw from the full mailing list.
-
-Consider a marketing analyst studying whether an eco-label message in a promotional email increases conversion to purchase. She sends the email to 100,000 customers and observes a 22% open rate — 22,000 people opened the email. Of those, 8% converted. She concludes that the eco-label message has a strong effect among "engaged customers."
-
-The problem: the 22,000 people who opened the email are already a self-selected group. They opened because they had prior interest in the sender, the product category, or the subject line. Among the 78,000 who did not open, the eco-label message had no opportunity to work — but their non-response is itself informative: they are less engaged with the brand and likely less responsive to any message. The conversion rate among openers reflects the intersection of (a) the eco-label effect and (b) the characteristics of people who open emails in the first place. These two things cannot be disentangled without data on the full sample.
-
-## Experimental Context: Goswami & Urminsky (2016) — Conditional Participation
-
-Perhaps the most important and most easily overlooked form of self-selection in experiments occurs when the analysis conditions on a decision that participants make during the study. Goswami & Urminsky (2016) provide a clear example using charitable donation experiments.
-
-**The study design.** Participants were randomly assigned to see a charitable giving solicitation with either a low default donation amount ($1) or a high default donation amount ($10). There were two outcomes of interest: (1) whether the participant chose to donate at all; and (2) among those who donated, how much they donated.
-
-**Stage 1 — the donate/don't-donate decision.** At this stage, the two experimental groups are exchangeable. Random assignment worked. We can straightforwardly estimate the causal effect of the default on the probability of donating.
-
-**Stage 2 — how much to donate.** This analysis is restricted to participants who chose to donate. And here is where the exchangeability breaks down. The decision to donate is influenced by the default amount. A high default ($10) changes who decides to donate:
-
-- Participants who would have donated $5 or more regardless of the default are unaffected in their decision to donate
-- Participants who were on the margin — willing to give something small if prompted, but not willing to give $10 — may decline to donate when facing the high default
-
-The result is that the composition of donors is different across conditions. The high-default condition retains only the more committed donors (those willing to give at least $10); the low-default condition retains the committed donors *plus* the borderline donors (who give a small amount). These two subsets are not exchangeable.
-
-```{r conditional-participation, fig.height=5.5, fig.width=12}
-#| code-summary: "▶ Simulate: two-stage donation experiment — exchangeable at stage 1, not at stage 2"
-
-set.seed(2025)
-N_don <- 2000
-
-sim_don <- tibble(
-  # True giving propensity: higher = more committed donor
-  propensity    = rnorm(N_don, 0, 1),
-  # Random assignment
-  high_default  = rbinom(N_don, 1, 0.5),
-  # Stage 1: probability of donating
-  # High default raises threshold sharply: only committed donors (propensity > ~0.8) proceed
-  p_donate      = plogis(propensity * 1.5 - 1.2 * high_default),
-  donated       = rbinom(N_don, 1, p_donate),
-  # Stage 2: amount, conditional on donating
-  # True effect of high default on amount = $1.50 (anchoring)
-  # But high donors have higher baseline propensity in high-default condition
-  amount_latent = 5 + 1.5 * high_default + 2.0 * propensity + rnorm(N_don, 0, 1.5),
-  amount        = ifelse(donated == 1, pmax(0.5, amount_latent), NA_real_)
-)
-
-# ── Balance: full sample (before conditioning) ───────────────────────────────
-balance_full <- sim_don |>
-  group_by(high_default) |>
-  summarise(
-    n           = n(),
-    mean_prop   = round(mean(propensity), 3),
-    pct_donate  = round(mean(donated) * 100, 1),
-    .groups     = "drop"
-  ) |>
-  mutate(Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)")) |>
-  dplyr::select(Condition, n, `Mean propensity` = mean_prop,
-                `% who donate` = pct_donate)
-
-# ── Balance: donors only (after conditioning) ────────────────────────────────
-donors <- sim_don |> filter(donated == 1)
-
-balance_donors <- donors |>
-  group_by(high_default) |>
-  summarise(
-    n           = n(),
-    mean_prop   = round(mean(propensity), 3),
-    mean_amount = round(mean(amount, na.rm = TRUE), 2),
-    .groups     = "drop"
-  ) |>
-  mutate(Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)")) |>
-  dplyr::select(Condition, n, `Mean propensity (among donors)` = mean_prop,
-                `Mean donation amount ($)` = mean_amount)
-
-# ── Plot: propensity distribution by condition, full vs. donors ──────────────
-plot_data <- bind_rows(
-  sim_don |> mutate(subset = "Full sample\n(before conditioning)"),
-  donors  |> mutate(subset = "Donors only\n(after conditioning)")
-) |>
-  mutate(
-    Condition = ifelse(high_default == 1, "High default ($10)", "Low default ($1)"),
-    subset    = factor(subset,
-                  levels = c("Full sample\n(before conditioning)",
-                             "Donors only\n(after conditioning)"))
-  )
-
-ggplot(plot_data, aes(x = propensity, fill = Condition, color = Condition)) +
-  geom_density(alpha = 0.35, linewidth = 0.9) +
-  facet_wrap(~subset, nrow = 1) +
-  scale_fill_manual(values  = c("High default ($10)" = "#e63946",
-                                 "Low default ($1)"   = "#4a90d9"), name = NULL) +
-  scale_color_manual(values = c("High default ($10)" = "#e63946",
-                                 "Low default ($1)"   = "#4a90d9"), name = NULL) +
-  labs(x = "Donor propensity (latent)", y = "Density",
-       title = "Conditioning on Donation Destroys Exchangeability",
-       subtitle = paste0(
-         "Left: full sample — conditions are exchangeable (overlapping distributions)\n",
-         "Right: donors only — high-default condition retains only high-propensity donors")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top",
-        strip.text = element_text(face = "bold"))
-```
-
-The left panel confirms that randomization worked: the full-sample distributions of donor propensity are nearly identical across conditions — the groups are exchangeable before anyone makes a donation decision. The right panel shows what happens after conditioning: the high-default condition now contains a disproportionate share of high-propensity donors. Their average donation appears lower than expected from the anchoring hypothesis alone, because the low-default condition's average is inflated by a larger share of committed high-propensity donors who give generously. Any naive comparison of mean donation amounts across conditions conflates the anchoring effect with this composition shift.
-
-```{r don-balance-tables}
-#| code-summary: "▶ Tables: balance before and after conditioning"
-kable(balance_full,
-      caption = "Balance check: full sample (before conditioning on donation)")
-kable(balance_donors,
-      caption = "Balance check: donors only (after conditioning) — propensity is no longer balanced")
-```
-
-::: {.callout-important}
-## Why forcing a $0 response does not solve this
-
-A researcher might think the solution is to include non-donors in the amount analysis — just force every participant to report an amount, and let them respond with $0. The problem is that **$0 from a non-donor is categorically different from $0.01 from a reluctant donor**. These two data points reflect different decisions from different decision processes. A participant who decided not to donate and reported $0 was never in the donation decision-making process; a participant who decided to donate a small amount was. Pooling them into a single continuous outcome conflates two qualitatively different behavioral states.
-
-The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the *probability* of donating (where groups remain exchangeable); (2) separately report and analyze the effect on *conditional donation amount* with the explicit caveat that this second analysis is compromised by the conditioning problem. Module 3, Part 2 will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.
-:::
-
----
-
-# 3. Survivorship Bias and Attrition Bias {#sec-survival-attrition}
-
-Two related but structurally distinct problems arise when observations leave the sample before or during the study.
-
-::: {.callout-important}
-## The critical distinction
-
-**Survivorship bias:** the observations that did not survive — those that were filtered out before entering the observed sample — are *permanently absent*. You never had them. Their absence is invisible unless you reason carefully about what would have needed to be there.
-
-**Attrition bias:** observations *enter* the sample at the start, but leave non-randomly during data collection. They were in the dataset at time 1; they are gone by time 2. Because you have their baseline measurements, the problem is at least *detectable* — which survivorship is not.
-:::
-
-## Survivorship Bias: The WWII Bomber Aircraft
-
-During World War II, the Statistical Research Group at Columbia University was asked to advise the US military on where to add armor to bomber aircraft. The military's data showed the following damage pattern on returning planes: bullet holes were concentrated on the wings, fuselage, and tail. The initial proposal was to reinforce those areas.
-
-Abraham Wald pointed out the error. The data came only from planes that *returned*. The planes that were shot down and never returned — the non-survivors — were hit somewhere else. The absence of engine hits in the data on surviving planes was not evidence that engines were rarely hit. It was evidence that planes hit in the engines did not survive to be counted.
-
-Reinforcing the wings and fuselage would have been reinforcing exactly the places that *could* absorb damage without bringing a plane down. The right conclusion was to reinforce the engines — precisely because they were not represented in the damage data.
-
-**The general structure.** In any survivorship problem:
-
-1. A filter operates on the population before you observe it
-2. The filter is correlated with the outcome or a key predictor
-3. The sample you observe is not representative of the population — it over-represents the kind of entities that survive the filter
-
-This structure appears throughout business and social research:
-
-- **Successful startups:** you observe the strategies of companies that survived long enough to be studied. Failed companies used many of the same strategies and are absent from the analysis. "What do successful companies have in common?" is often answered with characteristics that are equally present in failed companies.
-- **Published studies:** the published literature over-represents studies that found significant effects. Studies with null results are harder to publish. The evidence base for an effect is built from a survivor-selected sample of studies.
-- **Long-tenured employees:** surveys of organizational engagement administered to current employees over-sample those who found the environment tolerable enough to stay. The most disengaged employees have already left.
-
-## Attrition Bias in Longitudinal Studies
-
-Attrition bias is the longitudinal analog of survivorship, with a critical difference: participants *started* in the study and then left. You have their baseline measurements. The loss is not invisible — it is detectable.
-
-In a clinical trial or longitudinal panel, participants drop out for systematic reasons:
-
-- **Differential health-related attrition:** participants who respond well to a treatment may drop out because they feel better and no longer see the need to continue. The remaining sample appears sicker than the treatment actually achieves — the apparent trajectory is too pessimistic.
-- **Severe deterioration:** participants who deteriorate severely may become too ill to continue. The remaining sample appears healthier — the apparent trajectory is too optimistic.
-
-Both patterns produce biased estimates of treatment trajectories and effect sizes. And the two patterns can partially cancel each other, making the net bias hard to sign without careful investigation of who dropped out and when.
-
-**Why the survivorship/attrition distinction matters methodologically:**
-
-| | Survivorship bias | Attrition bias |
+| | Keyword search | LDA topic model |
 |---|---|---|
-| When does the selection occur? | Before the study begins (or before the observation window) | During the study, after enrollment |
-| Do we have any data on the absent observations? | No — they never entered the sample | Yes — we have their baseline (and possibly wave-1) measurements |
-| Is the problem detectable? | Only through external reasoning about what is missing | Yes — compare dropouts to completers on observed baseline covariates |
-| Can it be (partially) corrected? | Very difficult; requires external data or strong assumptions | Sometimes — using inverse probability weighting on dropout, imputation, or mixed models under MAR |
+| **Prior knowledge needed?** | Yes — specify patterns | No — fully unsupervised |
+| **Best for** | Confirming expected concepts | Discovering unexpected ones |
+| **Output** | % of responses per concept | Probabilistic word clusters |
+| **Interpretability** | High (you chose the labels) | Requires human labeling |
+| **Use in practice** | When you have a theory | Early pilot, no prior theory |
 
-## Experimental Attrition: Zhou & Fishbach (2016)
+In practice, use **LDA first** to spot concepts you hadn't anticipated, then use **keyword patterns** to measure their prevalence precisely in the full sample.
+:::
 
-Online experiments are particularly vulnerable to attrition, and that attrition is rarely random. Zhou & Fishbach (2016, *Journal of Personality and Social Psychology*) documented what they called the "pitfall of experimenting on the web": dropout rates in online studies are high (often 20–60%), systematically vary across conditions, and produce participant samples that are no longer exchangeable across groups at study completion.
+### From Text to Numbers: Measuring and Modeling the Nomological Net
 
-**The mechanism.** Participants decide whether to continue after seeing each screen. That decision depends on how engaging, interesting, or boring they find the current task. Critically, different experimental conditions often differ in their intrinsic engagement level — one condition may be more novel, more interesting, or more meaningful than another. The result:
+The text analysis above identifies *which* constructs are active in the causal chain from X to Y. The next step is to **measure** those constructs quantitatively and **model** their pathways structurally. Together, these three stages — text scan → quantitative measurement → structural modeling — form the complete pipeline for dealing with exclusion restriction violations.
 
-- The more engaging condition retains more participants
-- The less engaging condition (often the control) loses its least motivated participants first
-- Among completers, the less engaging condition is disproportionately populated by persistent, motivated, or attentive participants — people who are systematically different on dimensions that predict Y
+#### Step 2: Generate Quantitative Mediator Scores
 
-```{r attrition-sim, fig.height=5.5, fig.width=12}
-#| code-summary: "▶ Simulate: differential attrition creates spurious treatment effect"
+The text scan identified which mediator constructs are active. Now we simulate what it would look like if we had *measured* those constructs quantitatively — as short scales administered alongside the main WTP item. Each score is generated from the underlying participant traits plus noise, reflecting what a properly validated scale would produce.
 
-set.seed(2025)
-N_att <- 1200  # initial enrollment per condition
+```{r quant-mediators}
+#| code-summary: "▶ Step 2: Simulate quantitative scores for each text-identified mediator"
 
-# Each participant has a latent engagement level
-# Treatment condition (more interesting): dropout prob = 12%
-# Control condition (more boring): dropout prob = 32%, but dropout is not random —
-#   low-engagement participants are more likely to drop out
-sim_att <- tibble(
-  condition  = rep(c("Treatment\n(engaging)", "Control\n(less engaging)"), each = N_att),
-  engagement = rnorm(N_att * 2, 0, 1),  # latent engagement trait
-  # Dropout probability: baseline + larger effect of low engagement in control
-  p_dropout  = plogis(
-    ifelse(condition == "Treatment\n(engaging)",
-           -2.0 + (-0.3) * engagement,   # 12% average dropout; weak engagement effect
-           -0.8 + (-0.8) * engagement)   # 32% average dropout; strong engagement effect
-  ),
-  dropped    = rbinom(N_att * 2, 1, p_dropout) == 1,
-  # Outcome: truly no treatment effect; but engagement drives Y
-  Y          = 5 + 0 * (condition == "Treatment\n(engaging)") + 1.5 * engagement + rnorm(N_att * 2)
+set.seed(999)
+
+# ── Treatment assignment first — eco_latent is CAUSED by the condition ────────
+# Seeing an eco-label activates eco-mindedness: it raises the salience of
+# sustainability, health/naturalness, social values, and certification trust.
+# The condition effect on all four eco indicators flows ENTIRELY through eco_latent;
+# eco_arm has NO direct path to any indicator. This makes the DGP's causal
+# structure exactly match the SEM's measurement model (eco_factor ~ condition).
+eco_arm <- as.integer(condition_p2 == "Eco-label")
+
+eco_latent    <- 0.80 * eco_arm + rnorm(N_p2, 0, 1.0)   # condition → eco-mindedness
+frugal_latent <- rnorm(N_p2)                               # frugality: stable trait, unaffected by condition
+social_latent <- rnorm(N_p2)                               # social proof: stable trait, unaffected by condition
+
+# ── Correlated mediators: high within-cluster loading on eco_latent ──────────
+# The 4 eco indicators share eco_latent as a common cause (loadings 0.84–0.90),
+# producing pairwise correlations of r ≈ 0.65–0.93 among indicators in this DGP.
+# This severe multicollinearity means parallel mediation's individual b-paths are
+# unstable and their attenuated sum underestimates the true latent-factor indirect effect.
+
+# ── Correlated ERRORS within indicator pairs ──────────────────────────────────
+# Beyond eco_latent, three pairs share a response-style method factor (loading 0.55):
+#   sustainability & health_natural: "natural/organic framing"
+#   social_values & trust_cert: "social legitimacy/institutional approval"
+#   quality_taste & hedonic: "sensory/experiential evaluation"
+# All method factors are INDEPENDENT of eco_latent and eco_arm → pure residual covariance.
+# SEM models all three pairs via ~~ constraints; parallel mediation ignores them entirely.
+method_sus_health <- rnorm(N_p2, 0, 1.0)   # natural/organic framing: sustainability ↔ health_natural
+method_soc_trust  <- rnorm(N_p2, 0, 1.0)   # social legitimacy:       social_values  ↔ trust_cert
+method_qual_hed   <- rnorm(N_p2, 0, 1.0)   # sensory/experiential:    quality_taste  ↔ hedonic
+
+# ── Eco-cluster indicators: caused by eco_latent + method factors ONLY ────────
+# eco_arm has NO direct effect on any indicator — its influence flows entirely
+# through eco_latent. Consequences:
+#   (a) The CFA (eco_factor =~ indicators) is the correct measurement model for this DGP.
+#   (b) SEM's structural path (eco_factor ~ condition) recovers the true a-path
+#       (condition → eco_latent), correctly weighting all 4 indicators and correcting
+#       for measurement-error attenuation in each.
+#   (c) Parallel mediation treats 4 highly correlated indicators (r ≈ 0.65–0.93) as
+#       independent predictors → severe multicollinearity + attenuation → individual
+#       b-paths unstable; summed eco-cluster indirect effect underestimates the truth.
+#   (d) The three method factors add within-pair residual correlations (loading 0.55)
+#       that parallel mediation ignores; the SEM models all three via ~~ constraints.
+med_scores <- data.frame(
+  sustainability  = 0.90 * eco_latent + 0.55 * method_sus_health + rnorm(N_p2, 3.5, 0.25),
+  social_values   = 0.88 * eco_latent + 0.55 * method_soc_trust  + rnorm(N_p2, 3.0, 0.25),
+  health_natural  = 0.86 * eco_latent + 0.55 * method_sus_health + rnorm(N_p2, 3.2, 0.25),
+  trust_cert      = 0.84 * eco_latent + 0.55 * method_soc_trust  + rnorm(N_p2, 3.5, 0.25),
+  # Frugal cluster: moderately reflective of frugal_latent
+  price_cost      = 0.70 * frugal_latent - 0.15 * eco_arm + rnorm(N_p2, 3.0, 0.55),
+  habit_routine   = 0.68 * frugal_latent                  + rnorm(N_p2, 3.0, 0.55),
+  # Social/demand cluster: moderately reflective of social_latent
+  demand_effect   = 0.70 * social_latent + 0.45 * eco_arm + rnorm(N_p2, 2.0, 0.55),
+  guilt_offset    = 0.68 * social_latent + 0.30 * eco_arm + rnorm(N_p2, 2.5, 0.55),
+  # Standalone mediators — share a sensory/experiential method factor (loading 0.55)
+  quality_taste   = 0.40 * eco_latent   + 0.35 * eco_arm + 0.55 * method_qual_hed + rnorm(N_p2, 3.5, 0.35),
+  hedonic         = 0.20 * eco_latent   + 0.15 * eco_arm + 0.55 * method_qual_hed + rnorm(N_p2, 3.8, 0.40)
 )
 
-completers <- sim_att |> filter(!dropped)
+# Standardize mediators to z-scores
+med_z <- as.data.frame(scale(med_scores))
+med_z$condition <- eco_arm
 
-# Summary stats
-att_summary <- sim_att |>
+# ── WTP: depends on LATENT FACTORS, not individual indicators ────────────────
+# This is the key DGP design: WTP reflects eco_latent (the shared construct
+# behind the 4 correlated eco items), NOT each indicator separately.
+# Parallel mediation is doubly misspecified: (1) treats 4 highly correlated
+# indicators (r ≈ 0.65–0.93) as independent predictors → multicollinearity;
+# (2) uses noisy proxies for eco_latent → attenuation bias in the b-paths.
+# SEM is correctly specified — it models eco_latent explicitly via CFA,
+# corrects for attenuation, and models the residual covariances via ~~.
+WTP_med <- 5.0 +
+  0.50 * eco_arm       +   # direct condition effect
+  1.20 * eco_latent    +   # main indirect path (eco-mindedness → WTP)
+ -0.55 * frugal_latent +   # frugality lowers WTP
+  0.50 * social_latent +   # social proof boosts WTP
+  0.40 * (med_scores$quality_taste - mean(med_scores$quality_taste)) /
+          sd(med_scores$quality_taste) +
+  0.15 * (med_scores$hedonic - mean(med_scores$hedonic)) /
+          sd(med_scores$hedonic) +
+  rnorm(N_p2, 0, 1.5)
+med_z$WTP <- scale(WTP_med)[, 1]
+
+cat("Mediator score means by condition (standardized; should differ for eco-activated dims):\n")
+med_scores |>
+  mutate(condition = condition_p2) |>
   group_by(condition) |>
-  summarise(
-    enrolled   = n(),
-    completed  = sum(!dropped),
-    dropout_pct = round(mean(dropped) * 100, 1),
-    .groups = "drop"
+  summarise(across(everything(), ~ round(mean(.), 2)), .groups = "drop") |>
+  kable(caption = "Mean mediator scores by condition (raw scale)")
+```
+
+#### Step 3: Parallel Mediation Model
+
+A parallel mediation model regresses each mediator on treatment (the *a* paths) and regresses WTP on treatment + all mediators simultaneously (the *b* paths + direct effect *c'*). The indirect effects (a × b) decompose the total X→Y effect into specific causal channels.
+
+This model assumes the mediators are **independent** of each other (no correlated residuals). This is the standard Hayes PROCESS approach. **We will address mediation models in much greater detail in Module 3**, where we formalize the causal assumptions required for valid mediation inference and introduce more flexible structural equation modeling approaches. Here, we use parallel mediation as a first-pass decomposition tool to illustrate the concept — and to show where it breaks down.
+
+```{r parallel-mediation}
+#| code-summary: "▶ Step 3: Parallel mediation via lavaan (fits model; no standalone plot)"
+
+med_names <- c("sustainability", "quality_taste", "price_cost", "social_values",
+               "health_natural", "trust_cert", "demand_effect", "guilt_offset",
+               "hedonic", "habit_routine")
+
+# Build lavaan model string dynamically
+a_paths <- paste0(med_names, " ~ a", seq_along(med_names), " * condition",
+                  collapse = "\n  ")
+b_paths <- paste0("WTP ~ ",
+                  paste0("b", seq_along(med_names), " * ", med_names, collapse = " + "),
+                  " + cp * condition")
+ind_defs <- paste0("ind", seq_along(med_names), " := a", seq_along(med_names),
+                   " * b", seq_along(med_names), collapse = "\n  ")
+total_ind <- paste0("total_indirect := ",
+                    paste0("ind", seq_along(med_names), collapse = " + "))
+
+parallel_model <- paste("# a paths\n ", a_paths,
+                        "\n# outcome\n ", b_paths,
+                        "\n# indirect effects\n ", ind_defs,
+                        "\n ", total_ind)
+
+fit_parallel <- sem(parallel_model, data = med_z, se = "bootstrap", bootstrap = 200)
+
+# Extract indirect effect estimates
+param_par <- parameterEstimates(fit_parallel, boot.ci.type = "bca.simple") |>
+  filter(op == ":=") |>
+  mutate(
+    label_clean = c(paste0("via ", gsub("_", " ", med_names)), "Total indirect"),
+    sig = ifelse(pvalue < 0.05, "*", "ns"),
+    model = "Parallel mediation"
+  )
+cat("Parallel mediation fitted. Total indirect:",
+    round(param_par$est[param_par$label_clean == "Total indirect"], 3), "\n")
+```
+
+#### Step 4: SEM with Latent Factors
+
+**Why parallel mediation underestimates the eco-cluster effect:** The eco-label activates a *cluster* of correlated constructs — sustainability, social values, health/natural, and trust in certification — all driven by the same underlying eco-mindedness latent factor. Regressing WTP on all 10 mediators simultaneously creates **multicollinearity** among those four; the regression splits their shared variance arbitrarily across four rows. Each individual eco-cluster pathway appears small and noisy.
+
+**The SEM solution:** instead of treating each indicator as an independent mediator, model the shared variance explicitly as a *latent factor* using a CFA measurement model. The latent `eco_factor` extracts the common variance from its four indicators, accounts for measurement error in each, and serves as a single, well-identified mediator in the structural part of the model. This is precisely the link to Module 1: the CFA measurement model IS a discriminant/convergent validity check applied directly to the mediator set.
+
+```{r sem-latent, fig.height=5.5, fig.width=9}
+#| code-summary: "▶ Step 4: SEM with latent eco-factor (CFA + structural mediation)"
+
+# ── Build cluster data: standardize cluster means so all effects are comparable ─
+# eco_cluster, frugal_cluster, social_cluster = means of z-scored items → already
+# near-zero mean, but SD ≈ 0.5–0.8 (smaller than individual items because averaging
+# reduces noise).  We scale them to SD = 1 so oracle, parallel, and SEM indirect
+# effects are all in standardised-WTP-per-unit-condition units.
+cl_names <- c("eco_cluster","frugal_cluster","social_cluster","quality_taste","hedonic")
+
+eco_raw    <- rowMeans(med_z[, c("sustainability","social_values","health_natural","trust_cert")])
+frugal_raw <- rowMeans(med_z[, c("price_cost","habit_routine")])
+social_raw <- rowMeans(med_z[, c("demand_effect","guilt_offset")])
+
+med_cl <- data.frame(
+  eco_cluster    = scale(eco_raw)[,1],      # standardised cluster means
+  frugal_cluster = scale(frugal_raw)[,1],
+  social_cluster = scale(social_raw)[,1],
+  quality_taste  = med_z$quality_taste,     # already z-scored
+  hedonic        = med_z$hedonic,
+  condition      = med_z$condition,
+  WTP            = med_z$WTP
+)
+
+# Extend with raw eco indicators for the CFA measurement model
+# (indicators are already z-scored from med_z)
+med_sem <- cbind(
+  med_cl,
+  sustainability = med_z$sustainability,
+  social_values  = med_z$social_values,
+  health_natural = med_z$health_natural,
+  trust_cert     = med_z$trust_cert
+)
+
+# ── Latent SEM model ──────────────────────────────────────────────────────────
+# Measurement model (CFA): eco_factor is a latent variable measured by 4 indicators.
+# std.lv = TRUE standardises the latent variable to variance = 1, putting the SEM's
+# eco_factor on the same scale as eco_latent_std in the oracle (both SD = 1).
+sem_model_txt <- '
+  # Measurement model: eco_factor = latent eco-mindedness from 4 z-scored indicators
+  eco_factor =~ sustainability + social_values + health_natural + trust_cert
+
+  # Residual covariances: pairs of indicators share method variance in the DGP
+  # (natural/organic framing for sus↔health_natural; social legitimacy for soc↔trust_cert;
+  #  sensory/experiential framing for quality_taste↔hedonic).
+  # These parameters are IN the DGP but completely ignored by parallel mediation.
+  sustainability ~~ health_natural
+  social_values  ~~ trust_cert
+  quality_taste  ~~ hedonic
+
+  # a-paths: condition predicts each mediator / latent factor
+  eco_factor     ~ a1 * condition
+  frugal_cluster ~ a2 * condition
+  social_cluster ~ a3 * condition
+  quality_taste  ~ a4 * condition
+  hedonic        ~ a5 * condition
+
+  # b-paths + direct effect on standardised WTP
+  WTP ~ b1 * eco_factor + b2 * frugal_cluster + b3 * social_cluster +
+        b4 * quality_taste + b5 * hedonic + cp * condition
+
+  # Indirect effects (all in standardised WTP units)
+  ind_eco     := a1 * b1
+  ind_frugal  := a2 * b2
+  ind_social  := a3 * b3
+  ind_quality := a4 * b4
+  ind_hedonic := a5 * b5
+  total_ind   := ind_eco + ind_frugal + ind_social + ind_quality + ind_hedonic
+'
+
+# std.lv = TRUE: latent eco_factor standardised to variance 1 → comparable scale
+fit_sem <- sem(sem_model_txt, data = med_sem,
+               std.lv = TRUE, se = "bootstrap", bootstrap = 200)
+
+param_sem <- parameterEstimates(fit_sem, boot.ci.type = "bca.simple") |>
+  filter(op == ":=") |>
+  mutate(
+    label_clean = c("via eco cluster", "via frugal cluster", "via social cluster",
+                    "via quality taste", "via hedonic", "Total indirect"),
+    model = "SEM (latent eco-factor)"
   )
 
-comp_summary <- completers |>
-  group_by(condition) |>
-  summarise(
-    mean_engagement = round(mean(engagement), 3),
-    mean_Y          = round(mean(Y), 2),
-    .groups = "drop"
-  )
+cat("SEM fitted. Total indirect:",
+    round(param_sem$est[param_sem$label_clean == "Total indirect"], 3), "\n")
 
-# ── Plot ──────────────────────────────────────────────────────────────────────
-p_engage <- ggplot(completers, aes(x = engagement, fill = condition, color = condition)) +
-  geom_density(alpha = 0.35, linewidth = 0.9) +
-  scale_fill_manual(values  = c("Treatment\n(engaging)" = "#2d6a4f",
-                                 "Control\n(less engaging)" = "#e63946"), name = NULL) +
-  scale_color_manual(values = c("Treatment\n(engaging)" = "#2d6a4f",
-                                 "Control\n(less engaging)" = "#e63946"), name = NULL) +
-  labs(x = "Latent engagement trait", y = "Density",
-       title = "Completers Are Not Exchangeable",
-       subtitle = "Control retains disproportionately high-engagement participants after dropout") +
+# ── Aggregate parallel mediation within clusters for comparison ───────────────
+# Sum individual a×b products within each theoretical cluster.
+# Also sum CI bounds (approximate: assumes within-cluster paths are independent).
+par_agg <- param_par |>
+  filter(label_clean != "Total indirect") |>
+  mutate(cluster = case_when(
+    label_clean %in% c("via sustainability","via social values",
+                       "via health natural","via trust cert") ~ "via eco cluster",
+    label_clean %in% c("via price cost","via habit routine")  ~ "via frugal cluster",
+    label_clean %in% c("via demand effect","via guilt offset") ~ "via social cluster",
+    TRUE ~ label_clean
+  )) |>
+  group_by(cluster) |>
+  summarise(
+    est      = sum(est),
+    ci.lower = sum(ci.lower),
+    ci.upper = sum(ci.upper),
+    .groups  = "drop"
+  ) |>
+  rename(label_clean = cluster) |>
+  mutate(model = "Parallel (summed within cluster)")
+
+cat("SEM and parallel mediation estimates computed. Proceeding to DGP recovery comparison.\n")
+```
+
+#### Step 5: How Well Does Each Approach Recover the True DGP?
+
+The simulation tells us exactly how WTP was generated (from the latent factors). We can compare what each modelling strategy estimates against that known ground truth.
+
+```{r dgp-recovery, fig.height=5.5, fig.width=12}
+#| code-summary: "▶ Step 5: Compare recovered effects to true DGP"
+
+# ── Oracle true indirect effects using the LATENT factors from the DGP ────────
+# The TRUE causal chain runs through eco_latent, frugal_latent, and social_latent —
+# not through their noisy observed composites.  Using the latent factors directly
+# (a) eliminates attenuation bias from measurement error and (b) reflects the actual
+# DGP coefficients.  A well-specified SEM should recover these values; parallel
+# mediation, which enters noisy observed indicators, cannot.
+
+wtp_std_vec <- scale(WTP_med)[, 1]   # standardised WTP from the DGP
+
+# Standardise latent factors to SD = 1 (matches SEM std.lv = TRUE scale)
+eco_latent_std    <- scale(eco_latent)[, 1]
+frugal_latent_std <- scale(frugal_latent)[, 1]
+social_latent_std <- scale(social_latent)[, 1]
+quality_std       <- med_z$quality_taste        # already z-scored
+hedonic_std_vec   <- med_z$hedonic              # already z-scored
+
+# True a-paths: OLS of each latent factor on condition
+true_a_eco     <- coef(lm(eco_latent_std ~ eco_arm))["eco_arm"]    # ≈ +0.74
+true_a_frugal  <- coef(lm(frugal_latent_std ~ eco_arm))["eco_arm"] # ≈  0
+true_a_social  <- coef(lm(social_latent_std ~ eco_arm))["eco_arm"] # ≈  0
+true_a_quality <- coef(lm(quality_std ~ eco_arm))["eco_arm"]
+true_a_hedonic <- coef(lm(hedonic_std_vec ~ eco_arm))["eco_arm"]
+
+# True b-paths: partial OLS of WTP_std on all latent factors simultaneously
+# (avoids attenuation bias from using noisy observed composites as proxies)
+oracle_true_lm <- lm(wtp_std_vec ~ eco_latent_std + frugal_latent_std +
+                       social_latent_std + quality_std + hedonic_std_vec)
+true_b_eco     <- coef(oracle_true_lm)["eco_latent_std"]
+true_b_frugal  <- coef(oracle_true_lm)["frugal_latent_std"]
+true_b_social  <- coef(oracle_true_lm)["social_latent_std"]
+true_b_quality <- coef(oracle_true_lm)["quality_std"]
+true_b_hedonic <- coef(oracle_true_lm)["hedonic_std_vec"]
+
+# True indirect effects (latent-factor oracle; no CIs — these ARE the DGP truth)
+true_ind_oracle <- setNames(
+  c(true_a_eco * true_b_eco,
+    true_a_frugal * true_b_frugal,
+    true_a_social * true_b_social,
+    true_a_quality * true_b_quality,
+    true_a_hedonic * true_b_hedonic),
+  cl_names
+)
+
+cat("Oracle (latent-factor) indirect effects:\n")
+print(round(true_ind_oracle, 3))
+
+# ── Build comparison data frame with 95% bootstrap CIs ───────────────────────
+# Oracle: point estimate only, no CI (it IS the DGP truth for this sample)
+# par_agg and param_sem carry ci.lower / ci.upper from the bootstrap runs in Step 3/4
+oracle_rows <- data.frame(
+  label_clean = paste0("via ", gsub("_", " ", cl_names)),
+  effect      = round(true_ind_oracle, 3),
+  ci_lo       = NA_real_,
+  ci_hi       = NA_real_,
+  source      = "True DGP (oracle)"
+)
+
+par_rows <- par_agg |>
+  filter(label_clean != "Total indirect") |>
+  transmute(label_clean,
+            effect = est, ci_lo = ci.lower, ci_hi = ci.upper,
+            source = "Parallel (summed within cluster)")
+
+sem_rows <- param_sem |>
+  filter(label_clean != "Total indirect") |>
+  transmute(label_clean,
+            effect = est, ci_lo = ci.lower, ci_hi = ci.upper,
+            source = "SEM (latent eco-factor)")
+
+recovery_df <- bind_rows(oracle_rows, par_rows, sem_rows) |>
+  mutate(source = factor(source,
+                          levels = c("True DGP (oracle)",
+                                     "Parallel (summed within cluster)",
+                                     "SEM (latent eco-factor)")))
+
+# Order y-axis by oracle effect size
+oracle_order <- oracle_rows |> arrange(effect) |> pull(label_clean)
+recovery_df  <- recovery_df |>
+  mutate(label_clean = factor(label_clean, levels = oracle_order))
+
+ggplot(recovery_df, aes(x = effect, y = label_clean,
+                         color = source, shape = source)) +
+  geom_vline(xintercept = 0, color = "gray40", linewidth = 0.7) +
+  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi),
+                 position = position_dodge(width = 0.65),
+                 height = 0.22, linewidth = 0.6, na.rm = TRUE) +
+  geom_point(position = position_dodge(width = 0.65), size = 3.5) +
+  scale_color_manual(values = c("True DGP (oracle)"                = "#d7301f",
+                                 "Parallel (summed within cluster)" = "#4a90d9",
+                                 "SEM (latent eco-factor)"          = "#2d6a4f"),
+                     name = NULL) +
+  scale_shape_manual(values = c("True DGP (oracle)"                = 18,
+                                 "Parallel (summed within cluster)" = 16,
+                                 "SEM (latent eco-factor)"          = 15),
+                     name = NULL) +
+  labs(x = "Indirect effect (standardized)",
+       y = NULL,
+       title = "Model Recovery vs. True DGP",
+       subtitle = paste0("Red diamonds = oracle (latent-factor truth, no CI)  \u00b7  ",
+                         "Error bars = 95% bootstrap CI\n",
+                         "SEM (green) corrects for attenuation + residual covariances; ",
+                         "parallel mediation (blue) attenuated by multicollinearity")) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), legend.position = "top")
-
-p_outcome <- ggplot(comp_summary,
-                    aes(x = condition, y = mean_Y, fill = condition)) +
-  geom_col(width = 0.5, alpha = 0.88) +
-  geom_text(aes(label = sprintf("$%.2f", mean_Y)), vjust = -0.5, size = 5, fontface = "bold") +
-  scale_fill_manual(values = c("Treatment\n(engaging)" = "#2d6a4f",
-                                "Control\n(less engaging)" = "#e63946"), guide = "none") +
-  scale_y_continuous(limits = c(0, 7.5)) +
-  labs(x = NULL, y = "Mean WTP among completers ($)",
-       title = "Spurious 'Effect' Among Completers",
-       subtitle = "True treatment effect = $0  \u00b7  Apparent effect is a composition artifact") +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
-
-p_engage + p_outcome
 ```
-
-```{r attrition-table}
-#| code-summary: "▶ Table: attrition rates and completer characteristics by condition"
-kable(left_join(att_summary, comp_summary, by = "condition"),
-      col.names = c("Condition", "Enrolled", "Completed", "Dropout %",
-                    "Mean engagement\n(completers)", "Mean WTP\n(completers)"),
-      caption = "Attrition summary: differential dropout creates non-exchangeable completer samples")
-```
-
-The simulation has a true treatment effect of exactly $0. Yet among completers, the treatment group appears to have higher WTP — because differential attrition left the control group populated by a disproportionately engaged, high-WTP subset of participants. The apparent effect is entirely a composition artifact.
 
 ::: {.callout-note}
-## Diagnosing differential attrition
+## What the recovery plot shows
 
-Zhou & Fishbach recommend three checks when reporting online experimental data:
+**The SEM (green) closely tracks the true oracle values (red), while parallel mediation (blue) systematically underestimates the eco-cluster pathway.** The oracle is computed from the true latent factors (eco_latent, frugal_latent, social_latent) used to generate the data — the unattenuated causal quantities in the DGP. Parallel mediation deviates from this truth for two compounding reasons:
 
-1. **Report attrition rates by condition.** A chi-square test of dropout rate across conditions is the minimum diagnostic. If dropout rates differ significantly, the completer sample is suspect.
-2. **Compare completers' baseline characteristics across conditions.** If you collected any pre-manipulation measures (demographics, attention checks, prior attitudes), test whether they differ between conditions among completers. This is the analog of a balance table, applied to the post-attrition sample.
-3. **Conduct sensitivity analyses.** Report results under different assumptions about how dropouts would have responded (e.g., assuming dropouts have the same mean as completers in their condition; assuming dropouts have the worst-case mean in their condition).
+1. **Attenuation bias.** Each eco indicator is a noisy proxy for eco_latent (loading ≈ 0.84–0.90 plus a method factor, plus idiosyncratic noise). Entering noisy proxies in a regression shrinks the b-path estimates toward zero — the classic errors-in-variables attenuation. Even when the four attenuated b-paths are summed across the eco cluster, the resulting indirect effect underestimates the true latent-factor effect.
+
+2. **Multicollinearity.** The four eco indicators are highly intercorrelated (r ≈ 0.65–0.93) because they share both eco_latent and a response-style method factor. Entering all four simultaneously in the WTP regression creates severe multicollinearity (VIF >> 5), making individual b-path estimates unstable and inflating their variance — compounding the attenuation problem.
+
+By contrast, the SEM explicitly defines a latent `eco_factor` via a CFA measurement model. The CFA correctly partitions eco_latent signal from measurement noise and method-factor variance, yielding an **unattenuated** b-path estimate from eco_factor to WTP. The residual covariance constraints (`sustainability ~~ health_natural`; `social_values ~~ trust_cert`) further correct for the within-pair shared method variance that parallel mediation ignores. The result is a structural path estimate that closely tracks the true latent-factor oracle.
+
+Neither model is perfect. The key insight is that **any structural model is only as good as the list of mediators you feed into it**. The text analysis gave us that list. Without the text analysis, you would have entered the study with an incomplete nomological map — and the "treatment effect" coefficient would have remained an uninterpretable mixture of all active pathways.
+
+This is the direct parallel to Module 1's discriminant validity problem: just as measuring only some sub-dimensions of Y produces a biased estimate of your latent construct, measuring only some mediators of the X→Y relationship produces a biased estimate of the causal effect. In both cases, the solution is the same: map the latent space carefully, measure what you can, and report the gap transparently.
+:::
+
+**5. Two Further Threats to Mediation Inference — and Their Remedies**
+
+The parallel mediation and SEM above address *which* mediators to include and *how* to model them. Two additional threats remain regardless of model specification: **non-normal residuals / influential outliers** (which can corrupt OLS *b*-path estimates) and **unmeasured M–Y confounders** which we will discuss in Module 3.
+
+---
+
+::: {.callout-note}
+## Tying it all together: the Module 1–2 thread
+
+Every concept in this tutorial maps directly onto a concept from Module 1:
+
+| Module 1 (Measurement) | Module 2 (Experimentation and Identification) |
+|---|---|
+| Measured Observables | Treatment conditions |
+| Latent construct (e.g., Green Purchase Intention) | Latent property of randomness / independence |
+| Discriminant validity: does your scale measure *only* what it should? | Exclusion restriction: does your manipulation activate *only* the pathway it should? |
+| Convergent validity: do items for the same construct correlate? | Randomization check: do characteristics correlate with treatment assignment? |
+| Measurement invariance: does the scale work the same across groups? | Heterogeneous treatment effects: does the manipulation work the same across participant types? |
+| Latent classes: are there sub-populations with different response patterns? | Effect heterogeneity: are there sub-populations for whom the treatment operates through different mechanisms? |
+| Low signal-to-noise → poor reliability | Broad, complex Y → high N required for true independence |
+
+**The common lesson:** observables (scale scores, group assignments, p-values) are imperfect proxies for latent quantities (true constructs, true independence, true effect sizes). Researchers who confuse the observable with the latent — who treat "my scale is published" as "my measurement is valid," or "Qualtrics randomized" as "my groups are balanced" — are making the same type of error, just in different places in the research pipeline. The path forward in both cases is the same: map the latent space carefully, measure what you can, acknowledge what you cannot, and report the gap transparently.
 :::
 
 ---
 
-# 4. Exclusion Bias {#sec-exclusion-bias}
-
-Exclusion bias occurs when decisions about which data points to include in analysis are made non-randomly — introducing a selection filter between the raw data and the analyzed data. Unlike the previous three mechanisms, exclusion bias is researcher-driven rather than participant-driven.
-
-## Secondary Data: Selective Deletion in Large Datasets
-
-Consider a researcher analyzing a large administrative dataset of customer purchases to evaluate whether eco-labeling increased transaction value. The raw data contains 200,000 transactions. During data cleaning, the researcher decides to remove "anomalous" records — very large transactions that might represent data-entry errors or corporate bulk purchases, and very small transactions that might reflect returns or test orders.
-
-If the threshold for exclusion ("transactions above $500 are anomalous") is not specified before looking at the data, the decision is endogenous to the outcome. And even well-intentioned thresholds create asymmetric exclusion if the experimental conditions differ on the tails of the distribution:
-
-- Eco-labeled products attract some high-value buyers who purchase large quantities
-- Removing "outlier" transactions by an absolute dollar threshold disproportionately removes eco-label-condition observations
-- The remaining eco-label sample is no longer representative of eco-label customers
-
-The excluded observations are not random — they are the transactions most likely to reflect the very effect the researcher is trying to estimate. The analyzed sample looks more conservative because the extremes have been removed, and those extremes were asymmetrically distributed across conditions.
-
-## Experimental Context: André (2022) — How (Not) to Exclude Outliers
-
-In experimental settings, exclusion decisions are most commonly made about participants rather than transactions. André (2022, *Journal of Consumer Research*) documents that researchers have many legitimate, defensible rules for handling outliers in response data:
-
-- Exclude participants whose response time was less than [2 / 3 / 5 / 10] seconds per item
-- Exclude participants whose total completion time was in the bottom [5% / 10%] of the sample
-- Exclude responses more than [2 / 2.5 / 3] standard deviations from the condition mean
-- Exclude participants who failed [1 / 2 / any] attention check items
-- Winsorize at the [1st & 99th / 2.5th & 97.5th / 5th & 95th] percentiles
-
-Each of these rules is reasonable on its face. Each has been used in published research. There are two related problems.
-
-The simulation below isolates the key driver: how strongly the exclusion criterion correlates with the treatment condition. It shows two rules separately. For both, H\u2080 is true (no direct treatment effect on Y). The x-axis is the empirical correlation between the exclusion criterion and treatment condition; the y-axis is the false-positive rate across 2,000 replications.
-```{r exclusion-bias, fig.height=5.5, fig.width=11}
-#| code-summary: "▶ Simulate: Type I error as a function of exclusion-treatment correlation"
-
-set.seed(2025)
-n_sims_ex <- 2000
-N_excl    <- 200
-alpha_ex  <- 0.05
-
-# ---- Panel 1: RT exclusion (fastest 10%) -----------------------------------
-# Treatment boosts engagement -> faster RT. Pooled 10th-pct threshold cuts
-# deeper into the control distribution as the boost grows.
-boost_vals <- seq(0, 1.8, length.out = 13)
-
-rt_res <- do.call(rbind, lapply(boost_vals, function(boost) {
-  sim <- replicate(n_sims_ex, {
-    trt <- rep(0:1, each = N_excl / 2)
-    eng <- rnorm(N_excl)
-    eff <- eng + boost * trt
-    Y   <- 0.85 * eng + sqrt(1 - 0.85^2) * rnorm(N_excl)
-    rt  <- 5 + 3 * eff + rnorm(N_excl, sd = 1.5)
-    keep <- rt > quantile(rt, 0.10)
-    pval <- if (sum(keep) < 10) 1L else
-      tryCatch(t.test(Y[keep & trt==1], Y[keep & trt==0])$p.value, error=function(e) 1)
-    c(pval, cor(rt, trt))
-  })
-  data.frame(panel   = "RT exclusion: fastest 10% removed",
-             corr    = mean(sim[2, ]),
-             fp_rate = mean(sim[1, ] < alpha_ex))
-}))
-
-# ---- Panel 2: SD exclusion on Y (+/-2.5 SD) --------------------------------
-# Treatment creates occasional high-Y outliers (extreme eco-label enthusiasts).
-# Each outlier is centred so E[Y|trt] = 0 (null holds). Applying a pooled
-# +/-2.5 SD threshold removes those high-Y treatment observations -> treatment
-# mean drops below control -> spurious negative apparent effect.
-p_out_vals <- seq(0, 0.08, length.out = 13)
-M_out      <- 4   # outlier shift magnitude
-
-sd_res <- do.call(rbind, lapply(p_out_vals, function(p_out) {
-  sim <- replicate(n_sims_ex, {
-    n_each <- N_excl / 2
-    trt    <- rep(0:1, each = n_each)
-    Y_ctrl <- rnorm(n_each)
-    outl   <- rbinom(n_each, 1, p_out)
-    Y_trt  <- rnorm(n_each) + outl * M_out - p_out * M_out   # centred at 0
-    Y      <- c(Y_ctrl, Y_trt)
-    keep   <- abs(scale(Y)) < 2.5
-    pval   <- if (sum(keep) < 10) 1L else
-      tryCatch(t.test(Y[keep & trt==1], Y[keep & trt==0])$p.value, error=function(e) 1)
-    c(pval, cor(abs(Y - mean(Y)), trt))
-  })
-  data.frame(panel   = "SD exclusion: \u00b12.5 SD on Y removed",
-             corr    = mean(sim[2, ]),
-             fp_rate = mean(sim[1, ] < alpha_ex))
-}))
-
-# ---- Combine and plot -------------------------------------------------------
-excl_df <- rbind(rt_res, sd_res)
-excl_df$panel <- factor(excl_df$panel,
-                        levels = c("RT exclusion: fastest 10% removed",
-                                   "SD exclusion: \u00b12.5 SD on Y removed"))
-
-p_excl <- ggplot(excl_df, aes(x = corr, y = fp_rate)) +
-  geom_hline(yintercept = alpha_ex, linetype = "dashed", color = "gray40", linewidth = 0.9) +
-  geom_line(color = "#e63946", linewidth = 1.3) +
-  geom_point(color = "#e63946", size = 2.8) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), breaks = seq(0, 0.6, 0.1)) +
-  scale_x_continuous(labels = function(x) sprintf("%.2f", x)) +
-  coord_cartesian(ylim = c(0, 0.65)) +
-  facet_wrap(~ panel, scales = "free_x", nrow = 1) +
-  labs(
-    x     = "cor(exclusion criterion, treatment condition)",
-    y     = "False-positive rate (true null effect)",
-    title = "Type I Error Inflates as the Exclusion Criterion Correlates with Treatment",
-    subtitle = paste0(
-      "N = ", N_excl, "  \u00b7  True direct effect = 0  \u00b7  ",
-      n_sims_ex, " replications per point  \u00b7  dashed line = nominal 5%")
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.text       = element_text(face = "bold", size = 10),
-    strip.background = element_rect(fill = "#f1f5f9", color = NA)
-  )
-
-p_excl
-```
-
-**What the plots show:** Both panels share the same logic: when the exclusion criterion is uncorrelated with treatment (x = 0), the pooled threshold removes participants equally from both conditions and the false-positive rate stays near the nominal 5%. As the correlation grows, exclusion becomes asymmetric.
-
-In the **RT panel**, treatment boosts engagement, which raises response times in the treatment group. A pooled "fastest 10%" threshold therefore cuts deeper into the control condition. The removed control participants have low engagement and thus low Y, so the remaining control mean rises — producing a spurious apparent negative treatment effect.
-
-In the **SD panel**, a fraction of treatment participants are high-Y outliers (extreme eco-label enthusiasts). Their mean Y contribution is centered at zero, so H₀ holds exactly. But the ±2.5 SD pooled threshold clips exactly those high-Y treatment observations. After exclusion, the treatment mean falls below the control mean — again a spurious negative effect. As the fraction of outliers grows (x increases), the false-positive rate rises steeply.
-
-The practical implication of both panels: the damage is not caused by choosing *many* rules (though that amplifies it). A single, seemingly principled exclusion rule inflates Type I error as soon as the criterion it screens is associated with treatment assignment.
+## Researcher Checklist: The Exclusion Restriction {#sec-checklist-part4}
 
 ::: {.callout-note}
-## Connecting to Part 1: what makes a p-value valid
+## Key questions about your manipulation
 
-Recall from Part 1 that a p-value's validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of **researcher degrees of freedom** (Simmons, Nelson & Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.
-
-The solution is not to avoid excluding outliers — some exclusions are genuinely principled. The solution is to pre-register the exclusion rule before collecting data, apply it blindly without knowledge of its effect on the result, and report the primary analysis under that rule alongside sensitivity checks under alternatives.
+- [ ] **Does your treatment condition differ from control in only the theoretically intended way?** List every feature that differs between conditions. Each is a potential violation of the exclusion restriction — your coefficient conflates all of them.
+- [ ] **Have you pilot-tested which features of the treatment participants actually respond to?** Open-ended pilot responses will reveal which aspects of the stimulus are psychologically active beyond the intended mechanism.
+- [ ] **Does your manipulation check remain significant after controlling for alternative mechanisms you measured?** If it does not, the manipulation worked through a different pathway than intended.
+- [ ] **Is your treatment the experimental analog of a discriminantly-invalid scale?** Just as a scale can absorb variance from multiple constructs, a manipulation can activate multiple psychological pathways simultaneously — producing an uninterpretable coefficient.
 :::
 
 ---
 
-# Forward Connections {#sec-forward-part4}
-
 ::: {.callout-note}
-## What comes next
+## Looking ahead: the exclusion restriction reappears in Module 3
 
-**Module 2, Part 5** covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.
+The exclusion restriction is not unique to lab experiments. Every method in **Module 3 (Causal Inference)** requires an analogous assumption — that the source of variation used to identify a causal effect operates *only* through the intended pathway:
 
-**Module 3, Part 2 — Selection on Observables** addresses how to *reestablish* approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate *why* participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.
+- **Regression discontinuity (Part 3):** The cutoff that determines treatment assignment must affect the outcome *only* through treatment status — not through any other mechanism that also changes sharply at the threshold.
+- **Difference-in-differences (Part 4):** The event or policy that causes the treatment group to change must not simultaneously affect the outcome through a separate channel.
+- **Instrumental variables (background to Part 3):** A valid instrument must be correlated with treatment but affect the outcome *only through* treatment — the exclusion restriction in its original, formal sense.
+
+In each case, the underlying question is the same one raised here: does this source of variation inject a single clean signal, or a bundle of signals that cannot be disentangled? The vocabulary and intuition you built in this section apply directly to all of those designs.
 :::
 
 ---
-
-## Researcher Checklist: Selection Effects {#sec-checklist-part4}
-
-::: {.callout-note}
-## Key questions about your sample and data
-
-- [ ] **Is your sample representative of the population you want to generalize to?** If using crowdsourcing platforms, document who self-selected in and what demographic and attitudinal features your platform, reward structure, and study topic likely over- or under-sample.
-- [ ] **Are your stimuli randomly sampled or hand-picked?** If you chose specific stimuli, check whether the hard vs. easy, interesting vs. boring, or novel vs. familiar conditions are confounded with other features that might drive your outcome. Consider using multiple stimuli per condition and treating stimulus as a random effect.
-- [ ] **Does your analysis condition on a post-randomization event?** Comparing only donors, only completers, only non-dropouts, or only non-excluded participants breaks the exchangeability achieved at randomization. Report outcomes at every stage of the decision process, not just the stage that is most convenient.
-- [ ] **Are attrition rates equal across conditions?** Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as Part 3.
-- [ ] **Were your exclusion rules pre-registered and applied blind to condition assignment?** If not, the choice of exclusion rule is an additional researcher degree of freedom. Report your primary analysis under the pre-registered rule and include results under alternative rules as a sensitivity check.
-:::

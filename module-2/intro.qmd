@@ -73,11 +73,11 @@ This tutorial covers four ideas:
 
 - **Part 1 — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
 
-- **Part 2 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.
+- **Part 2 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
 
-- **Part 3 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
+- **Part 3 — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
 
-- **Part 4 — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
+- **Part 4 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.
 
 ::: {.callout-note}
 ## Learning Objectives

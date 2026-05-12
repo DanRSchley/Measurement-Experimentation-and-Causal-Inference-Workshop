@@ -683,7 +683,7 @@ The Latin Square and metastudy designs are *pre-experimental* solutions that ach
 
 In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check "randomize" in Qualtrics.
 
-CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 3 showed, that chance is often disappointingly low when Y is complex.
+CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 2 showed, that chance is often disappointingly low when Y is complex.
 
 ## Stratified (Blocked) Random Assignment
 
@@ -843,7 +843,7 @@ Every concept in this module is a direct extension of Module 1, applied to the t
 | Construct breadth determines how many items you need | Construct breadth of Y determines how much N you need for orthogonality |
 | Correlated subscales: efficient but can hide distinct pathways | Correlated latent dimensions: can ease orthogonality OR cascade failures |
 | Open-ended text reveals the nomological net of Y | Open-ended text identifies unmeasured confounders and latent dimensions |
-| Non-representative item sampling biases what the scale captures | Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative (Part 4) |
+| Non-representative item sampling biases what the scale captures | Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative (Part 3) |
 | Stratified measurement (subscales by domain) | Stratified randomization (block by measured covariates) |
 | Multi-level data (participants nested in groups) | Clustered randomization (interventions at group level, ICC inflates required N) |
 | Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
