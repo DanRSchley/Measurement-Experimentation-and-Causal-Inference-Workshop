@@ -126,7 +126,7 @@ kable(design_tab,
 ::: {.callout-note}
 ## Connecting to {{< ref sec-randomization style="part" link="false" >}}: how designs reduce the effective design space {#connecting-to-randomization-how-designs-reduce-the-effective-design-space}
 
-Recall from {{< ref sec-orthogonality >}} that the required N for approximate orthogonality grows with the number of dimensions D and falls as $r_{\max}$ increases. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
+Recall from {{< ref sec-orthogonality >}} that the sample size needed to have a reasonable chance of approximate balance grows with the number of independent characteristics D and falls as the tolerance $r_{\max}$ loosens. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
 
 - A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.
 - A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors' levels.
