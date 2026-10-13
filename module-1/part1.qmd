@@ -1,5 +1,6 @@
 ﻿---
 title: "Part 1: Discriminant Validity"
+xref: sec-discriminant-validity
 ---
 
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRfzU0PFdBur3g5DblzV_3cHOIIZ4kyrJM0okCuuMPIGzIz-OYh95IW0LdcvAFzfg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 1: Validity"></iframe>
@@ -51,13 +52,14 @@ $$X_\text{observed} = T_\text{true} + \varepsilon$$
 
 Classical test theory (CTT) assumes the error term $\varepsilon$ is *random and symmetric* — equally likely to push the observed score up or down, averaging to zero across many observations. Under this assumption, observable scores are noisy but unbiased indicators of the latent construct you care about.
 
-But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by *something else*. The five parts in this tutorial are five different ways that "something else" creeps into your observed score:
+But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by *something else*. The {{< nparts >}} parts in this tutorial are {{< nparts >}} different ways that "something else" creeps into your observed score:
 
-- When your scale picks up a second construct (**Part 1**), ε includes that construct's variance — and is no longer random.
-- When an omitted variable drives both your predictor and outcome (**Part 2**), the "error" in your regression coefficient is systematic, not random.
-- When scale items shift their baseline across groups (**Part 3**), ε differs systematically between conditions.
-- When your sample mixes two populations (**Part 4**), ε has a bimodal structure that standard models cannot represent.
-- When your data contain influential outliers (**Part 5**), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.
+- When your scale picks up a second construct (**{{< ref sec-discriminant-validity style="part" >}}**), ε includes that construct's variance — and is no longer random.
+- When an omitted variable drives both your predictor and outcome (**{{< ref sec-omitted-variable-bias style="part" >}}**), the "error" in your regression coefficient is systematic, not random.
+- When scale items shift their baseline across groups (**{{< ref sec-measurement-invariance style="part" >}}**), ε differs systematically between conditions.
+- When your sample mixes two populations (**{{< ref sec-latent-subgroups style="part" >}}**), ε has a bimodal structure that standard models cannot represent.
+- When your data contain influential outliers (**{{< ref sec-outliers style="part" >}}**), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.
+- When your outcome scale has hard bounds (**{{< ref sec-bounded-scales style="part" >}}**), ε is truncated at the ends of the scale, so it is no longer symmetric — observed means are pulled toward the middle of the scale.
 
 **Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.** Consider a case where we are trying to measure Green Purchase Intentions (GPI) but our measurement also captures a related but separable construct Environmental Concern (EC), then the CTT equation becomes:
 
@@ -97,7 +99,7 @@ We are simulating data from a **green marketing experiment** with 400 participan
 
 **The hidden problem we planted in the data:** The GPI scale was designed to measure purchase intention — but its items ended up being nearly indistinguishable from items measuring environmental concern. In real research, this often happens when constructs are conceptually close (caring about the environment vs. intending to buy green products). The two scales fail discriminant validity.
 
-In all five parts in this tutorial, the core problem is the same: the **observed Y** you are working with is an imperfect, contaminated proxy for the **latent Y** you are trying to study.
+In all {{< nparts >}} parts in this tutorial, the core problem is the same: the **observed Y** you are working with is an imperfect, contaminated proxy for the **latent Y** you are trying to study.
 
 ::: {.callout-warning}
 ## What "failing discriminant validity" means here
@@ -1218,7 +1220,7 @@ Regardless of data type, the critical thinking question is always the same: *wha
 
 ## The Core Distinction
 
-Case 1 showed how to detect discriminant validity failures using HTMT and DVI. But there is a related, subtler failure mode that trips up researchers constantly: **a scale can be highly reliable and still be invalid**.
+The sections above showed how to detect discriminant validity failures using HTMT and DVI. But there is a related, subtler failure mode that trips up researchers constantly: **a scale can be highly reliable and still be invalid**.
 
 **Reliability** measures *consistency* — do the items within a scale hang together? Cronbach's alpha is the most common index. A high alpha (typically > 0.70) means the items are consistently measuring *something*, but says nothing about *what* that something is, or whether it can be distinguished from other constructs.
 
@@ -1352,7 +1354,7 @@ A high Cronbach's alpha confirms your items are consistently measuring *somethin
 
 ---
 
-## Researcher Checklist: Discriminant Validity {#sec-checklist-part1}
+## Researcher Checklist: Discriminant Validity {#sec-checklist-discriminant-validity}
 
 ::: {.callout-note}
 ## Key questions before using your scales

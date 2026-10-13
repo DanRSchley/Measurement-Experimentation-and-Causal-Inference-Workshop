@@ -1,5 +1,6 @@
 ---
 title: "Part 5: Experimental Causal Chain Designs"
+xref: sec-ecc
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +94,7 @@ theme_mod3 <- function() {
 
 # Part 5: Experimental Causal Chain Designs {#sec-ecc}
 
-Part 4 showed how to estimate a mediation effect statistically — fitting a path model, computing the indirect effect $a \times b$, and testing its sensitivity to unmeasured confounding between M and Y. The trouble with that approach is that the $b$-path (M → Y) is observational. Randomisation of X establishes the $a$-path cleanly, but M is never randomised. As Part 4 noted, an unobserved variable that drives both M and Y can produce an apparent indirect effect that is entirely spurious.
+{{< ref sec-mediation style="part" >}} showed how to estimate a mediation effect statistically — fitting a path model, computing the indirect effect $a \times b$, and testing its sensitivity to unmeasured confounding between M and Y. The trouble with that approach is that the $b$-path (M → Y) is observational. Randomisation of X establishes the $a$-path cleanly, but M is never randomised. As {{< ref sec-mediation style="part" >}} noted, an unobserved variable that drives both M and Y can produce an apparent indirect effect that is entirely spurious.
 
 This part addresses that problem directly. Rather than estimating the causal chain from correlations in a single study, **experimental causal chain designs** test each link in the chain with a separate experimental manipulation:
 
@@ -107,18 +108,18 @@ But this two-study strategy rests on one assumption that is so fundamental it is
 ::: {.callout-note}
 ## The three-module connection
 
-**Module 1** was about measuring the latent dimension of Y: does your scale capture the right construct, or is it contaminated by method variance, confounds, and poor discriminant validity? The same measurement challenge applies to M in Study 1. If your mediator measure has poor construct validity — low reliability, poor discriminant validity from adjacent constructs, sensitivity to measurement artefacts — then the $a$-path estimate is attenuated and the construct you think you have measured may not be the one that actually matters.
+**{{< ref sec-m1 style="long" >}}** was about measuring the latent dimension of Y: does your scale capture the right construct, or is it contaminated by method variance, confounds, and poor discriminant validity? The same measurement challenge applies to M in Study 1. If your mediator measure has poor construct validity — low reliability, poor discriminant validity from adjacent constructs, sensitivity to measurement artefacts — then the $a$-path estimate is attenuated and the construct you think you have measured may not be the one that actually matters.
 
-**Module 2** was about what is in X: when you randomise participants to an eco-label vs. no-label condition, what exactly have you manipulated? The same validity question applies to the M\* manipulation in Study 2. A high-vs.-low sustainability framing manipulates something, but is it specifically *perceived sustainability*, or does it simultaneously activate perceptions of product quality, price-worthiness, brand authenticity, and personal identity? All the construct validity problems from Module 2 reappear here — not for the treatment, but for the mediator manipulation.
+**{{< ref sec-m2 style="long" >}}** was about what is in X: when you randomise participants to an eco-label vs. no-label condition, what exactly have you manipulated? The same validity question applies to the M\* manipulation in Study 2. A high-vs.-low sustainability framing manipulates something, but is it specifically *perceived sustainability*, or does it simultaneously activate perceptions of product quality, price-worthiness, brand authenticity, and personal identity? All the construct validity problems from {{< ref sec-m2 style="long" >}} reappear here — not for the treatment, but for the mediator manipulation.
 
-Experimental causal chain designs require you to solve both measurement problems simultaneously: M must be measured validly in Study 1 **and** manipulated purely and specifically in Study 2. These two demands point directly back to what Modules 1 and 2 taught.
+Experimental causal chain designs require you to solve both measurement problems simultaneously: M must be measured validly in Study 1 **and** manipulated purely and specifically in Study 2. These two demands point directly back to what Modules {{< ref sec-m1 style="num" >}} and {{< ref sec-m2 style="num" >}} taught.
 :::
 
 ---
 
 ## Section 1: Why the Statistical Approach Alone Is Not Enough {#sec-ecc-motivation}
 
-The key identification problem in standard mediation was foreshadowed at the end of Part 4. Randomising X satisfies the first of two sequential ignorability conditions — no confounding of X → M — but it does nothing for the second: no confounding of M → Y. The diagram below shows the structural problem.
+The key identification problem in standard mediation was foreshadowed at the end of {{< ref sec-mediation style="part" >}}. Randomising X satisfies the first of two sequential ignorability conditions — no confounding of X → M — but it does nothing for the second: no confounding of M → Y. The diagram below shows the structural problem.
 
 ```{r ecc-motivation-dag, echo=FALSE, fig.height=4, fig.width=10}
 #| code-summary: "▶ DAGs: the identification problem in standard mediation"
@@ -301,16 +302,16 @@ What makes this assumption non-trivial? Consider what each operation actually do
 
 The construct activated by the Study 2 manipulation may overlap substantially with what the Study 1 scale measures — but it is not the same operation. And if the part of the Study 2 manipulation that drives WTP is product quality signals rather than environmental perceptions, then the ECC design has established that eco-labels raise environmental perceptions (Study 1) and that product quality signals raise WTP (Study 2), while the actual operative link between the two studies is broken.
 
-### The Module 1 and Module 2 connection made concrete
+### The {{< ref sec-m1 style="long" link="false" >}} and {{< ref sec-m2 style="long" link="false" >}} connection made concrete {#the-measurement-and-experimentation-connection-made-concrete}
 
-Module 1 showed that a measurement instrument can be contaminated by adjacent constructs — that a scale intended to measure perceived sustainability might also be loading on general product affect, trust in brands, or environmental identity. The solution was discriminant validity testing, CFA, and HTMT analysis.
+{{< ref sec-m1 style="long" >}} showed that a measurement instrument can be contaminated by adjacent constructs — that a scale intended to measure perceived sustainability might also be loading on general product affect, trust in brands, or environmental identity. The solution was discriminant validity testing, CFA, and HTMT analysis.
 
-Module 2 showed that a manipulation that ostensibly operationalises "eco-label exposure" might simultaneously change product quality inferences, perceived price fairness, and brand associations — what Spencer et al. (2005) called the *exclusion restriction* for the treatment (Module 2, Part 2). The solution was careful manipulation checks and attention to what the manipulation uniquely activated.
+{{< ref sec-m2 style="long" >}} showed that a manipulation that ostensibly operationalises "eco-label exposure" might simultaneously change product quality inferences, perceived price fairness, and brand associations — what Spencer et al. (2005) called the *exclusion restriction* for the treatment ({{< ref sec-exclusion style="long" >}}). The solution was careful manipulation checks and attention to what the manipulation uniquely activated.
 
 Both of these disciplines are required **simultaneously** for the ECC design to be interpretable:
 
-- The Study 1 mediator measure needs the measurement validity demonstrated in Module 1: high reliability, good convergent validity, adequate discriminant validity from quality, authenticity, and identity constructs.
-- The Study 2 mediator manipulation needs the manipulation validity examined in Module 2: a focused, narrow experimental operationalisation that moves M\* specifically, with process checks showing *what* changed and what did not.
+- The Study 1 mediator measure needs the measurement validity demonstrated in {{< ref sec-m1 style="long" >}}: high reliability, good convergent validity, adequate discriminant validity from quality, authenticity, and identity constructs.
+- The Study 2 mediator manipulation needs the manipulation validity examined in {{< ref sec-m2 style="long" >}}: a focused, narrow experimental operationalisation that moves M\* specifically, with process checks showing *what* changed and what did not.
 
 Without both, construct equivalence is an assumption asserted, not a condition verified.
 
@@ -396,7 +397,7 @@ ggplot(construct_df, aes(x = Score, fill = Condition, colour = Condition)) +
   theme_mod3()
 ```
 
-The two distributions overlap — which is why the chain appears to hold — but the *mechanism* in each study is different. This is exactly the kind of failure that measurement validity work (Module 1) and manipulation validity work (Module 2) are designed to detect before the ECC design is published.
+The two distributions overlap — which is why the chain appears to hold — but the *mechanism* in each study is different. This is exactly the kind of failure that measurement validity work ({{< ref sec-m1 style="long" >}}) and manipulation validity work ({{< ref sec-m2 style="long" >}}) are designed to detect before the ECC design is published.
 
 ---
 
@@ -424,12 +425,12 @@ The construct equivalence assumption is strong enough that it should be approach
 
 2. **Use multiple operationalisations of M\*.** If construct equivalence is critical, run a Study 2b with a different manipulation of M\* and confirm that results replicate. Replication across operationalisations strengthens the inference that it is the construct — not a specific manipulation feature — that matters.
 
-3. **Report manipulation checks that distinguish M from adjacent constructs.** Following Module 2 logic, show that the manipulation moved *perceived sustainability* but did not move *perceived quality*, *perceived naturalness*, or *price expectations*. The more adjacent constructs are measured and shown not to change, the stronger the claim that M\* is a specific manipulation of M.
+3. **Report manipulation checks that distinguish M from adjacent constructs.** Following {{< ref sec-m2 style="long" >}} logic, show that the manipulation moved *perceived sustainability* but did not move *perceived quality*, *perceived naturalness*, or *price expectations*. The more adjacent constructs are measured and shown not to change, the stronger the claim that M\* is a specific manipulation of M.
 :::
 
 ---
 
-## Researcher Checklist: Experimental Causal Chain Designs {#sec-checklist-part5-m3}
+## Researcher Checklist: Experimental Causal Chain Designs {#sec-checklist-ecc}
 
 ::: {.callout-note}
 ## Key questions before, during, and after an ECC design
@@ -444,7 +445,7 @@ The construct equivalence assumption is strong enough that it should be approach
 
 - [ ] **Report both paths with confidence intervals and effect sizes.** A significant $a$-path and a significant $b$-path are necessary but not sufficient. Report the magnitude — a trivially small $a$-path with a narrow CI still fails to support the chain practically.
 - [ ] **Measure M in Study 2 and verify construct equivalence empirically.** Check that the Study 2 manipulation moves Study 1's mediator scale, in the expected direction, by approximately the amount Study 1 suggests.
-- [ ] **Report manipulation checks distinguishing M\* from adjacent constructs.** Show what the Study 2 manipulation changed *and what it did not change*. This is the Module 2 validity check applied to the mediator manipulation.
+- [ ] **Report manipulation checks distinguishing M\* from adjacent constructs.** Show what the Study 2 manipulation changed *and what it did not change*. This is the {{< ref sec-m2 style="long" >}} validity check applied to the mediator manipulation.
 
 **Interpretation stage**
 

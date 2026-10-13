@@ -1,5 +1,6 @@
 ---
 title: "Part 3: Selection Effects"
+xref: sec-selection
 ---
 
 ```{r setup, include=FALSE}
@@ -29,22 +30,22 @@ set.seed(2025)
 
 ## The Problem That Randomization Cannot Fix
 
-Part 2 established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
+{{< ref sec-randomization style="part" >}} established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
 
-This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 2, these are not fixable by random assignment alone — the selection process operates outside the researcher's randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike Part 2 failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.
+This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of {{< ref sec-randomization style="part" >}}, these are not fixable by random assignment alone — the selection process operates outside the researcher's randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike {{< ref sec-randomization style="part" >}} failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.
 
 The distinction is worth making precise:
 
-| Part 2 failure | Part 3 failure |
+| {{< ref sec-randomization style="part" >}} failure | {{< ref sec-selection style="part" >}} failure |
 |---|---|
 | Random assignment is executed, but the sample is too small to achieve exchangeability by chance | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
-| Fixable with more data, blocked randomization, or structural designs (Part 5) | Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions |
+| Fixable with more data, blocked randomization, or structural designs ({{< ref sec-designs style="part" >}}) | Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions |
 | Creates imbalance between conditions on pre-existing covariates | Creates a sample that misrepresents the intended population or analysis set |
 
 ::: {.callout-important}
-## The Module 1 parallel
+## The {{< ref sec-m1 style="long" link="false" >}} parallel {#the-measurement-parallel}
 
-Module 1 showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed *sample* can fail to reflect your intended *population* or *analysis group* for parallel reasons.
+{{< ref sec-m1 style="long" >}} showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed *sample* can fail to reflect your intended *population* or *analysis group* for parallel reasons.
 
 > Just as a biased scale gives you the wrong latent score for a respondent, a biased sampling or exclusion process gives you the wrong set of respondents.
 :::
@@ -174,7 +175,7 @@ The randomization within that sample may be perfectly executed — eco-label vs.
 
 ## Stimulus Non-Representativeness: Bahník & Vranka (2017)
 
-Non-representativeness does not only afflict participant samples — it also afflicts **stimulus samples**. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells & Windschitl (1999) stimulus sampling reading in the Module 2 introduction.
+Non-representativeness does not only afflict participant samples — it also afflicts **stimulus samples**. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells & Windschitl (1999) stimulus sampling reading in the {{< ref sec-m2 style="long" >}} introduction.
 
 **The original finding.** Song & Schwarz (2009) reported that food additives and amusement-park rides with difficult-to-pronounce names were judged as more hazardous than easier-to-pronounce versions. The explanation was *processing fluency*: names that are hard to process feel unfamiliar and foreign, activating a heuristic that foreign = risky. The result became a widely cited demonstration of how subtle perceptual cues influence risk judgment.
 
@@ -183,9 +184,9 @@ Non-representativeness does not only afflict participant samples — it also aff
 **The replication.** When Bahník & Vranka drew stimuli randomly from a broader population of additives and rides and assigned them to pronunciation conditions, the fluency-risk effect did not replicate. The observed correlation between pronounceability and perceived risk in the original study reflected the non-random selection of specific stimuli, not a generalizable cognitive effect.
 
 ::: {.callout-important}
-## The conceptual parallel to Part 2
+## The conceptual parallel to {{< ref sec-randomization style="part" link="false" >}} {#the-conceptual-parallel-to-randomization}
 
-Recall from Part 2 that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:
+Recall from {{< ref sec-randomization style="part" >}} that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:
 
 > The "hard to pronounce" stimuli and "easy to pronounce" stimuli may differ on dimensions other than pronounceability — and those other dimensions may independently predict the outcome.
 
@@ -378,7 +379,7 @@ kable(balance_donors,
 
 A researcher might think the solution is to include non-donors in the amount analysis — just force every participant to report an amount, and let them respond with $0. The problem is that **$0 from a non-donor is categorically different from $0.01 from a reluctant donor**. These two data points reflect different decisions from different decision processes. A participant who decided not to donate and reported $0 was never in the donation decision-making process; a participant who decided to donate a small amount was. Pooling them into a single continuous outcome conflates two qualitatively different behavioral states.
 
-The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the *probability* of donating (where groups remain exchangeable); (2) separately report and analyze the effect on *conditional donation amount* with the explicit caveat that this second analysis is compromised by the conditioning problem. Module 3, Part 2 will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.
+The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the *probability* of donating (where groups remain exchangeable); (2) separately report and analyze the effect on *conditional donation amount* with the explicit caveat that this second analysis is compromised by the conditioning problem. {{< ref sec-reestablishing-exchangeability style="long" >}} will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.
 :::
 
 ---
@@ -666,9 +667,9 @@ In the **SD panel**, a fraction of treatment participants are high-Y outliers (e
 The practical implication of both panels: the damage is not caused by choosing *many* rules (though that amplifies it). A single, seemingly principled exclusion rule inflates Type I error as soon as the criterion it screens is associated with treatment assignment.
 
 ::: {.callout-note}
-## Connecting to Part 1: what makes a p-value valid
+## Connecting to {{< ref sec-pvalues style="part" link="false" >}}: what makes a p-value valid {#connecting-to-p-value-validity}
 
-Recall from Part 1 that a p-value's validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of **researcher degrees of freedom** (Simmons, Nelson & Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.
+Recall from {{< ref sec-pvalues style="part" >}} that a p-value's validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of **researcher degrees of freedom** (Simmons, Nelson & Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.
 
 The solution is not to avoid excluding outliers — some exclusions are genuinely principled. The solution is to pre-register the exclusion rule before collecting data, apply it blindly without knowledge of its effect on the result, and report the primary analysis under that rule alongside sensitivity checks under alternatives.
 :::
@@ -680,14 +681,14 @@ The solution is not to avoid excluding outliers — some exclusions are genuinel
 ::: {.callout-note}
 ## What comes next
 
-**Module 2, Part 5** covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.
+**{{< ref sec-designs style="long" >}}** covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.
 
-**Module 3, Part 2 — Selection on Observables** addresses how to *reestablish* approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate *why* participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.
+**{{< ref sec-reestablishing-exchangeability style="long" >}} — {{< ref sec-reestablishing-exchangeability style="title" link="false" >}}** addresses how to *reestablish* approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate *why* participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.
 :::
 
 ---
 
-## Researcher Checklist: Selection Effects {#sec-checklist-part3}
+## Researcher Checklist: Selection Effects {#sec-checklist-selection}
 
 ::: {.callout-note}
 ## Key questions about your sample and data
@@ -695,6 +696,6 @@ The solution is not to avoid excluding outliers — some exclusions are genuinel
 - [ ] **Is your sample representative of the population you want to generalize to?** If using crowdsourcing platforms, document who self-selected in and what demographic and attitudinal features your platform, reward structure, and study topic likely over- or under-sample.
 - [ ] **Are your stimuli randomly sampled or hand-picked?** If you chose specific stimuli, check whether the hard vs. easy, interesting vs. boring, or novel vs. familiar conditions are confounded with other features that might drive your outcome. Consider using multiple stimuli per condition and treating stimulus as a random effect.
 - [ ] **Does your analysis condition on a post-randomization event?** Comparing only donors, only completers, only non-dropouts, or only non-excluded participants breaks the exchangeability achieved at randomization. Report outcomes at every stage of the decision process, not just the stage that is most convenient.
-- [ ] **Are attrition rates equal across conditions?** Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as Part 2.
+- [ ] **Are attrition rates equal across conditions?** Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as {{< ref sec-randomization style="part" >}}.
 - [ ] **Were your exclusion rules pre-registered and applied blind to condition assignment?** If not, the choice of exclusion rule is an additional researcher degree of freedom. Report your primary analysis under the pre-registered rule and include results under alternative rules as a sensitivity check.
 :::

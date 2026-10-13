@@ -73,6 +73,7 @@ format:
       caption: "Show/Hide All Code"
     highlight-style: github
     df-print: kable
+    shortcodes: [xref.lua]
 
 execute:
   warning: false

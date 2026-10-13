@@ -1,5 +1,6 @@
 ﻿---
 title: "Part 4: Latent Subgroups"
+xref: sec-latent-subgroups
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +35,7 @@ library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
 library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQoHWAC3AyWd-Yahv2V9k6wNRzYoUPlJGLzSIhf-NTBjXmlkLXBcGreJB1DjguGUg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 3: Latent Subgroups"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQoHWAC3AyWd-Yahv2V9k6wNRzYoUPlJGLzSIhf-NTBjXmlkLXBcGreJB1DjguGUg/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Latent Subgroups"></iframe>
 
 ---
 
@@ -43,7 +44,7 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 ## Connecting to the Earlier Cases
 
-All three previous parts involved a Y variable contaminated by something extra. Part 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?
+All of the previous parts involved a Y variable contaminated by something extra. {{< ref sec-latent-subgroups style="part" >}} presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?
 
 Imagine your 600 study participants come from two populations:
 
@@ -52,7 +53,7 @@ Imagine your 600 study participants come from two populations:
 
 If you analyse the full sample as if everyone is the same type of consumer, you get an estimate of the "average" treatment effect. But that average is the mathematical midpoint between two very different responses — it may not accurately describe *either* group. Your GPI outcome now measures a mixture of "how Green Champions responded" and "how Price Skeptics responded." That is, once again, Y reflects more than X.
 
-This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Part 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.
+This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations ({{< ref sec-discriminant-validity style="part" >}}): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.
 
 ::: {.callout-note}
 ## The connection to discriminant validity
@@ -184,13 +185,13 @@ Simpson's Paradox comes up whenever your data have a **nested structure** that y
 - Multi-country datasets where the country effect dominates individual-level effects
 - Any dataset where "the sample" is actually a mixture of distinct populations
 
-The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is *exactly* the mechanism that causes discriminant validity failures when latent subgroups are present (Part 1 connection).
+The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is *exactly* the mechanism that causes discriminant validity failures when latent subgroups are present ({{< ref sec-discriminant-validity style="part" >}} connection).
 :::
 
 ::: {.callout-warning}
 ## What the two panels show
 
-**Left panel (what you see):** A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Part 1.
+**Left panel (what you see):** A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from {{< ref sec-discriminant-validity style="part" >}}.
 
 **Right panel (oracle reveal):** The relationship separates into two distinct clusters. Within each class, the EC–GPI correlation is much weaker. The high *pooled* correlation is largely a consequence of the two groups sitting at different positions on both axes — not because EC and GPI measure the same thing within a group.
 
@@ -358,7 +359,7 @@ The pooled estimate is a weighted average of two very different effects. If Gree
 ::: {.callout-note}
 ## Checklist: signs that latent subgroups may be distorting your results
 
-1. **Unexpectedly high HTMT / factor correlations** in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Part 1 connection)
+1. **Unexpectedly high HTMT / factor correlations** in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation ({{< ref sec-discriminant-validity style="part" >}} connection)
 2. **Bimodal or non-normal distributions** in your scale scores — histogram with two humps suggests a mixture
 3. **Unstable regression coefficients** across subsamples (men vs. women, different markets, etc.)
 4. **Large heterogeneity in individual responses** — residual variance is very high despite significant effects
@@ -408,7 +409,7 @@ The latent subgroup problem is a close cousin of a classical statistical phenome
 
 ### In Secondary (Observational) Data
 
-In the Case 4 data you have already computed, you can see this directly. The pooled correlation between EC and GPI is very high — but not because EC drives GPI within each class. It is high because Green Champions score high on *both*, and Price Skeptics score lower on *both*. Pooling creates a spurious between-group correlation that looks like a meaningful within-group relationship.
+In the {{< ref sec-latent-subgroups style="part" >}} data you have already computed, you can see this directly. The pooled correlation between EC and GPI is very high — but not because EC drives GPI within each class. It is high because Green Champions score high on *both*, and Price Skeptics score lower on *both*. Pooling creates a spurious between-group correlation that looks like a meaningful within-group relationship.
 
 This is Simpson's Paradox in observational data: the aggregate pattern (high EC → high GPI) is real in the pooled sample, but it is a *group-composition artifact*, not an individual-level causal relationship. Within Green Champions, EC and GPI may be only weakly related. Within Price Skeptics, the same. The strong pooled correlation is driven entirely by the groups sitting at different locations on both variables.
 
@@ -569,7 +570,7 @@ Gaussian mixture models (mclust) are the continuous-variable analogue of latent 
 
 ---
 
-## Researcher Checklist: Latent Subgroups {#sec-checklist-part4}
+## Researcher Checklist: Latent Subgroups {#sec-checklist-latent-subgroups}
 
 ::: {.callout-note}
 ## Key questions before pooling your sample

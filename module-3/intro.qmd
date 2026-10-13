@@ -1,5 +1,6 @@
 ---
 title: "Module 3: Causal Inference"
+xref: sec-m3
 subtitle: "Causal Effects, Observational Methods, Natural Experiments, and Mediation"
 ---
 
@@ -152,11 +153,11 @@ rob_extract <- function(fit) {
 
 ## What This Tutorial Is About {.unnumbered}
 
-There is a single thread running through all three modules:
+There is a single thread running through all {{< nmodules >}} modules:
 
 > **Your observable may not accurately reflect the latent quantity you want to study.**
 
-In **Module 1** that problem lived in your outcome variable — your scale picked up variance from constructs you never intended to measure. In **Module 2** it appeared in your treatment variable and your significance test — a manipulated treatment can inject multiple signals simultaneously, and a p-value only means what it means when randomisation is actually achieved.
+In **{{< ref sec-m1 style="long" >}}** that problem lived in your outcome variable — your scale picked up variance from constructs you never intended to measure. In **{{< ref sec-m2 style="long" >}}** it appeared in your treatment variable and your significance test — a manipulated treatment can inject multiple signals simultaneously, and a p-value only means what it means when randomisation is actually achieved.
 
 Both modules used the same running example: **AlterEco Coffee's eco-label experiment**, where participants were randomly assigned to see (or not see) an eco-label and reported their willingness to pay (WTP, \$1–\$10).
 

@@ -1,5 +1,6 @@
 ---
 title: "Part 5: Experimental Design Strategies and Assignment Solutions"
+xref: sec-designs
 ---
 
 ```{r setup, include=FALSE}
@@ -27,12 +28,12 @@ set.seed(2025)
 
 ## The Core Tension
 
-Parts 2, 3, and 4 showed a fundamental tension:
+Parts {{< ref sec-randomization style="num" >}}, {{< ref sec-selection style="num" >}}, and {{< ref sec-exclusion style="num" >}} showed a fundamental tension:
 
 - **More dimensions of Y** → larger design space → more N needed for orthogonality
 - **More N** → more expensive → temptation to reduce sample → back to poor orthogonality
 
-Section 3 offered two partial design-based solutions (stratification, clustering). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
+{{< ref sec-latent-imbalance style="part" >}} offered two partial remedies (blocked randomization and larger samples). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
 
 ## Completely Random, Factorial, and Latin Square Designs
 
@@ -123,15 +124,15 @@ kable(design_tab,
 ```
 
 ::: {.callout-note}
-## Connecting to Section 3: how designs reduce the effective design space
+## Connecting to {{< ref sec-randomization style="part" link="false" >}}: how designs reduce the effective design space {#connecting-to-randomization-how-designs-reduce-the-effective-design-space}
 
-Recall from Section 3.6 that the required N for approximate orthogonality grows with the number of dimensions D and falls as $r_{\max}$ increases. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
+Recall from {{< ref sec-orthogonality >}} that the required N for approximate orthogonality grows with the number of dimensions D and falls as $r_{\max}$ increases. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
 
 - A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.
 - A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors' levels.
-- A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from Section 3.
+- A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from {{< ref sec-randomization style="part" >}}.
 
-The Latin Square is a direct structural solution to the Section 3 problem: **it buys you orthogonality through design structure rather than through sample size.**
+The Latin Square is a direct structural solution to the {{< ref sec-randomization style="part" >}} problem: **it buys you orthogonality through design structure rather than through sample size.**
 :::
 
 ## Interactive Latin Square Design Builder
@@ -504,9 +505,9 @@ When ICC is low:
 **Practical benchmark:** for most psychological constructs (attitudes, preferences, perceptions), ICC values between 0.40 and 0.70 are common. In this range, within-participant designs typically require **half to one-third** the sample size of between-participant designs for equivalent power.
 :::
 
-### The connection to Section 3: within-participant designs and the design space
+### The connection to {{< ref sec-randomization style="part" link="false" >}}: within-participant designs and the design space {#the-connection-to-randomization-within-participant-designs-and-the-design-space}
 
-Within-participant designs also address the Section 3 problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
+Within-participant designs also address the {{< ref sec-randomization style="part" >}} problem in a specific and powerful way. Because each person sees *multiple* conditions, the entire design space for that person's dimensions is held constant across conditions — **by construction**. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person's data.
 
 The tradeoff is real: **carryover effects** (condition A changes how the person responds to condition B), **demand characteristics** (participants figure out the hypothesis), **order effects** (earlier conditions shift baseline responding), and **fatigue or practice effects** all threaten the validity of within-person contrasts. These threats are most severe when:
 
@@ -659,7 +660,7 @@ ggplot(power_df, aes(x = K, y = power, color = design, group = design)) +
 
 The practical upshot: a single well-powered A/B test answers the question "does this effect occur in *this* context?" A metastudy with many microstudies answers the question "does this effect occur *in general*?" — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.
 
-**The connection to Section 3:** a metastudy also directly reduces the Section 3 problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
+**The connection to {{< ref sec-randomization style="part" >}}:** a metastudy also directly reduces the {{< ref sec-randomization style="part" >}} problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions *by construction* — transforming unobserved confounders into *measured experimental factors* and extracting their effects cleanly.
 
 ::: {.callout-note}
 ## Structural designs: what each buys and what each costs
@@ -683,13 +684,13 @@ The Latin Square and metastudy designs are *pre-experimental* solutions that ach
 
 In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check "randomize" in Qualtrics.
 
-CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as Part 2 showed, that chance is often disappointingly low when Y is complex.
+CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as {{< ref sec-randomization style="part" >}} showed, that chance is often disappointingly low when Y is complex.
 
 ## Stratified (Blocked) Random Assignment
 
 **The idea:** divide participants into groups (strata or blocks) based on measured covariates that you expect to relate to Y, then randomize *within* each block.
 
-**Concrete example:** In the eco-coffee study, you know from Module 1's analysis that "environmental values" is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs. low environmental values strata. Then assign 50% to eco-label and 50% to control *within each stratum*.
+**Concrete example:** In the eco-coffee study, you know from {{< ref sec-m1 style="long" >}}'s analysis that "environmental values" is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs. low environmental values strata. Then assign 50% to eco-label and 50% to control *within each stratum*.
 
 **Why it works:** By randomizing within strata, you guarantee that each condition contains equal proportions of high- and low-environmental-values participants. This eliminates one source of latent imbalance — the most important one — by design rather than by chance.
 
@@ -765,7 +766,7 @@ ggplot(strat_summary, aes(x = cov, y = mean_smd, fill = method,
 
 Stratification dramatically reduces both the mean and worst-case imbalance on the stratified covariates. The 90th-percentile bar for CRA often exceeds the 0.10 threshold; the stratified version almost never does.
 
-**The limitation** is the same as in Module 1's measurement section: you can only stratify on what you have *measured*. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.
+**The limitation** is the same as in {{< ref sec-m1 style="long" >}}'s measurement section: you can only stratify on what you have *measured*. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.
 
 ## Clustered Random Assignment
 
@@ -824,7 +825,7 @@ ggplot(deff_df, aes(x = icc, y = Neff_80,
 | Effect on balance | **Improves** balance on stratified vars | No improvement (can worsen) |
 | Effect on required N | Reduces N slightly | **Increases** N via design effect |
 | When to use | When measured covariates predict Y strongly | When intervention must be applied at group level |
-| Analogy (Module 1) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
+| Analogy ({{< ref sec-m1 style="long" >}}) | Pre-specifying subscales before CFA | Multi-level data with non-independent observations |
 
 The core message: stratification and clustering both depart from simple CRA, but in opposite directions for power. Use stratification proactively when you can; account for clustering carefully when you must.
 :::
@@ -832,29 +833,29 @@ The core message: stratification and clustering both depart from simple CRA, but
 ---
 
 ::: {.callout-note}
-## Module 2 — the complete thread
+## {{< ref sec-m2 style="long" link="false" >}} — the complete thread {#the-complete-thread}
 
-Every concept in this module is a direct extension of Module 1, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:
+Every concept in this module is a direct extension of {{< ref sec-m1 style="long" >}}, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:
 
-| Module 1 (Measurement of Y) | Module 2 (Manipulation of X and Randomization) |
+| {{< ref sec-m1 style="long" >}} (Measurement of Y) | {{< ref sec-m2 style="long" >}} (Manipulation of X and Randomization) |
 |---|---|
 | Scale items are observables for a latent construct | Treatment assignment is an observable for latent randomization |
 | Discriminant validity: does Y measure *only* what it should? | Exclusion restriction: does X activate *only* the intended pathway? |
 | Construct breadth determines how many items you need | Construct breadth of Y determines how much N you need for orthogonality |
 | Correlated subscales: efficient but can hide distinct pathways | Correlated latent dimensions: can ease orthogonality OR cascade failures |
 | Open-ended text reveals the nomological net of Y | Open-ended text identifies unmeasured confounders and latent dimensions |
-| Non-representative item sampling biases what the scale captures | Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative (Part 3) |
+| Non-representative item sampling biases what the scale captures | Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative ({{< ref sec-selection style="part" >}}) |
 | Stratified measurement (subscales by domain) | Stratified randomization (block by measured covariates) |
 | Multi-level data (participants nested in groups) | Clustered randomization (interventions at group level, ICC inflates required N) |
 | Narrow constructs: few items, easy reliability | Narrow Y: small D, easy orthogonality, A/B suffices |
 | Broad constructs: many items, hard to achieve discriminant validity | Broad Y: large D, orthogonality requires large N or structural design (Latin Square, metastudy) |
 
-**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (Module 1), design their manipulations and sampling deliberately (Module 2), and use the right statistical corrections when design solutions are insufficient (Module 3, Part 2) give themselves the best chance of making valid causal claims. Module 3 will formalize all of this in the language of causal inference.
+**The common lesson** — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully ({{< ref sec-m1 style="long" >}}), design their manipulations and sampling deliberately ({{< ref sec-m2 style="long" >}}), and use the right statistical corrections when design solutions are insufficient ({{< ref sec-reestablishing-exchangeability style="long" >}}) give themselves the best chance of making valid causal claims. {{< ref sec-m3 style="long" >}} will formalize all of this in the language of causal inference.
 :::
 
 ---
 
-## Researcher Checklist: Experimental Design {#sec-checklist-part5}
+## Researcher Checklist: Experimental Design {#sec-checklist-designs}
 
 ::: {.callout-note}
 ## Key questions about your design structure

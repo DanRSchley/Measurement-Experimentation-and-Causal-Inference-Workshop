@@ -1,5 +1,6 @@
 ---
 title: "Part 1: What Is a Causal Effect?"
+xref: sec-causal-effects
 ---
 
 ```{r setup, include=FALSE}
@@ -112,7 +113,7 @@ rob_extract <- function(fit) {
 
 ::: {.callout-important}
 ## What this exercise assumes
-The 64 structures shown below represent the complete space of possible causal relationships among three variables under **ideal conditions**: (1) **proper measurement** — X, M, and Y are each measured without discriminant validity failures or systematic error (Module 1), and (2) **no omitted variables** — these three variables are the only players in the system (Module 2). In real research, measurement error and hidden confounders expand this space considerably.
+The 64 structures shown below represent the complete space of possible causal relationships among three variables under **ideal conditions**: (1) **proper measurement** — X, M, and Y are each measured without discriminant validity failures or systematic error ({{< ref sec-m1 style="long" >}}), and (2) **no omitted variables** — these three variables are the only players in the system ({{< ref sec-m2 style="long" >}}). In real research, measurement error and hidden confounders expand this space considerably.
 :::
 
 Causal inference is not induction — you cannot *prove* a causal structure from data. It is **deduction by elimination**: you bring every tool in your methodological toolkit to bear and see which structures survive. The exercise below makes this concrete.
@@ -925,7 +926,7 @@ In practice, homogeneity is almost never plausible. The ITE histogram above make
 
 **Why the ATE is still the gold standard for experiments:** In a randomised trial, random assignment makes the treated and control groups exchangeable in expectation, so the observed mean difference is an unbiased estimate of the ATE *without* assuming homogeneity. The experiment recovers the ATE honestly; it is the *subsequent inference* from ATE to individual effect that requires the homogeneity assumption.
 
-That said, the exchangeability assumption is more fragile than it appears — and more fragile than is often acknowledged. Random assignment guarantees balance *in expectation* across infinite replications, but any single study can produce unlucky covariate imbalance. More importantly, the behavioural conditions for exchangeability extend beyond the draw of assignment: if participants in the treatment condition behave differently because they *know* they are treated — through demand characteristics, Hawthorne effects, or awareness of experimental purpose — or if the sample differs systematically from the target population, then the observed mean difference estimates something other than the population ATE. Module 2 explored these threats in detail: the design features that protect exchangeability (pre-registration, cover stories, unobtrusive measures, stimulus sampling, representative recruitment) are precisely what make an ATE estimate credible rather than merely randomised.
+That said, the exchangeability assumption is more fragile than it appears — and more fragile than is often acknowledged. Random assignment guarantees balance *in expectation* across infinite replications, but any single study can produce unlucky covariate imbalance. More importantly, the behavioural conditions for exchangeability extend beyond the draw of assignment: if participants in the treatment condition behave differently because they *know* they are treated — through demand characteristics, Hawthorne effects, or awareness of experimental purpose — or if the sample differs systematically from the target population, then the observed mean difference estimates something other than the population ATE. {{< ref sec-m2 style="long" >}} explored these threats in detail: the design features that protect exchangeability (pre-registration, cover stories, unobtrusive measures, stimulus sampling, representative recruitment) are precisely what make an ATE estimate credible rather than merely randomised.
 
 ```{r ate-rct}
 treat_rct <- rbinom(N, 1, 0.5)
@@ -951,7 +952,7 @@ The CATE partitions the population by pre-treatment characteristics $X$ and esti
 
 **What CATE still assumes — and why the gap to ITE remains:**
 
-1. **You have measured the right moderators — and measured them well.** You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer's specific shopping occasion or the brand's existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup's true effect. But even when you *have* collected the right moderator, measurement quality matters enormously: a construct that suffers from discriminant validity failures, cross-group non-invariance, or systematic response bias (see Module 1) produces distorted CATE estimates even if the causal heterogeneity is real. A CATE model built on "environmental concern" items that actually blend concern with general pro-social identity will attribute the wrong heterogeneity to the wrong mechanism. The entire CATE machinery is predicated on the measurement infrastructure being sound.
+1. **You have measured the right moderators — and measured them well.** You can only condition on variables you have collected. If the strongest driver of heterogeneity is something unmeasured — say, a consumer's specific shopping occasion or the brand's existing equity — your CATEs are averages over that unobserved heterogeneity and may not correspond to any real subgroup's true effect. But even when you *have* collected the right moderator, measurement quality matters enormously: a construct that suffers from discriminant validity failures, cross-group non-invariance, or systematic response bias (see {{< ref sec-m1 style="long" >}}) produces distorted CATE estimates even if the causal heterogeneity is real. A CATE model built on "environmental concern" items that actually blend concern with general pro-social identity will attribute the wrong heterogeneity to the wrong mechanism. The entire CATE machinery is predicated on the measurement infrastructure being sound.
 
 2. **Correct functional form when extrapolating.** Estimating CATE for a continuous moderator (e.g., environmental concern score) requires assuming a relationship between the moderator and the treatment effect — linearity, correct interactions, no omitted non-linearities. Even a well-estimated linear CATE model will give wrong predictions for individuals whose true effect relationship is non-linear.
 
@@ -998,7 +999,7 @@ Each estimand below targets a *different slice* of the ITE distribution — and 
 **Local Average Treatment Effect (LATE):** The ITT scaled by the first-stage compliance rate (the Wald estimator). This recovers the average ITE *for compliers only* — those who take the treatment because they were assigned to, not because they always would have. The LATE is the right estimand when you care about the policy lever of assignment, and it rests on two additional assumptions beyond randomisation:
 
 - **Monotonicity:** No defiers. Every unit's probability of taking treatment is weakly *higher* under assignment ($D_i(1) \geq D_i(0)$ for all $i$). This rules out consumers who deliberately avoid eco-labels when stores promote them.
-- **Exclusion restriction:** Assignment $Z$ affects the outcome *only through* take-up $D$ — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails. This is a structural version of the manipulation validity problem from Module 2: just as a laboratory manipulation can inadvertently activate demand characteristics or alter the psychological context beyond the intended treatment, an instrument can influence outcomes through channels the researcher neither intended nor anticipated. The same design rigour that Module 2 prescribed for protecting internal validity — careful operationalisation, manipulation checks, ruling out alternative accounts of the treatment — applies equally to establishing that an instrument is truly excludable.
+- **Exclusion restriction:** Assignment $Z$ affects the outcome *only through* take-up $D$ — not through any direct path. If displaying eco-labels changes store atmosphere and affects WTP independently of whether any consumer reads them, the exclusion restriction fails. This is a structural version of the manipulation validity problem from {{< ref sec-m2 style="long" >}}: just as a laboratory manipulation can inadvertently activate demand characteristics or alter the psychological context beyond the intended treatment, an instrument can influence outcomes through channels the researcher neither intended nor anticipated. The same design rigour that {{< ref sec-m2 style="long" >}} prescribed for protecting internal validity — careful operationalisation, manipulation checks, ruling out alternative accounts of the treatment — applies equally to establishing that an instrument is truly excludable.
 
 Even with these assumptions satisfied, LATE still describes an *average* over compliers' ITEs, requiring within-complier homogeneity to predict any individual complier's response.
 
@@ -1251,12 +1252,12 @@ You do not need to run Pearl's full do-calculus algebra to benefit from DAGs. Dr
 2. **Classify your covariates** — before adding a control variable, ask: is it a confounder (should adjust), a mediator (adjust only for direct effect), or a collider (never adjust)?
 3. **Identify the backdoor paths** — these are the precise channels through which confounding flows, and blocking them is the definition of identification.
 
-Modules 3.2–3.5 will apply this framework to regression discontinuity, difference-in-differences, and mediation analysis, where the DAG determines whether each design's identifying assumption is plausible.
+The later parts of this module — {{< ref sec-secondary-data-tools style="part" >}} (regression discontinuity and difference-in-differences) and {{< ref sec-mediation style="part" >}} (mediation analysis) — apply this framework, and the DAG determines whether each design's identifying assumption is plausible.
 :::
 
 ---
 
-## Researcher Checklist: Causal Effects and Estimands {#sec-checklist-part1}
+## Researcher Checklist: Causal Effects and Estimands {#sec-checklist-causal-effects}
 
 ::: {.callout-note}
 ## Key questions before choosing a method

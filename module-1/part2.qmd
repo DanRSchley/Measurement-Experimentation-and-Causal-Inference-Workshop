@@ -1,5 +1,6 @@
 ﻿---
 title: "Part 2: Omitted Variable Bias"
+xref: sec-omitted-variable-bias
 ---
 
 ```{r setup, include=FALSE}
@@ -39,9 +40,9 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 # Part 2: Omitted Variable Bias — A Related Problem in Observational Data {#sec-part2}
 
-## Connecting to Case 1
+## Connecting to {{< ref sec-discriminant-validity style="part" link="false" >}} {#connecting-to-discriminant-validity}
 
-In Case 1, the GPI scale was contaminated: instead of purely measuring *Green Purchase Intention*, it also picked up *Environmental Concern*. The scale measured **X + something else**.
+In {{< ref sec-discriminant-validity style="part" >}}, the GPI scale was contaminated: instead of purely measuring *Green Purchase Intention*, it also picked up *Environmental Concern*. The scale measured **X + something else**.
 
 Omitted variable bias (OVB) is a related — but distinct — problem. It occurs when you use observational (secondary) data to estimate the effect of one variable on another, but a third variable you didn't measure is influencing both.
 
@@ -62,8 +63,8 @@ When OVB is present, your outcome variable Y effectively becomes a composite of 
 
 | | What we think Y reflects | What Y actually reflects |
 |---|---|---|
-| **Case 1** | Green Purchase Intention (GPI) | GPI *and* Environmental Concern |
-| **Case 2** | Effect of advertising on sales | Advertising *and* store quality |
+| **{{< ref sec-discriminant-validity style="part" >}}** | Green Purchase Intention (GPI) | GPI *and* Environmental Concern |
+| **{{< ref sec-omitted-variable-bias style="part" >}}** | Effect of advertising on sales | Advertising *and* store quality |
 :::
 
 ## The Scenario
@@ -157,7 +158,7 @@ The residuals spread out dramatically as fitted values increase. This **heterosk
 
 Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is *consistent with* that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.
 
-Connect this back to Case 1: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in Case 1 — telling you that Y reflects more than X.
+Connect this back to {{< ref sec-discriminant-validity style="part" >}}: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in {{< ref sec-discriminant-validity style="part" >}} — telling you that Y reflects more than X.
 :::
 
 We can formally confirm the heteroskedasticity with a Breusch-Pagan test. A significant result means the variance of residuals is not constant — further evidence that something is systematically missing.
@@ -244,26 +245,26 @@ If the coefficient barely moves, that control was probably not picking up a mean
 
 OVB and discriminant validity violations are different problems — OVB lives in the regression, DV violations live in the measurement model — but they share a common underlying logic. In both cases, the thing you are using as your outcome variable picks up more than one source of variance, and the contaminating source inflates the relationship you're trying to study.
 
-Discriminant validity checks (Case 1) and residual/sensitivity diagnostics (Case 2) are both ways of asking the same fundamental question: *is my Y truly measuring what I think it's measuring, or is something else riding along with it?*
+Discriminant validity checks ({{< ref sec-discriminant-validity style="part" >}}) and residual/sensitivity diagnostics ({{< ref sec-omitted-variable-bias style="part" >}}) are both ways of asking the same fundamental question: *is my Y truly measuring what I think it's measuring, or is something else riding along with it?*
 
 The key practical difference: if your Y is a multi-item scale and you have OVB (an omitted variable driving both X and Y), that omitted variable will inflate the latent correlation between your scales and cause them to fail discriminant validity tests too. So fixing the measurement model and fixing the regression model are not alternative strategies — you may need to address both.
 
-The residual fan pattern you see here is also a hint that latent subgroups (Case 4) or collective outliers (Case 5) may be present — all three problems can produce heteroskedastic-looking residuals.
+The residual fan pattern you see here is also a hint that latent subgroups ({{< ref sec-latent-subgroups style="part" >}}) or collective outliers ({{< ref sec-outliers style="part" >}}) may be present — all three problems can produce heteroskedastic-looking residuals.
 
 ## Other Methods for Diagnosing Endogeneity and OVB
 
 The residual diagnostics and proxy controls covered here are entry-level approaches. For more rigorous identification:
 
 ::: {.callout-note}
-## Coming up in Module 3
+## Coming up in {{< ref sec-m3 style="long" link="false" >}} {#coming-up-in-causal-inference}
 
-Several of the methods below are covered in depth in **Module 3: Causal Inference**. Regression discontinuity design (Part 3), difference-in-differences (Part 4), and propensity score / matching methods (Part 2) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.
+Several of the methods below are covered in depth in **{{< ref sec-m3 style="long" >}}: Causal Inference**. Regression discontinuity design ({{< ref sec-rdd style="long" >}}), difference-in-differences ({{< ref sec-did style="long" >}}), and propensity score / matching methods ({{< ref sec-psm style="long" >}}) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.
 :::
 
 - **Instrumental variables (IV) / Two-Stage Least Squares (2SLS):** Find a variable that predicts X but does not directly affect Y (an "instrument"). Use it to isolate the exogenous variation in X. Powerful but requires strong theoretical justification for the instrument's validity.
-- **Regression discontinuity design (RDD):** If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. *Covered in Module 3, Part 3.*
-- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Controls for time-invariant confounders. Requires parallel trends assumption. *Covered in Module 3, Part 4.*
-- **Propensity score methods:** Model the probability of "treatment" (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. *Covered in Module 3, Part 2.*
+- **Regression discontinuity design (RDD):** If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. *Covered in {{< ref sec-rdd style="long" >}}.*
+- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Controls for time-invariant confounders. Requires parallel trends assumption. *Covered in {{< ref sec-did style="long" >}}.*
+- **Propensity score methods:** Model the probability of "treatment" (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. *Covered in {{< ref sec-psm style="long" >}}.*
 - **Hausman test:** Formally tests whether OLS and IV estimates differ significantly. If they do, OLS is inconsistent (endogeneity is present). Requires a valid instrument.
 - **Sensitivity analysis (Oster, 2019):** How large would the omitted variable's effect need to be (relative to included controls) to fully explain away the estimated coefficient? Quantifies the "how worried should I be?" question without requiring an instrument.
 - **Panel data fixed effects:** If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.
@@ -271,7 +272,7 @@ Several of the methods below are covered in depth in **Module 3: Causal Inferenc
 
 ---
 
-## Researcher Checklist: Omitted Variable Bias {#sec-checklist-part2}
+## Researcher Checklist: Omitted Variable Bias {#sec-checklist-omitted-variable-bias}
 
 ::: {.callout-note}
 ## Key questions before interpreting your regression

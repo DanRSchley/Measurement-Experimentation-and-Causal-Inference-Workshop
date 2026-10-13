@@ -1,5 +1,6 @@
 ---
 title: "Module 2: Hypothesis Testing"
+xref: sec-m2
 subtitle: "The Logic of Randomization and What P-Values Actually Tell You"
 ---
 
@@ -67,17 +68,19 @@ There is a single thread running through this tutorial and its predecessor:
 
 > **Your observable may not accurately reflect the latent construct you need.**
 
-In Module 1, that problem lived in your *outcome variable Y* — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in **two places at once**: in your *treatment variable X*, and in the act of *randomization* that is supposed to make X interpretable.
+In {{< ref sec-m1 style="long" >}}, that problem lived in your *outcome variable Y* — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in **two places at once**: in your *treatment variable X*, and in the act of *randomization* that is supposed to make X interpretable.
 
-This tutorial covers four ideas:
+This module covers {{< nparts >}} ideas:
 
-- **Part 1 — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
+- **{{< ref sec-pvalues style="part" >}} — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
 
-- **Part 2 — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
+- **{{< ref sec-randomization style="part" >}} — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
 
-- **Part 3 — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
+- **{{< ref sec-selection style="part" >}} — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
 
-- **Part 4 — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.
+- **{{< ref sec-exclusion style="part" >}} — The Exclusion Restriction:** Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.
+
+- **{{< ref sec-designs style="part" >}} — Experimental Design Strategies:** How the structure of the design itself — stratified and clustered assignment, factorial and Latin square designs, within-participant designs, and metastudies — can buy back orthogonality and power, and what each structural choice costs in carryover risk, lost interaction information, or underpowered individual microstudies.
 
 ::: {.callout-note}
 ## Learning Objectives
@@ -89,7 +92,7 @@ By the end of this tutorial, you will be able to:
 - Identify the three ingredients that give a p-value inferential power
 - Explain why a treatment manipulation can violate discriminant validity in the same way a measurement scale can
 - Use open-ended text to map the constructs injected by an experimental manipulation and those driving an outcome
-- Articulate the difference between **observable randomization** and **latent randomization** using the construct-validity language from Module 1
+- Articulate the difference between **observable randomization** and **latent randomization** using the construct-validity language from {{< ref sec-m1 style="long" >}}
 - Calculate the minimum observations needed for approximate orthogonality given the complexity of Y
 - Run diagnostic checks to assess whether your observed randomization achieved approximate orthogonality
 - Identify the four classes of selection effect (non-representativeness, self-selection, survivorship/attrition, exclusion bias) and explain why each makes exchangeability structurally unachievable within the affected sample

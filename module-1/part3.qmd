@@ -1,5 +1,6 @@
 ﻿---
 title: "Part 3: Measurement Invariance"
+xref: sec-measurement-invariance
 ---
 
 ```{r setup, include=FALSE}
@@ -51,22 +52,22 @@ gen_items <- function(latent, loadings) {
 }
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTrJTwXSENcvw2E1WGZ4irQAbXD7G0hZ3lhYOXxiRhfjoaN1zgxAuGnxxTcnrKTtA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 2: Measurement Invariance"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTrJTwXSENcvw2E1WGZ4irQAbXD7G0hZ3lhYOXxiRhfjoaN1zgxAuGnxxTcnrKTtA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 3: Measurement Invariance"></iframe>
 
 ---
 
 
 # Part 3: Measurement Invariance — A Special Case of Discriminant Validity {#sec-part3}
 
-## Connecting to Parts 1 and 2
+## Connecting to Parts {{< ref sec-discriminant-validity style="num" link="false" >}} and {{< ref sec-omitted-variable-bias style="num" link="false" >}} {#connecting-to-earlier-parts}
 
-Parts 1 and 2 both showed how Y captures more than X. Part 3 is actually a **special case of the discriminant validity problem from Part 1** — it just appears in an experimental context.
+Parts {{< ref sec-discriminant-validity style="num" >}} and {{< ref sec-omitted-variable-bias style="num" >}} both showed how Y captures more than X. {{< ref sec-measurement-invariance style="part" >}} is actually a **special case of the discriminant validity problem from {{< ref sec-discriminant-validity style="part" >}}** — it just appears in an experimental context.
 
-Here's the connection: in Part 1, the GPI scale failed discriminant validity because it was contaminated by a *different construct* (Environmental Concern). In Part 3, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.
+Here's the connection: in {{< ref sec-discriminant-validity style="part" >}}, the GPI scale failed discriminant validity because it was contaminated by a *different construct* (Environmental Concern). In {{< ref sec-measurement-invariance style="part" >}}, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.
 
 When that happens, "GPI" no longer measures the same construct across groups. Within each group the scale may be fine; but across groups, the same item is measuring subtly different things. This is a discriminant validity failure in disguise — the measurement model is picking up "item-specific sensitivity to the marketing treatment" alongside "genuine purchase intention."
 
-And if your sample contains latent subgroups (Part 4), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.
+And if your sample contains latent subgroups ({{< ref sec-latent-subgroups style="part" >}}), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.
 
 ::: {.callout-note}
 ## Two kinds of shift to distinguish
@@ -80,9 +81,9 @@ And if your sample contains latent subgroups (Part 4), the items may appear non-
 
 | | What produces the group difference in Y | How it shows up |
 |---|---|---|
-| **Part 1** | GPI and EC overlap as constructs | High factor correlation; HTMT > 0.90 |
-| **Part 2** | Omitted store quality confounds X and Y | Fan-shaped residuals; coefficient instability |
-| **Part 3** | GPI items shift across conditions | Scalar model fails; mod. indices flag specific items |
+| **{{< ref sec-discriminant-validity style="part" >}}** | GPI and EC overlap as constructs | High factor correlation; HTMT > 0.90 |
+| **{{< ref sec-omitted-variable-bias style="part" >}}** | Omitted store quality confounds X and Y | Fan-shaped residuals; coefficient instability |
+| **{{< ref sec-measurement-invariance style="part" >}}** | GPI items shift across conditions | Scalar model fails; mod. indices flag specific items |
 
 ## Two Scenarios to Compare
 
@@ -414,7 +415,7 @@ The full scalar model forces GPI1 and GPI2 to behave as if they're invariant. Si
 
 The partial invariance model correctly absorbs the item-level shifts into the freed intercepts, and the estimated latent mean difference recovers to something close to the true 0.40.
 
-**This is the discriminant validity connection:** the scale in the treatment group is partially measuring "item-specific response to green marketing" alongside "genuine purchase intention" — exactly the same "Y measures X + something else" problem as Part 1. Measurement invariance testing is how you detect it in an experimental setting.
+**This is the discriminant validity connection:** the scale in the treatment group is partially measuring "item-specific response to green marketing" alongside "genuine purchase intention" — exactly the same "Y measures X + something else" problem as {{< ref sec-discriminant-validity style="part" >}}. Measurement invariance testing is how you detect it in an experimental setting.
 :::
 
 ## Other Methods for Testing Measurement Invariance
@@ -429,7 +430,7 @@ The configural → metric → scalar sequence using lavaan is the standard appro
 
 ---
 
-## Researcher Checklist: Measurement Invariance {#sec-checklist-part3}
+## Researcher Checklist: Measurement Invariance {#sec-checklist-measurement-invariance}
 
 ::: {.callout-note}
 ## Key questions before comparing groups

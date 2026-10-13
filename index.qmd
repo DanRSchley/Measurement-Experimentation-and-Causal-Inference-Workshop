@@ -24,52 +24,52 @@ Science combines observable data with assumptions to infer latent or general pro
 ::: {.grid}
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 1: Measurement
+### {{< ref sec-m1 style="full" link="false" >}} {#home-module-1}
 
 When does your scale measure what you think it measures — and when does it measure something else entirely?
 
-[Module 1 →](module-1/intro.qmd){.btn .btn-primary}
+{{< ref sec-m1 style="long" class="btn btn-primary" suffix="→" >}}
 
 **Sections**
 
-- [Part 1: Discriminant Validity](module-1/part1.qmd)
-- [Part 2: Omitted Variable Bias](module-1/part2.qmd)
-- [Part 3: Measurement Invariance](module-1/part3.qmd)
-- [Part 4: Latent Subgroups](module-1/part4.qmd)
-- [Part 5: Outlier Detection and Robust Estimation](module-1/part5.qmd)
-- [Part 6: Systematic Measurement Error](module-1/part6.qmd)
+- {{< ref sec-discriminant-validity style="full" >}}
+- {{< ref sec-omitted-variable-bias style="full" >}}
+- {{< ref sec-measurement-invariance style="full" >}}
+- {{< ref sec-latent-subgroups style="full" >}}
+- {{< ref sec-outliers style="full" >}}
+- {{< ref sec-bounded-scales style="full" >}}
 :::
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 2: Hypothesis Testing
+### {{< ref sec-m2 style="full" link="false" >}} {#home-module-2}
 
 What does a p-value actually tell you? How does randomization create valid inference, and when does it fail?
 
-[Module 2 →](module-2/intro.qmd){.btn .btn-primary}
+{{< ref sec-m2 style="long" class="btn btn-primary" suffix="→" >}}
 
 **Sections**
 
-- [Part 1: What Does a P-value Mean?](module-2/part1.qmd)
-- [Part 2: What Does Random Assignment Require?](module-2/part2.qmd)
-- [Part 3: Selection Effects](module-2/part3.qmd)
-- [Part 4: The Exclusion Restriction](module-2/part4.qmd)
-- [Part 5: Experimental Design Strategies and Assignment Solutions](module-2/part5.qmd)
+- {{< ref sec-pvalues style="full" >}}
+- {{< ref sec-randomization style="full" >}}
+- {{< ref sec-selection style="full" >}}
+- {{< ref sec-exclusion style="full" >}}
+- {{< ref sec-designs style="full" >}}
 :::
 
 ::: {.g-col-12 .g-col-md-4}
-### Module 3: Causal Inference
+### {{< ref sec-m3 style="full" link="false" >}} {#home-module-3}
 
 When can we say that X *caused* Y? What methods go beyond randomized experiments, and what do they assume?
 
-[Module 3 →](module-3/intro.qmd){.btn .btn-primary}
+{{< ref sec-m3 style="long" class="btn btn-primary" suffix="→" >}}
 
 **Sections**
 
-- [Part 1: What Is a Causal Effect?](module-3/part1.qmd)
-- [Part 2: Re-establishing Exchangeability](module-3/part2.qmd)
-- [Part 3: Secondary Data Tools for Causal Identification](module-3/part3.qmd)
-- [Part 4: Mediation Analysis](module-3/part4.qmd)
-- [Part 5: Experimental Causal Chain Designs](module-3/part5.qmd)
+- {{< ref sec-causal-effects style="full" >}}
+- {{< ref sec-reestablishing-exchangeability style="full" >}}
+- {{< ref sec-secondary-data-tools style="full" >}}
+- {{< ref sec-mediation style="full" >}}
+- {{< ref sec-ecc style="full" >}}
 :::
 
 :::

@@ -1,5 +1,6 @@
 ---
 title: "Part 2: What Does Random Assignment Require?"
+xref: sec-randomization
 ---
 
 ```{r setup, include=FALSE}
@@ -33,7 +34,7 @@ set.seed(2025)
 # Part 2: What Does "Random Assignment" Actually Require? {#sec-randomization}
 
 ::: {.callout-warning}
-## The central message of Part 2
+## The central message of {{< ref sec-randomization style="part" link="false" >}} {#the-central-message}
 
 **Never assume that random assignment has achieved actual randomization.** Random assignment is a *procedure* — clicking "Randomize" in Qualtrics, running `sample()` in R. What that procedure is supposed to deliver is **exchangeability** — the latent property that treatment and control groups are interchangeable with respect to every potential cause of Y, so that any difference in outcomes can be attributed solely to the treatment. The procedure does not guarantee the property. Whether it does depends on (1) how complex your outcome variable Y is and (2) how many participants you have. This section develops the gap between the two and equips you to evaluate — not assume — whether exchangeability was achieved.
 :::
@@ -52,14 +53,14 @@ The right language for cases 2 and 3 is "realized imbalance" or "failed balance 
 
 ## The Measurement Analogy: Observable vs. Latent
 
-In Module 1, we introduced a distinction that runs through all of empirical research:
+In {{< ref sec-m1 style="long" >}}, we introduced a distinction that runs through all of empirical research:
 
-| | Example from Module 1 |
+| | Example from {{< ref sec-m1 style="long" >}} |
 |---|---|
 | **Observable (indicator)** | A participant's response on a 7-point Likert scale |
 | **Latent construct** | Their true level of Green Purchase Intention |
 
-The observable is what you can see. The latent construct is what you actually want to know. The entire Module 1 was about the gap between these two things: your observed scale picks up variance from the wrong latent constructs (discriminant validity), from unequal measurement properties across groups (non-invariance), and from subpopulations that behave differently (latent classes).
+The observable is what you can see. The latent construct is what you actually want to know. The entire {{< ref sec-m1 style="long" >}} was about the gap between these two things: your observed scale picks up variance from the wrong latent constructs (discriminant validity), from unequal measurement properties across groups (non-invariance), and from subpopulations that behave differently (latent classes).
 
 **Exactly the same distinction applies to randomization:**
 
@@ -73,7 +74,7 @@ Just as a 7-point scale can *look* like it measures Green Purchase Intention whi
 ::: {.callout-important}
 ## The construct validity question for randomization
 
-Ask yourself the question from Module 1, applied to your treatment variable:
+Ask yourself the question from {{< ref sec-m1 style="long" >}}, applied to your treatment variable:
 
 > **"Does your observable act of randomization have construct validity as an indicator of latent exchangeability?"**
 
@@ -168,7 +169,7 @@ The analogy to experiments maps directly:
 
 ## Exchangeability: The Latent Property Random Assignment Is Supposed to Deliver
 
-The permutation logic in Part 1 rested on **exchangeability**: if treatment had no effect, we could have assigned any participant to either condition without changing what we would observe. In formal terms, exchangeability means:
+The permutation logic in {{< ref sec-pvalues style="part" >}} rested on **exchangeability**: if treatment had no effect, we could have assigned any participant to either condition without changing what we would observe. In formal terms, exchangeability means:
 
 $$Y^{(0)}, Y^{(1)} \perp\!\!\!\perp T$$
 
@@ -235,7 +236,7 @@ With only 4 meaningful combinations in the design space, even a modest experimen
 
 ## Case 2 — A Broad Construct: Sustainable Purchase Intention
 
-Now suppose your outcome Y is **sustainable product purchase intention** — the kind of broad, latent, multi-faceted attitude that appears throughout consumer and organizational research, and that you saw in Module 1 struggling to maintain discriminant validity across measurement attempts.
+Now suppose your outcome Y is **sustainable product purchase intention** — the kind of broad, latent, multi-faceted attitude that appears throughout consumer and organizational research, and that you saw in {{< ref sec-m1 style="long" >}} struggling to maintain discriminant validity across measurement attempts.
 
 In the data-generating process, suppose there are **10 binary determinants** of this construct:
 
@@ -398,7 +399,7 @@ In the coffee WTP context (SD ≈ $1.50):
 
 ### A Violation of Exchangeability Is Omitted Variable Bias
 
-Before turning to sample size requirements, it is worth being precise about what a violation of exchangeability actually is — because the answer connects directly to **Module 1, Case 2** on omitted variable bias.
+Before turning to sample size requirements, it is worth being precise about what a violation of exchangeability actually is — because the answer connects directly to **{{< ref sec-omitted-variable-bias style="long" >}}** on omitted variable bias.
 
 Recall the OVB formula. When a variable C is omitted from a regression, the estimated effect of treatment T is:
 
@@ -533,7 +534,7 @@ This is the central tension in designing experiments for complex constructs. The
 
 A typical psychology or marketing experiment with **N = 60–120** participants is, at best, achieving $r_{\max} \approx 0.30$–$0.40$ for a construct with D = 5–10 dimensions — regardless of whether Qualtrics randomized. Researchers who report a balance table with N = 80 and declare "randomization succeeded" are not wrong about the observable; they are implicitly operating at a very lenient latent $r_{\max}$, where substantial confounding remains undetected.
 
-In Module 1's language: their randomization observable has **low construct validity** as an indicator of latent randomization, because the gap between the observable and the latent property is too wide to close at typical sample sizes.
+In {{< ref sec-m1 style="long" >}}'s language: their randomization observable has **low construct validity** as an indicator of latent randomization, because the gap between the observable and the latent property is too wide to close at typical sample sizes.
 :::
 
 With a narrow outcome like **Visual Fixation Time** (D = 2 dimensions):
@@ -545,7 +546,7 @@ With a broad outcome like **Sustainable Purchase Intention** (D = 10 dimensions)
 - To ensure $|r| < 0.20$: N ≈ **`r required_N(10, 0.20)`** — still demanding for most lab studies
 - A study with N = 200 barely meets the r_max < 0.20 threshold (required N = `r required_N(10, 0.20)`). A typical lab study with **N = 80**, however, is operating at an effective $r_{\max} \approx 0.31$ — where a single strong confounder (β ≈ 0.8 SD) can inject bias of 0.24 SD or more into your treatment estimate
 
-This is the direct experimental parallel to Module 1's core finding about discriminant validity. A scale with **many correlated sub-dimensions** is hard to measure cleanly; a construct with **many latent antecedents** is hard to randomize cleanly. Both problems grow with construct breadth, and both require you to map the latent space before claiming clean measurement or clean identification.
+This is the direct experimental parallel to {{< ref sec-m1 style="long" >}}'s core finding about discriminant validity. A scale with **many correlated sub-dimensions** is hard to measure cleanly; a construct with **many latent antecedents** is hard to randomize cleanly. Both problems grow with construct breadth, and both require you to map the latent space before claiming clean measurement or clean identification.
 :::
 
 ---
@@ -576,7 +577,7 @@ The key variable is **why** the dimensions are correlated:
 
 **The concrete intuition:** imagine you are a researcher measuring balance, and you check environmental values and find it balanced (r ≈ 0). If that dimension was highly correlated with health focus and social norms in your sample, you might infer those are balanced too — and you might be right. That is the *helpful* version. But if each of those three dimensions has an independent effect on WTP that wasn't captured by environmental values alone, then any *failure* of balance cascades to all three simultaneously — that is the *hurtful* version.
 
-This maps directly onto Module 1's concept of **correlated subscales**. When subscales are highly correlated, you gain efficiency in measurement (fewer items needed to capture the same information). But if they are discriminantly invalid — correlated *and* capturing separate variance — then mismeasuring one means mismeasuring all.
+This maps directly onto {{< ref sec-m1 style="long" >}}'s concept of **correlated subscales**. When subscales are highly correlated, you gain efficiency in measurement (fewer items needed to capture the same information). But if they are discriminantly invalid — correlated *and* capturing separate variance — then mismeasuring one means mismeasuring all.
 
 ### Simulation
 
@@ -884,7 +885,7 @@ ggplot(danger_df, aes(x = N, y = rate, group = panel)) +
 
 **The practical lesson:** correlated dimensions are not uniformly good or bad. The key question is what their β values look like. If correlated dimensions all carry similar, modest effects, correlation genuinely helps by reducing effective checks. If correlated dimensions carry large, heterogeneous effects, correlation is a liability — and that liability is invisible unless you examine conditional bias and error rates, not just P(orthogonality).
 
-This mirrors a core lesson from Module 1: a tight subscale structure looks efficient and reliable, but if the subscales carry separate predictive variance (discriminant invalidity), a failure in one cascades to all. The structural parallel is exact.
+This mirrors a core lesson from {{< ref sec-m1 style="long" >}}: a tight subscale structure looks efficient and reliable, but if the subscales carry separate predictive variance (discriminant invalidity), a failure in one cascades to all. The structural parallel is exact.
 :::
 
 ---
@@ -896,11 +897,11 @@ This mirrors a core lesson from Module 1: a tight subscale structure looks effic
 
 **You can only discover failures of randomization on dimensions you thought to measure.**
 
-This is the direct experimental parallel to Module 1's measurement problem. In Module 1, we showed that unmeasured sub-dimensions of Y produce a biased estimate of your latent construct — you cannot diagnose measurement failure on dimensions you never operationalized. The same logic applies here: if a potential confounder was never measured as a covariate, no balance table, no Love plot, and no omnibus test will catch it.
+This is the direct experimental parallel to {{< ref sec-m1 style="long" >}}'s measurement problem. In {{< ref sec-m1 style="long" >}}, we showed that unmeasured sub-dimensions of Y produce a biased estimate of your latent construct — you cannot diagnose measurement failure on dimensions you never operationalized. The same logic applies here: if a potential confounder was never measured as a covariate, no balance table, no Love plot, and no omnibus test will catch it.
 
-This constraint is not a limitation of statistics — it is a fundamental epistemological constraint. Its implication is that **randomization checking is only as good as the covariate measurement you did before the study began**. The tools from Module 1 — CFA to identify sub-dimensions of Y, pilot text analysis to map what's in X and Y (see Part 4), discriminant validity checks — are not just measurement tools. They are *pre-registration scaffolding* that determines whether your eventual randomization check has the construct coverage to be meaningful.
+This constraint is not a limitation of statistics — it is a fundamental epistemological constraint. Its implication is that **randomization checking is only as good as the covariate measurement you did before the study began**. The tools from {{< ref sec-m1 style="long" >}} — CFA to identify sub-dimensions of Y, pilot text analysis to map what's in X and Y (see {{< ref sec-exclusion style="part" >}}), discriminant validity checks — are not just measurement tools. They are *pre-registration scaffolding* that determines whether your eventual randomization check has the construct coverage to be meaningful.
 
-**The practical lesson:** Before collecting data, use the construct-mapping tools from Module 1 to enumerate every plausible antecedent of Y. Measure them all. Then, after randomization, check balance on every one of them. The diagnostics below are only valuable if you did that groundwork first.
+**The practical lesson:** Before collecting data, use the construct-mapping tools from {{< ref sec-m1 style="long" >}} to enumerate every plausible antecedent of Y. Measure them all. Then, after randomization, check balance on every one of them. The diagnostics below are only valuable if you did that groundwork first.
 :::
 
 Even though you cannot directly observe the latent dimensions, you can check the observable proxies you did measure. A balance table checks whether measured characteristics are distributed similarly across conditions — a necessary but not sufficient condition for latent randomization.
@@ -1102,31 +1103,31 @@ The three diagnostics above — balance table, Love plot, omnibus test — are e
 
 > **You can only check balance on dimensions you thought to measure.**
 
-If an unmeasured dimension of Y is correlated with treatment assignment, no balance table will catch it. And as the analysis in Section 3.6 showed, the broader your outcome construct, the more such unmeasured dimensions there are likely to be.
+If an unmeasured dimension of Y is correlated with treatment assignment, no balance table will catch it. And as the analysis in {{< ref sec-orthogonality >}} showed, the broader your outcome construct, the more such unmeasured dimensions there are likely to be.
 
 What can you do?
 
 ### What you can do before data collection
 
-**1. Map the construct before running the study.** Use Module 1's toolkit — confirmatory factor analysis, convergent/discriminant validity checks, latent class analysis — on *pilot data* to identify all the major sub-dimensions of Y. Every dimension you identify is a confounder you can now measure and check balance on.
+**1. Map the construct before running the study.** Use {{< ref sec-m1 style="long" >}}'s toolkit — confirmatory factor analysis, convergent/discriminant validity checks, latent class analysis — on *pilot data* to identify all the major sub-dimensions of Y. Every dimension you identify is a confounder you can now measure and check balance on.
 
 **2. Blocked (stratified) randomization.** If you know in advance that certain dimensions of Y are likely to be distributed unevenly in your sample, pre-stratify on them. Assign treatment within blocks defined by those dimensions. This guarantees balance on the dimensions you can observe — reducing the degrees of freedom for latent imbalance to exploit.
 
-**3. Collect more observations.** As Section 3.6 showed quantitatively, the probability of achieving approximate orthogonality on all D dimensions grows with N. If your outcome is broad (large D), power calculations based on the treatment effect alone dramatically underestimate the required sample.
+**3. Collect more observations.** As {{< ref sec-orthogonality >}} showed quantitatively, the probability of achieving approximate orthogonality on all D dimensions grows with N. If your outcome is broad (large D), power calculations based on the treatment effect alone dramatically underestimate the required sample.
 
 ### What you can do after data collection
 
 **4. Open-ended text as a nomological net scanner — and an identification strategy.**
 
-As developed in detail in Part 4 (*What's in X? What's in Y?*), open-ended text responses from a small pilot are the most powerful tool for mapping the construct space before collecting main-study data. The nomological net scan reveals the exhaustive list of intermediary variables in the causal chain from X to Y. Every concept the text reveals is a mediator you should measure quantitatively — and a confounder you should check balance on.
+As developed in detail in {{< ref sec-exclusion style="part" >}} (*What's in X? What's in Y?*), open-ended text responses from a small pilot are the most powerful tool for mapping the construct space before collecting main-study data. The nomological net scan reveals the exhaustive list of intermediary variables in the causal chain from X to Y. Every concept the text reveals is a mediator you should measure quantitatively — and a confounder you should check balance on.
 
-**The key insight from Part 4 bears repeating here:** without the complete mediator list, the treatment coefficient in a regression is an uninterpretable mixture of all active pathways. With the list, you gain a structural identification strategy: decompose the total treatment effect into its component channels using the measured mediators.
+**The key insight from {{< ref sec-exclusion style="part" >}} bears repeating here:** without the complete mediator list, the treatment coefficient in a regression is an uninterpretable mixture of all active pathways. With the list, you gain a structural identification strategy: decompose the total treatment effect into its component channels using the measured mediators.
 
-The complete structural modeling demonstration — quantitative mediator scoring, parallel mediation, SEM with latent factors, and DGP recovery comparison — is developed step by step in **Part 4** of this module, where it serves as the practical illustration of how to handle exclusion restriction violations once the nomological net has been mapped.
+The complete structural modeling demonstration — quantitative mediator scoring, parallel mediation, SEM with latent factors, and DGP recovery comparison — is developed step by step in **{{< ref sec-exclusion style="part" >}}** of this module, where it serves as the practical illustration of how to handle exclusion restriction violations once the nomological net has been mapped.
 
 ---
 
-## Researcher Checklist: Exchangeability {#sec-checklist-part2}
+## Researcher Checklist: Exchangeability {#sec-checklist-randomization}
 
 ::: {.callout-note}
 ## Key questions about your randomization

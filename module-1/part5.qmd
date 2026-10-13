@@ -1,5 +1,6 @@
 ﻿---
 title: "Part 5: Outlier Detection and Robust Estimation"
+xref: sec-outliers
 ---
 
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vStfLBmv5QyrjY4DKAJ5i0oYi-QnznIQTUNYDLGhmH6fEa_Ocy4qutilseNEaIn9w/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 5: Outlier Detection and Robust Estimation"></iframe>
@@ -43,11 +44,11 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 ## Connecting to the Earlier Cases
 
-Part 4 showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. **Part 5 is a continuation of exactly that problem**, extended to observational data and reframed as the problem of *outliers*.
+{{< ref sec-latent-subgroups style="part" >}} showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. **{{< ref sec-outliers style="part" >}} is a continuation of exactly that problem**, extended to observational data and reframed as the problem of *outliers*.
 
-The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in Part 4. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster's data-generating process. These are statistical implementations of the same conceptual question Part 4 posed directly: *are all observations in this dataset from the same population?*
+The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in {{< ref sec-latent-subgroups style="part" >}}. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster's data-generating process. These are statistical implementations of the same conceptual question {{< ref sec-latent-subgroups style="part" >}} posed directly: *are all observations in this dataset from the same population?*
 
-The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of Part 4, not just the statistical tools of Part 5.
+The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of {{< ref sec-latent-subgroups style="part" >}}, not just the statistical tools of {{< ref sec-outliers style="part" >}}.
 
 Not all outliers are the same. Two important distinctions that are easy to conflate:
 
@@ -57,11 +58,11 @@ A *statistical outlier* is any observation that is unusual relative to the rest 
 
 A *conceptual outlier* is an observation that comes from a fundamentally different data-generating process than the rest of your sample. Luxury flagship stores in a dataset of convenience stores are conceptual outliers: they do not just deviate from the regression line, they operate on entirely different economics. The same statistical method (advertising spend → sales) applies, but the parameters are different.
 
-**Why the distinction matters:** Statistical outliers that are *not* conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a *sampling problem*, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Part 4 logic (latent subgroup analysis), not just downweighting the extreme values.
+**Why the distinction matters:** Statistical outliers that are *not* conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a *sampling problem*, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is {{< ref sec-latent-subgroups style="part" >}} logic (latent subgroup analysis), not just downweighting the extreme values.
 
 Within the statistical outlier category, two types behave differently:
 
-- **Collective outliers** are a group of observations that form their own cluster, far from the rest of the data. They usually represent a *different population* — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from Part 4: if you include them, your regression line tries to average over two different data-generating processes. These are the conceptual outliers described above.
+- **Collective outliers** are a group of observations that form their own cluster, far from the rest of the data. They usually represent a *different population* — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from {{< ref sec-latent-subgroups style="part" >}}: if you include them, your regression line tries to average over two different data-generating processes. These are the conceptual outliers described above.
 
 - **Point outliers** (or global outliers) are individual observations that are simply extreme on one or more variables. They may represent data errors, rare events, or genuinely unusual cases. They pull the regression line toward them and inflate standard errors. These are more likely to be pure statistical outliers — unusual, but not necessarily from a different population.
 
@@ -80,9 +81,9 @@ Mechanical thresholds also introduce researcher degrees of freedom in a hidden f
 :::
 
 ::: {.callout-note}
-## The connection to latent subgroup analysis (Part 4)
+## The connection to latent subgroup analysis ({{< ref sec-latent-subgroups style="part" link="false" >}}) {#the-connection-to-latent-subgroup-analysis}
 
-Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn't "wrong data" — it's a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from Part 4: the resulting coefficient doesn't accurately describe either group. The statistical tools in Part 5 (LOF, DBSCAN, robust regression) detect these clusters empirically. Part 4's finite mixture models detect them probabilistically. Both are answering the same question.
+Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn't "wrong data" — it's a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from {{< ref sec-latent-subgroups style="part" >}}: the resulting coefficient doesn't accurately describe either group. The statistical tools in {{< ref sec-outliers style="part" >}} (LOF, DBSCAN, robust regression) detect these clusters empirically. {{< ref sec-latent-subgroups style="part" >}}'s finite mixture models detect them probabilistically. Both are answering the same question.
 
 Point outliers, by contrast, are statistical problems rather than conceptual ones. A single data entry error or an unusually extreme store doesn't imply a hidden population — it's just a disruptive data point that needs to be handled carefully.
 
@@ -237,7 +238,7 @@ df5 |>
 1. Look at the observation. What are its actual values? Does anything look unusual?
 2. Is it a data quality issue (entry error, unit mismatch)? Fix or remove.
 3. Is it a legitimately extreme but real observation (a genuinely exceptional store)? Keep and investigate — it may be telling you something important about your data.
-4. Does it form part of a coherent group of unusual observations? If yes, that's a collective outlier — treat it as a Part 4 problem (latent subgroup), not a Part 5 problem.
+4. Does it form part of a coherent group of unusual observations? If yes, that's a collective outlier — treat it as a {{< ref sec-latent-subgroups style="part" >}} problem (latent subgroup), not a {{< ref sec-outliers style="part" >}} problem.
 
 **Never delete observations just because they have high LOF scores.** LOF is a signal to investigate, not an automatic deletion criterion.
 :::
@@ -294,7 +295,7 @@ ggplot(df5, aes(x = advertising, y = sales,
 **What the clusters mean:**
 - **Cluster 0 (noise/green):** Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one.
 - **Cluster 1 (main mass):** The main group of regular stores. This is your target population for most analyses.
-- **Cluster 2+ (secondary clusters):** Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem (Part 4), not a statistical noise problem.
+- **Cluster 2+ (secondary clusters):** Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem ({{< ref sec-latent-subgroups style="part" >}}), not a statistical noise problem.
 
 **Important: these are inferred, probabilistic classifications.** DBSCAN does not know "the truth" about which stores are outliers any more than you do. It finds density-based patterns in the data, but:
 - The clusters depend on your choice of `eps` and `minPts` — different settings will produce different cluster assignments
@@ -320,7 +321,7 @@ Both methods are density-based, but they answer different questions.
 | **Key strength** | Ranks observations on a continuous scale; good for sensitivity analysis | Identifies whether outliers form a coherent group — the critical distinction between point outliers and collective outliers |
 | **Key limitation** | Does not tell you whether outliers are isolated or clustered together | Binary: in or out. Sensitive to eps and minPts choices |
 
-**Practical implication for this case:** LOF flags both luxury flagships and point outliers with high scores, but does not tell you *why* they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup (Part 4 problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.
+**Practical implication for this case:** LOF flags both luxury flagships and point outliers with high scores, but does not tell you *why* they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup ({{< ref sec-latent-subgroups style="part" >}} problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.
 
 Use LOF to *rank* observations by how unusual they are. Use DBSCAN to understand *whether* unusual observations are isolated data points or an alternative population. Both are diagnostic tools, not verdicts.
 :::
@@ -416,7 +417,7 @@ ggplot() +
 **Practical advice:**
 1. Always plot your data and check for visual outliers before running any regression
 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually
-3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Part 4 problem
+3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a {{< ref sec-latent-subgroups style="part" >}} problem
 4. For point outliers, verify the data and report results with and without them as a robustness check
 5. Use `rlm(method = "MM")` rather than the default Huber M-estimator when your data contains high-leverage clusters — the default Huber weighting can still be dominated by high-leverage points
 :::
@@ -463,9 +464,9 @@ Those are different questions, and conflating them produces a critical blind spo
 An *inlier* is an observation that is statistically unremarkable on the dimensions you are measuring — low LOF score, inside the main cluster, small residuals — but belongs to a different population with a different data-generating process. It passes every diagnostic you run. That is precisely what makes it dangerous.
 
 ::: {.callout-note}
-## Inliers are a latent subgroup problem (Part 4), not a statistical outlier problem
+## Inliers are a latent subgroup problem ({{< ref sec-latent-subgroups style="part" link="false" >}}), not a statistical outlier problem {#inliers-are-a-latent-subgroup-problem}
 
-Recall that in Part 4, latent subgroup analysis worked because the subgroups had *statistically detectable* differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.
+Recall that in {{< ref sec-latent-subgroups style="part" >}}, latent subgroup analysis worked because the subgroups had *statistically detectable* differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.
 
 The inlier problem is a harder version of the same structure. Inliers belong to a different latent subgroup — a different population with a different data-generating process — but they are **statistically indistinguishable** from the target population on the variables you have measured. No mixture model, no LOF score, no density cluster will separate them. The subgroup is latent in the deepest sense: invisible to all available statistical tools.
 
@@ -677,13 +678,13 @@ LOF + DBSCAN and robust regression are practical entry points. The broader toolk
 - **Isolation Forest (isotree package in R):** A tree-based outlier detection method. Anomalies are easier to isolate than normal points, so they end up in shorter trees. Scales well to large datasets. No distance computation needed.
 - **One-class SVM:** Learns the boundary of "normal" observations and flags points outside it. Useful when you have a large clean training set and want to detect anomalies in new data.
 - **Quantile regression (quantreg package):** Instead of modeling the mean, model multiple quantiles of Y. Outliers that pull the mean line don't affect quantile regression as severely. Useful when you care about the full distribution, not just the central tendency.
-- **Sandwich standard errors (sandwich package):** If heteroskedasticity (the fan pattern from Part 2) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.
+- **Sandwich standard errors (sandwich package):** If heteroskedasticity (the fan pattern from {{< ref sec-omitted-variable-bias style="part" >}}) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.
 
 
 
 ---
 
-## Researcher Checklist: Outliers {#sec-checklist-part5}
+## Researcher Checklist: Outliers {#sec-checklist-outliers}
 
 ::: {.callout-note}
 ## Key questions before removing or ignoring extreme observations

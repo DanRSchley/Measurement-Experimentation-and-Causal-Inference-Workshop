@@ -1,5 +1,6 @@
 ---
 title: "Part 1: What Does a P-value Mean?"
+xref: sec-pvalues
 ---
 
 ```{r setup, include=FALSE}
@@ -429,11 +430,11 @@ This assumption is satisfied when:
 
 If either fails, the null distribution we construct by shuffling labels does not correspond to the distribution under the true null. The p-value becomes meaningless — or worse, systematically biased.
 
-**The act of randomization is what makes exchangeability plausible.** Which brings us to Parts 2 and 3.
+**The act of randomization is what makes exchangeability plausible.** Which brings us to Parts {{< ref sec-randomization style="num" >}} and {{< ref sec-selection style="num" >}}.
 
 ---
 
-## Researcher Checklist: P-Values and Statistical Inference {#sec-checklist-part1}
+## Researcher Checklist: P-Values and Statistical Inference {#sec-checklist-pvalues}
 
 ::: {.callout-note}
 ## Key questions before reporting a p-value
