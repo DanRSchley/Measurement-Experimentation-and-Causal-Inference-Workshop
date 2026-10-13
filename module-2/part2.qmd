@@ -35,68 +35,66 @@ set.seed(2025)
 
 ## What Does Randomization Actually Guarantee? {#sec-guarantee}
 
-Randomization is often treated as something we *do* rather than something we need to understand. We click "Randomize" in Qualtrics, assign participants to treatment and control, and proceed as though the groups are equivalent. But what exactly did that button guarantee?
+We tend to talk about randomization as if it were a button. Click "Randomize" in Qualtrics, split people into treatment and control, move on, and act as if the two groups are now basically the same. But what did that button actually promise?
 
-**Randomization is a procedure. Exchangeability is a property established by a valid assignment mechanism. Realized balance describes what happened in one particular assignment.**
+Here is the one-line version of this whole page:
 
-If assignment is genuinely random, participants' potential outcomes do not determine which condition they receive. Across the possible assignments, treatment and control are comparable *by design*. But any one assignment can still put more high-value, price-sensitive, or environmentally concerned people in one condition than the other.
+> **Randomization is a procedure. Exchangeability is what a valid procedure gives you. Balance is what you actually see in the one experiment you ran.**
 
-Formally, exchangeability says that potential outcomes are independent of treatment:
+Let's unpack that in plain terms. Every person has two "what-if" outcomes: what their score *would be* if they got the treatment, and what it *would be* if they didn't. Researchers call these **potential outcomes**. (We won't use them properly until {{< ref sec-fundamental >}}, so for now just think "the what-ifs.") Random assignment means nobody's what-ifs get to decide which group they land in. Picture re-running the assignment over and over: on average, treatment and control would line up, because the assignment never peeked at anyone's what-ifs. That is **exchangeability**: as far as the what-ifs go, the two groups are swappable.
 
-$$\bigl(Y^{(0)}, Y^{(1)}\bigr) \perp\!\!\!\perp T .$$
+(For the notation fans, that is the statement $\bigl(Y^{(0)}, Y^{(1)}\bigr) \perp\!\!\!\perp T$: the what-ifs are independent of who got the treatment.)
 
-That independence is established by a correctly implemented assignment mechanism, over its possible realizations. It holds by design, in small samples as well as large ones, and it does not require the characteristics of the groups to be identical in the one assignment you observe.
+Notice the catch. "Swappable on average across many possible assignments" is not the same as "identical in the one assignment you actually got." Any single draw can put more eco-minded, price-sensitive, or high-income people into one group. And this is true whether you have 20 participants or 2,000: the guarantee comes from *how* people were assigned, not from how many there are.
 
-Two different things can make observed groups differ, with different consequences:
+So when two groups look different, there are two very different explanations:
 
-1. **A flawed assignment.** Participants were not assigned independently of their potential outcomes (self-selection, a predictable allocation sequence, a bug). This can undermine causal identification.
-2. **A valid assignment with chance differences.** The groups differ by luck on characteristics that matter for the outcome. This adds random variation to a valid randomized estimate. It does not invalidate randomization.
+1. **The assignment was flawed.** Something let participants' what-ifs influence who got which condition (self-selection, a predictable allocation sequence, a bug). That can undermine causal identification.
+2. **The assignment was fine, and the groups differ by luck.** That adds random variation to a valid estimate. It does not invalidate randomization.
 
-| Question | What establishes it? |
+| Question | What answers it? |
 |---|---|
-| Was assignment genuinely random? | The documented and correctly implemented assignment mechanism |
-| Are the realized groups similar? | Descriptive comparisons of their baseline characteristics |
-| How much does a difference matter? | The relationship between baseline characteristics and potential outcomes |
+| Was assignment genuinely random? | How the assignment was actually done, which you document and check |
+| Do the groups we got look similar? | A plain description of their baseline characteristics |
+| How much does a difference matter? | How strongly those characteristics are tied to the outcome |
 
-This echoes {{< ref sec-m1 style="long" >}}: what you can observe (a balance table) is not complete evidence about the process that produced it. But the assignment mechanism is not a latent construct measured with error; it is something you document and verify.
+This echoes {{< ref sec-m1 style="long" >}}: something you can see (a balance table) is not the whole story about the process behind it. But the assignment procedure isn't a hidden construct you measure with error. It's something you can and should verify directly.
 
-> **A balance table describes the groups we received. It does not certify the assignment mechanism.**
+> **A balance table describes the groups we received. It does not certify how they were assigned.**
 
 ## Shuffling Cards: The Mechanism Versus the Hand You Receive {#sec-cards}
 
-Playing cards separate the two ideas cleanly.
+Playing cards keep the two ideas apart nicely.
 
-**Was the deck shuffled properly?** Start with a deck arranged by suit. After one limited shuffle, a lot of that structure survives, so the shuffle did not produce anything close to a uniformly random order. A flawed shuffling procedure is the analogue of a flawed assignment mechanism. What matters is *how the order was generated*, not whether one particular arrangement happens to look random.
+**Was the deck shuffled properly?** Start with a deck sorted by suit and shuffle it once, badly. A lot of the original order survives, so the shuffle didn't get you anywhere near a random deck. A sloppy shuffle is the analogue of a flawed assignment. The question is how the order was *produced*, not whether one particular arrangement looks random.
 
-**What hands did we happen to receive?** Now deal a properly shuffled deck into two hands of 26. On average each hand gets two aces and 13 red cards. But under a perfectly valid shuffle, one hand can get three aces and the other one, or even all four.
+**What hands did we happen to get?** Now deal a properly shuffled deck into two hands of 26. On average each hand gets two aces and 13 red cards. But with a perfectly valid shuffle, one hand can easily get three aces while the other gets one, or even all four.
 
-```{r card-hands, fig.height=4.6}
-#| code-summary: "▶ A constructed allocation of two 26-card hands (one possible outcome, not a typical draw)"
+```{r card-hands, fig.height=4.8}
+#| code-summary: "▶ A constructed deal of two 26-card hands (one possible outcome, not a typical draw)"
 
-ranks <- c("A", 2:10, "J", "Q", "K")
-deck <- expand.grid(rank = as.character(ranks), suit = c("hearts", "diamonds", "spades", "clubs"),
-                    stringsAsFactors = FALSE) |>
-  mutate(colour = ifelse(suit %in% c("hearts", "diamonds"), "Red", "Black"), ace = rank == "A")
+rank_order <- c(2:10, "J", "Q", "K", "Ace")
+deck <- expand.grid(rank = rank_order, suit = c("hearts", "diamonds", "spades", "clubs"), stringsAsFactors = FALSE) |>
+  mutate(colour = ifelse(suit %in% c("hearts", "diamonds"), "Red", "Black"), ace = rank == "Ace")
 
 # Constructed so that both hands have 26 cards and 13 red cards, but the aces split 3-1
 nonace_red   <- which(!deck$ace & deck$colour == "Red")
 nonace_black <- which(!deck$ace & deck$colour == "Black")
-hand1_idx <- c(which(deck$ace & deck$suit %in% c("hearts", "diamonds", "spades")),
-               nonace_red[1:11], nonace_black[1:12])
+hand1_idx <- c(which(deck$ace & deck$suit %in% c("hearts", "diamonds", "spades")), nonace_red[1:11], nonace_black[1:12])
 deck$hand <- ifelse(seq_len(nrow(deck)) %in% hand1_idx, "Hand 1", "Hand 2")
 
 hand_summary <- deck |> group_by(hand) |>
   summarise(cards = n(), red = sum(colour == "Red"), aces = sum(ace), .groups = "drop")
 
 deck_plot <- deck |>
-  arrange(hand, colour, !ace, rank) |>
+  arrange(hand, colour, match(rank, rank_order)) |>
   group_by(hand) |>
   mutate(pos = row_number(), x = (pos - 1) %% 13, y = -((pos - 1) %/% 13)) |>
   ungroup()
 
 ggplot(deck_plot, aes(x, y, fill = colour, colour = ace)) +
   geom_tile(width = 0.92, height = 0.92, linewidth = 1.3) +
-  geom_text(aes(label = rank), colour = "white", size = 3.2, fontface = "bold") +
+  geom_text(aes(label = rank), colour = "white", size = 3, fontface = "bold") +
   facet_wrap(~hand, ncol = 1) +
   scale_fill_manual(values = c(Red = "#C0392B", Black = "#2B2B2B"), name = NULL) +
   scale_colour_manual(values = c(`TRUE` = "#E69F00", `FALSE` = "white"), guide = "none") +
@@ -108,21 +106,16 @@ p_even_aces <- dhyper(2, 4, 48, 26)
 p_all_four  <- 2 * dhyper(4, 4, 48, 26)
 ```
 
-Both hands have 26 cards and `r hand_summary$red[1]` red cards: exactly balanced on those two features. But hand 1 has `r hand_summary$aces[1]` aces and hand 2 has `r hand_summary$aces[2]`. Under a valid shuffle, the aces split exactly 2–2 only `r percent(p_even_aces, accuracy = 1)` of the time, and all four land in one hand `r percent(p_all_four, accuracy = 1)` of the time. **Unequal hands do not mean the shuffle was defective.**
+Both hands have 26 cards and `r hand_summary$red[1]` red cards, so they're perfectly balanced on those two things. But hand 1 holds `r hand_summary$aces[1]` aces and hand 2 holds `r hand_summary$aces[2]`. With a valid shuffle, the aces split evenly 2–2 only `r percent(p_even_aces, accuracy = 1)` of the time, and all four end up in one hand `r percent(p_all_four, accuracy = 1)` of the time. **Lopsided hands don't mean the shuffle was broken.**
 
-- **Proper shuffle, uneven hands:** valid mechanism, realized imbalance.
-- **Poor shuffle, apparently even hands:** questionable mechanism, good-looking realized balance.
+- **Good shuffle, uneven hands:** valid mechanism, imbalance by luck.
+- **Bad shuffle, even-looking hands:** shaky mechanism, balance that looks reassuring.
 
-And balance on one feature (red cards) says nothing about another (aces). A characteristic can be perfectly balanced without the groups being equivalent on everything that matters. We return to this under marginal versus joint balance.
+Notice, too, that being balanced on one thing (red cards) tells you nothing about another (aces). Hold onto that; we'll come back to it.
 
-::: {.callout-note collapse="true"}
-## Technical extension: How many riffle shuffles are enough?
+### Technical extension: how many riffle shuffles are enough? {#sec-riffle}
 
-For a hand shuffle the question has an exact answer ([Bayer & Diaconis, 1992](https://www.stat.berkeley.edu/users/aldous/157/Papers/bayer_diaconis.pdf)). Let $a = 2^k$. Under the Gilbert–Shannon–Reeds (GSR) model, any permutation of *n* cards with *r* rising sequences has probability $P(n,k,r)=\binom{a+n-r}{n}/a^{n}$ after *k* riffle shuffles. With $E(n,r)$ the Eulerian number of permutations having exactly *r* rising sequences, the exact total variation (TV) distance from the uniform distribution on all *n*! orderings is
-
-$$\mathrm{TV}(n,k) = \frac{1}{2}\sum_{r=1}^{n} E(n,r)\,\left|P(n,k,r) - \frac{1}{n!}\right|.$$
-
-TV = 0 means every ordering is equally likely; TV near 1 means a distribution concentrated on a small fraction of orderings. TV is a property of the *distribution* the procedure generates; it cannot be recovered from one observed deck, and a statistic such as correlation with the original order can look random while TV is still large.
+For a real shuffle, the question "is it random yet?" has an exact answer ([Bayer & Diaconis, 1992](https://www.stat.berkeley.edu/users/aldous/157/Papers/bayer_diaconis.pdf)). The figure shows how far the order of a deck is from perfectly random after *k* riffle shuffles. A score of 0 means every ordering is equally likely; a score near 1 means the shuffle leaves the deck stuck in a small corner of all possible orders.
 
 ```{r riffle-tv-functions}
 #| code-summary: "▶ Exact total variation distance for GSR riffle shuffles (code)"
@@ -193,68 +186,66 @@ tv_52 <- sapply(7:9, function(k) riffle_tv(52, k))
 ```
 
 
-One riffle shuffle leaves even a 5-card deck far from uniform (TV = `r sprintf("%.3f", tv_one_shuffle_5)`). Seven shuffles of 52 cards give TV ≈ `r sprintf("%.3f", tv_52[1])`, eight `r sprintf("%.3f", tv_52[2])`, nine `r sprintf("%.3f", tv_52[3])`: the familiar "seven shuffles" marks the rapid-mixing transition, not perfect uniformity. The dashed 0.10 line is an illustrative benchmark.
+One riffle shuffle leaves even a 5-card deck far from random (distance `r sprintf("%.3f", tv_one_shuffle_5)`). For 52 cards the distance is about `r sprintf("%.3f", tv_52[1])` after seven shuffles, `r sprintf("%.3f", tv_52[2])` after eight, and `r sprintf("%.3f", tv_52[3])` after nine. The familiar "seven shuffles" rule marks the point where things start to settle down fast, not the point of perfect randomness, and the dashed 0.10 line is just an illustrative benchmark.
 
-**Do not take the analogy literally.** A correct random assignment algorithm draws the assignment from its intended distribution in one step (`sample()` draws a uniformly random subset directly). It does not need to be run repeatedly to become valid.
-:::
+For the mathematically inclined: with $a = 2^k$, a permutation of *n* cards with *r* rising sequences has probability $\binom{a+n-r}{n}/a^{n}$ after *k* riffle shuffles, and the distance is $\tfrac12\sum_{r=1}^{n} E(n,r)\,\bigl|P(n,k,r) - 1/n!\bigr|$, where $E(n,r)$ counts permutations with *r* rising sequences. This is a property of the whole *distribution* of decks a shuffle can produce. You can't read it off one deck, and a quick check like "is the deck still in its original order?" can look fine while the distribution is still far from random.
+
+**Don't push the analogy too far.** A well-written assignment algorithm doesn't need to be run over and over to become valid. It draws the assignment from the intended distribution in one step (`sample()` picks a random subset directly).
 
 ## From Playing Cards to Psychological Constructs {#sec-balancing-groups}
 
-Now translate the cards into experiments. Each participant has baseline characteristics that affect the outcome, the way each card has a colour and a rank. Below are two **stylized data-generating scenarios**. They are not claims that narrow outcomes inherently have fewer determinants than broad psychological constructs. What matters is the number of *pre-treatment characteristics that affect potential outcomes*, not the number of dimensions of a scale.
+Now let's swap cards for people. Each participant has background characteristics that affect the outcome, the way each card has a colour and a rank. Below are two **made-up scenarios**. They aren't claims that narrow outcomes always have fewer causes than broad psychological ones. They're there to show what changes when a few characteristics matter versus many. And importantly, **not all characteristics matter equally**: some move the outcome a lot, some barely at all. The "effect" columns give a hypothetical size, in standard deviations of the outcome, so we can come back to who matters most.
 
-### Case 1 — Visual Fixation Time
+```{r characteristics}
+#| code-summary: "▶ The two stylized scenarios: baseline characteristics and their hypothetical effects"
 
-Suppose fixation time on an eco-label depends strongly on just two binary baseline characteristics: viewing distance (near vs. far) and display luminance (high vs. low). These create four possible profiles.
+fix_df <- tibble(Characteristic = c("Viewing distance", "Display luminance"),
+                 Low = c("Far", "Dim"), High = c("Near", "Bright"), Effect = c(0.80, 0.20))
+chars_df <- tibble(
+  Characteristic = c("Environmental values", "Price sensitivity", "Prior green behavior", "Social norms", "Household income",
+                     "Health motivation", "Peer influence", "Brand trust", "Prior brand use", "Age (older vs. younger)"),
+  Low  = c("Weak", "Low sensitivity", "Little", "Low salience", "Low", "Low", "Weak", "Low trust", "Non-user", "Younger"),
+  High = c("Strong", "High sensitivity", "Extensive", "High salience", "High", "High", "Strong", "High trust", "Prior user", "Older"),
+  Effect = c(0.80, 0.60, 0.50, 0.40, 0.30, 0.30, 0.20, 0.20, 0.10, 0.05))
 
-```{r narrow-matrix, fig.height=4.5, fig.width=7}
-#| code-summary: "▶ Visualize: 2×2 cell matrix for narrow construct"
-
-cells <- expand.grid(
-  Luminance = c("Dim display\n(Low)", "Bright display\n(High)"),
-  Distance  = c("Far from screen\n(Low)", "Close to screen\n(High)")
-)
-cells$label <- c("Cell A", "Cell B", "Cell C", "Cell D")
-
-ggplot(cells, aes(x = Luminance, y = Distance)) +
-  geom_tile(fill = "#d6ecff", color = "#4a90d9", linewidth = 1.2,
-            width = 0.92, height = 0.92) +
-  geom_text(aes(label = label), size = 5.5, fontface = "bold", color = "#1a3a6b") +
-  labs(title = "Design Space for Visual Fixation (Narrow Construct)",
-       subtitle = "2 binary hidden moderators \u2192 2\u00b2 = 4 possible profiles",
-       x = "Screen Luminance", y = "Viewing Distance") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid = element_blank(), axis.text = element_text(size = 10))
+eff_cols <- c("Characteristic", "Low level", "High level", "Hypothetical effect on Y (SD)")
+kable(fix_df |> setNames(eff_cols), digits = 2, caption = "Scenario 1: visual fixation time (2 characteristics)")
+kable(chars_df |> setNames(eff_cols), digits = 2, caption = "Scenario 2: sustainable purchase intention (10 characteristics)")
 ```
 
 
-With 80 participants, both groups can contain all four profiles, and that is easy here. But randomization does not guarantee equal frequencies in each cell.
+Two things to notice. In the fixation example, a handful of profiles are all that exist, and one characteristic (viewing distance) does most of the work. In the sustainable-purchase example there are ten characteristics, a few strong (environmental values, price sensitivity) and several weak.
 
-### Case 2 — Sustainable Purchase Intention
+```{r profile-figure, fig.height=4.6, fig.width=10}
+#| code-summary: "▶ Plot: 80 participants dropped onto the 4 profiles (left) and the 1,024 profiles (right)"
 
-Now suppose ten outcome-relevant binary baseline characteristics, such as environmental values, brand loyalty, price sensitivity, social norms, and prior sustainable consumption:
+set.seed(2025)
+# Left: scenario 1. Each participant lands on one of the 4 profiles
+prof4 <- expand.grid(Distance = c("Far", "Near"), Luminance = c("Dim", "Bright"))
+prof4$n <- tabulate(sample(1:4, 80, replace = TRUE), nbins = 4)
+p_left <- ggplot(prof4, aes(Distance, Luminance, fill = n)) +
+  geom_tile(colour = "white", linewidth = 2) +
+  geom_text(aes(label = n), size = 8, colour = "white", fontface = "bold") +
+  scale_fill_gradient(low = "#6baed6", high = "#08306b", guide = "none") +
+  labs(title = "Fixation: 4 Profiles", subtitle = "Simulated counts of 80 participants", x = "Viewing distance", y = "Display luminance") +
+  coord_equal() + theme_minimal(base_size = 12) + theme(panel.grid = element_blank())
 
-```{r broad-construct-table}
-#| code-summary: "▶ Table: 10 binary dimensions of sustainable purchase intention"
+# Right: scenario 2. Each participant lands on one of the 1,024 profiles
+profiles_all <- expand.grid(col = 1:32, row = 1:32)
+profiles_all$n <- tabulate(sample(nrow(profiles_all), 80, replace = TRUE), nbins = nrow(profiles_all))
+n_occupied <- sum(profiles_all$n > 0)
+p_right <- ggplot(profiles_all, aes(col, row, fill = n > 0)) +
+  geom_tile(colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = c(`FALSE` = "gray90", `TRUE` = "#D55E00"), guide = "none") +
+  coord_equal() +
+  labs(title = "Sustainable Intention: 1,024 Profiles", subtitle = "Orange cells hold at least one of the 80 participants") +
+  theme_void(base_size = 12)
 
-dims_table <- data.frame(
-  `#`       = 1:10,
-  Characteristic = c("Environmental values", "Household income", "Social norm salience",
-                "Brand trust", "Prior brand use", "Health motivation",
-                "Peer influence", "Prior green behavior",
-                "Price sensitivity", "Age (older vs. younger)"),
-  Low       = c("Weak", "Low income", "Low salience", "Low trust",
-                "Non-user", "Low", "Weak influence",
-                "Little prior behavior", "High sensitivity", "Younger"),
-  High      = c("Strong", "High income", "High salience", "High trust",
-                "Prior user", "High", "Strong influence",
-                "Extensive prior behavior", "Low sensitivity", "Older"),
-  check.names = FALSE
-)
-kable(dims_table,
-      col.names = c("#", "Baseline characteristic", "Level: Low (0)", "Level: High (1)"),
-      caption   = "10 hypothetical binary baseline characteristics (sustainable purchase intention example)")
+p_left + p_right + plot_layout(widths = c(1, 1.5))
 ```
 
+
+The left panel shows the four profiles of the fixation example, with the counts we get when 80 participants are dropped onto them at random. Even here, where it's easy for both groups to contain every profile, the counts aren't equal. The right panel shows the 1,024 profiles of the sustainable-purchase example: the 80 participants occupy `r n_occupied` of them at most, and the rest sit empty.
 
 | | Visual fixation example | Sustainable intention example |
 |---|---|---|
@@ -263,64 +254,9 @@ kable(dims_table,
 | Sample size | 80 | 80 |
 | Every profile represented | Possible, not guaranteed | Impossible |
 
-```{r profile-coverage, fig.height=4.4, fig.width=6.4}
-#| code-summary: "▶ Plot: where 80 participants land among 1,024 possible profiles"
+**Does that mean 80 participants can't validly estimate the effect of treatment on sustainable purchase intention? No.** To estimate the average treatment effect, you don't need every kind of person in both groups. Random assignment gets you there through the *assignment procedure*, not by matching people cell by cell. Full coverage only matters if you want a separate estimate for every profile, you're digging into fine-grained differences in who responds, or you want to say things about people your sample doesn't represent.
 
-set.seed(2025)
-profiles_all <- expand.grid(col = 1:32, row = 1:32)
-profiles_all$id <- seq_len(nrow(profiles_all))
-who <- sample(profiles_all$id, 80, replace = TRUE)        # each participant lands on one of 1,024 profiles
-profiles_all$n <- tabulate(who, nbins = nrow(profiles_all))
-n_occupied <- sum(profiles_all$n > 0)
-
-ggplot(profiles_all, aes(col, row, fill = n > 0)) +
-  geom_tile(colour = "white", linewidth = 0.2) +
-  scale_fill_manual(values = c(`FALSE` = "gray90", `TRUE` = "#D55E00"), guide = "none") +
-  coord_equal() +
-  labs(title = "80 Participants Cannot Cover 1,024 Profiles",
-       subtitle = "Simulated: each cell is one possible profile; orange cells contain at least one participant",
-       x = NULL, y = NULL) +
-  theme_void(base_size = 12)
-```
-
-The 80 participants occupy `r n_occupied` of the 1,024 profiles at most; the rest are empty.
-
-**Does this mean 80 participants cannot validly estimate the effect of treatment on sustainable purchase intention? No.** For the average treatment effect in the randomized sample, we do not need every possible profile represented in both groups. Random assignment identifies the average effect through the assignment mechanism, not through exhaustive matching of cells. Exact coverage matters when you want separate estimates for every profile, fine-grained effect heterogeneity, or claims about populations the sample does not represent.
-
-::: {.callout-note collapse="true"}
-## Technical extension: how quickly the number of profiles grows
-
-```{r combinatorial-explosion, fig.height=5}
-#| code-summary: "▶ Plot: combinatorial growth of design space"
-
-expl_df <- data.frame(k = 1:15, cells = 2^(1:15)) |>
-  mutate(label = ifelse(k == 2,  "Recall\nAccuracy\n(k = 2)",
-                 ifelse(k == 10, "Sustainable\nPurchase\nIntention\n(k = 10)", NA)))
-
-ggplot(expl_df, aes(x = k, y = cells)) +
-  geom_line(color = "#4a90d9", linewidth = 1.4) +
-  geom_point(size = 3, color = "#4a90d9") +
-  geom_point(data = filter(expl_df, k %in% c(2, 10)),
-             size = 5, shape = 21, fill = "white", color = "#d7301f", stroke = 2) +
-  geom_text(data = filter(expl_df, k %in% c(2, 10)),
-            aes(label = label),
-            nudge_x = 0.9, nudge_y = 0, hjust = 0, size = 3.2,
-            color = "#d7301f", lineheight = 0.9) +
-  geom_vline(xintercept = c(2, 10), linetype = "dotted", color = "#d7301f", linewidth = 0.7) +
-  scale_y_log10(labels = label_comma(),
-                breaks  = c(4, 32, 256, 1024, 8192, 32768)) +
-  scale_x_continuous(breaks = c(1, 2, 5, 10, 15)) +
-  labs(x = "Number of binary dimensions (k)",
-       y = "Design space: number of unique profiles (log scale)",
-       title = "How Quickly Does the Design Space Grow?",
-       subtitle = "Each additional binary dimension doubles the number of distinct participant profiles (2\u1d4f)") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank())
-```
-
-:::
-
-So if we cannot, and need not, achieve exact coverage, what kind of similarity between groups should we care about?
+So if we can't, and don't need to, cover every profile, what kind of similarity between the groups *should* we care about?
 
 ## From Exact Coverage to Approximate Orthogonality {#sec-orthogonality}
 
@@ -339,36 +275,35 @@ treat_cov_cor <- function(a, b, m) {
 treat_cov_cor_ex <- treat_cov_cor(22, 18, 40)      # 55% vs. 45% high among 40 + 40 participants
 ```
 
-Take 80 participants, 40 in each condition, and exactly 40 with high environmental concern. Perfect balance would put 20 in each condition (50% vs. 50%). One valid random assignment might instead give 22 in treatment and 18 in control: 55% vs. 45%, a ten-percentage-point difference produced by moving two people. For a characteristic with prevalence 0.5 and equal-sized groups, the correlation between treatment and the characteristic equals the difference in proportions, so here **r = `r sprintf("%.2f", treat_cov_cor_ex)`**.
+Take 80 participants, 40 in each condition, and say exactly 40 of them have high environmental concern. Perfect balance would put 20 high-concern people in each group (50% vs. 50%). One perfectly valid assignment might put 22 in treatment and 18 in control: 55% vs. 45%. That's a ten-percentage-point gap from moving two people. For a characteristic that half the sample has, with equal-sized groups, the correlation between treatment and the characteristic equals the gap in proportions, so here the correlation is **r = `r sprintf("%.2f", treat_cov_cor_ex)`**.
 
-Call $r_{\max}$ the largest realized absolute correlation we are willing to tolerate across the characteristics we examine. With ten characteristics instead of one, here is one valid assignment of 80 people:
+We'll call $r_{\max}$ the biggest treatment-characteristic correlation we're willing to put up with across the characteristics we check. Now give people all ten characteristics from the table above. Here is one valid assignment of 80 people (labels show each characteristic's hypothetical effect on the outcome):
 
-```{r imbalance-example, fig.height=4.6}
+```{r imbalance-example, fig.height=4.8}
 #| code-summary: "▶ One valid random assignment: 80 participants, 10 baseline characteristics"
 
 set.seed(2025)
 N_ex <- 80; D_ex <- 10
-char_names <- c("Environmental concern", "Household income", "Social norm salience", "Brand trust",
-                "Perceived quality", "Health motivation", "Peer influence", "Prior green purchases",
-                "Price sensitivity", "Emotional response")
-X_ex <- matrix(rbinom(N_ex * D_ex, 1, 0.5), nrow = N_ex, dimnames = list(NULL, char_names))
+X_ex <- matrix(rbinom(N_ex * D_ex, 1, 0.5), nrow = N_ex, dimnames = list(NULL, chars_df$Characteristic))
 T_ex <- sample(rep(0:1, N_ex / 2))                                  # complete randomization, 40 per arm
 
-ex_df <- tibble(characteristic = char_names,
-                Treatment = colMeans(X_ex[T_ex == 1, ]),
-                Control   = colMeans(X_ex[T_ex == 0, ])) |>
+ex_df <- tibble(characteristic = chars_df$Characteristic, effect = chars_df$Effect,
+                Treatment = colMeans(X_ex[T_ex == 1, ]), Control = colMeans(X_ex[T_ex == 0, ])) |>
   mutate(diff = Treatment - Control,
-         characteristic = reorder(characteristic, abs(diff)))
+         label = sprintf("%s (%.2f SD)", characteristic, effect)) |>
+  arrange(abs(diff), desc(effect)) |>
+  mutate(y = row_number())
 
 ggplot(ex_df) +
-  geom_segment(aes(x = Control, xend = Treatment, y = characteristic, yend = characteristic), colour = "gray60") +
-  geom_point(aes(Control, characteristic, colour = "Control"), size = 3.4) +
-  geom_point(aes(Treatment, characteristic, colour = "Treatment"), size = 3.4) +
+  geom_segment(aes(x = Control, xend = Treatment, y = y, yend = y), colour = "gray65") +
+  geom_point(aes(Control, y - 0.14, colour = "Control"), size = 3.4) +          # tiny vertical offset so overlapping dots stay visible
+  geom_point(aes(Treatment, y + 0.14, colour = "Treatment"), size = 3.4) +
+  scale_y_continuous(breaks = ex_df$y, labels = ex_df$label) +
   scale_colour_manual(values = c(Control = "#0072B2", Treatment = "#D55E00"), name = NULL) +
   scale_x_continuous(labels = percent_format(accuracy = 1), limits = c(0.2, 0.8)) +
   labs(x = "Share of participants who are \"high\" on the characteristic", y = NULL,
        title = "A Valid Randomization Still Produces Some Imbalance",
-       subtitle = "One draw of 80 participants, 40 per condition; each characteristic independently 50% high") +
+       subtitle = "One draw: 80 participants, 40 per condition (labels: hypothetical effect on Y)") +
   theme_minimal(base_size = 12) + theme(panel.grid.minor = element_blank(), legend.position = "top")
 
 n_big   <- sum(abs(ex_df$diff) >= 0.10)
@@ -376,16 +311,11 @@ max_gap <- max(abs(ex_df$diff))
 ```
 
 
-In this draw, `r n_big` of the 10 characteristics differ by 10 percentage points or more, and the largest gap is `r sprintf("%.0f", 100 * max_gap)` points. The more independent characteristics we examine, the more likely it is that at least one looks different.
+In this draw, `r n_big` of the 10 characteristics differ by 10 percentage points or more, and the biggest gap is `r sprintf("%.0f", 100 * max_gap)` points. The more independent characteristics we look at, the more likely it is that at least one looks different. And whether a gap *matters* depends on how much that characteristic drives the outcome, which is where the effect labels come in.
 
-### Step B: more characteristics make strict simultaneous balance less likely
+### Step B: more characteristics make strict balance less likely
 
-Make this exact under a deliberately simple setup: equal-sized arms, *D* independent binary characteristics each high with probability 0.5, a fixed tolerance $|r| < 0.10$, and **valid randomization in every experiment**.
-
-::: {.callout-note collapse="true"}
-## Technical extension: the exact probability calculation
-
-With *N*/2 participants per arm, the number with X = 1 in each arm is Binomial(*N*/2, 0.5). For every pair of counts we compute the treatment–characteristic correlation $r=(p_1-p_0)/\bigl(2\sqrt{p(1-p)}\bigr)$ (with pooled proportion *p*; constant characteristics count as balanced) and its probability. Summing the probabilities with |*r*| < 0.10 gives *q*(*N*) for one characteristic; independence gives *q*(*N*)<sup>*D*</sup> for all *D*. Exact ties at |*r*| = 0.10 count as failing.
+Let's make that exact under a deliberately simple setup: equal-sized groups, *D* characteristics that are independent of one another, each "high" for half the sample, a fixed tolerance of $|r| < 0.10$, and **valid randomization in every experiment**.
 
 ```{r balance-prob-functions}
 #| code-summary: "▶ Exact probability of meeting the marginal-balance criterion (code)"
@@ -420,8 +350,6 @@ kable(bal_wide, align = "lrrrr",
       caption = "Probability that a valid random assignment meets max |cor(T, X)| < 0.10 on every characteristic")
 ```
 
-:::
-
 ```{r balance-prob-figure, fig.height=4.8}
 #| code-summary: "▶ Plot: probability of meeting the criterion as N grows"
 
@@ -442,17 +370,17 @@ ggplot(bal_curve, aes(N, p, colour = D)) +
 ```
 
 
-At 80 participants the probability of meeting the criterion on every characteristic is `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 0.1)` for two characteristics and `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)` for ten. **More participants make stringent simultaneous balance easier; more independent characteristics make it harder.** These probabilities are not the probability that randomization is valid or that exchangeability holds: the assignment mechanism is valid throughout. They also depend on the stated assumptions, so they are not universal sample-size requirements.
+At 80 participants the chance of meeting the criterion on every characteristic is `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 0.1)` for two characteristics and `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)` for ten. **More participants make strict balance easier; more characteristics make it harder.** These aren't the probabilities that randomization "worked" or that exchangeability holds: the assignment is valid throughout. They also rest on the simple setup above, so they aren't universal sample-size rules. (The math behind them: for each possible pair of counts of "high" people in the two groups we work out the correlation and its probability, add up the pairs with $|r| < 0.10$, and raise the one-characteristic answer to the power *D*.)
 
 ### Step C: approximate orthogonality
 
-*Approximate orthogonality* means small realized associations between treatment assignment and baseline characteristics. Valid randomization makes those associations zero **in expectation**, not in every realization. In this setup their typical size shrinks in proportion to $1/\sqrt{N}$. That is the asymptotic fact that matters here: realized differences in many baseline characteristics tend to shrink as N grows. Exchangeability itself does not become "more valid" with N; it holds by design at any N.
+"Approximately orthogonal" is just a fancy way of saying the realized links between who got treatment and the baseline characteristics are small. Valid randomization makes those links zero **on average**, not in every draw. How big they typically are shrinks like $1/\sqrt{N}$, so bigger samples tend to look more balanced. That's the fact that matters here. Exchangeability itself doesn't get "more valid" as N grows. It holds by design at any N.
 
-A conservative planning approximation (a Bonferroni argument over the *D* characteristics) gives the sample size at which a valid randomization will meet a chosen tolerance on every characteristic with probability at least $1-\alpha$:
+If you want a rough planning number, a conservative rule of thumb (a Bonferroni argument over the *D* characteristics) says a valid randomization will meet a tolerance $r_{\max}$ on every characteristic with probability at least $1-\alpha$ once
 
-$$N \gtrsim \left(\frac{z_{1-\alpha/(2D)}}{r_{\max}}\right)^{2}.$$
+$$N \gtrsim \left(\frac{z_{1-\alpha/(2D)}}{r_{\max}}\right)^{2},$$
 
-Here $r_{\max}$ is the tolerance, *D* the number of characteristics, and $z$ the standard normal quantile. This is a planning approximation for meeting a balance criterion, **not** a minimum sample size for valid randomized inference.
+where $z$ is the standard normal quantile. That's a planning approximation for hitting a balance target, **not** the sample size you need for a valid randomized experiment.
 
 ```{r required-N}
 #| code-summary: "▶ Approximate N for a simultaneous balance tolerance (code)"
@@ -463,10 +391,10 @@ required_N <- function(D, r_thresh = 0.10, alpha = 0.05) {
 }
 ```
 
-For ten characteristics and $r_{\max} = 0.10$ the approximation gives N ≈ `r required_N(10, 0.10)`, which is conservative: the exact calculation gives `r percent(p_balance_all(400, 10), accuracy = 1)` at N = 400 and `r percent(p_balance_all(800, 10), accuracy = 1)` at N = 800.
+For ten characteristics and $r_{\max} = 0.10$ the rule gives N ≈ `r required_N(10, 0.10)`, which is conservative: the exact calculation gives `r percent(p_balance_all(400, 10), accuracy = 1)` at N = 400 and `r percent(p_balance_all(800, 10), accuracy = 1)` at N = 800.
 
 ::: {.callout-note collapse="true"}
-## Technical extension: approximate N across tolerances and dimensions
+## More detail: approximate N across tolerances and numbers of characteristics
 
 ```{r orthogonality-table}
 #| code-summary: "▶ Calculate: N required for approximate orthogonality"
@@ -492,93 +420,116 @@ kable(ortho_table,
 
 :::
 
-## When Does Realized Imbalance Actually Matter? {#sec-imbalance-matters}
+## When Does Imbalance Actually Matter? {#sec-imbalance-matters}
 
-Suppose the treated group contains more environmentally concerned participants. Does it matter? Only to the extent that environmental concern predicts the outcome we are studying. In a simple additive model with a constant treatment effect $\tau$,
+Say the treated group ended up with more environmentally concerned people. Does that matter? Only as much as environmental concern drives the outcome you care about. A simple way to see it: suppose the outcome is the treatment effect $\tau$ plus a contribution from some characteristic $C$ plus noise,
 
-$$Y = \tau T + \beta\,C + \varepsilon,$$
+$$Y = \tau T + \beta\,C + \varepsilon .$$
 
-the observed difference in group means is
+Then the difference you observe between the groups is
 
 $$\bar Y_T - \bar Y_C = \tau + \beta\,(\bar C_T - \bar C_C) + (\bar\varepsilon_T - \bar\varepsilon_C).$$
 
-The first term is the treatment effect. The second is the **contribution of realized imbalance**: how strongly C predicts Y times how much C differs between the groups. The third is remaining individual differences and noise.
+In words: the real treatment effect, plus how strongly $C$ predicts the outcome times how much $C$ differs between the groups, plus leftover noise. That middle piece is what imbalance costs you.
 
-Suppose the groups differ on environmental concern by 0.10 and environmental concern predicts an outcome difference of 0.80 SD: chance imbalance contributes `r sprintf("%.2f", 0.10 * 0.80)` SD to the observed contrast. An equally imbalanced characteristic that predicts only 0.05 SD contributes `r sprintf("%.3f", 0.10 * 0.05)` SD. **An imbalance matters through its relationship with the outcome, not just its size.**
+Take environmental values from our table (effect 0.80 SD). If the groups differ on it by 0.10, chance imbalance adds `r sprintf("%.2f", 0.10 * 0.80)` SD to what you observe. Take age (effect 0.05 SD) with the same 0.10 gap, and it adds just `r sprintf("%.3f", 0.10 * 0.05)` SD. **What matters is how big the gap is *and* how much the characteristic drives the outcome.**
 
 ```{r weak-vs-strong, fig.height=3.8}
-#| code-summary: "▶ Plot: contribution of realized imbalance for weak vs. strong predictors"
+#| code-summary: "▶ Plot: what the same imbalance costs for a strong vs. a weak predictor"
 
-contrib_df <- expand.grid(beta = c(0.05, 0.80), imbalance = c(0.05, 0.10, 0.20)) |>
+beta_strong <- chars_df$Effect[chars_df$Characteristic == "Environmental values"]
+beta_weak   <- chars_df$Effect[chars_df$Characteristic == "Age (older vs. younger)"]
+imb_levels  <- c(0.05, 0.10, 0.20)
+
+contrib_df <- expand.grid(beta = c(beta_weak, beta_strong), imbalance = imb_levels) |>
   mutate(contribution = beta * imbalance,
-         predictor = factor(ifelse(beta == 0.05, "Weak predictor (0.05 SD)", "Strong predictor (0.80 SD)"),
-                            c("Weak predictor (0.05 SD)", "Strong predictor (0.80 SD)")),
-         imbalance_f = factor(percent(imbalance, accuracy = 1)))
+         predictor = factor(ifelse(beta == beta_weak, "Weak predictor: age (0.05 SD)", "Strong predictor: environmental values (0.80 SD)"),
+                            c("Weak predictor: age (0.05 SD)", "Strong predictor: environmental values (0.80 SD)")),
+         imbalance_f = factor(imbalance, imb_levels, percent(imb_levels, accuracy = 1)))   # keep 5%, 10%, 20% in numeric order
 
 ggplot(contrib_df, aes(imbalance_f, contribution, fill = predictor)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.65) +
   geom_text(aes(label = sprintf("%.3f", contribution)), position = position_dodge(width = 0.7), vjust = -0.4, size = 3.4) +
   scale_fill_manual(values = c("#0072B2", "#D55E00"), name = NULL) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
-  labs(x = "Realized difference between groups on the characteristic (share high)",
-       y = "Contribution to the observed\ndifference (SD of Y)",
-       title = "The Same Imbalance Matters Much More for a Strong Predictor",
-       subtitle = "Analytic: contribution = β × realized difference (hypothetical β values)") +
+  labs(x = "Gap between the groups on the characteristic (share high)",
+       y = "What the imbalance adds to the\nobserved difference (SD of Y)",
+       title = "The Same Gap Matters Much More for a Strong Predictor",
+       subtitle = "Worked out analytically: contribution = effect \u00d7 gap (hypothetical effect sizes)") +
   theme_minimal(base_size = 12) + theme(legend.position = "top", panel.grid.minor = element_blank())
 ```
 
+
 ### Chance imbalance versus omitted-variable bias
 
-The algebra above is the algebra of omitted-variable bias in {{< ref sec-omitted-variable-bias style="long" >}}, but its status depends on how the groups came to differ.
+The algebra above is the same algebra as omitted-variable bias in {{< ref sec-omitted-variable-bias style="long" >}}, but what it *means* depends on how the groups came to differ.
 
-- **Observational or flawed assignment.** If assignment depends on a prognostic characteristic (say, the eco-label version was advertised on an environmental forum and the control version was not), the expected difference in C is not zero and omitting it creates systematic confounding bias. With a 0.23 difference in the share of high-environmental-values participants and an effect of \$1.20 on WTP, the contribution is about \$`r sprintf("%.2f", 1.20 * 0.23)`.
-- **Valid randomization.** A realized difference in C is a chance deviation with expectation zero over the assignment distribution. It adds uncertainty, not systematic bias. It is not a new kind of bias in an otherwise valid randomization.
+- **A flawed or observational assignment.** Say the eco-label version of a study was advertised on an environmental forum and the control version wasn't. Now environmental values are tied to who got treated, so leaving them out creates systematic bias. With a 0.23 gap in the share of environmentally minded participants and an effect of \$1.20 on WTP, that's about \$`r sprintf("%.2f", 1.20 * 0.23)` baked into the comparison.
+- **A valid randomization.** A gap in that characteristic is a chance wobble that averages to zero across possible assignments. It adds uncertainty, not systematic bias. It's not a new kind of bias hiding in a valid experiment.
 
-Good randomization also does not eliminate ordinary sampling variability, treatment-effect heterogeneity, or measurement error.
+And good randomization doesn't make ordinary sampling variability, differences in who responds to treatment, or measurement error go away.
 
-## What Makes Realized Balance More Difficult or More Consequential? {#sec-balance-difficulty}
+## What Makes Balance Harder, or More Consequential? {#sec-balance-difficulty}
 
-| Factor | Effect |
+| Factor | What it does |
 |---|---|
-| Smaller N | Larger chance fluctuations in group composition |
-| More independently varying characteristics | Harder to satisfy strict simultaneous balance on all of them |
-| Stronger prognostic relationships | A given imbalance has larger consequences for the observed outcome |
-| Correlated characteristics | Fewer effectively independent balance checks, so a balance rule is met more often; consequences still depend on the characteristics' combined predictive strength |
-| Interactions and nonlinearities | Marginal balance may conceal differences between joint profiles |
-| Unequal allocation or clustering | Changes effective information and the variability of realized comparisons |
+| Smaller N | Bigger chance swings in group makeup |
+| More independent characteristics | Strict balance on all of them gets harder |
+| Characteristics that predict the outcome strongly | A given gap costs more |
+| Characteristics that are correlated with each other | Fewer separate checks, but the effects can pile up or cancel |
+| Interactions and non-linear effects | Balance on each characteristic can hide differences in combinations |
+| Unequal group sizes or clustering | Changes how much information you have and how much comparisons wobble |
 
-These affect different things: some change the *probability of meeting* a balance criterion, others change *what an imbalance does* to the outcome. Recording more covariates does not by itself make a randomized estimate less precise; what matters is how much outcome variation they explain.
+Some of these change how *likely* it is that you meet a balance target. Others change what an imbalance *does* to your estimate. Measuring more covariates doesn't by itself make a randomized estimate less precise. What matters is how much outcome variation they explain.
 
-### Marginal versus joint balance {#sec-joint-profiles}
+### Balanced on each thing, but not on the combinations {#sec-joint-profiles}
 
-Take two binary characteristics A and B. Let treatment consist of profiles 00 and 11 and control of 01 and 10.
+Here is a trap that single-variable balance tables can't catch. Suppose we're studying how much people will pay for eco-friendly coffee, and two characteristics matter: environmental concern and price sensitivity. Say people pay a lot more only when they are *both* concerned about the environment *and* not price sensitive.
 
-```{r joint-profiles, fig.height=3.6, fig.width=6}
-#| code-summary: "▶ Two groups with identical marginal means but different joint distributions"
+```{r joint-profiles, fig.height=3.8, fig.width=8}
+#| code-summary: "▶ Two groups with identical balance on each characteristic but different combinations"
 
-profiles <- expand.grid(A = 0:1, B = 0:1) |>
-  mutate(Group = ifelse(A == B, "Treatment", "Control"),
-         Y0    = as.numeric(A == B),                               # untreated outcome: 1 when A and B match
-         label = paste0(Group, "\nY(0) = ", Y0))
+joint <- tibble(group   = rep(c("Treatment", "Control"), each = 4),
+                concern = rep(c("High", "High", "Low", "Low"), 2),
+                price   = rep(c("Low", "High", "Low", "High"), 2),
+                n       = c(15, 5, 5, 15,   5, 15, 15, 5)) |>
+  mutate(group = factor(group, c("Treatment", "Control")),
+         key_cell = concern == "High" & price == "Low")       # the combination where WTP is high
 
-ggplot(profiles, aes(factor(A, labels = c("A low", "A high")), factor(B, labels = c("B low", "B high")), fill = Group)) +
-  geom_tile(colour = "white", linewidth = 2, width = 0.96, height = 0.96) +
-  geom_text(aes(label = label), colour = "white", fontface = "bold", size = 4) +
-  scale_fill_manual(values = c(Treatment = "#D55E00", Control = "#0072B2"), guide = "none") +
-  labs(x = NULL, y = NULL, title = "Same Marginal Means, Different Joint Distributions",
-       subtitle = "Each group is 50% high on A and 50% high on B") +
-  theme_minimal(base_size = 12) + theme(panel.grid = element_blank())
+ggplot(joint, aes(factor(concern, c("Low", "High")), factor(price, c("High", "Low")), fill = n, colour = key_cell)) +
+  geom_tile(linewidth = 2.2, width = 0.95, height = 0.95) +
+  geom_text(aes(label = n), colour = "white", size = 7, fontface = "bold") +
+  facet_wrap(~group) +
+  scale_fill_gradient(low = "#9ecae1", high = "#08306b", guide = "none") +
+  scale_colour_manual(values = c(`TRUE` = "#E69F00", `FALSE` = "white"), guide = "none") +
+  labs(x = "Environmental concern", y = "Price sensitivity",
+       title = "Same Balance on Each Characteristic, Different Combinations",
+       subtitle = "Counts of participants per combination; gold outline = concerned and not price sensitive (high WTP)") +
+  theme_minimal(base_size = 12) + theme(panel.grid = element_blank(), strip.text = element_text(face = "bold"))
+
+# Untreated WTP: $3 baseline, +$2 only for participants who are concerned AND not price sensitive
+joint_t_cell <- joint$n[joint$group == "Treatment" & joint$key_cell]
+joint_c_cell <- joint$n[joint$group == "Control" & joint$key_cell]
+joint_gap    <- 2 * (joint_t_cell - joint_c_cell) / 40
+sub_t <- with(joint, n[group == "Treatment" & concern == "High" & price == "High"] / sum(n[group == "Treatment" & concern == "High"]))
+sub_c <- with(joint, n[group == "Control" & concern == "High" & price == "High"] / sum(n[group == "Control" & concern == "High"]))
 ```
 
 
-Both groups are 50% high on A and 50% high on B, so single-variable balance tables show perfect balance, yet the groups occupy entirely different cells. If untreated outcomes depend on the *interaction* (here Y(0) = 1 when A and B match), the treatment group's mean untreated outcome is 1 and the control group's is 0. This configuration is possible under valid randomization, though unlikely in many settings; it is a deliberately extreme illustration of something single-variable tables cannot detect.
+Both groups are 50% high on environmental concern and 50% high on price sensitivity, so a balance table checking one characteristic at a time shows perfect balance. But look at the combinations. `r joint_t_cell` of the 40 treated people are concerned *and* not price sensitive, compared with `r joint_c_cell` of the 40 controls. Because that combination is exactly where the WTP is high, the treated group's untreated WTP is higher by about \$`r sprintf("%.2f", joint_gap)` even though both groups look balanced on each characteristic.
 
-### Correlated characteristics {#sec-dgp-sim}
+And it doesn't stop at that one combination. Balance on the overall distribution of each characteristic doesn't guarantee balance within other slices of the data. Among the environmentally concerned participants, `r percent(sub_t, accuracy = 1)` of the treated group is price sensitive versus `r percent(sub_c, accuracy = 1)` of controls. That matters whenever the slice is meaningful: your effect of interest might live in that slice, or your sample might be split that way in a later analysis. The more characteristics you have, the more slices there are in which the groups can quietly differ.
 
-Correlation among characteristics and the strength with which they predict Y are different things. To keep them apart, the simulation below changes **one thing at a time**. Characteristics are ten independent or correlated binary variables, assignment is complete randomization, and the total prognostic strength (the SD of the part of Y they explain) is held fixed at 0.3 (weak) or 0.9 (strong) whatever the correlation.
+This is a deliberately extreme, constructed example. A valid randomization *can* produce a pattern like this, though it would be unusual. The point is what single-variable tables can't see.
 
-```{r corr-sim, fig.height=4.4, fig.width=10}
-#| code-summary: "▶ Simulate: correlation among characteristics vs. prognostic strength (≈30 s)"
+### When the characteristics are correlated {#sec-dgp-sim}
+
+Everything so far has assumed the characteristics are independent of each other. In the real world they aren't: people who care about the environment also tend to care about health, social norms, and so on. So what happens when characteristics travel together?
+
+It can go either way, and which way depends on how their effects on the outcome line up. The simulation below uses ten characteristics that are either independent or correlated, complete randomization, and a fixed effect of 0.3 SD per characteristic, and it asks two questions: how often is a strict balance rule met, and how big is the swing that chance imbalance adds to the estimate?
+
+```{r corr-sim, fig.height=4.6, fig.width=10}
+#| code-summary: "▶ Simulate: correlated characteristics, same-direction vs. opposite-direction effects (≈30 s)"
 
 corr_binary <- function(N, D, rho) {
   Sigma <- matrix(rho, D, D); diag(Sigma) <- 1
@@ -588,20 +539,16 @@ corr_binary <- function(N, D, rho) {
 draw_X <- function(N, D, rho) if (rho == 0) matrix(rbinom(N * D, 1, 0.5), nrow = N) else corr_binary(N, D, rho)
 
 D_cs <- 10
+beta_cs <- 0.3                                   # effect of each characteristic on Y (SD units)
+alt_sign <- rep(c(1, -1), length.out = D_cs)     # signs of effects when they alternate
 rho_vals <- c(0, 0.35, 0.75)
 N_vals_cs <- c(50, 100, 200, 400, 800)
-
-# SD of the sum of the characteristics under each rho: dividing by it standardizes the total
-# prognostic SD of Y, so changing rho does not also change how strongly the characteristics predict Y.
-set.seed(11)
-sd_sum <- sapply(rho_vals, function(r) sd(rowSums(draw_X(20000, D_cs, r))))
-names(sd_sum) <- rho_vals
 
 one_exp <- function(N, rho) {
   X <- draw_X(N, D_cs, rho); Tr <- sample(rep(0:1, N / 2))
   cors <- apply(X, 2, function(x) if (sd(x) == 0) 0 else cor(x, Tr))
-  delta_sum <- sum(colMeans(X[Tr == 1, , drop = FALSE]) - colMeans(X[Tr == 0, , drop = FALSE]))
-  c(pass = as.numeric(max(abs(cors)) < 0.10 - 1e-9), unit_contrib = unname(delta_sum / sd_sum[as.character(rho)]))
+  d <- colMeans(X[Tr == 1, , drop = FALSE]) - colMeans(X[Tr == 0, , drop = FALSE])     # realized group differences
+  c(pass = as.numeric(max(abs(cors)) < 0.10 - 1e-9), same = sum(d), alt = sum(alt_sign * d))
 }
 
 set.seed(42)
@@ -610,63 +557,63 @@ cs_res <- expand.grid(rho = rho_vals, N = N_vals_cs) |>
   mutate(out = purrr::map2(rho, N, function(rho, N) as_tibble(t(replicate(n_sim_cs, one_exp(N, rho)))))) |>
   tidyr::unnest(out)
 
-# Panel 1: comparison A -- vary correlation; probability of meeting the balance criterion
-pass_df <- cs_res |> group_by(rho, N) |> summarise(p = mean(pass), .groups = "drop") |>
-  mutate(rho_f = factor(rho, rho_vals, paste("ρ =", rho_vals)))
+rho_lab <- function(r) factor(r, rho_vals, paste("ρ =", rho_vals))
+
+# Panel A: how often is a strict balance rule met?
+pass_df <- cs_res |> group_by(rho, N) |> summarise(p = mean(pass), .groups = "drop") |> mutate(rho_f = rho_lab(rho))
 p_a <- ggplot(pass_df, aes(N, p, colour = rho_f)) +
   geom_line(linewidth = 1.2) + geom_point(size = 2.4) +
   scale_x_continuous(breaks = N_vals_cs) + scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
   scale_colour_manual(values = c("#0072B2", "#009E73", "#D55E00"), name = NULL) +
   labs(x = "Sample size (N)", y = "P(every |r| < 0.10)",
-       title = "A. Correlation Changes How Often Balance Is Met",
-       subtitle = "10 binary characteristics; prognostic strength held fixed") +
+       title = "A. Correlation Makes a Balance Rule Easier to Meet",
+       subtitle = "Fewer effectively separate characteristics to balance") +
   theme_minimal(base_size = 11) + theme(legend.position = "top", panel.grid.minor = element_blank())
 
-# Panel 2: comparisons A and B -- spread of the realized contribution at N = 200
-sd_df <- cs_res |> filter(N == 200) |> group_by(rho) |> summarise(unit_sd = sd(unit_contrib), .groups = "drop") |>
-  tidyr::crossing(strength = c(0.3, 0.9)) |>
-  mutate(sd_contrib = unit_sd * strength,
-         rho_f = factor(rho, rho_vals, paste("ρ =", rho_vals)),
-         strength_f = factor(ifelse(strength == 0.3, "Weak (0.3 SD)", "Strong (0.9 SD)"), c("Weak (0.3 SD)", "Strong (0.9 SD)")))
-p_b <- ggplot(sd_df, aes(rho_f, sd_contrib, fill = strength_f)) +
+# Panel B: how big is the swing that chance imbalance adds to the estimate (N = 200)?
+sd_df <- cs_res |> filter(N == 200) |> group_by(rho) |>
+  summarise(`Effects all point the same way` = sd(same) * beta_cs,
+            `Effects alternate in direction`  = sd(alt) * beta_cs, .groups = "drop") |>
+  pivot_longer(-rho, names_to = "pattern", values_to = "sd_contrib") |> mutate(rho_f = rho_lab(rho))
+p_b <- ggplot(sd_df, aes(rho_f, sd_contrib, fill = pattern)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.65) +
-  scale_fill_manual(values = c("#9ecae1", "#D55E00"), name = "Prognostic strength") +
-  labs(x = NULL, y = "SD of realized contribution (outcome SD)",
-       title = "B. Strength, Not Correlation, Sets the Consequences",
-       subtitle = "Spread of chance imbalance's contribution at N = 200 (total prognostic SD fixed across ρ)") +
+  scale_fill_manual(values = c("#9ecae1", "#D55E00"), name = NULL) +
+  labs(x = NULL, y = "Typical swing from chance imbalance (SD of Y)",
+       title = "B. But It Can Amplify or Cancel the Swing",
+       subtitle = "Spread of chance imbalance's contribution at N = 200") +
   theme_minimal(base_size = 11) + theme(legend.position = "top", panel.grid.minor = element_blank())
 
 p_a + p_b
 ```
 
-- **Comparison A (vary correlation, hold total prognostic strength fixed).** Panel A: stronger correlation raises the probability of meeting the balance criterion, because there are fewer effectively independent checks. Panel B (compare bars of the same colour): it leaves the spread of the realized contribution essentially unchanged. Imbalances on correlated characteristics do move together, but once the characteristics' combined predictive strength is held fixed, that is already accounted for.
-- **Comparison B (hold correlation fixed, vary strength).** Within each ρ, a stronger set of predictors scales the contribution up proportionally (0.9 vs. 0.3).
+- **Panel A:** the more the characteristics move together, the more often a strict balance rule gets met. There are simply fewer separate things to balance.
+- **Panel B:** what correlation does to the *consequences* depends on the effects. If correlated characteristics all push the outcome in the same direction, an imbalance on one comes with imbalances on the others and the contributions **add up**: the swing here grows from `r sprintf("%.2f", sd_df$sd_contrib[sd_df$rho == 0 & grepl("same", sd_df$pattern)])` to `r sprintf("%.2f", sd_df$sd_contrib[sd_df$rho == 0.75 & grepl("same", sd_df$pattern)])` SD. If they push in opposite directions, the contributions **cancel** and the swing shrinks (from `r sprintf("%.2f", sd_df$sd_contrib[sd_df$rho == 0 & grepl("alternate", sd_df$pattern)])` to `r sprintf("%.2f", sd_df$sd_contrib[sd_df$rho == 0.75 & grepl("alternate", sd_df$pattern)])` SD).
 
-So correlation changes how often a balance *rule* is met, while predictive strength determines how much an imbalance *matters*. Treating a "balanced" verdict on a rule as a verdict on consequences conflates the two.
+So correlation among characteristics can greatly worsen things or greatly improve them, and it's an empirical question which one you're in. The practical takeaway is the one from the previous section: random assignment having balanced the characteristics that sit **closest to the data-generating process**, the ones that really drive the outcome, is what protects you. Balance on characteristics that barely matter is not worth much, and imbalance on the ones that matter is the thing to worry about.
 
 ## What Should Researchers Actually Do? {#sec-researcher-actions}
 
 Three different problems can undermine a randomized comparison:
 
-1. **A flawed assignment mechanism.**
-2. **Chance imbalance after valid assignment.**
-3. **Loss of comparability after assignment**: attrition, exclusions, treatment switching, or other selection. This can undermine an analysis even when the randomization was perfectly implemented ({{< ref sec-selection style="long" >}}).
+1. **A flawed assignment procedure.**
+2. **Chance imbalance after a valid assignment.**
+3. **Losing comparability after assignment**: people dropping out, being excluded, switching treatment, or being selected in some other way. This can ruin an analysis even when the randomization was done perfectly ({{< ref sec-selection style="long" >}}).
 
 ### Before the experiment
 
-- **Document and protect the assignment mechanism.** Specify the randomization unit, allocation ratio, implementation, concealment where relevant, and the planned handling of noncompliance and attrition.
-- **Identify a manageable set of prognostic baseline characteristics.** Use theory, earlier research and pilot data to find characteristics likely to explain meaningful variation in potential outcomes. You do not need to measure every plausible antecedent of Y: identifying an intention-to-treat effect under valid random assignment does not require it.
-- **Consider blocking or stratification.** If important prognostic characteristics are known before assignment, randomize within blocks. Blocking improves balance on the blocking structure; it does not guarantee balance on every other characteristic (see {{< ref sec-designs style="long" >}}).
-- **Consider rerandomization.** You can prespecify an acceptable-balance criterion and redraw assignments until it is met ([Morgan & Rubin, 2012](https://doi.org/10.1214/12-AOS1008)). This is a design choice made in advance, not post hoc manipulation, and the analysis should account for the restricted assignment mechanism.
+- **Document and protect the assignment procedure.** Write down the unit you randomize, the allocation ratio, how it's implemented, who can see it, and how you'll handle non-compliance and dropout.
+- **Pick a manageable set of characteristics that really predict the outcome.** Use theory, past research, and pilot data. You don't need to measure everything that might possibly matter: estimating an intention-to-treat effect under valid random assignment doesn't require it.
+- **Consider blocking.** If you already know a few strong predictors, randomize within groups defined by them (see {{< ref sec-designs style="long" >}}). That improves balance on those, not on everything else.
+- **Consider rerandomization.** You can decide in advance what counts as acceptable balance and redraw the assignment until it's met ([Morgan & Rubin, 2012](https://doi.org/10.1214/12-AOS1008)). That's a design choice made up front, not fishing, and your analysis should reflect the restriction.
 
 ### After the experiment
 
-- **Verify the procedure.** Check assignment logs, implementation, protocol deviations, allocation ratios, and any sign of selective assignment.
-- **Describe realized balance.** Report standardized differences for *pre-treatment* characteristics (a balance table or Love plot), focusing on the size of differences and their likely prognostic importance rather than pass/fail cutoffs. Variables that respond to the manipulation (perceived quality, emotional reactions) are not baseline covariates.
-- **Handle post-randomization selection.** Conditioning on treatment receipt, excluding participants, or analyzing complete cases can compromise a randomized comparison when selection is related to treatment and potential outcomes. Keep an intention-to-treat analysis and investigate missingness and noncompliance with an appropriate causal framework.
-- **Use covariate adjustment appropriately.** Prespecified adjustment for strongly prognostic baseline variables can improve precision, particularly when the realized groups differ on them. It does not remove unmeasured chance imbalance or repair a flawed assignment mechanism. Do not adjust for mediators or other post-treatment variables when estimating a total effect.
+- **Verify the procedure.** Check assignment logs, deviations from the plan, group sizes, and any sign that assignment wasn't really random.
+- **Describe the balance you got.** Report standardized differences for characteristics measured *before* treatment, and focus on how big the differences are and how much those characteristics predict the outcome, rather than pass/fail cutoffs. Things that respond to the manipulation (perceived quality, emotional reactions) aren't baseline characteristics.
+- **Watch for post-randomization selection.** Looking only at people who received the treatment, dropping some participants, or analyzing only completers can break a randomized comparison if who gets dropped is related to treatment and outcomes. Keep an intention-to-treat analysis and look carefully at missing data and non-compliance.
+- **Adjust for strong baseline predictors in your plan.** Pre-specified adjustment can improve precision, especially if the groups ended up different on them. It won't fix imbalance on things you didn't measure or repair a flawed assignment. And don't adjust for mediators or other post-treatment variables when you want the total effect.
 
-To see what a descriptive balance check looks like, we simulate a study whose assignment mechanism was **flawed** (participants who saw the study on an eco-forum were more likely to receive the eco-label version, so assignment depended on environmental values and income). All characteristics below are measured *before* treatment.
+To see what a descriptive balance check looks like, we simulate a study whose assignment was **flawed**: participants who saw it on an eco-forum were more likely to get the eco-label version, so assignment depended on environmental values and income. Every characteristic below is measured *before* treatment.
 
 ```{r randomization-check-setup}
 #| code-summary: "▶ Simulate a study with a flawed assignment mechanism"
@@ -757,16 +704,16 @@ ggplot(smd_df, aes(x = SMD, y = Characteristic, color = flag)) +
 ```
 
 
-The diagnostics flag environmental values and income, which is how the flaw was built in. In a correctly randomized experiment, baseline significance tests have a null hypothesis that is true by design, so about 5% will flag by chance. They are not a certification exercise: read the standardized differences against how strongly each characteristic predicts Y.
+The check flags environmental values and income, which is exactly how we built in the flaw. In a properly randomized experiment, baseline significance tests have a null hypothesis that is true by design, so about 5% of them will flag by chance. Treat them as a way to look for implementation slip-ups, not as a certificate. Read the standardized differences against how strongly each characteristic predicts the outcome.
 
 ### When you can't check what you can't see {#sec-latent-imbalance}
 
-A balance table only describes characteristics you measured. Pilot data and open-ended responses (see {{< ref sec-exclusion style="part" >}}) can help you list candidate **pre-treatment** characteristics to measure, block on, or adjust for. Keep their causal roles apart from **mediators**, which are potentially affected by treatment: do not balance-check or adjust for mediators when estimating a total effect. A mediator list becomes relevant for studying pathways, and even then measuring mediators does not establish their causal effects ({{< ref sec-mediation style="long" >}}).
+A balance table only covers what you measured. Pilot data and open-ended responses (see {{< ref sec-exclusion style="part" >}}) can help you list candidate characteristics measured **before** treatment that you could block on or adjust for. Keep those separate from **mediators**, which treatment can change: don't balance-check or adjust for mediators when you want the total effect. A mediator list becomes relevant when you want to study *pathways*, and even then measuring mediators doesn't establish their causal effects ({{< ref sec-mediation style="long" >}}).
 
 ::: {.callout-note collapse="true"}
-## Technical extension: omnibus test of assignment on measured covariates
+## More detail: an omnibus test of assignment on the measured covariates
 
-An omnibus logistic regression of treatment on all measured covariates can help flag **gross implementation anomalies**. It is not a test of whether randomization "passed": a small p-value is consistent with assignment depending on the measured characteristics, but some valid experiments will flag by chance.
+An omnibus logistic regression of treatment on all the measured covariates can flag *gross* implementation problems. It's not a pass/fail test of randomization: a small p-value is consistent with assignment depending on the measured characteristics, but some valid experiments will flag by chance.
 
 ```{r omnibus-test}
 #| code-summary: "▶ Omnibus likelihood-ratio test of assignment on the measured covariates"
@@ -812,6 +759,39 @@ cat(sprintf("Omnibus LRT p = %.4f\n", lrt$`Pr(>Chi)`[2]))
 ```
 
 :::
+
+## Balance Versus Power: Two Different Sample-Size Questions {#sec-balance-power}
+
+One last comparison, because it clears up a lot of confusion. "How many participants do I need?" can mean two very different things:
+
+- **Power:** enough participants to reliably *detect a treatment effect*.
+- **Balance:** enough participants that the groups *look similar* on a strict criterion across many characteristics.
+
+```{r balance-power, fig.height=4.4}
+#| code-summary: "▶ Plot: sample size for power vs. sample size for strict balance"
+
+d_eff  <- 0.40
+N_pw   <- seq(40, 1000, by = 20)
+pw     <- sapply(N_pw, function(N) power.t.test(n = N / 2, delta = d_eff, sd = 1, sig.level = 0.05)$power)
+bal10  <- sapply(N_pw, p_balance_all, D = 10)
+
+bp_df <- tibble(N = N_pw, `Power to detect an effect of 0.4 SD` = pw, `Strict balance on all 10 characteristics` = bal10) |>
+  pivot_longer(-N, names_to = "what", values_to = "p")
+
+N_power80 <- min(N_pw[pw >= 0.80]); N_bal80 <- min(N_pw[bal10 >= 0.80])
+
+ggplot(bp_df, aes(N, p, colour = what)) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", colour = "gray50") +
+  geom_line(linewidth = 1.3) +
+  scale_colour_manual(values = c("#D55E00", "#0072B2"), name = NULL) +
+  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+  labs(x = "Total sample size (N)", y = "Probability",
+       title = "Detecting an Effect Takes Far Fewer People Than Balancing Everything",
+       subtitle = "Power: two-group t-test, 0.4 SD effect  ·  balance: |r| < 0.10 on 10 independent characteristics") +
+  theme_minimal(base_size = 12) + theme(legend.position = "top", panel.grid.minor = element_blank())
+```
+
+With an effect of 0.4 SD, you reach 80% power at about N = `r N_power80`. Reaching an 80% chance of strict balance on ten characteristics takes about N = `r N_bal80`. The sample you need to *find* a difference is much smaller than the sample you'd need to make the groups look alike on everything, and that's fine. A valid randomized experiment doesn't need strict balance to give you an unbiased estimate, and the standard error already accounts for the luck of the draw. Balance matters for the characteristics that drive the outcome, and for those you have better tools than sample size: blocking, rerandomization, and adjustment.
 
 ::: {.callout-note collapse="true"}
 ## Technical appendix: verification of the calculations on this page
@@ -869,20 +849,30 @@ mc$exact     <- mapply(p_balance_all, mc$N, mc$D)
 mc$simulated <- mapply(mc_pass_all, mc$N, mc$D)
 chk(all(abs(mc$exact - mc$simulated) < 4 * sqrt(mc$exact * (1 - mc$exact) / 6000) + 0.002), "Monte Carlo agrees with the exact probabilities")
 
-# ── Correlated-characteristics simulation isolates what it claims to ──────────
+# ── Correlated characteristics: help or hurt depending on how the effects line up ──────
 p200 <- pass_df$p[pass_df$N == 200]                     # ordered by rho: 0, 0.35, 0.75
-chk(all(diff(p200) > 0), "P(meeting the balance criterion) rises with correlation (strength held fixed)")
-sd200 <- sd_df$unit_sd[match(rho_vals, sd_df$rho)]
-chk(max(sd200) / min(sd200) < 1.15, "with total prognostic strength held fixed, the spread of the realized contribution does not depend on correlation")
-chk(all(abs(sd_df$sd_contrib / sd_df$unit_sd - sd_df$strength) < 1e-12), "contribution scales proportionally with prognostic strength")
+chk(all(diff(p200) > 0), "P(meeting the balance criterion) rises with correlation")
+sd_same <- sd_df |> filter(grepl("same", pattern)) |> arrange(rho) |> pull(sd_contrib)
+sd_alt  <- sd_df |> filter(grepl("alternate", pattern)) |> arrange(rho) |> pull(sd_contrib)
+chk(all(diff(sd_same) > 0), "same-direction effects: the swing from chance imbalance grows with correlation")
+chk(all(diff(sd_alt) < 0), "alternating effects: the swing from chance imbalance shrinks with correlation")
+
+# ── Joint-balance example ─────────────────────────────────────────────────────
+jt <- joint |> group_by(group) |> summarise(n_all = sum(n), concern_high = sum(n[concern == "High"]), price_high = sum(n[price == "High"]), .groups = "drop")
+chk(all(jt$n_all == 40) && all(jt$concern_high == 20) && all(jt$price_high == 20), "joint example: both groups are 50% high on each characteristic")
+chk(joint_t_cell != joint_c_cell && joint_gap > 0, "joint example: the groups differ in the combination that drives WTP")
+
+# ── Power vs. balance ─────────────────────────────────────────────────────────
+chk(abs(power.t.test(n = 100, delta = 0.4, sd = 1)$power - 0.8036) < 0.005, "power calculation (n = 100 per group, d = 0.4)")
+chk(N_power80 < N_bal80, "detecting the effect needs fewer participants than strict balance on ten characteristics")
 
 kable(transmute(mc, `Total N` = N, D = D, `Exact` = percent(exact, accuracy = 0.1),
                 `Monte Carlo (6,000 draws)` = percent(simulated, accuracy = 0.1)),
       caption = "Secondary check: exact probabilities vs. simulation")
-cat("All verification checks passed.\n")
+cat("All verification checks passed.\\n")
 ```
-
 :::
+
 
 ---
 
@@ -891,13 +881,13 @@ cat("All verification checks passed.\n")
 ::: {.callout-note}
 ## Key questions about your randomization
 
-- [ ] **Was treatment assigned independently of participants' potential outcomes through a valid mechanism?**
+- [ ] **Was treatment assigned independently of what participants' outcomes would have been, through a valid procedure?**
 - [ ] **Were there departures from the intended assignment procedure?**
-- [ ] **What differences arose in the realized groups?**
-- [ ] **Which baseline differences are likely to matter for the outcome?**
-- [ ] **Were prognostic characteristics used appropriately in the design or analysis?**
-- [ ] **Could attrition, exclusions, or noncompliance undermine the comparison?**
-- [ ] **Does the analysis respect the actual randomization procedure?**
+- [ ] **How do the groups we actually got differ?**
+- [ ] **Which of those differences are likely to matter for the outcome?**
+- [ ] **Did we use the strong baseline predictors well, in the design or the analysis?**
+- [ ] **Could dropout, exclusions, or non-compliance undermine the comparison?**
+- [ ] **Does the analysis respect how randomization was actually done?**
 :::
 
-Randomization does not guarantee identical groups. It guarantees a valid assignment mechanism under which group differences are not systematically driven by potential outcomes. What remains in any one experiment is chance variation. The job of good experimental design and analysis is to understand and manage that variation, not to pretend it does not exist.
+Randomization doesn't guarantee identical groups. It guarantees a valid assignment procedure, one where differences between the groups aren't systematically driven by what participants' outcomes would have been. What's left in any one experiment is chance variation. The job of good design and analysis is to understand and manage that variation, not to pretend it isn't there.
