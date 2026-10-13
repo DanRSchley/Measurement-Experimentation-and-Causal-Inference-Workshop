@@ -461,12 +461,12 @@ window.Quarto = {
 <p>Classical test theory (CTT) assumes the error term <span class="math inline">\(\varepsilon\)</span> is <em>random and symmetric</em> — equally likely to push the observed score up or down, averaging to zero across many observations. Under this assumption, observable scores are noisy but unbiased indicators of the latent construct you care about.</p>
 <p>But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by <em>something else</em>. The six parts in this tutorial are six different ways that “something else” creeps into your observed score:</p>
 <ul>
-<li>When your scale picks up a second construct (<strong><a href="part1.html" class="quarto-xref">Part 1</a></strong>), ε includes that construct’s variance — and is no longer random.</li>
-<li>When an omitted variable drives both your predictor and outcome (<strong><a href="part2.html" class="quarto-xref">Part 2</a></strong>), the “error” in your regression coefficient is systematic, not random.</li>
-<li>When scale items shift their baseline across groups (<strong><a href="part3.html" class="quarto-xref">Part 3</a></strong>), ε differs systematically between conditions.</li>
-<li>When your sample mixes two populations (<strong><a href="part4.html" class="quarto-xref">Part 4</a></strong>), ε has a bimodal structure that standard models cannot represent.</li>
-<li>When your data contain influential outliers (<strong><a href="part5.html" class="quarto-xref">Part 5</a></strong>), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.</li>
-<li>When your outcome scale has hard bounds (<strong><a href="part6.html" class="quarto-xref">Part 6</a></strong>), ε is truncated at the ends of the scale, so it is no longer symmetric — observed means are pulled toward the middle of the scale.</li>
+<li>When your scale picks up a second construct (<strong><a href="part1.html" class="xref-link">Part 1</a></strong>), ε includes that construct’s variance — and is no longer random.</li>
+<li>When an omitted variable drives both your predictor and outcome (<strong><a href="part2.html" class="xref-link">Part 2</a></strong>), the “error” in your regression coefficient is systematic, not random.</li>
+<li>When scale items shift their baseline across groups (<strong><a href="part3.html" class="xref-link">Part 3</a></strong>), ε differs systematically between conditions.</li>
+<li>When your sample mixes two populations (<strong><a href="part4.html" class="xref-link">Part 4</a></strong>), ε has a bimodal structure that standard models cannot represent.</li>
+<li>When your data contain influential outliers (<strong><a href="part5.html" class="xref-link">Part 5</a></strong>), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.</li>
+<li>When your outcome scale has hard bounds (<strong><a href="part6.html" class="xref-link">Part 6</a></strong>), ε is truncated at the ends of the scale, so it is no longer symmetric — observed means are pulled toward the middle of the scale.</li>
 </ul>
 <p><strong>Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.</strong> Consider a case where we are trying to measure Green Purchase Intentions (GPI) but our measurement also captures a related but separable construct Environmental Concern (EC), then the CTT equation becomes:</p>
 <p><span class="math display">\[X_\text{GPI} = T_\text{true GPI} + \lambda \cdot T_\text{EC} + \varepsilon_\text{random}\]</span></p>

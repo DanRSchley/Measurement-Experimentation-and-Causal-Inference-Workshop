@@ -417,12 +417,12 @@ window.Quarto = {
 <h1>Part 5: Experimental Design Strategies — Using Structure to Buy Efficiency</h1>
 <section id="the-core-tension" class="level2">
 <h2 class="anchored" data-anchor-id="the-core-tension">The Core Tension</h2>
-<p>Parts <a href="part2.html" class="quarto-xref">2</a>, <a href="part3.html" class="quarto-xref">3</a>, and <a href="part4.html" class="quarto-xref">4</a> showed a fundamental tension:</p>
+<p>Parts <a href="part2.html" class="xref-link">2</a>, <a href="part3.html" class="xref-link">3</a>, and <a href="part4.html" class="xref-link">4</a> showed a fundamental tension:</p>
 <ul>
 <li><strong>More dimensions of Y</strong> → larger design space → more N needed for orthogonality</li>
 <li><strong>More N</strong> → more expensive → temptation to reduce sample → back to poor orthogonality</li>
 </ul>
-<p><a href="part2.html#sec-latent-imbalance" class="quarto-xref">Part 2</a> offered two partial remedies (blocked randomization and larger samples). Here we go further: rather than trying to <em>achieve</em> orthogonality with brute-force N, we ask whether <strong>the experimental design itself</strong> can reduce the size of the design space you need to fill.</p>
+<p><a href="part2.html#sec-latent-imbalance" class="xref-link">Part 2</a> offered two partial remedies (blocked randomization and larger samples). Here we go further: rather than trying to <em>achieve</em> orthogonality with brute-force N, we ask whether <strong>the experimental design itself</strong> can reduce the size of the design space you need to fill.</p>
 </section>
 <section id="completely-random-factorial-and-latin-square-designs" class="level2">
 <h2 class="anchored" data-anchor-id="completely-random-factorial-and-latin-square-designs">Completely Random, Factorial, and Latin Square Designs</h2>
@@ -577,13 +577,13 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Recall from <a href="part2.html#sec-orthogonality" class="quarto-xref">“From Exact Coverage to Approximate Orthogonality” (Part 2)</a> that the required N for approximate orthogonality grows with the number of dimensions D and falls as <span class="math inline">\(r_{\max}\)</span> increases. A Latin Square design directly reduces the effective D by <strong>structurally balancing</strong> factors across the design matrix rather than relying on chance:</p>
+<p>Recall from <a href="part2.html#sec-orthogonality" class="xref-link">“From Exact Coverage to Approximate Orthogonality” (Part 2)</a> that the sample size needed to have a reasonable chance of approximate balance grows with the number of independent characteristics D and falls as the tolerance <span class="math inline">\(r_{\max}\)</span> loosens. A Latin Square design directly reduces the effective D by <strong>structurally balancing</strong> factors across the design matrix rather than relying on chance:</p>
 <ul>
 <li>A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.</li>
 <li>A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors’ levels.</li>
-<li>A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from <a href="part2.html" class="quarto-xref">Part 2</a>.</li>
+<li>A simple A/B study with N = 48 leaves B and C entirely to chance — back to the orthogonality problem from <a href="part2.html" class="xref-link">Part 2</a>.</li>
 </ul>
-<p>The Latin Square is a direct structural solution to the <a href="part2.html" class="quarto-xref">Part 2</a> problem: <strong>it buys you orthogonality through design structure rather than through sample size.</strong></p>
+<p>The Latin Square is a direct structural solution to the <a href="part2.html" class="xref-link">Part 2</a> problem: <strong>it buys you orthogonality through design structure rather than through sample size.</strong></p>
 </div>
 </div>
 </section>
@@ -977,7 +977,7 @@ window.Quarto = {
 </section>
 <section id="the-connection-to-randomization-within-participant-designs-and-the-design-space" class="level3">
 <h3 class="anchored" data-anchor-id="the-connection-to-randomization-within-participant-designs-and-the-design-space">The connection to Part 2: within-participant designs and the design space</h3>
-<p>Within-participant designs also address the <a href="part2.html" class="quarto-xref">Part 2</a> problem in a specific and powerful way. Because each person sees <em>multiple</em> conditions, the entire design space for that person’s dimensions is held constant across conditions — <strong>by construction</strong>. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person’s data.</p>
+<p>Within-participant designs also address the <a href="part2.html" class="xref-link">Part 2</a> problem in a specific and powerful way. Because each person sees <em>multiple</em> conditions, the entire design space for that person’s dimensions is held constant across conditions — <strong>by construction</strong>. Between-participant designs rely on random assignment to balance the design space across people; within-participant designs remove the need for that balance entirely within a person’s data.</p>
 <p>The tradeoff is real: <strong>carryover effects</strong> (condition A changes how the person responds to condition B), <strong>demand characteristics</strong> (participants figure out the hypothesis), <strong>order effects</strong> (earlier conditions shift baseline responding), and <strong>fatigue or practice effects</strong> all threaten the validity of within-person contrasts. These threats are most severe when:</p>
 <ul>
 <li>The treatment induces lasting attitude change (e.g., persuasion studies, value activation)</li>
@@ -1124,7 +1124,7 @@ window.Quarto = {
 </div>
 <p><strong>Reading the plot:</strong> at K = 1, both designs are identical — a metastudy with a single microstudy is just an A/B test — and they share the same power (~80% for d = 0.28 with N = 400). As K grows, the designs diverge. In the metastudy, K = 2 introduces a small dip in power (the τ²/K term is still non-trivial at K = 2), but power quickly recovers and rises as more scenarios average out the between-scenario heterogeneity — metastudy power asymptotes back toward its K = 1 level and beyond. In the separate A/B tests, each individual study receives only N/K participants, so the per-test SE grows and power falls monotonically. By K = 3 the metastudy already surpasses the A/B test; by K = 15 the metastudy is near its ceiling while the separate A/B tests have collapsed below 20% power. The shaded region shows the metastudy’s cumulative advantage — the vertical gap between the two curves — which grows steadily from K = 2 onward.</p>
 <p>The practical upshot: a single well-powered A/B test answers the question “does this effect occur in <em>this</em> context?” A metastudy with many microstudies answers the question “does this effect occur <em>in general</em>?” — and does so with greater power for the same total N, once K is large enough to average out the between-scenario heterogeneity.</p>
-<p><strong>The connection to <a href="part2.html" class="quarto-xref">Part 2</a>:</strong> a metastudy also directly reduces the <a href="part2.html" class="quarto-xref">Part 2</a> problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions <em>by construction</em> — transforming unobserved confounders into <em>measured experimental factors</em> and extracting their effects cleanly.</p>
+<p><strong>The connection to <a href="part2.html" class="xref-link">Part 2</a>:</strong> a metastudy also directly reduces the <a href="part2.html" class="xref-link">Part 2</a> problem. By deliberately varying many potential confounders as factors in the design (rather than leaving them to chance), you ensure they are orthogonally distributed across conditions <em>by construction</em> — transforming unobserved confounders into <em>measured experimental factors</em> and extracting their effects cleanly.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1153,12 +1153,12 @@ window.Quarto = {
 <section id="completely-random-assignment-the-baseline" class="level2">
 <h2 class="anchored" data-anchor-id="completely-random-assignment-the-baseline">Completely Random Assignment — The Baseline</h2>
 <p>In completely random assignment (CRA), each participant is independently assigned to a condition with equal probability. This is what most researchers do when they check “randomize” in Qualtrics.</p>
-<p>CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as <a href="part2.html" class="quarto-xref">Part 2</a> showed, that chance is often disappointingly low when Y is complex.</p>
+<p>CRA is unbiased in expectation: on average across infinitely many experiments, it achieves balance. But for any single experiment, balance is a matter of chance — and as <a href="part2.html" class="xref-link">Part 2</a> showed, that chance is often disappointingly low when Y is complex.</p>
 </section>
 <section id="stratified-blocked-random-assignment" class="level2">
 <h2 class="anchored" data-anchor-id="stratified-blocked-random-assignment">Stratified (Blocked) Random Assignment</h2>
 <p><strong>The idea:</strong> divide participants into groups (strata or blocks) based on measured covariates that you expect to relate to Y, then randomize <em>within</em> each block.</p>
-<p><strong>Concrete example:</strong> In the eco-coffee study, you know from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>’s analysis that “environmental values” is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs.&nbsp;low environmental values strata. Then assign 50% to eco-label and 50% to control <em>within each stratum</em>.</p>
+<p><strong>Concrete example:</strong> In the eco-coffee study, you know from <a href="../module-1/intro.html" class="xref-link">Module 1</a>’s analysis that “environmental values” is a strong predictor of WTP (β ≈ 0.8 SD). Before running the study, add a short pre-screening item to measure environmental values. Split participants into high vs.&nbsp;low environmental values strata. Then assign 50% to eco-label and 50% to control <em>within each stratum</em>.</p>
 <p><strong>Why it works:</strong> By randomizing within strata, you guarantee that each condition contains equal proportions of high- and low-environmental-values participants. This eliminates one source of latent imbalance — the most important one — by design rather than by chance.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1238,7 +1238,7 @@ window.Quarto = {
 </div>
 </div>
 <p>Stratification dramatically reduces both the mean and worst-case imbalance on the stratified covariates. The 90th-percentile bar for CRA often exceeds the 0.10 threshold; the stratified version almost never does.</p>
-<p><strong>The limitation</strong> is the same as in <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>’s measurement section: you can only stratify on what you have <em>measured</em>. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.</p>
+<p><strong>The limitation</strong> is the same as in <a href="../module-1/intro.html" class="xref-link">Module 1</a>’s measurement section: you can only stratify on what you have <em>measured</em>. Unstratified dimensions remain at the mercy of chance — which returns us to the need to map the construct Y first.</p>
 </section>
 <section id="clustered-random-assignment" class="level2">
 <h2 class="anchored" data-anchor-id="clustered-random-assignment">Clustered Random Assignment</h2>
@@ -1332,7 +1332,7 @@ window.Quarto = {
 <td>When intervention must be applied at group level</td>
 </tr>
 <tr class="odd">
-<td>Analogy (<a href="../module-1/intro.html" class="quarto-xref">Module 1</a>)</td>
+<td>Analogy (<a href="../module-1/intro.html" class="xref-link">Module 1</a>)</td>
 <td>Pre-specifying subscales before CFA</td>
 <td>Multi-level data with non-independent observations</td>
 </tr>
@@ -1352,12 +1352,12 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Every concept in this module is a direct extension of <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:</p>
+<p>Every concept in this module is a direct extension of <a href="../module-1/intro.html" class="xref-link">Module 1</a>, applied to the treatment variable and the act of randomization rather than the outcome variable and the act of measurement:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th><a href="../module-1/intro.html" class="quarto-xref">Module 1</a> (Measurement of Y)</th>
-<th><a href="intro.html" class="quarto-xref">Module 2</a> (Manipulation of X and Randomization)</th>
+<th><a href="../module-1/intro.html" class="xref-link">Module 1</a> (Measurement of Y)</th>
+<th><a href="intro.html" class="xref-link">Module 2</a> (Manipulation of X and Randomization)</th>
 </tr>
 </thead>
 <tbody>
@@ -1383,7 +1383,7 @@ window.Quarto = {
 </tr>
 <tr class="even">
 <td>Non-representative item sampling biases what the scale captures</td>
-<td>Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative (<a href="part3.html" class="quarto-xref">Part 3</a>)</td>
+<td>Selection effects: platform self-selection, stimulus non-representativeness, attrition, and exclusion bias make the analyzed sample unrepresentative (<a href="part3.html" class="xref-link">Part 3</a>)</td>
 </tr>
 <tr class="odd">
 <td>Stratified measurement (subscales by domain)</td>
@@ -1403,7 +1403,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p><strong>The common lesson</strong> — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (<a href="../module-1/intro.html" class="quarto-xref">Module 1</a>), design their manipulations and sampling deliberately (<a href="intro.html" class="quarto-xref">Module 2</a>), and use the right statistical corrections when design solutions are insufficient (<a href="../module-3/part2.html" class="quarto-xref">Module 3, Part 2</a>) give themselves the best chance of making valid causal claims. <a href="../module-3/intro.html" class="quarto-xref">Module 3</a> will formalize all of this in the language of causal inference.</p>
+<p><strong>The common lesson</strong> — across both modules — is that observables are imperfect indicators of latent properties, and the gap between the observable and the latent grows with construct complexity. Researchers who map the latent space carefully (<a href="../module-1/intro.html" class="xref-link">Module 1</a>), design their manipulations and sampling deliberately (<a href="intro.html" class="xref-link">Module 2</a>), and use the right statistical corrections when design solutions are insufficient (<a href="../module-3/part2.html" class="xref-link">Module 3, Part 2</a>) give themselves the best chance of making valid causal claims. <a href="../module-3/intro.html" class="xref-link">Module 3</a> will formalize all of this in the language of causal inference.</p>
 </div>
 </div>
 <hr>

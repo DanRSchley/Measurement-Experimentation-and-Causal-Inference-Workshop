@@ -387,7 +387,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Part 2: Omitted Variable Bias — A Related Problem in Observational Data</h1>
 <section id="connecting-to-discriminant-validity" class="level2">
 <h2 class="anchored" data-anchor-id="connecting-to-discriminant-validity">Connecting to Part 1</h2>
-<p>In <a href="part1.html" class="quarto-xref">Part 1</a>, the GPI scale was contaminated: instead of purely measuring <em>Green Purchase Intention</em>, it also picked up <em>Environmental Concern</em>. The scale measured <strong>X + something else</strong>.</p>
+<p>In <a href="part1.html" class="xref-link">Part 1</a>, the GPI scale was contaminated: instead of purely measuring <em>Green Purchase Intention</em>, it also picked up <em>Environmental Concern</em>. The scale measured <strong>X + something else</strong>.</p>
 <p>Omitted variable bias (OVB) is a related — but distinct — problem. It occurs when you use observational (secondary) data to estimate the effect of one variable on another, but a third variable you didn’t measure is influencing both.</p>
 <p>Suppose you have sales figures and advertising spend for 500 stores. You want to know: <em>does more advertising lead to more sales?</em></p>
 <p>The danger is that <strong>store quality</strong> — the physical location, the staff, the store atmosphere — affects <em>both</em> how much stores spend on advertising (premium stores invest more) <em>and</em> how much they sell. If you leave store quality out of your model, your estimate of advertising’s effect on sales is contaminated. The advertising coefficient picks up <strong>advertising + store quality</strong>.</p>
@@ -417,12 +417,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong><a href="part1.html" class="quarto-xref">Part 1</a></strong></td>
+<td><strong><a href="part1.html" class="xref-link">Part 1</a></strong></td>
 <td>Green Purchase Intention (GPI)</td>
 <td>GPI <em>and</em> Environmental Concern</td>
 </tr>
 <tr class="even">
-<td><strong><a href="part2.html" class="quarto-xref">Part 2</a></strong></td>
+<td><strong><a href="part2.html" class="xref-link">Part 2</a></strong></td>
 <td>Effect of advertising on sales</td>
 <td>Advertising <em>and</em> store quality</td>
 </tr>
@@ -571,7 +571,7 @@ F-statistic:  2227 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="callout-body-container callout-body">
 <p>The residuals spread out dramatically as fitted values increase. This <strong>heteroskedasticity</strong> is a red flag: non-constant variance suggests the model has left out something that also varies with X.</p>
 <p>Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is <em>consistent with</em> that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.</p>
-<p>Connect this back to <a href="part1.html" class="quarto-xref">Part 1</a>: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in <a href="part1.html" class="quarto-xref">Part 1</a> — telling you that Y reflects more than X.</p>
+<p>Connect this back to <a href="part1.html" class="xref-link">Part 1</a>: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in <a href="part1.html" class="xref-link">Part 1</a> — telling you that Y reflects more than X.</p>
 </div>
 </div>
 <p>We can formally confirm the heteroskedasticity with a Breusch-Pagan test. A significant result means the variance of residuals is not constant — further evidence that something is systematically missing.</p>
@@ -715,9 +715,9 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 <section id="summary-what-ovb-teaches-us" class="level2">
 <h2 class="anchored" data-anchor-id="summary-what-ovb-teaches-us">Summary: What OVB Teaches Us</h2>
 <p>OVB and discriminant validity violations are different problems — OVB lives in the regression, DV violations live in the measurement model — but they share a common underlying logic. In both cases, the thing you are using as your outcome variable picks up more than one source of variance, and the contaminating source inflates the relationship you’re trying to study.</p>
-<p>Discriminant validity checks (<a href="part1.html" class="quarto-xref">Part 1</a>) and residual/sensitivity diagnostics (<a href="part2.html" class="quarto-xref">Part 2</a>) are both ways of asking the same fundamental question: <em>is my Y truly measuring what I think it’s measuring, or is something else riding along with it?</em></p>
+<p>Discriminant validity checks (<a href="part1.html" class="xref-link">Part 1</a>) and residual/sensitivity diagnostics (<a href="part2.html" class="xref-link">Part 2</a>) are both ways of asking the same fundamental question: <em>is my Y truly measuring what I think it’s measuring, or is something else riding along with it?</em></p>
 <p>The key practical difference: if your Y is a multi-item scale and you have OVB (an omitted variable driving both X and Y), that omitted variable will inflate the latent correlation between your scales and cause them to fail discriminant validity tests too. So fixing the measurement model and fixing the regression model are not alternative strategies — you may need to address both.</p>
-<p>The residual fan pattern you see here is also a hint that latent subgroups (<a href="part4.html" class="quarto-xref">Part 4</a>) or collective outliers (<a href="part5.html" class="quarto-xref">Part 5</a>) may be present — all three problems can produce heteroskedastic-looking residuals.</p>
+<p>The residual fan pattern you see here is also a hint that latent subgroups (<a href="part4.html" class="xref-link">Part 4</a>) or collective outliers (<a href="part5.html" class="xref-link">Part 5</a>) may be present — all three problems can produce heteroskedastic-looking residuals.</p>
 </section>
 <section id="other-methods-for-diagnosing-endogeneity-and-ovb" class="level2">
 <h2 class="anchored" data-anchor-id="other-methods-for-diagnosing-endogeneity-and-ovb">Other Methods for Diagnosing Endogeneity and OVB</h2>
@@ -732,14 +732,14 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Several of the methods below are covered in depth in <strong><a href="../module-3/intro.html" class="quarto-xref">Module 3</a>: Causal Inference</strong>. Regression discontinuity design (<a href="../module-3/part3.html#sec-rdd" class="quarto-xref">Module 3, Part 3</a>), difference-in-differences (<a href="../module-3/part3.html#sec-did" class="quarto-xref">Module 3, Part 3</a>), and propensity score / matching methods (<a href="../module-3/part2.html#sec-psm" class="quarto-xref">Module 3, Part 2</a>) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.</p>
+<p>Several of the methods below are covered in depth in <strong><a href="../module-3/intro.html" class="xref-link">Module 3</a>: Causal Inference</strong>. Regression discontinuity design (<a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>), difference-in-differences (<a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>), and propensity score / matching methods (<a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.</p>
 </div>
 </div>
 <ul>
 <li><strong>Instrumental variables (IV) / Two-Stage Least Squares (2SLS):</strong> Find a variable that predicts X but does not directly affect Y (an “instrument”). Use it to isolate the exogenous variation in X. Powerful but requires strong theoretical justification for the instrument’s validity.</li>
-<li><strong>Regression discontinuity design (RDD):</strong> If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. <em>Covered in <a href="../module-3/part3.html#sec-rdd" class="quarto-xref">Module 3, Part 3</a>.</em></li>
-<li><strong>Difference-in-differences (DiD):</strong> Compare changes over time in treated vs.&nbsp;control units. Controls for time-invariant confounders. Requires parallel trends assumption. <em>Covered in <a href="../module-3/part3.html#sec-did" class="quarto-xref">Module 3, Part 3</a>.</em></li>
-<li><strong>Propensity score methods:</strong> Model the probability of “treatment” (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. <em>Covered in <a href="../module-3/part2.html#sec-psm" class="quarto-xref">Module 3, Part 2</a>.</em></li>
+<li><strong>Regression discontinuity design (RDD):</strong> If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. <em>Covered in <a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>.</em></li>
+<li><strong>Difference-in-differences (DiD):</strong> Compare changes over time in treated vs.&nbsp;control units. Controls for time-invariant confounders. Requires parallel trends assumption. <em>Covered in <a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>.</em></li>
+<li><strong>Propensity score methods:</strong> Model the probability of “treatment” (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. <em>Covered in <a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>.</em></li>
 <li><strong>Hausman test:</strong> Formally tests whether OLS and IV estimates differ significantly. If they do, OLS is inconsistent (endogeneity is present). Requires a valid instrument.</li>
 <li><strong>Sensitivity analysis (Oster, 2019):</strong> How large would the omitted variable’s effect need to be (relative to included controls) to fully explain away the estimated coefficient? Quantifies the “how worried should I be?” question without requiring an instrument.</li>
 <li><strong>Panel data fixed effects:</strong> If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.</li>
