@@ -33,7 +33,7 @@ Parts {{< ref sec-randomization style="num" >}}, {{< ref sec-selection style="nu
 - **More dimensions of Y** → larger design space → more N needed for orthogonality
 - **More N** → more expensive → temptation to reduce sample → back to poor orthogonality
 
-{{< ref sec-latent-imbalance style="part" >}} offered two partial remedies (blocked randomization and larger samples). Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
+{{< ref sec-imbalance-matters style="part" >}} showed that chance imbalance on strong predictors can cost precision, and that blocking and larger samples are two partial remedies. Here we go further: rather than trying to *achieve* orthogonality with brute-force N, we ask whether **the experimental design itself** can reduce the size of the design space you need to fill.
 
 ## Completely Random, Factorial, and Latin Square Designs
 
@@ -126,7 +126,7 @@ kable(design_tab,
 ::: {.callout-note}
 ## Connecting to {{< ref sec-randomization style="part" link="false" >}}: how designs reduce the effective design space {#connecting-to-randomization-how-designs-reduce-the-effective-design-space}
 
-Recall from {{< ref sec-orthogonality >}} that the sample size needed to have a reasonable chance of approximate balance grows with the number of independent characteristics D and falls as the tolerance $r_{\max}$ loosens. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
+Recall from {{< ref sec-imbalance-matters style="part" >}} that the sample size needed to have a reasonable chance of approximate balance grows with the number of independent characteristics D. A Latin Square design directly reduces the effective D by **structurally balancing** factors across the design matrix rather than relying on chance:
 
 - A fully factorial 2×3×2 design with N = 48 (4 per cell) achieves exact balance on A, B, and C by construction.
 - A Latin Square of the same factors with N = 24 achieves approximate balance by ensuring each factor level appears an equal number of times across the other factors' levels.
