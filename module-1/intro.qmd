@@ -81,7 +81,7 @@ This problem shows up in {{< nparts >}} different parts that marketing researche
 
 - **{{< ref sec-omitted-variable-bias style="part" >}} — Omitted Variable Bias:** In your secondary data, observed *sales* (Y) is supposed to reflect *advertising spend* (X) — but sales also reflects *store quality* (something else, which you never measured). Your estimated advertising effect is inflated.
 
-- **{{< ref sec-measurement-invariance style="part" >}} — Measurement Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups.
+- **{{< ref sec-measurement-invariance style="part" >}} — Measurement Invariance:** Your GPI items are supposed to reflect *green purchase intention* (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don't mean the same thing in both groups. And when your outcome is a single variable (a purchase, a click, one willingness-to-pay response), there is no measurement model to test: you need evidence from outside that one response that it represents the same construct in the same way.
 
 - **{{< ref sec-latent-subgroups style="part" >}} — Latent Subgroups:** Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn't apply cleanly to anyone.
 
@@ -97,7 +97,7 @@ By the end of this tutorial, you will be able to:
 
 - Diagnose discriminant validity failures using HTMT and the DVI method (Pieters et al., 2025)
 - Identify omitted variable bias through residual diagnostics and coefficient sensitivity analysis
-- Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan
+- Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan, and explain what additional evidence is needed to compare groups when you have only a single dependent variable
 - Use modification indices to pinpoint which specific items are non-invariant
 - Use Gaussian mixture models (via `mclust`) to detect latent subgroups that distort your outcome
 - Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Part 3: Measurement Invariance"
 xref: sec-measurement-invariance
 ---
@@ -19,22 +19,18 @@ dir.create("figs", recursive = TRUE, showWarnings = FALSE)
 #| code-summary: "▶ Load required packages"
 # Uncomment to install if needed:
 # install.packages(c("lavaan", "semTools", "MASS", "ggplot2",
-#                    "dplyr", "tidyr", "corrplot", "knitr", "lmtest",
-#                    "mclust", "dbscan"))
+#                    "dplyr", "tidyr", "knitr", "patchwork"))
 
-library(lavaan)       # CFA and SEM (Cases 1 and 3)
-library(semTools)     # htmt() and auxiliary SEM tools (Cases 1 and 3)
-library(MASS)         # mvrnorm(): generate multivariate normal data (all cases)
-library(ggplot2)      # Visualizations (all cases)
-library(dplyr)        # Data manipulation (all cases)
-library(tidyr)        # Data reshaping (Cases 2 and 3)
-library(corrplot)     # Correlation heatmap (Case 1)
-library(knitr)        # Nicely formatted tables (all cases)
-library(lmtest)       # Breusch-Pagan heteroskedasticity test (Case 2)
-library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
-library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
+library(lavaan)       # CFA and SEM (multigroup invariance models)
+library(semTools)     # auxiliary SEM tools
+library(MASS)         # mvrnorm(): generate multivariate normal data
+library(ggplot2)      # Visualizations
+library(dplyr)        # Data manipulation
+library(tidyr)        # Data reshaping
+library(knitr)        # Nicely formatted tables
+library(patchwork)    # Combine ggplot panels
 
-# ── Helper objects shared with Cases 1 and 3 ──────────────────────────────────
+# ── Helper objects shared with the Part 1 simulation ──────────────────────────
 # Factor correlation matrix used in simulation
 phi_pop <- matrix(
   c(1.00, 0.40, 0.45,
@@ -50,6 +46,10 @@ gen_items <- function(latent, loadings) {
     lam * latent + sqrt(1 - lam^2) * rnorm(length(latent))
   })
 }
+
+# lavaan numbers groups in order of first appearance in the data. Pin the order so
+# that "group 2" always means Green Marketing, whatever the first row happens to be.
+grp_lab <- c("Control", "Green Marketing")
 ```
 
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTrJTwXSENcvw2E1WGZ4irQAbXD7G0hZ3lhYOXxiRhfjoaN1zgxAuGnxxTcnrKTtA/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 3: Measurement Invariance"></iframe>
@@ -57,43 +57,81 @@ gen_items <- function(latent, loadings) {
 ---
 
 
-# Part 3: Measurement Invariance — A Special Case of Discriminant Validity {#sec-part3}
+# Part 3: Measurement Invariance — Same Construct, Same Ruler? {#sec-part3}
 
 ## Connecting to Parts {{< ref sec-discriminant-validity style="num" link="false" >}} and {{< ref sec-omitted-variable-bias style="num" link="false" >}} {#connecting-to-earlier-parts}
 
-Parts {{< ref sec-discriminant-validity style="num" >}} and {{< ref sec-omitted-variable-bias style="num" >}} both showed how Y captures more than X. {{< ref sec-measurement-invariance style="part" >}} is actually a **special case of the discriminant validity problem from {{< ref sec-discriminant-validity style="part" >}}** — it just appears in an experimental context.
+Parts {{< ref sec-discriminant-validity style="num" >}} and {{< ref sec-omitted-variable-bias style="num" >}} both showed how Y can capture more than X. {{< ref sec-measurement-invariance style="part" >}} asks a related but different question. Discriminant validity asks whether a measure can be told apart from *other constructs*. **Measurement invariance asks whether the relationship between the underlying quantity and the observed score is the same across groups or conditions.** The two problems can overlap, but neither implies the other: a scale can behave identically in every condition and still fail discriminant validity (the {{< ref sec-discriminant-validity style="part" >}} scenario), and a scale can separate cleanly from neighbouring constructs yet work differently in treatment and control.
 
-Here's the connection: in {{< ref sec-discriminant-validity style="part" >}}, the GPI scale failed discriminant validity because it was contaminated by a *different construct* (Environmental Concern). In {{< ref sec-measurement-invariance style="part" >}}, the GPI scale can fail for a more subtle reason — the items behave differently across experimental groups. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient, independent of any real change in purchase intention.
+The experimental version of the problem is easy to state. Two GPI items might score higher in the treatment condition not because participants genuinely intend to purchase more, but because the green marketing exposure makes those specific items feel more socially desirable or salient. Within each condition the scale may be perfectly reliable; across conditions, the same item score no longer corresponds to the same level of purchase intention. That resembles the "something else" contamination from {{< ref sec-discriminant-validity style="part" >}}, but the diagnostic is different: {{< ref sec-discriminant-validity style="part" >}} compares constructs *within* a group, while invariance compares the measurement relationship *across* groups.
 
-When that happens, "GPI" no longer measures the same construct across groups. Within each group the scale may be fine; but across groups, the same item is measuring subtly different things. This is a discriminant validity failure in disguise — the measurement model is picking up "item-specific sensitivity to the marketing treatment" alongside "genuine purchase intention."
-
-And if your sample contains latent subgroups ({{< ref sec-latent-subgroups style="part" >}}), the items may appear non-invariant simply because the two groups are at different levels of the construct — what looks like item shift might actually be group-level differences in the distribution of the latent construct itself.
+Latent subgroups ({{< ref sec-latent-subgroups style="part" >}}) interact with this in the opposite direction. If two groups sit at different levels of the latent construct, their observed item means will differ even when every item is perfectly invariant. **A difference in latent means does not imply noninvariance.** Invariance is about whether the *same* latent level produces the same expected item score.
 
 ::: {.callout-note}
 ## Two kinds of shift to distinguish
 
-- **Item shift**: A specific item's baseline level changes across groups, independent of any change in the latent construct. Example: *"I always choose the most eco-friendly option available"* might score higher after green marketing exposure simply because it sounds more socially appropriate — not because purchase intention truly increased. This is a *measurement problem*. It's a bias in the ruler itself.
+- **Item shift**: A specific item's baseline level changes across groups, independent of any change in the latent construct. Example: *"I always choose the most eco-friendly option available"* might score higher after green marketing exposure simply because it sounds more socially appropriate — not because purchase intention truly increased. This is a *measurement problem*: a bias in the ruler itself.
 
 - **Construct shift**: The latent construct itself genuinely has a different mean across groups. This is what we *want* to detect with our experiment — a real change in Green Purchase Intention. This is a substantive finding.
 
-**Item shift always accompanies construct shift when non-invariance is present.** That is, if your scale is non-invariant, any real construct shift will be mixed in with the spurious item shift — and you can't separate them without formal testing.
+The two are logically independent. A fully invariant instrument can show construct shift with no item shift; an experiment can produce item shift with no construct shift at all (Scenario A below); and both can occur together (Scenario B). What makes the problem hard is that the *observed* mean difference blends them, and the data alone do not say how much of each is present.
 :::
 
 | | What produces the group difference in Y | How it shows up |
 |---|---|---|
 | **{{< ref sec-discriminant-validity style="part" >}}** | GPI and EC overlap as constructs | High factor correlation; HTMT > 0.90 |
 | **{{< ref sec-omitted-variable-bias style="part" >}}** | Omitted store quality confounds X and Y | Fan-shaped residuals; coefficient instability |
-| **{{< ref sec-measurement-invariance style="part" >}}** | GPI items shift across conditions | Scalar model fails; mod. indices flag specific items |
+| **{{< ref sec-measurement-invariance style="part" >}}** | The same latent level yields different item scores across conditions | Scalar model fails; score tests flag intercepts |
+
+## Two Questions Before Testing Invariance {#sec-two-questions}
+
+Invariance testing can look like a purely technical routine, but it answers only one of two questions we need to ask whenever we compare a response across populations or experimental conditions.
+
+**Construct equivalence: are we measuring the same underlying phenomenon?** Suppose two consumers see the same eco-friendly detergent and give a monetary response.
+
+- Consumer A reads the question as asking for the maximum *additional amount she would personally pay* for the eco-friendly product.
+- Consumer B reads it as asking how much more the product *would typically cost in a store*.
+
+Both type a number of euros. But A reports a personal reservation premium and B reports a belief about market prices. The response format is identical; the constructs are not. Identical formats do not establish construct equivalence.
+
+**Measurement equivalence: does the same level of the phenomenon generate comparable responses?** Now suppose everyone understands the question as asking for their personal reservation premium. However, consumers exposed to green marketing add an extra €1 to what they report, because the message makes environmental generosity more socially salient — even though their actual reservation premium has not moved. The target construct is now common, but the *measurement relationship* differs across conditions.
+
+A simple representation captures both situations:
+
+$$Y_{ig} = \alpha_g + \beta_g \, V_{ig} + \varepsilon_{ig}$$
+
+where $V$ is the intended underlying quantity, $Y$ is the observed response, and $g$ indexes the population or experimental condition.
+
+- Differences in $V$ across groups are **substantive** differences — what we usually want to learn.
+- Differences in $\alpha_g$ or $\beta_g$ *conditional on the same $V$* are differences in the **measurement relationship**: the same underlying level is expressed differently (a shifted baseline, or a stretched scale).
+- If people use $Y$ to represent *different constructs altogether*, there is no common $V$, and the equation does not apply. That is a construct-equivalence problem, and it comes first.
+- With only $Y$, observed group means satisfy $\bar Y_g = \alpha_g + \beta_g \bar V_g$. Many combinations of $(\Delta V, \Delta\alpha, \Delta\beta)$ produce the same observed difference, so levels and measurement mechanisms generally **cannot be separated without additional identifying information**.
+
+| | Construct equivalence | Measurement equivalence |
+|---|---|---|
+| **Question** | Is the same phenomenon being represented? | Is it represented in the same way? |
+| **Failure looks like** | Consumer A reports a personal premium; Consumer B reports a market-price belief | Same intended premium, but treated respondents add €1 (or stretch the scale) |
+| **In the equation** | No common $V$ | Common $V$, but $\alpha_g$ or $\beta_g$ differ |
+| **Typical evidence** | Content review, response-process data, nomological patterns | Multi-indicator invariance tests, external benchmarks, cross-method and experimental checks |
+
+::: {.callout-important}
+## The key distinction
+First ask whether the **same construct** is being represented. Then ask whether it is being represented **in the same way**.
+:::
+
+What must be equivalent depends on the inference you want to draw. Comparing **group means** generally requires the strongest assumptions: a common construct *and* comparable $\alpha$ and $\beta$ (or known corrections). Comparing **rank orderings** within each group, or **predicting** an outcome within each group, requires much less — roughly that $Y$ tracks $V$ monotonically within each group. Many applied claims sit in between, so state which one you are making.
+
+The GPI scale in this part is an example of the first question being *assumed* and the second being *tested*. The factor-invariance tests below investigate restrictions on the measurement model **conditional on a shared factor interpretation**: given that a single GPI factor exists in both conditions, do loadings and intercepts match? They do not, by themselves, establish that the factor represents the same substantive construct in every population. That requires evidence from outside the fitted model, which is the subject of the final section of this part.
 
 ## Two Scenarios to Compare
 
-We will simulate **two versions** of the data to make the distinction crystal clear:
+We will simulate **two versions** of the data to make the distinction between the two kinds of shift concrete:
 
-- **Scenario A — Item shift only**: The true GPI construct does NOT change due to the treatment. GPI1 and GPI2 score higher in the treatment group purely because of item-level response shift. Any apparent treatment effect in the data is entirely artifactual.
+- **Scenario A — Item shift only**: The true GPI construct does NOT change due to the treatment ($\Delta V = 0$). GPI1 and GPI2 score higher in the treatment group purely because of item-level response shift ($\Delta\alpha > 0$ for those items). Any apparent treatment effect in the data is entirely artifactual.
 
-- **Scenario B — Item shift + construct shift**: The true GPI construct DOES change (by 0.40 SD). GPI1 and GPI2 also shift at the item level. The total observed difference in GPI items overestimates the real treatment effect.
+- **Scenario B — Item shift + construct shift**: The true GPI construct DOES change (by 0.40 SD). GPI1 and GPI2 also shift at the item level. The total observed difference in GPI1 and GPI2 overstates the real treatment effect.
 
-Both scenarios show what non-invariance looks like. Scenario A is the extreme case where none of the observed treatment effect is real. Scenario B is more common in practice — there is a real effect, but it gets inflated.
+Scenario A is the extreme case where none of the observed treatment effect is real. Scenario B is arguably a more realistic one: there is a real effect, but part of what you see is inflated.
 
 ## Simulating the Two Scenarios
 
@@ -103,7 +141,7 @@ set.seed(2025)
 n3     <- 400
 treat3 <- sample(c(0L, 1L), n3, replace = TRUE)
 
-# ── Shared factor structure (same phi_pop as Case 1) ──────────────────────────
+# ── Shared factor structure (same phi_pop as the Part 1 simulation) ───────────
 latent3  <- MASS::mvrnorm(n3, mu = c(0, 0, 0), Sigma = phi_pop)
 EC_lat3  <- latent3[, 1]
 BA_lat3  <- latent3[, 3]
@@ -124,7 +162,7 @@ GPI3a <- sapply(seq_along(lam_GPI3), function(i) {
 })
 
 df3a <- data.frame(
-  condition = factor(treat3, labels = c("Control", "Green Marketing")),
+  condition = factor(treat3, labels = grp_lab),
   EC1 = EC3_items[,1], EC2 = EC3_items[,2], EC3 = EC3_items[,3], EC4 = EC3_items[,4],
   GPI1 = GPI3a[,1], GPI2 = GPI3a[,2], GPI3 = GPI3a[,3], GPI4 = GPI3a[,4],
   BA1 = BA3_items[,1], BA2 = BA3_items[,2], BA3 = BA3_items[,3]
@@ -139,7 +177,7 @@ GPI3b <- sapply(seq_along(lam_GPI3), function(i) {
 })
 
 df3b <- data.frame(
-  condition = factor(treat3, labels = c("Control", "Green Marketing")),
+  condition = factor(treat3, labels = grp_lab),
   EC1 = EC3_items[,1], EC2 = EC3_items[,2], EC3 = EC3_items[,3], EC4 = EC3_items[,4],
   GPI1 = GPI3b[,1], GPI2 = GPI3b[,2], GPI3 = GPI3b[,3], GPI4 = GPI3b[,4],
   BA1 = BA3_items[,1], BA2 = BA3_items[,2], BA3 = BA3_items[,3]
@@ -203,23 +241,23 @@ ggplot(all_diffs, aes(x = item, y = difference, fill = type)) +
 
 **Scenario B (right panel):** GPI3 and GPI4 show moderate differences reflecting the real 0.40 SD construct shift. GPI1 and GPI2 show that same moderate shift *plus* the extra item shift on top. The total observed difference for GPI1/GPI2 is inflated well above what the latent shift would predict.
 
-In both cases, item-shifted items (red) show disproportionately large treatment–control differences compared to invariant items (blue). This asymmetry is the fingerprint of measurement non-invariance.
+Notice what makes this plot readable: we *know* which items are the clean reference. If every item had shifted by the same amount, the bars would all be equal and the picture would look exactly like a pure construct shift. Separating the two always requires some item (or external signal) that is assumed to be unaffected. We will return to that requirement repeatedly.
 :::
 
 ## Testing Measurement Invariance Step by Step
 
-The formal test uses a sequence of nested CFA models, each adding one more constraint. We'll demonstrate using **Scenario B** (item shift + construct shift), which is the more common real-world situation.
+The formal test uses a sequence of nested CFA models, each adding one more constraint. We'll demonstrate using **Scenario B** (item shift + construct shift).
 
 ::: {.callout-note}
-## The three models and what they constrain — connected to item/construct shift
+## The three models and what they constrain
 
-| Model | What is constrained | What it tests | Connection to shifts |
+| Model | What is constrained | What it tests | If it fails |
 |---|---|---|---|
-| **Configural** | Nothing (baseline) | Same factor structure in both groups? | If configural **fails**, the factor structure itself differs across groups — implying **both item shift and construct shift** are present (the most severe case) |
-| **Metric** | Factor loadings equal | Do items relate to the construct with the same *sensitivity* across groups? | If metric **fails** (but configural holds), loadings differ — items have different sensitivity to the latent construct across groups — this is **item shift** (the ruler has different gradations) |
-| **Scalar** | Loadings + item intercepts equal | Do items have the same *baseline level* across groups? | If scalar **fails** (but metric holds), intercepts differ — items have different baseline levels — this is **item baseline shift** (pure item shift, the cleanest case to diagnose) |
+| **Configural** | Nothing (same pattern of loadings) | Does the proposed common factor structure hold in both groups? | The common-factor interpretation is unsupported in at least one group. Latent means cannot be meaningfully compared. This does **not** say whether true construct levels differ. |
+| **Metric** | Factor loadings equal | Do items relate to the factor with the same *sensitivity* in both groups? | Loadings differ ("non-uniform" measurement difference); the groups' scores are not on a common metric, so differences in latent *variances and covariances* are also hard to interpret. |
+| **Scalar** | Loadings + item intercepts equal | Do items have the same *baseline level* at the same factor level? | Intercepts differ ("uniform" measurement difference): at the same latent level, some items are expected to score higher in one group. Latent *means* cannot be compared without further assumptions. |
 
-Failing configural invariance is the most severe outcome — it means the factor structure itself is not replicable across groups, implying both the constructs and the items are behaving differently. Failing metric invariance (while configural holds) means loadings differ — items have different sensitivity to the latent construct in each group. This is a form of item shift: the ruler itself has different gradations. Failing scalar invariance (while metric holds) means item intercepts differ — items have different baseline levels in each group. This is the classic item-level shift we built into our simulation. **You need scalar invariance at minimum to make valid comparisons of latent means across groups.**
+Scalar invariance is the minimum for comparing latent means across groups. Two cautions apply to all three tests. First, a **non-significant** test is not affirmative evidence of equivalence: it may reflect low power or an approximately-but-not-exactly invariant item, so the tests show *failures to detect* differences, not that none exist. Second, with large samples trivial violations become significant, which is why practitioners also look at changes in fit indices (for example, a drop in CFI of more than about .01 is a common flag) alongside the χ² test.
 :::
 
 ```{r case3-models, message=FALSE}
@@ -230,11 +268,12 @@ invar_model <- '
   BA  =~ BA1  + BA2  + BA3
 '
 
-# Fit the three-model sequence on Scenario B
-fit_config <- cfa(invar_model, data = df3b, group = "condition", std.lv = TRUE)
-fit_metric <- cfa(invar_model, data = df3b, group = "condition",
+# Fit the three-model sequence on Scenario B (group.label pins Control as group 1)
+fit_config <- cfa(invar_model, data = df3b, group = "condition", group.label = grp_lab,
+                  std.lv = TRUE)
+fit_metric <- cfa(invar_model, data = df3b, group = "condition", group.label = grp_lab,
                   group.equal = "loadings", std.lv = TRUE)
-fit_scalar <- cfa(invar_model, data = df3b, group = "condition",
+fit_scalar <- cfa(invar_model, data = df3b, group = "condition", group.label = grp_lab,
                   group.equal = c("loadings", "intercepts"), std.lv = TRUE)
 ```
 
@@ -243,6 +282,9 @@ fit_scalar <- cfa(invar_model, data = df3b, group = "condition",
 # Likelihood ratio test: significant Δχ² = adding the constraint worsens fit
 lrt_result <- lavTestLRT(fit_config, fit_metric, fit_scalar)
 print(lrt_result)
+fmt_p <- function(p) if (p < 1e-4) "< .0001" else sprintf("= %.2f", p)   # for inline reporting
+p_metric <- lrt_result[2, "Pr(>Chisq)"]
+p_scalar <- lrt_result[3, "Pr(>Chisq)"]
 ```
 
 ```{r case3-fit-table}
@@ -274,159 +316,615 @@ kable(fit_summary,
 ::: {.callout-warning}
 ## Reading the results
 
-- **Configural → Metric**: The χ² difference should be non-significant (p > .05). This means item sensitivity (loadings) is the same across groups. The items relate to GPI equally strongly in both conditions. ✓
+- **Configural → Metric**: Δχ² has p `r fmt_p(p_metric)`. We find no evidence that loadings differ — and here we happen to know why: we generated the same loadings in both conditions. In real data a non-significant result would not by itself show the loadings are equal.
 
-- **Metric → Scalar**: The χ² difference **should be significant** (p < .05), because we built non-invariant intercepts into GPI1 and GPI2. Full scalar invariance fails. This is the formal evidence of item shift. ✗
+- **Metric → Scalar**: Δχ² has p `r fmt_p(p_scalar)`, and CFI falls from `r sprintf("%.3f", fit_summary$CFI[2])` to `r sprintf("%.3f", fit_summary$CFI[3])`. Constraining the intercepts clearly worsens fit, because we built non-invariant intercepts into GPI1 and GPI2. This is the formal evidence of item shift.
 
-When full scalar invariance fails, you cannot validly compare GPI scale means across conditions without first identifying *which* items are the problem.
+When full scalar invariance fails, you cannot validly compare GPI scale means across conditions without first identifying *which* items are the problem — and, as the next sections show, deciding that requires an assumption the data alone cannot supply.
 :::
 
 ## Identifying the Non-Invariant Items
 
-Modification indices tell you which constrained parameters, if freed, would most improve model fit. For a failed scalar model, focus on the **intercepts** (`op == "~1"`): the items with the largest modification indices are the non-invariant ones.
-
-```{r case3-modindices}
-#| code-summary: "▶ Modification indices — find non-invariant items"
-mi_scalar     <- modindices(fit_scalar, sort. = TRUE)
-mi_intercepts <- mi_scalar |>
-  filter(op == "~1") |>
-  arrange(desc(mi)) |>
-  dplyr::select(lhs, op, block, mi, epc)
-
-kable(
-  head(mi_intercepts, 10),
-  col.names = c("Item", "Type", "Group block", "Mod. Index (MI)", "Expected Change"),
-  digits    = 2,
-  caption   = "Top Modification Indices for Item Intercepts (Scalar Model, Scenario B)"
-)
-```
-
-::: {.callout-note}
-## How to read the modification indices
-
-Each row is a constrained parameter. The MI column tells you approximately how much the model χ² would drop if you freed that parameter. Large MI values for GPI item intercepts (op == "~1") point to items with different baseline levels across groups — i.e., items that have shifted.
-
-GPI1 and GPI2 should appear at the top of this list. In real data, these are the items you would examine substantively: *why might these specific items behave differently after green marketing exposure, independently of any real change in purchase intention?*
-
-::: {.callout-important}
-## When can you drop non-invariant items?
-
-If you **pre-registered your measurement invariance analysis** before collecting data, you may be able to drop the flagged items (GPI1, GPI2) and use a shortened scale — but only if at least two items remain invariant per factor and you pre-specified this decision rule. Dropping items *after* finding non-invariance without pre-registration is post-hoc and will raise reviewers' eyebrows.
-
-If the analysis was not pre-registered, the better approach is partial invariance (see below).
-:::
-:::
+Which items should be freed? The tool for this is the **score test** (Lagrange multiplier test): for each equality constraint in the scalar model, it estimates how much the model χ² would drop if that one constraint were released. (lavaan's `modindices()` is not suitable here — it ignores equality constraints, which is exactly what a multigroup invariance model consists of.)
 
 ```{r case3-score-test}
-#| code-summary: "▶ Score-test approach to pinpoint non-invariant items"
-# lavaan::lavTestScore provides score statistics for each equality constraint.
-# Constraints with large X² are the ones most responsible for the scalar model
-# failing — these are the non-invariant items.
-score_test <- lavaan::lavTestScore(fit_scalar, cumulative = TRUE)
+#| code-summary: "▶ Score tests for every constrained loading and intercept"
+st <- lavaan::lavTestScore(fit_scalar)$uni |> as.data.frame()
 
-# Extract intercept constraints (op == "~1") and rank by score statistic
-score_uni <- as.data.frame(score_test$uni)
-score_intercepts <- score_uni[score_uni$op == "~1", ] |>
-  dplyr::arrange(dplyr::desc(X2))
+# Score-test rows refer to parameter labels (".p12." == ".p54."): map them back to items
+pt   <- parTable(fit_scalar)
+key  <- pt[, c("plabel", "lhs", "op", "rhs")]
+st   <- merge(st, key, by.x = "lhs", by.y = "plabel", suffixes = c("", ".par"))
+st$item  <- ifelse(st$op.par == "~1", st$lhs.par, st$rhs.par)
+st$param <- ifelse(st$op.par == "~1", "intercept", "loading")
 
-kable(
-  head(score_intercepts, 8),
-  col.names = c("Item", "Type", "RHS", "Score Stat. (X²)", "df", "p-value"),
-  digits    = 3,
-  caption   = "Score Tests: Intercept Constraints Ranked by Misfit (Scalar Model, Scenario B)"
-)
+score_gpi <- st |>
+  filter(grepl("^GPI", item)) |>
+  arrange(desc(X2)) |>
+  transmute(Item = item, Parameter = param, `Score stat. (X²)` = X2, df = df,
+            `p-value` = format.pval(p.value, digits = 2, eps = 0.001))
+int_rank <- score_gpi$Item[score_gpi$Parameter == "intercept"]   # intercept constraints, worst first
+
+kable(head(score_gpi, 8), digits = 3,
+      caption = "Score Tests: GPI Constraints Ranked by Misfit (Full Scalar Model, Scenario B)")
 ```
 
 ::: {.callout-note}
-## Reading the score test results
+## Reading the score tests — and why the ranking can mislead
 
-The score statistic (X²) for each row tells you how much the overall model χ² would improve if that constraint were freed. GPI1 and GPI2 intercepts should appear at the top of this list with the largest X² values and smallest p-values — confirming they are the primary source of scalar non-invariance. This converges with the modification index results above: two complementary approaches, same substantive conclusion.
+Large values flag constraints that conflict with the data. All four GPI intercepts show clear misfit, ranked here as **`r paste(int_rank, collapse = " > ")`**. Look closely: GPI3 and GPI4 are the *invariant* items, yet in this dataset they rank above (or alongside) the genuinely shifted GPI1 and GPI2.
+
+The reason is that a full-scalar model must explain the group difference with a single latent-mean shift. Two of the four items moved a lot and two moved little, so the model compromises: it sets the latent difference somewhere in between, and **every** item then misfits in one direction or the other. When half of the indicators are non-invariant, the ranking does not reliably point to the culprits. Greedy "free the worst item and refit" procedures can free the wrong ones.
 :::
 
-## Fitting the Partial Invariance Model
+## Partial Invariance Requires an Anchor Assumption
 
-Once you identify the non-invariant items, you free their intercepts and re-fit. This is called **partial scalar invariance**: most intercepts are constrained (equal across groups), but the problematic ones are freed.
+Once non-invariant items are identified, we free their intercepts and re-fit: **partial scalar invariance**. The remaining constrained items act as *anchors* that tie the two groups to a common scale. The crucial point is that the data cannot tell us which items are the anchors. Compare two partial models that free different pairs of items:
 
 ```{r case3-partial}
-#| code-summary: "▶ Fit partial scalar invariance model"
-fit_partial <- cfa(invar_model, data = df3b, group = "condition",
+#| code-summary: "▶ Fit partial scalar models that free different pairs of items"
+fit_partial <- cfa(invar_model, data = df3b, group = "condition", group.label = grp_lab,
                    group.equal   = c("loadings", "intercepts"),
                    group.partial = c("GPI1~1", "GPI2~1"),
                    std.lv = TRUE)
+
+# The same model structure, but freeing the other pair of GPI items
+fit_partial_wrong <- cfa(invar_model, data = df3b, group = "condition", group.label = grp_lab,
+                         group.equal   = c("loadings", "intercepts"),
+                         group.partial = c("GPI3~1", "GPI4~1"),
+                         std.lv = TRUE)
 
 lrt_partial <- lavTestLRT(fit_metric, fit_partial, fit_scalar)
 print(lrt_partial)
 ```
 
-```{r case3-partial-fit}
-#| code-summary: "▶ Full fit comparison (configural through full scalar)"
-fit_summary2 <- rbind(
-  extract_fit(fit_config,  "Configural"),
-  extract_fit(fit_metric,  "Metric"),
-  extract_fit(fit_partial, "Partial scalar (GPI1, GPI2 freed)"),
-  extract_fit(fit_scalar,  "Full scalar")
+```{r case3-latent-means}
+#| code-summary: "▶ Compare fit and estimated latent mean difference across models"
+# Latent GPI mean of the Green Marketing group (Control is fixed at 0). Pinned group order
+# makes "group 2" unambiguous.
+get_lv_mean <- function(fit, lv = "GPI") {
+  stopifnot(identical(lavInspect(fit, "group.label"), grp_lab))
+  pe <- parameterEstimates(fit)
+  pe[pe$op == "~1" & pe$lhs == lv & pe$group == 2, c("est", "se")]
+}
+
+model_row <- function(fit, label) {
+  fi <- fitmeasures(fit, c("chisq", "df", "cfi"))
+  lv <- get_lv_mean(fit)
+  data.frame(Model = label, Chisq = fi["chisq"], df = fi["df"], CFI = fi["cfi"],
+             Estimate = lv$est, SE = lv$se)
+}
+
+anchor_tab <- rbind(
+  model_row(fit_scalar,        "Full scalar (all intercepts equal)"),
+  model_row(fit_partial,       "Partial: free GPI1, GPI2 (anchors GPI3, GPI4)"),
+  model_row(fit_partial_wrong, "Partial: free GPI3, GPI4 (anchors GPI1, GPI2)")
 )
-rownames(fit_summary2) <- NULL
-kable(fit_summary2,
-      col.names = c("Model", "χ²", "df", "CFI", "RMSEA", "SRMR"),
-      caption   = "Model Fit Including Partial Invariance Model (Scenario B)")
+rownames(anchor_tab) <- NULL
+
+kable(anchor_tab, digits = c(0, 1, 0, 3, 3, 3),
+      col.names = c("Model", "χ²", "df", "CFI",
+                    "Latent GPI difference (Green − Control)", "SE"),
+      caption = "Equal Fit, Very Different Conclusions (Scenario B; true latent difference = 0.40)")
 ```
 
 ::: {.callout-note}
-## What partial invariance means in practice
-- **Partial vs. metric**: non-significant → freeing GPI1 and GPI2 intercepts is sufficient to restore acceptable fit. The measurement model is now accounting for item shift. ✓
-- **Partial vs. full scalar**: significant → full invariance genuinely fails; GPI1 and GPI2 were necessary to free.
+## What the table shows
 
-With partial scalar invariance, you *can* still compare latent means across groups — but you must be transparent about which items showed item shift and offer a theoretical explanation for why.
+- The two partial models have **essentially the same fit** (`r sprintf("χ² = %.1f vs. %.1f", anchor_tab$Chisq[2], anchor_tab$Chisq[3])`). Statistically they are almost indistinguishable.
+- Yet they imply latent differences of `r sprintf("%.2f", anchor_tab$Estimate[2])` and `r sprintf("%.2f", anchor_tab$Estimate[3])`. The true value, known only because we simulated it, is 0.40.
+- The full-scalar estimate, `r sprintf("%.2f", anchor_tab$Estimate[1])`, is inflated because it treats the shifted intercepts as if they reflected the construct.
+
+The estimate from the correctly anchored model is also a single draw with a standard error of about `r sprintf("%.2f", anchor_tab$SE[2])`; its distance from 0.40 in this one dataset is ordinary sampling noise, not a failure of the method, as the replication below shows. The more important lesson is about identification. **Which pair is the anchor is a substantive assumption, not a statistical result.** You need a reason, from outside the fitted model, to believe that particular items are unaffected by the treatment: theory about which items invite socially desirable responding, items administered before the manipulation, pre-registered anchors, or independent evidence. Choosing anchors by freeing whichever items the same data flag is circular and can lock in the wrong ones.
 :::
 
-## Separating Item Shift from Construct Shift
-
-Here is the payoff. We compare the estimated latent GPI mean difference (treatment − control) under three models:
-
-```{r case3-latent-means}
-#| code-summary: "▶ Compare latent mean estimates across models"
-get_lv_mean <- function(fit, lv = "GPI") {
-  pe     <- parameterEstimates(fit)
-  lv_row <- pe[pe$op == "~1" & pe$lhs == lv & pe$group == 2, ]
-  if (nrow(lv_row) == 0) return(NA_real_)
-  lv_row$est[1]
+```{r case3-replication, fig.height = 4.2, fig.width = 8}
+#| code-summary: "▶ Replicate Scenario B 150 times: how do the three estimators behave?"
+sim_scenario_b <- function(n = 400, shift = 0.8, d = 0.40) {
+  tr  <- sample(0:1, n, replace = TRUE)
+  lat <- MASS::mvrnorm(n, c(0, 0, 0), phi_pop)
+  ec  <- gen_items(lat[, 1], c(0.78, 0.82, 0.74, 0.76))
+  ba  <- gen_items(lat[, 3], c(0.72, 0.76, 0.70))
+  g   <- lat[, 2] + d * tr
+  gp  <- sapply(1:4, function(i) lam_GPI3[i] * g + sqrt(1 - lam_GPI3[i]^2) * rnorm(n) +
+                  c(shift, shift, 0, 0)[i] * tr)
+  data.frame(condition = factor(tr, labels = grp_lab),
+             EC1 = ec[,1], EC2 = ec[,2], EC3 = ec[,3], EC4 = ec[,4],
+             GPI1 = gp[,1], GPI2 = gp[,2], GPI3 = gp[,3], GPI4 = gp[,4],
+             BA1 = ba[,1], BA2 = ba[,2], BA3 = ba[,3])
 }
 
-lv_scalar  <- get_lv_mean(fit_scalar)
-lv_partial <- get_lv_mean(fit_partial)
+fit_lv <- function(d, partial = NULL) {
+  f <- cfa(invar_model, data = d, group = "condition", group.label = grp_lab,
+           group.equal = c("loadings", "intercepts"), group.partial = partial,
+           std.lv = TRUE, se = "none", test = "none")
+  pe <- parameterEstimates(f, se = FALSE)
+  pe$est[pe$op == "~1" & pe$lhs == "GPI" & pe$group == 2]
+}
 
-latent_comparison <- data.frame(
-  Model = c("Full scalar (ignores item shift — biased)",
-            "Partial scalar (accounts for item shift — corrected)",
-            "True value — known from Scenario B simulation"),
-  GPI_latent_mean = round(c(lv_scalar, lv_partial, 0.40), 3)
-)
+set.seed(3031)
+reps <- t(replicate(150, {
+  d <- sim_scenario_b()
+  c(`Full scalar`                    = fit_lv(d),
+    `Partial, correct anchors`       = fit_lv(d, c("GPI1~1", "GPI2~1")),
+    `Partial, wrong anchors`         = fit_lv(d, c("GPI3~1", "GPI4~1")))
+}))
+reps_long <- as.data.frame(reps) |>
+  pivot_longer(everything(), names_to = "estimator", values_to = "estimate") |>
+  mutate(estimator = factor(estimator, c("Full scalar", "Partial, correct anchors", "Partial, wrong anchors")))
 
-kable(latent_comparison,
-      col.names = c("Model", "Estimated GPI Latent Mean Difference (Treatment vs. Control)"),
-      caption   = "How Non-Invariance Inflates the Estimated Treatment Effect")
+rep_summary <- reps_long |> group_by(estimator) |>
+  summarise(mean = mean(estimate), sd = sd(estimate), .groups = "drop")
+
+ggplot(reps_long, aes(estimate, fill = estimator)) +
+  geom_density(alpha = 0.55, colour = NA) +
+  geom_vline(xintercept = 0.40, linetype = "dashed", colour = "grey20") +
+  annotate("text", x = 0.40, y = Inf, label = "true value (0.40)", vjust = 1.5, hjust = -0.05, size = 3.4) +
+  scale_fill_manual(values = c("#d73027", "#2d6a4f", "#e08214"), name = NULL) +
+  labs(x = "Estimated latent GPI difference (Green − Control)", y = "Density",
+       title = "Anchors decide the answer",
+       subtitle = "150 replications of Scenario B: the estimate is only as good as the anchor assumption") +
+  theme_minimal(base_size = 12) + theme(legend.position = "bottom")
+```
+
+```{r case3-replication-table}
+#| code-summary: "▶ Replication summary"
+kable(rep_summary, digits = 2,
+      col.names = c("Estimator", "Mean estimate", "SD across replications"),
+      caption = "Replication Summary (true latent difference = 0.40)")
 ```
 
 ::: {.callout-important}
-## The core lesson: item shift inflates construct shift estimates
+## The core lesson: item shift inflates construct-shift estimates, and anchors are an assumption
 
-The full scalar model forces GPI1 and GPI2 to behave as if they're invariant. Since they're not, their elevated scores in the treatment group get attributed to a larger latent GPI shift — inflating the estimated treatment effect above 0.40.
+Full scalar invariance forces GPI1 and GPI2 to behave as if they were invariant, so their elevated scores in the treatment group are absorbed into the latent mean. In the replication it overstates the difference by a wide margin (mean `r sprintf("%.2f", rep_summary$mean[1])`). Partial invariance with the *correct* anchors is approximately unbiased (mean `r sprintf("%.2f", rep_summary$mean[2])`), but individual datasets vary (SD `r sprintf("%.2f", rep_summary$sd[2])`), so any one estimate can land well away from 0.40. With the *wrong* anchors the model fits just as well and is badly off (mean `r sprintf("%.2f", rep_summary$mean[3])`).
 
-The partial invariance model correctly absorbs the item-level shifts into the freed intercepts, and the estimated latent mean difference recovers to something close to the true 0.40.
-
-**This is the discriminant validity connection:** the scale in the treatment group is partially measuring "item-specific response to green marketing" alongside "genuine purchase intention" — exactly the same "Y measures X + something else" problem as {{< ref sec-discriminant-validity style="part" >}}. Measurement invariance testing is how you detect it in an experimental setting.
+This is why invariance testing cannot rescue an uninterpretable comparison on statistics alone. It narrows the possibilities, and an anchor assumption does the rest. Item-specific responses to green marketing resemble the "Y measures X plus something else" problem from {{< ref sec-discriminant-validity style="part" >}}, but the two diagnostics are separate: a scale can have invariant intercepts and still fail discriminant validity, and the reverse.
 :::
 
 ## Other Methods for Testing Measurement Invariance
 
 The configural → metric → scalar sequence using lavaan is the standard approach for continuous (or near-continuous) items. Other options:
 
-- **WLSMV estimator (lavaan):** For truly ordinal Likert data (5–7 points), use `estimator = "WLSMV"` in lavaan with polychoric correlations. The model comparison sequence is the same; the fit statistics and chi-square tests adjust for the ordinal scale.
-- **Alignment optimization (Asparouhov & Muthén, 2014):** An alternative to the step-wise test sequence for large numbers of groups. Instead of testing constraints, it finds the optimal alignment of factor means and intercepts with minimum non-invariance. Useful when you have many groups (countries, time points) and expect some non-invariance.
+- **WLSMV estimator (lavaan):** For truly ordinal Likert data (5–7 points), use `estimator = "WLSMV"` in lavaan with polychoric correlations. The logic is the same, but the scalar step constrains item *thresholds* rather than intercepts, and the fit statistics and chi-square tests adjust for the ordinal scale.
+- **Alignment optimization (Asparouhov & Muthén, 2014):** An alternative to the step-wise test sequence for large numbers of groups. Instead of testing constraints, it finds the factor means and variances that minimize the total amount of non-invariance, assuming it is small and concentrated in a few parameters. Useful when you have many groups (countries, time points) and expect some non-invariance.
 - **Bayesian approximate measurement invariance (Muthén & Asparouhov, 2013):** Instead of exact equality constraints, allows parameters to be "approximately equal" across groups. Fits naturally in a Bayesian framework and gives more nuanced information about the degree of non-invariance.
-- **Item Response Theory (IRT) / Differential Item Functioning (DIF):** In educational and clinical measurement, non-invariance is called differential item functioning. Logistic IRT models can flag specific items and parameter levels where DIF occurs. Particularly useful for binary or polytomous items.
-- **Random intercept cross-lagged panel model (RI-CLPM):** For longitudinal data, this model separates within-person change from stable between-person differences, which is related to the question of whether your scale means the same thing for everyone.
+- **Item Response Theory (IRT) / Differential Item Functioning (DIF):** In educational and clinical measurement, non-invariance is called differential item functioning. Logistic IRT models can flag specific items and parameter levels where DIF occurs. Particularly useful for binary or polytomous items. DIF methods also need a set of anchor items assumed to be DIF-free.
+- **Fit-based and equivalence-style decision rules:** Because a non-significant χ² difference is not evidence of equality, many researchers evaluate *changes* in CFI or RMSEA, or test whether differences fall inside a pre-specified negligible range, and report the size of the violations rather than only their significance.
+
+*A related but different tool.* The random-intercept cross-lagged panel model (RI-CLPM) separates stable between-person differences from within-person change in longitudinal data. It is not a measurement-invariance test. For longitudinal data, invariance across waves is tested with the same constrained-CFA logic used above, applied to repeated measurements of the same indicators.
+
+All of these methods assume that you have *several indicators of the same construct*. The next section asks what to do when you do not.
+
+## What If You Only Have a Single Dependent Variable? {#sec-single-dv}
+
+Everything so far assumes that we have multiple indicators from which to estimate a measurement model. But what if our dependent variable is a single purchase, a willingness-to-pay response, a click, a response time, or a behavioral count? How do we establish that it represents the same construct, in the same way, across populations?
+
+This situation arises in two ways. Sometimes a single DV is the right design: actual purchases and clicks are not scales. And sometimes the researcher tried to build a multi-item measure and found no credible invariant anchor items. Either way, we cannot simply apply multigroup CFA or DIF to one observation per person. Nor can we establish equivalence from equal means, variances, or correlations alone: as the equation $\bar Y_g = \alpha_g + \beta_g \bar V_g$ showed, the same observed pattern can arise from very different combinations of construct level and measurement relationship.
+
+**The central problem is identification.** To distinguish a genuine difference in the construct from a difference in how it is measured, researchers generally need *information external to the single response*. Five established families of validation evidence supply it:
+
+1. **Criterion validation and calibration** — compare the response with an independently obtained benchmark.
+2. **Response-process validation** — ask whether people understand and answer the question in comparable ways.
+3. **Cross-method validation** — see whether the substantive conclusion survives different ways of eliciting the same quantity.
+4. **Experimental validation** — manipulate the construct and the measurement procedure separately and see which the DV follows.
+5. **Nomological validation** — check whether the DV has the theoretically expected relationships with other variables.
+
+These are **not** five interchangeable tests of measurement invariance, and none certifies invariance on its own. Each contributes a different kind of evidence under different identifying assumptions, and some speak mainly to construct equivalence while others speak mainly to measurement equivalence. We will walk through all five in a single research setting.
+
+### The Research Setting: One Primary DV {#sec-single-dv-setting}
+
+We keep the green-marketing experiment. Consumers are randomly assigned to **Control** (neutral product marketing) or **Green Marketing** (a message emphasising environmental benefits). But now the researcher has *only one primary DV per participant*, in place of the four-item GPI scale:
+
+> *"What is the maximum additional amount, in euros, that you would personally pay for this certified eco-friendly detergent rather than an otherwise comparable conventional detergent?"*
+
+The intended construct is the consumer's **personal reservation-price premium** for the specified product and purchase opportunity. This is related to Green Purchase Intention but not identical to it: intention is a general propensity, while the premium is a monetary quantity for one product. We will use the earlier simulated GPI latent variable only to give the premium a realistic correlate.
+
+The concern is that treated participants may report higher amounts because the message changes how they *report* or *interpret* the question, not only what they are willing to pay. The primary study still has exactly one DV per person. Validation can require extra data — a benchmark in a subsample, interviews, or a separate experiment — without turning the outcome into a scale.
+
+```{r dv-functions}
+#| code-summary: "▶ Data-generating functions for the single-DV setting (known only to the simulation)"
+dv_cols <- c(Control = "#4a90d9", `Green Marketing` = "#2d6a4f")
+
+# TRUE reservation-price premium in euros: a right-skewed baseline (median ≈ €2.20) driven by an
+# eco-valuation disposition z, plus a genuine treatment effect `delta` (and optional extra boost).
+dv_delta <- 0.70   # genuine effect of green marketing on the reservation premium (€)
+true_premium <- function(z, treat, delta = dv_delta, extra = 0) {
+  exp(log(2.2) + 0.45 * z) + delta * treat + extra
+}
+
+# What the respondent actually TYPES. Control reports faithfully. In the Green Marketing condition
+# the reporting relationship differs: a level shift (alpha), mild exaggeration (beta), and answers
+# that partly ignore the respondent's own budget constraint (kappa * price sensitivity).
+stated_wtp <- function(V, treat, price_sens, sd_eps = 0.5) {
+  alpha <- c(0, 0.50)[treat + 1]
+  beta  <- c(1, 1.05)[treat + 1]
+  kappa <- c(0, 0.40)[treat + 1]
+  y <- alpha + beta * V + kappa * price_sens + rnorm(length(V), 0, sd_eps)
+  pmin(pmax(round(y, 1), 0), 15)
+}
+
+# Pre-treatment covariates generated from the latent disposition z (standardised scores)
+make_covariates <- function(z) {
+  n <- length(z)
+  tibble(prior_sust = 0.55 * z + sqrt(1 - 0.55^2) * rnorm(n),   # prior sustainable purchases
+         price_sens = -0.45 * z + sqrt(1 - 0.45^2) * rnorm(n),   # price-sensitive behaviour
+         streaming  = rnorm(n))                                  # theoretically unrelated
+}
+
+# A fresh sample for the separate validation studies
+new_sample <- function(n, treat, extra = 0) {
+  z <- rnorm(n)
+  tibble(treat = treat, z = z) |> bind_cols(make_covariates(z)) |>
+    mutate(V = true_premium(z, treat, extra = extra))
+}
+```
+
+### The Observed Data Cannot Tell the Stories Apart {#sec-single-dv-nonid}
+
+Start with the identification problem in its purest form. Two simulated worlds produce exactly the same observed responses:
+
+- **World A:** green marketing genuinely raises reservation premiums by €1, and respondents report them faithfully.
+- **World B:** green marketing leaves reservation premiums unchanged, but raises *reported* premiums by €1 through the measurement process.
+
+```{r dv-nonid, fig.height = 6, fig.width = 8}
+#| code-summary: "▶ Two worlds, identical observed data"
+set.seed(2025)
+z_nid <- 0.6 * latent3[, 2] + 0.8 * rnorm(n3)      # related to GPI (r = 0.6) but not the same construct
+V0    <- exp(log(2.2) + 0.45 * z_nid)               # baseline reservation premium (€)
+eps   <- rnorm(n3, 0, 0.5)                          # response noise, shared by both worlds
+
+worlds <- bind_rows(
+  tibble(world = "World A: valuation rises by €1\n(measurement unchanged)", cond = treat3,
+         true = V0 + 1 * treat3, stated = pmax(round(V0 + 1 * treat3 + eps, 1), 0)),
+  tibble(world = "World B: valuation unchanged\n(reports inflate by €1)",   cond = treat3,
+         true = V0,              stated = pmax(round(V0 + 1 * treat3 + eps, 1), 0))
+) |> mutate(cond = factor(cond, labels = grp_lab))
+
+observed_identical <- identical(worlds$stated[1:n3], worlds$stated[(n3 + 1):(2 * n3)])
+
+worlds |>
+  pivot_longer(c(stated, true), names_to = "what", values_to = "euros") |>
+  mutate(what = factor(what, c("stated", "true"),
+                       c("Observed:\nstated WTP", "Truth (visible only\nin a simulation):\nreservation premium"))) |>
+  ggplot(aes(cond, euros, fill = cond)) +
+  geom_boxplot(width = 0.5, outlier.shape = NA, alpha = 0.85) +
+  geom_jitter(width = 0.12, alpha = 0.15, size = 0.8) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3.2, colour = "white") +
+  facet_grid(what ~ world) +
+  scale_fill_manual(values = dv_cols, guide = "none") +
+  labs(x = NULL, y = "Euros",
+       title = "Same data, different worlds",
+       subtitle = "Diamonds mark group means") +
+  theme_minimal(base_size = 11) +
+  theme(strip.text = element_text(face = "bold", size = 9))
+```
+
+The top row is identical in the two worlds (`identical()` on the two vectors of observed responses returns `r observed_identical`); only the bottom row differs. A researcher who sees the top row *cannot* say whether the treatment changed what people are willing to pay, how they report it, or some mixture. Similar means, variances, and distributions would not help; the difference lies in the decomposition, which the observed response does not contain.
+
+Real settings are usually mixtures. In the rest of this section the green message does both: it raises true reservation premiums by €0.70 *and* changes how respondents report them. The researcher observes only the stated WTP.
+
+```{r dv-main}
+#| code-summary: "▶ Simulate the main study (one stated WTP per participant) and its validation subsamples"
+set.seed(2025)
+z_main <- 0.6 * latent3[, 2] + 0.8 * rnorm(n3)     # reuse the earlier GPI latent, assignment and sample size
+dv <- tibble(cond = factor(treat3, labels = grp_lab), treat = treat3, z = z_main) |>
+  bind_cols(make_covariates(z_main))
+dv$V <- true_premium(dv$z, dv$treat)                # TRUE premium — never observed by a real researcher
+dv$Y <- stated_wtp(dv$V, dv$treat, dv$price_sens)   # the single DV the researcher actually has
+
+m_obs   <- lm(Y ~ treat, dv)                        # what the researcher can estimate
+eff_obs <- coef(m_obs)["treat"]
+ci_obs  <- confint(m_obs)["treat", ]
+eff_true <- mean(dv$V[dv$treat == 1]) - mean(dv$V[dv$treat == 0])   # simulation-only truth
+
+kable(
+  data.frame(
+    Quantity = c("Effect of green marketing on stated WTP premium (observed)",
+                 "Effect on true reservation premium (simulation only)",
+                 "Difference attributable to the reporting relationship (simulation only)"),
+    `Euros` = c(sprintf("%.2f  [%.2f, %.2f]", eff_obs, ci_obs[1], ci_obs[2]),
+                sprintf("%.2f", eff_true),
+                sprintf("%.2f", eff_obs - eff_true)),
+    check.names = FALSE),
+  caption = "What the Researcher Sees vs. What Is True (n = 400)")
+```
+
+The researcher sees the first row only: a significant increase of about €`r sprintf("%.2f", eff_obs)`. The simulation lets us see that only about €`r sprintf("%.2f", eff_true)` of it is a change in what people are willing to pay. Each validation approach below adds a kind of external information that a real researcher could collect. None of them uses the latent truth `V` directly; where we need a benchmark, it is a *noisy measured* version of it.
+
+### 1. Criterion Validation and Calibration {#sec-dv-criterion}
+
+**Question.** Does the same stated WTP correspond to the same independently assessed reservation premium in both conditions?
+
+**Additional information.** In a validation subsample (here, 80 participants per condition), also collect an **incentive-compatible valuation** through a Becker–DeGroot–Marschak (BDM) procedure ([Becker, DeGroot & Marschak, 1964](https://doi.org/10.1002/bs.3830090304)). The participant states the most they would pay; a random price is drawn; if the price is at or below the stated amount they buy at the drawn price, otherwise they do not. Because the price paid does not depend on the stated amount, truthful reporting is the best strategy *if the participant understands the mechanism*. That assumption is the weak point: BDM is a useful benchmark, not an error-free gold standard, and misunderstanding could differ by condition. We model the benchmark as the true premium plus noise.
+
+**Analysis.** Regress the stated response on the benchmark separately by condition (a *calibration* relationship) and compare intercepts and slopes. This mirrors validation-study designs for differential measurement error in epidemiology ([Keogh et al., 2020](https://doi.org/10.1002/sim.8532)).
+
+```{r dv-criterion, fig.height = 5.5, fig.width = 6.5}
+#| code-summary: "▶ Calibration of stated WTP against the BDM benchmark, by condition"
+set.seed(2025)
+val_idx <- unlist(lapply(0:1, function(g) sample(which(dv$treat == g), 80)))
+val <- dv[val_idx, ] |>
+  mutate(B = pmax(round(V + rnorm(n(), 0, 0.25), 2), 0))      # BDM bid = true premium + noise
+val$Bc <- val$B - mean(val$B)                                 # centre so the condition term is read at the average benchmark
+
+m_cal <- lm(Y ~ Bc * cond, data = val)
+cal   <- cbind(est = coef(m_cal), confint(m_cal))
+
+ggplot(val, aes(B, Y, colour = cond, fill = cond)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey40") +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", formula = y ~ x, linewidth = 1, alpha = 0.15) +
+  scale_colour_manual(values = dv_cols, name = NULL) +
+  scale_fill_manual(values = dv_cols, name = NULL) +
+  coord_equal(xlim = c(0, 8), ylim = c(0, 8)) +
+  labs(x = "Benchmark: incentivised BDM premium (€)", y = "Stated WTP premium (€)",
+       title = "Same benchmark, different reports",
+       subtitle = "Dashed line: stated = benchmark") +
+  theme_minimal(base_size = 11) + theme(legend.position = "bottom")
+```
+
+```{r dv-criterion-table}
+#| code-summary: "▶ Calibration estimates"
+gap <- val |> group_by(cond) |>
+  summarise(`Mean stated` = mean(Y), `Mean benchmark` = mean(B),
+            `Stated − benchmark` = mean(Y - B), .groups = "drop")
+kable(gap, digits = 2, caption = "Validation Subsample: Stated vs. Benchmark Premium (€)")
+
+cal_tab <- data.frame(
+  Term = c("Control: stated WTP at the average benchmark", "Control: slope on benchmark",
+           "Green − Control: shift at the same benchmark (€)", "Green − Control: difference in slope"),
+  Estimate = cal[, "est"], Lower = cal[, "2.5 %"], Upper = cal[, "97.5 %"])
+rownames(cal_tab) <- NULL
+kable(cal_tab, digits = 2, caption = "Group-Specific Calibration (stated WTP regressed on benchmark)")
+```
+
+**What it reveals.** Control respondents state almost exactly what the benchmark says (mean stated − benchmark = `r sprintf("%+.2f", gap$"Stated − benchmark"[1])`). Treated respondents state about €`r sprintf("%.2f", gap$"Stated − benchmark"[2])` more than their own benchmark, and at the same benchmark premium they state about €`r sprintf("%.2f", cal[3, "est"])` more. That is evidence of a differential measurement relationship — a larger intercept in the equation $Y = \alpha_g + \beta_g V$ — **relative to the benchmark**.
+
+**What remains unidentified.** The conclusion is only as good as the benchmark. If BDM bids are themselves inflated by green messaging (for example, if treated participants misunderstand the mechanism differently), the discrepancy is mis-sized. A noisy benchmark also attenuates the estimated slope. Stronger claims need the benchmark to be comparably valid in both conditions; the next approaches do not rely on any single benchmark.
+
+### 2. Response-Process Validation {#sec-dv-response}
+
+**Question.** Do respondents understand the task and arrive at their answers through comparable cognitive processes? This speaks mostly to **construct equivalence**.
+
+**Additional information.** Cognitive interviews with a small sample from both conditions, using verbal probing ([Thrasher et al., 2011](https://doi.org/10.1177/1525822X11418176)). An illustrative protocol, administered right after the respondent gives their number:
+
+- What did you think the question was asking?
+- How did you arrive at your number?
+- Were you thinking about what *you personally* would spend, or about what the product would normally cost?
+- Did the environmental message affect how you chose your answer?
+
+Responses are coded into a scheme with four categories: **personal reservation-price reasoning**, **market-price inference**, **socially desirable responding**, and **unclear**.
+
+```{r dv-response-excerpts}
+#| code-summary: "▶ Illustrative interview excerpts (fictional)"
+excerpts <- data.frame(
+  Condition = c("Control", "Control", "Green Marketing", "Green Marketing", "Green Marketing"),
+  Excerpt = c(
+    "\"I asked myself what's the most I'd add to my usual detergent price. Three euros, maybe.\"",
+    "\"I pictured the shelf. The eco ones are usually a couple of euros more, so I put 2.\"",
+    "\"After reading that, it felt wrong to write a small number for the planet, so I went high.\"",
+    "\"I buy these anyway. Three-fifty extra is what I'd actually hand over.\"",
+    "\"No idea. I wrote something that seemed reasonable.\""),
+  Code = c("Personal reservation price", "Market-price inference", "Socially desirable responding",
+           "Personal reservation price", "Unclear"),
+  Implication = c("Intended construct", "Different construct (typical price)",
+                  "Message changes how the number is chosen", "Intended construct", "Uninformative")
+)
+kable(excerpts, caption = "Illustrative Interview Excerpts and Codes (fictional examples, not findings)")
+```
+
+*These excerpts are illustrative inventions, not data.* In a real study, the researcher would sample participants from both conditions (including some with unusually high and low answers), have two coders **independently** assign codes blind to condition, resolve disagreements by discussion, report inter-coder agreement, and then compare how common each process is across conditions. The simulated coded sample below shows the comparison step only:
+
+```{r dv-response-coding}
+#| code-summary: "▶ Compare coded response processes across conditions (hypothetical coded sample, 30 per condition)"
+set.seed(2025)
+codes <- c("Personal reservation price", "Market-price inference", "Socially desirable responding", "Unclear")
+code_probs <- list(Control = c(.70, .15, .05, .10), `Green Marketing` = c(.47, .20, .23, .10))
+coded <- bind_rows(lapply(grp_lab, function(g)
+  tibble(cond = g, code = sample(codes, 30, replace = TRUE, prob = code_probs[[g]]))))
+code_tab <- table(Condition = coded$cond, Code = factor(coded$code, codes))
+fisher_p <- fisher.test(code_tab, simulate.p.value = TRUE, B = 1e5)$p.value
+
+kable(round(100 * prop.table(code_tab, 1)), caption = "Percentage of Coded Interviews by Response Process (hypothetical sample)")
+```
+
+**What it reveals.** If a larger share of treated respondents report socially desirable or market-price reasoning, that undermines equivalence of the construct (and hints at the measurement mechanism). In this hypothetical sample the pattern points that way, though with only 30 interviews per condition the difference is imprecise (exact-test p = `r sprintf("%.2f", fisher_p)`). The purpose of interviews is understanding, not significance testing.
+
+**What remains unidentified.** Similar reported processes are supportive but do not establish *quantitative* measurement invariance: two groups can both describe "what I'd personally pay" and still differ by a systematic €0.50 in how they translate that into a number. People also cannot always introspect on why they answer as they do, and probing in the treatment condition can itself prime reflection.
+
+### 3. Cross-Method Validation {#sec-dv-crossmethod}
+
+**Question.** Do the same substantive conclusions survive alternative ways of eliciting valuation? Here no method is privileged; we triangulate ([Campbell & Fiske, 1959](https://doi.org/10.1037/h0046016)).
+
+**Additional information.** A separate validation study in which each participant is measured with three procedures:
+
+- **Open-ended stated WTP premium** (our main DV): hypothetical, so subject to hypothetical bias and demand effects.
+- **Incentivised BDM premium**: consequential, but dependent on understanding the mechanism.
+- **Multiple price list (MPL)**: the participant accepts or declines a series of prices (€0.50 steps from €0.50 to €6.00); valuation is estimated from the switching point *under explicit modelling assumptions* (here: a single switch, valuation at the midpoint of the switching interval).
+
+These methods differ in their exposure to hypothetical bias, anchoring on the displayed numbers, and strategic misunderstanding, which is why agreement between them is informative.
+
+```{r dv-crossmethod, fig.height = 7, fig.width = 8}
+#| code-summary: "▶ Treatment effect under three elicitation methods, plus method agreement (Bland–Altman)"
+set.seed(2025)
+n_cm <- 240
+cm <- new_sample(n_cm, treat = rep(0:1, each = n_cm / 2))
+cm$open_wtp <- stated_wtp(cm$V, cm$treat, cm$price_sens)            # same reporting relationship as the main DV
+cm$bdm      <- pmax(round(cm$V + rnorm(n_cm, 0, 0.35), 2), 0)       # method-specific error only
+price_grid  <- seq(0.5, 6, by = 0.5)
+v_mpl       <- cm$V + rnorm(n_cm, 0, 0.45)
+cm$mpl <- sapply(v_mpl, function(v) {                                # midpoint of the switching interval
+  k <- sum(price_grid <= v)
+  if (k == 0) 0.25 else if (k == length(price_grid)) 6.25 else price_grid[k] + 0.25
+})
+
+method_lbl <- c(open_wtp = "Open-ended\nstated WTP", bdm = "Incentivised\nBDM", mpl = "Multiple\nprice list")
+cm_est <- bind_rows(lapply(names(method_lbl), function(v) {
+  m <- lm(reformulate("treat", v), cm)
+  tibble(method = method_lbl[[v]], est = coef(m)[2], lo = confint(m)[2, 1], hi = confint(m)[2, 2])
+})) |> mutate(method = factor(method, method_lbl))
+
+p_coef <- ggplot(cm_est, aes(est, method)) +
+  geom_vline(xintercept = 0, colour = "grey60") +
+  geom_vline(xintercept = dv_delta, linetype = "dashed", colour = "#2d6a4f") +
+  geom_pointrange(aes(xmin = lo, xmax = hi), size = 0.7, colour = "#1e3a5f") +
+  scale_y_discrete(limits = rev(levels(cm_est$method))) +
+  labs(x = "Estimated effect of green marketing (€, 95% CI)", y = NULL,
+       title = "Does the effect depend on how valuation is elicited?",
+       subtitle = sprintf("Dashed line: true effect on valuation (€%.2f), known only in the simulation", dv_delta)) +
+  theme_minimal(base_size = 11)
+
+ba <- cm |> mutate(cond = factor(treat, labels = grp_lab), avg = (open_wtp + bdm) / 2, diff = open_wtp - bdm)
+ba_lim <- ba |> group_by(cond) |> summarise(bias = mean(diff), lo = bias - 1.96 * sd(diff), hi = bias + 1.96 * sd(diff))
+p_ba <- ggplot(ba, aes(avg, diff, colour = cond)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_point(alpha = 0.6) +
+  geom_hline(data = ba_lim, aes(yintercept = bias, colour = cond), linewidth = 0.8) +
+  geom_hline(data = ba_lim, aes(yintercept = lo, colour = cond), linetype = "dashed") +
+  geom_hline(data = ba_lim, aes(yintercept = hi, colour = cond), linetype = "dashed") +
+  facet_wrap(~ cond) +
+  scale_colour_manual(values = dv_cols, guide = "none") +
+  labs(x = "Mean of the two methods (€)", y = "Open-ended − BDM (€)",
+       title = "Agreement between methods (Bland–Altman)",
+       subtitle = "Solid line: mean difference; dashed: 95% limits of agreement") +
+  theme_minimal(base_size = 11)
+
+p_coef / p_ba + plot_layout(heights = c(1, 1.15))
+```
+
+**What it reveals.** The incentivised and price-list procedures agree with each other (about €`r sprintf("%.2f", cm_est$est[2])` and €`r sprintf("%.2f", cm_est$est[3])`), while the open-ended hypothetical response shows an effect roughly twice as large (€`r sprintf("%.2f", cm_est$est[1])`). The Bland–Altman panels show that the open-ended response and BDM agree on average in the control condition (mean difference €`r sprintf("%.2f", ba_lim$bias[1])`) but not in the treatment condition (€`r sprintf("%.2f", ba_lim$bias[2])`). Convergence across methods strengthens a validity argument; an effect that appears only in the hypothetical open-ended response raises concerns about elicitation dependence ([Bland & Altman, 1986](https://doi.org/10.1016/S0140-6736(86)90837-8) introduced this agreement display).
+
+**What remains unidentified.** Agreement does not show that every method is unbiased — they could share a bias — and disagreement does not say *which* method is right. This is what separates cross-method triangulation from criterion validation: here no procedure is assumed correct.
+
+### 4. Experimental Validation {#sec-dv-experimental}
+
+**Question.** Does the DV respond to changes in the intended construct, rather than to features of the measurement procedure?
+
+**Additional information.** A validation experiment that, within the original conditions, independently randomises two further features:
+
+| Manipulation | What changes | Expected to affect |
+|---|---|---|
+| **Verified environmental-benefit information** (yes/no) | Credible, verified evidence that the detergent has a genuinely superior environmental benefit, other product features held fixed | The underlying valuation (a *construct-relevant* change) |
+| **Response interface** (slider that starts at €4 / blank entry field) | Only the numerical starting point of the WTP response screen; same product and purchase opportunity | The reported number only (a *procedure* change) |
+
+Both stated WTP and a consequential valuation (BDM) are collected, so we can see whether a manipulation moves what people *say*, what they would *pay*, or both.
+
+```{r dv-experimental, fig.height = 4.2, fig.width = 8}
+#| code-summary: "▶ Validation experiment: effects on stated WTP vs. consequential valuation"
+set.seed(2025)
+n_ev <- 1200
+ev <- new_sample(n_ev, treat = rep(0:1, length.out = n_ev)) |>
+  mutate(info   = sample(rep(0:1, n_ev / 2)),     # verified benefit information
+         slider = sample(rep(0:1, n_ev / 2)))     # interface manipulation
+ev$V      <- true_premium(ev$z, ev$treat, extra = 0.50 * ev$info)         # information raises true valuation
+ev$stated <- stated_wtp(ev$V, ev$treat, ev$price_sens) + 0.35 * ev$slider # starting point anchors the typed number
+ev$bdm    <- pmax(round(ev$V + rnorm(n_ev, 0, 0.35), 2), 0)               # consequential valuation: unaffected by the slider
+
+term_lbl <- c(treat = "Green marketing\n(original treatment)", info = "Verified benefit\ninformation", slider = "Slider starts at €4\n(vs. blank field)")
+ev_est <- bind_rows(lapply(c(`Stated WTP (hypothetical)` = "stated", `Consequential valuation (BDM)` = "bdm"), function(y) {
+  m <- lm(reformulate(c("treat", "info", "slider"), y), ev)
+  tibble(term = factor(term_lbl[names(coef(m))[-1]], term_lbl), est = coef(m)[-1],
+         lo = confint(m)[-1, 1], hi = confint(m)[-1, 2])
+}), .id = "outcome") |> mutate(outcome = factor(outcome, c("Stated WTP (hypothetical)", "Consequential valuation (BDM)")))
+
+ggplot(ev_est, aes(est, term, colour = outcome)) +
+  geom_vline(xintercept = 0, colour = "grey60") +
+  geom_pointrange(aes(xmin = lo, xmax = hi), position = position_dodge(width = 0.55), size = 0.65) +
+  scale_y_discrete(limits = rev(levels(ev_est$term))) +
+  scale_colour_manual(values = c("#d73027", "#1e3a5f"), name = NULL) +
+  labs(x = "Effect on the outcome (€, 95% CI)", y = NULL,
+       title = "Which manipulations move the report, and which move valuation?") +
+  theme_minimal(base_size = 11) + theme(legend.position = "bottom")
+```
+
+**What it reveals.** The product-benefit information moves *both* outcomes (€`r sprintf("%.2f", ev_est$est[ev_est$term == term_lbl["info"]][1])` on stated WTP, €`r sprintf("%.2f", ev_est$est[ev_est$term == term_lbl["info"]][2])` on the consequential valuation): the DV is sensitive to the intended construct. The slider start changes the typed number (€`r sprintf("%.2f", ev_est$est[ev_est$term == term_lbl["slider"]][1])`) but not the consequential valuation (`r sprintf("%+.2f", ev_est$est[ev_est$term == term_lbl["slider"]][2])`): the stated response is sensitive to procedure. The original green-marketing treatment moves both outcomes, but by more on the stated response (€`r sprintf("%.2f", ev_est$est[ev_est$term == term_lbl["treat"]][1])` vs. €`r sprintf("%.2f", ev_est$est[ev_est$term == term_lbl["treat"]][2])`) — the gap is the reporting component we saw earlier.
+
+**What remains unidentified.** These are diagnostic experiments, not proof of invariance. A seemingly irrelevant presentation feature can still change beliefs (a slider starting at €4 may signal the typical price), and responses to genuinely relevant information can differ across groups for substantive reasons. The tests are informative only to the extent that the "procedure" manipulation plausibly leaves the construct untouched and the "construct" manipulation plausibly leaves the procedure untouched.
+
+### 5. Nomological Validation {#sec-dv-nomological}
+
+**Question.** Does the single DV have the theoretically expected relationships with other variables in both populations? This is the idea of a *nomological network* ([Cronbach & Meehl, 1955](https://doi.org/10.1037/h0040957)).
+
+**Additional information.** Pre-treatment variables from the same participants: prior sustainable purchases (expected to relate **positively** to reservation premiums), independently measured price-sensitive behaviour (**negatively**), and a theoretically unrelated characteristic, weekly streaming hours (**near zero**). Using pre-treatment measures avoids the treatment contaminating the covariates. We estimate each association separately within each condition.
+
+```{r dv-nomological, fig.height = 4, fig.width = 8}
+#| code-summary: "▶ Associations between the stated WTP and external variables, by condition"
+var_lbl <- c(prior_sust = "Prior sustainable purchases\n(expected: positive)",
+             price_sens = "Price-sensitive behaviour\n(expected: negative)",
+             streaming  = "Weekly streaming hours\n(expected: near zero)")
+nom <- dv |>
+  pivot_longer(c(prior_sust, price_sens, streaming), names_to = "var", values_to = "x") |>
+  group_by(cond, var) |>
+  summarise(r = cor(Y, x), n = n(), .groups = "drop") |>
+  mutate(lo = tanh(atanh(r) - 1.96 / sqrt(n - 3)), hi = tanh(atanh(r) + 1.96 / sqrt(n - 3)),
+         var = factor(var_lbl[var], var_lbl))
+
+ggplot(nom, aes(r, var, colour = cond)) +
+  geom_vline(xintercept = 0, colour = "grey60") +
+  geom_pointrange(aes(xmin = lo, xmax = hi), position = position_dodge(width = 0.5), size = 0.65) +
+  scale_y_discrete(limits = rev(levels(nom$var))) +
+  scale_colour_manual(values = dv_cols, name = NULL) +
+  labs(x = "Correlation with stated WTP premium (95% CI)", y = NULL,
+       title = "Do the expected associations hold in both conditions?") +
+  theme_minimal(base_size = 11) + theme(legend.position = "bottom")
+
+# Is each association different between conditions? (Fisher z test of the difference)
+nom_diff <- nom |> select(cond, var, r, n) |>
+  pivot_wider(names_from = cond, values_from = c(r, n)) |>
+  mutate(diff = `r_Green Marketing` - r_Control,
+         z = (atanh(`r_Green Marketing`) - atanh(r_Control)) /
+             sqrt(1 / (`n_Green Marketing` - 3) + 1 / (n_Control - 3)),
+         p = 2 * pnorm(-abs(z)))
+ps_row  <- nom_diff[nom_diff$var == var_lbl["price_sens"], ]
+ps_r_c  <- ps_row$r_Control
+ps_r_g  <- ps_row[["r_Green Marketing"]]
+ps_p    <- ps_row$p
+```
+
+```{r dv-nomological-table}
+#| code-summary: "▶ Difference in associations between conditions"
+kable(transmute(nom_diff, Variable = gsub("\n", " ", as.character(var)), `r (Control)` = r_Control,
+                `r (Green)` = `r_Green Marketing`, Difference = diff, `p (difference)` = p),
+      digits = 2, caption = "Association with Stated WTP, by Condition")
+```
+
+**What it reveals.** The signs are as theory predicts in both conditions, and the sustainable-purchase and streaming associations look much the same across conditions. Notice what this does *not* show: treated respondents state about €`r sprintf("%.2f", eff_obs)` more on average, and correlations are blind to that level shift. A pure intercept difference leaves the nomological pattern untouched. The association that differs most is price sensitivity, which is weaker under green marketing (`r sprintf("%.2f", ps_r_c)` in Control versus `r sprintf("%.2f", ps_r_g)`). With about 200 participants per condition that difference is suggestive rather than conclusive (p `r fmt_p(ps_p)`).
+
+**What remains unidentified.** That difference has two possible readings, and the correlations alone cannot choose between them. It could be a **measurement** difference (treated respondents answer as if budget constraints did not matter, so the number no longer reflects what they would spend) or a **substantive** difference (green messaging really does loosen the link between price sensitivity and valuation). The first bears on measurement equivalence; the second is a real structural effect. Similar nomological patterns are supportive of a common interpretation, not proof of equivalence, and different patterns signal a problem to investigate rather than a verdict.
+
+### Putting the Evidence Together {#sec-dv-summary}
+
+| Approach | Additional evidence needed | Main question | Strongest inference | Main limitation |
+|---|---|---|---|---|
+| **Criterion / calibration** | An independent benchmark (e.g., incentivised BDM) in a subsample | Does the same stated value correspond to the same benchmark value in each group? | Evidence of differential measurement *relative to the benchmark* | Benchmark must itself be valid and comparable across groups; it is noisy |
+| **Response process** | Cognitive interviews with coded reasoning | Do people interpret and answer the question the same way? | Evidence for or against **construct equivalence** | Small samples; introspection is imperfect; qualitative, not quantitative equivalence |
+| **Cross-method** | The same quantity elicited several ways | Does the substantive conclusion survive different procedures? | Convergence strengthens the validity argument | Methods may share a bias; disagreement does not identify the correct one |
+| **Experimental** | Independent manipulations of the construct and of the procedure | Does the DV follow the construct and ignore the procedure? | Diagnoses construct sensitivity vs. procedure sensitivity | Manipulations may not be as "pure" as intended; diagnostic, not proof |
+| **Nomological** | External variables measured before treatment | Does the DV relate to other variables as theory predicts, in each group? | Supportive evidence of a common construct interpretation | Blind to uniform level shifts; differences may be substantive |
+
+These conclusions are **not equivalent**, and a study can support some while remaining silent on others:
+
+- The observed responses differ across groups.
+- The response processes appear to represent the same construct.
+- The observable has similar calibration against a common benchmark.
+- The substantive result is stable across measurement procedures.
+- The researcher has enough evidence, given the intended claim and the identifying assumptions, to treat the DV as meaningfully comparable.
+
+The last statement is a judgement about the *claim* you want to make, not a test that is passed or failed. If you only need to say that treated participants responded differently, the first bullet is enough. If you want to say that green marketing raised willingness to pay by a specified amount, you need most of the rest.
+
+::: {.callout-note}
+## Researcher checklist for single-DV settings
+
+- [ ] **Have I defined exactly what my observed response is intended to represent?** Write the construct (including the object and the purchase opportunity) in one sentence.
+- [ ] **Could the same response reflect a different construct across groups?** (Construct equivalence.)
+- [ ] **Could the same underlying construct generate different observed responses across groups?** (Measurement equivalence: levels, scale use, reporting shifts.)
+- [ ] **What reference, auxiliary measurement, experimental manipulation, or external observation could distinguish these explanations?**
+- [ ] **What assumptions make that additional evidence informative?** (For example: the benchmark is comparably valid; the procedure manipulation leaves the construct unchanged.)
+- [ ] **What claims remain defensible if full equivalence cannot be established?** (For example: rankings within each group, or the sign but not the size of an effect.)
+:::
+
+**References for the methods above.** Becker, DeGroot & Marschak (1964), [*Measuring utility by a single-response sequential method*](https://doi.org/10.1002/bs.3830090304); Bland & Altman (1986), [*Statistical methods for assessing agreement between two methods of clinical measurement*](https://doi.org/10.1016/S0140-6736(86)90837-8); Campbell & Fiske (1959), [*Convergent and discriminant validation by the multitrait-multimethod matrix*](https://doi.org/10.1037/h0046016); Cronbach & Meehl (1955), [*Construct validity in psychological tests*](https://doi.org/10.1037/h0040957); Keogh et al. (2020), [*STRATOS guidance document on measurement error and misclassification of variables in observational epidemiology*](https://doi.org/10.1002/sim.8532); Thrasher et al. (2011), [*Cognitive interviewing and behavior coding*](https://doi.org/10.1177/1525822X11418176). These motivate the approaches; they are not evidence that all five are formal invariance tests.
 
 ---
 
@@ -435,10 +933,17 @@ The configural → metric → scalar sequence using lavaan is the standard appro
 ::: {.callout-note}
 ## Key questions before comparing groups
 
-- [ ] **Does your scale measure the same construct in the same way across all groups you compare?** Any cross-group comparison of means assumes scalar invariance — equal loadings and equal item intercepts.
-- [ ] **Did you test the full invariance sequence?** Configural → metric → scalar. Skipping directly to scalar is methodologically incomplete and may hide loading-level problems.
-- [ ] **If scalar invariance fails, which items are the problem?** Non-invariant intercepts mean those items have a systematic baseline shift across groups — the comparison absorbs that shift as if it were a construct difference.
-- [ ] **Could the treatment itself have caused non-invariance?** An intervention that changes how participants interpret items will inflate treatment effects through intercept shifts, not just through genuine construct change.
+- [ ] **Are you measuring the same construct in all groups, and in the same way?** Separate the two questions: construct equivalence first, then measurement equivalence. Any cross-group comparison of means assumes both.
+- [ ] **For multi-item scales, did you test the full invariance sequence?** Configural → metric → scalar. Skipping directly to scalar is methodologically incomplete and may hide loading-level problems.
+- [ ] **If scalar invariance fails, on what grounds are some items treated as anchors?** The data alone cannot decide which items are invariant; the justification must come from theory, design, or independent evidence.
+- [ ] **Are you treating a non-significant test as proof of equivalence?** It is not. Report the size of the violations and the power to detect them.
+- [ ] **Could the treatment itself have caused non-invariance?** An intervention that changes how participants interpret or report on items will inflate treatment effects through intercept shifts, not just through genuine construct change.
+- [ ] **With a single DV, what external evidence supports comparability?** Benchmarks, response-process data, alternative methods, diagnostic experiments, or nomological patterns, each with its identifying assumption stated.
+:::
+
+::: {.callout-important}
+## The main point
+Measurement invariance is not fundamentally a property of scales. It is a requirement on the relationship between what we observe and what we intend to infer. Multi-item models offer one way to investigate that relationship. When we have a single DV, we must obtain identifying evidence elsewhere.
 :::
 
 ---
