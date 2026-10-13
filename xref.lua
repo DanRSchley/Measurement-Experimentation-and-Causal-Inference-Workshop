@@ -241,7 +241,7 @@ local function ref(args, kwargs, meta)
   end
   local url = rel_url(cur_dir, info.html)
   if not target.is_primary then url = url .. "#" .. id end
-  local classes = { "quarto-xref" }
+  local classes = { "xref-link" }  -- not "quarto-xref": that class triggers Quarto's hover preview popups
   for c in (kw(kwargs, "class") or ""):gmatch("%S+") do classes[#classes + 1] = c end
   return pandoc.Link(pandoc.Inlines(label), url, "", pandoc.Attr("", classes))
 end
