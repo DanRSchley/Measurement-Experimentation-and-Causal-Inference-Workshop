@@ -66,6 +66,8 @@ jobs:
             any::scales
             any::tidytext
             any::topicmodels
+            any::reshape2
+            any::gridExtra
             any::remotes
 
       - name: Install GitHub packages
