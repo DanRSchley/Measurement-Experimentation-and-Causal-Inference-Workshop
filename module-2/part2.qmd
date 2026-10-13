@@ -33,24 +33,127 @@ set.seed(2025)
 
 # Part 2: What Does "Random Assignment" Actually Require? {#sec-randomization}
 
+## What Does Random Assignment Actually Guarantee? {#sec-guarantee}
+
 We tend to talk about randomization as if it were a button. Click "Randomize," split people into treatment and control, and treat the result as settled. This page asks how far that button actually takes you.
 
 We follow one experiment throughout. **Does an environmental label increase sustainable purchase intention?** Eighty participants are split equally between an eco-label condition and a control condition. The researchers believe they are testing whether the label raises consumers' *environmental motivation*. What they actually measure is a purchase-intention question.
 
-Every person has two "what-if" outcomes: their score *if* they saw the label, and their score *if* they didn't. Researchers call these **potential outcomes** (we use them properly in {{< ref sec-fundamental >}}). Random assignment means nobody's what-ifs decide who gets the label. That is **exchangeability**: before the draw, the two groups are swappable as far as the what-ifs go. It is what makes the comparison between the groups a valid basis for estimating the label's effect, on the outcome that was measured, among the people who were studied.
+Every person has two "what-if" outcomes: their score *if* they saw the label, and their score *if* they didn't. Researchers call these **potential outcomes** (we use them properly in {{< ref sec-fundamental >}}). Random assignment means nobody's what-ifs decide who gets the label. That is **exchangeability**: before the draw, the two groups are swappable as far as the what-ifs go. It is what makes the comparison a valid basis for estimating the label's effect, on the outcome that was measured, among the people who were studied.
 
-That is a real and valuable guarantee, and it is a limited one. Four questions show where it stops:
+> **Randomization is a procedure. Exchangeability is what a valid procedure gives you. Balance is what you actually see in the one experiment you ran.**
 
-1. Does random assignment guarantee similar groups?
-2. Why can chance differences between groups matter?
-3. Does an effect on the DV mean an effect on the construct?
-4. Does the estimate answer the population-level question?
+That is a real guarantee, and a limited one. To see how limited, we start with something simpler than people: a deck of cards. Then we move to consumers, ask what a chance imbalance does to an estimate, and finish with what randomization cannot establish however well it is done.
 
-A fifth section asks what balance checks can and cannot tell you. Each question marks a point where a researcher can move from a valid local comparison to a stronger conclusion than the evidence supports.
+## Shuffling Cards: Why Size and Procedure Matter {#sec-cards}
 
-## Does Random Assignment Guarantee Similar Groups? {#sec-cards}
+Take a deck in its original order and shuffle it once. Is the resulting order random? What if you shuffle twice? And does the answer change when the deck has 5 cards instead of 52?
 
-Think of dealing a shuffled deck into two hands of 26. **The shuffle can be perfectly fair and the hands can still differ.** On average each hand gets two aces and 13 red cards, but in any one deal the split can be lopsided.
+"Random" here means every possible order is equally likely. A deck of *n* cards can be arranged in *n*! different orders:
+
+```{r deck-orders}
+#| code-summary: "▶ Number of possible orderings of a deck of n cards (n!)"
+
+orders_f <- function(n) {
+  x <- factorial(n)
+  if (x < 1e9) format(x, big.mark = ",") else sprintf("approximately %.2f &times; 10<sup>%d</sup>", x / 10^floor(log10(x)), floor(log10(x)))
+}
+deck_orders <- tibble(Cards = c(5, 10, 20, 52), `Possible orderings` = vapply(c(5, 10, 20, 52), orders_f, character(1)))
+kable(deck_orders, escape = FALSE, align = "rr")
+```
+
+A real shuffle can't reach all of those orders equally in one go. Under the Gilbert–Shannon–Reeds model of riffle shuffling, how many shuffles it takes to get close to a uniformly random order depends on how big the deck is ([Bayer & Diaconis, 1992](https://www.stat.berkeley.edu/users/aldous/157/Papers/bayer_diaconis.pdf)). We measure "close" with the **total variation distance** from uniform: zero means every ordering of the deck is equally likely, and larger values mean the shuffling process still favors some arrangements over others.
+
+```{r riffle-tv-functions}
+#| code-summary: "▶ Exact total variation distance for GSR riffle shuffles (code)"
+
+# Eulerian counts E(n, r) for r = 1..n: the number of permutations of n cards with exactly
+# r rising sequences. Recurrence: E(1,1) = 1; E(n,r) = r * E(n-1,r) + (n-r+1) * E(n-1,r-1),
+# with values outside 1..n-1 equal to zero. The counts for each n sum to n!.
+eulerian_counts <- function(n) {
+  E <- 1
+  if (n > 1) for (m in 2:n) {
+    r     <- seq_len(m)
+    prev  <- c(E, rep(0, m - length(E)))                    # E(m-1, r)
+    prev1 <- c(0, E, rep(0, m - 1 - length(E)))             # E(m-1, r-1)
+    E <- r * prev + (m - r + 1) * prev1
+  }
+  E
+}
+
+# Exact total variation distance from the uniform distribution on the n! orderings after k GSR
+# riffle shuffles (Bayer & Diaconis, 1992). Probabilities are computed on the log scale.
+riffle_tv <- function(n, k) {
+  a    <- 2^k
+  r    <- seq_len(n)
+  P_r  <- exp(lchoose(a + n - r, n) - n * log(a))           # probability of ONE permutation with r rising sequences
+  0.5 * sum(eulerian_counts(n) * abs(P_r - exp(-lgamma(n + 1))))
+}
+
+deck_sizes <- c(5, 10, 20, 52)
+tv_df <- expand.grid(cards = deck_sizes, shuffles = 0:12) |>
+  mutate(tv = mapply(riffle_tv, cards, shuffles),
+         cards_f = factor(cards))
+```
+
+```{r riffle-tv-figure, fig.height=4.8}
+#| code-summary: "▶ Plot: exact TV distance from uniform vs. number of riffle shuffles"
+
+deck_cols <- c("5" = "#0072B2", "10" = "#009E73", "20" = "#E69F00", "52" = "#D55E00")  # colour-blind safe
+
+ggplot(tv_df, aes(shuffles, tv, colour = cards_f, shape = cards_f, group = cards_f)) +
+  geom_hline(yintercept = 0.10, linetype = "dashed", colour = "gray40") +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.6) +
+  annotate("text", x = 12.3, y = 0.135, hjust = 1, size = 3.4, colour = "gray30",
+           label = "illustrative mixing criterion (TV = 0.10)") +
+  scale_x_continuous(breaks = 0:12) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+  scale_colour_manual(values = deck_cols, name = "Cards") +
+  scale_shape_manual(values = c(16, 17, 15, 18), name = "Cards") +
+  labs(x = "Number of riffle shuffles",
+       y = "Total variation distance from uniform",
+       title = "The Same Number of Shuffles Is Less Effective for Larger Decks",
+       subtitle = "Exact distance from a uniformly random permutation under the GSR riffle-shuffle model") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+What to notice:
+
+- Small decks approach uniformity after relatively few riffle shuffles.
+- Larger decks need more.
+- A deck that *looks* shuffled doesn't show that the procedure that produced it was random enough. The question is about the procedure, not about one arrangement.
+
+::: {.callout-note collapse="true"}
+## Technical note: the exact calculation and a table
+
+The distance is computed exactly. With $a = 2^k$, a permutation of *n* cards with *r* rising sequences has probability $\binom{a+n-r}{n}/a^{n}$ after *k* riffle shuffles, and the distance is $\tfrac12\sum_{r=1}^{n} E(n,r)\,\bigl|P(n,k,r) - 1/n!\bigr|$, where $E(n,r)$ is the Eulerian number counting permutations with *r* rising sequences. It is a property of the whole *distribution* of decks a shuffle can produce; you can't read it off one deck.
+
+```{r riffle-tv-table}
+#| code-summary: "▶ Table: first number of shuffles with TV < 0.10"
+
+first_below <- tv_df |>
+  group_by(cards) |>
+  summarise(`Required riffle shuffles` = min(shuffles[tv < 0.10]), .groups = "drop") |>
+  rename(Cards = cards)
+kable(first_below, caption = "First number of riffle shuffles at which TV falls below 0.10")
+
+tv_one_shuffle_5 <- riffle_tv(5, 1)
+tv_52 <- sapply(7:9, function(k) riffle_tv(52, k))
+```
+
+One riffle shuffle leaves even a 5-card deck far from random (distance `r sprintf("%.3f", tv_one_shuffle_5)`). For 52 cards the distance is about `r sprintf("%.3f", tv_52[1])` after seven shuffles, `r sprintf("%.3f", tv_52[2])` after eight, and `r sprintf("%.3f", tv_52[3])` after nine. The familiar "seven shuffles" rule marks where things start to settle quickly, not the point of perfect randomness; the 0.10 line in the figure is only an illustrative benchmark.
+:::
+
+## Even a Randomized Deck Can Produce Unequal Hands {#sec-hands}
+
+Now suppose the deck *was* shuffled well, and we deal it into two hands of 26. Two different questions are now in play:
+
+1. **Was the deck randomized adequately?** This concerns the mechanism: the distribution of arrangements it can produce.
+2. **How similar are the hands we got?** This concerns the realized allocation: the one arrangement that actually came up.
+
+On average each hand gets two aces and 13 red cards. But in any one deal the split can be lopsided.
 
 ```{r card-hands, fig.height=4.8}
 #| code-summary: "▶ A constructed deal of two 26-card hands (one possible outcome, not a typical draw)"
@@ -88,32 +191,224 @@ p_even_aces <- dhyper(2, 4, 48, 26)
 p_all_four  <- 2 * dhyper(4, 4, 48, 26)
 ```
 
-Both hands have 26 cards and `r hand_summary$red[1]` red cards, so they are balanced on those two things. But hand 1 holds `r hand_summary$aces[1]` aces and hand 2 holds `r hand_summary$aces[2]`. With a fair shuffle, the aces split 2–2 only `r percent(p_even_aces, accuracy = 1)` of the time. **Lopsided hands don't mean the shuffle was broken.**
+Both hands have 26 cards and `r hand_summary$red[1]` red cards, so they are balanced on those two things. But hand 1 holds `r hand_summary$aces[1]` aces and hand 2 holds `r hand_summary$aces[2]`. With a fair shuffle the aces split 2–2 only `r percent(p_even_aces, accuracy = 1)` of the time, and all four land in one hand `r percent(p_all_four, accuracy = 1)` of the time.
 
-If we're playing a game where aces matter, the imbalance in aces matters. If we're playing a game where only red cards matter, it may not. The same is true of characteristics that predict our experimental outcome.
+We can have a poorly randomized deck that produces apparently balanced hands, or a perfectly randomized deck that produces unbalanced hands. **Examining the hands alone cannot establish whether the shuffle was fair.**
 
-The label experiment is the same situation. The 80 participants differ in environmental values, price sensitivity, income, and much more. A fair assignment makes who gets the label unrelated to all of that *in expectation*, but one particular split can leave the label group a bit greener or less price-sensitive than the control group. And the more characteristics we look at, the more chances at least one of them looks different.
+Whether an imbalance matters depends on the game. If we're playing a game where aces matter, the imbalance in aces matters. If we're playing a game where only red cards matter, it may not. The same is true of characteristics that predict our experimental outcome.
 
-A correctly implemented randomization algorithm draws the assignment in a single step; it never needs extra attempts. What one draw can't promise is a split that is similar on every characteristic we care about. (Pressing "Randomize" repeatedly until the groups look good is not the same thing, and it isn't automatically legitimate. Pre-specified rerandomization is a separate design, mentioned at the end.)
+**Where the analogy stops.** A correctly implemented computer randomization draws the assignment from its intended distribution in one step. Adding more baseline characteristics doesn't make that mechanism less random, and no one needs to "press Randomize" more times. (Pressing it repeatedly until the groups look good is not the same thing, and it isn't automatically legitimate; pre-specified rerandomization is a separate design.) What carries over is this: the number of possible participant profiles can be enormous, one realized allocation can differ across many characteristics, and those differences can matter when the characteristics predict potential outcomes. Randomization doesn't guarantee the kind of balance researchers often assume.
 
-## Why Can Those Differences Matter? {#sec-imbalance-matters}
+## From Cards to Consumers: How Complex Is the Outcome-Generating Process? {#sec-balancing-groups}
 
-They matter when the characteristic predicts the outcome. In the simulation below, environmental values is a strong predictor and age is a weak one. A 10-point gap between the groups in environmental values shifts the observed difference by about `r sprintf("%.2f", 0.10 * 0.80)` SD; the same gap in age shifts it by about `r sprintf("%.3f", 0.10 * 0.05)` SD.
+A playing card has properties we can inspect: its color, suit, rank, whether it is an ace. Whether two hands are meaningfully similar depends on which of those properties matter for the game.
 
-To see the consequence, hold everything else fixed.
+Participants are more complicated. They differ in environmental values, price sensitivity, habits, social influences, and more. Which differences matter depends on the outcome we are studying. Some outcomes may be strongly affected by relatively few **outcome-relevant baseline characteristics**; others depend on a much richer combination. As that number grows, so does the number of possible participant profiles and the number of ways two randomized groups can differ.
 
-- **Fixed:** the same 80 participants, ten baseline characteristics (a few strong, most weak), and both potential outcomes for everyone. The label raises the outcome by exactly 0.40 SD for everyone, so the true effect in this sample is 0.40.
-- **Repeated:** we randomize those 80 people 4,000 times, 40 per condition, and estimate the effect each time. Every assignment is valid.
+Here are two hypothetical outcome-generating processes. They aren't claims about how real psychological constructs work, and a more complex *construct* doesn't necessarily have more determinants. They show what changes when the number of relevant characteristics grows. In both, not all characteristics matter equally; the effect columns give each one's hypothetical effect on the outcome, in standard deviations.
+
+### Case 1. A stylized outcome with two determinants
+
+Imagine visual fixation time depends strongly on just two binary characteristics unaffected by treatment: viewing distance and display brightness. That gives four possible combinations.
 
 ```{r characteristics}
-#| code-summary: "▶ The ten baseline characteristics and their hypothetical effects on the outcome (SD)"
-#| output: false
+#| code-summary: "▶ Two-determinant outcome: characteristics and their hypothetical effects"
 
+fix_df <- tibble(Characteristic = c("Viewing distance", "Display brightness"),
+                 Low = c("Far", "Dim"), High = c("Near", "Bright"), Effect = c(0.80, 0.20))
 chars_df <- tibble(
   Characteristic = c("Environmental values", "Price sensitivity", "Prior green behavior", "Social norms", "Household income",
                      "Health motivation", "Peer influence", "Brand trust", "Prior brand use", "Age (older vs. younger)"),
+  Low  = c("Weak", "Low sensitivity", "Little", "Low salience", "Low", "Low", "Weak", "Low trust", "Non-user", "Younger"),
+  High = c("Strong", "High sensitivity", "Extensive", "High salience", "High", "High", "Strong", "High trust", "Prior user", "Older"),
   Effect = c(0.80, 0.60, 0.50, 0.40, 0.30, 0.30, 0.20, 0.20, 0.10, 0.05))
+
+eff_cols <- c("Characteristic", "Low level", "High level", "Hypothetical effect on outcome (SD)")
+kable(fix_df |> setNames(eff_cols), digits = 2)
 ```
+
+### Case 2. A stylized outcome with ten determinants
+
+Imagine sustainable purchase intention depends on ten binary baseline characteristics, such as environmental values, price sensitivity, income, social norms, and past green behavior. Some are strong and many are weak. With ten binary characteristics there are $2^{10} = 1{,}024$ possible profiles, against $2^2 = 4$ with two determinants.
+
+```{r characteristics-10}
+#| code-summary: "▶ Ten-determinant outcome: characteristics and their hypothetical effects"
+
+kable(chars_df |> setNames(eff_cols), digits = 2)
+```
+
+```{r profile-figure, fig.height=4.6, fig.width=10}
+#| code-summary: "▶ Plot: 80 participants dropped onto the 4 profiles (left) and the 1,024 profiles (right)"
+
+set.seed(2025)
+# Left: scenario 1. Each participant lands on one of the 4 profiles
+prof4 <- expand.grid(Distance = c("Far", "Near"), Brightness = c("Dim", "Bright"))
+prof4$n <- tabulate(sample(1:4, 80, replace = TRUE), nbins = 4)
+p_left <- ggplot(prof4, aes(Distance, Brightness, fill = n)) +
+  geom_tile(colour = "white", linewidth = 2) +
+  geom_text(aes(label = n), size = 8, colour = "white", fontface = "bold") +
+  scale_fill_gradient(low = "#6baed6", high = "#08306b", guide = "none") +
+  labs(title = "Fixation: 4 Profiles", subtitle = "Simulated counts of 80 participants", x = "Viewing distance", y = "Display brightness") +
+  coord_equal() + theme_minimal(base_size = 12) + theme(panel.grid = element_blank())
+
+# Right: scenario 2. Each participant lands on one of the 1,024 profiles
+profiles_all <- expand.grid(col = 1:32, row = 1:32)
+profiles_all$n <- tabulate(sample(nrow(profiles_all), 80, replace = TRUE), nbins = nrow(profiles_all))
+n_occupied <- sum(profiles_all$n > 0)
+p_right <- ggplot(profiles_all, aes(col, row, fill = n > 0)) +
+  geom_tile(colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = c(`FALSE` = "gray90", `TRUE` = "#D55E00"), guide = "none") +
+  coord_equal() +
+  labs(title = "Sustainable Intention: 1,024 Profiles", subtitle = "Orange cells hold at least one of the 80 participants") +
+  theme_void(base_size = 12)
+
+p_left + p_right + plot_layout(widths = c(1, 1.5))
+```
+
+| | Two determinants | Ten determinants |
+|---|---|---|
+| Binary characteristics | 2 | 10 |
+| Possible joint profiles | 4 | 1,024 |
+| Participants | 80 | 80 |
+| Every profile represented | Possible, not guaranteed | Impossible |
+
+With only 80 participants, how can the label and control groups possibly represent all 1,024 profiles? They can't, and that doesn't invalidate random assignment. Randomization doesn't require exhaustive representation of every joint profile; it provides a valid mechanism for estimating average treatment effects under its design assumptions. But the expanding profile space makes it easier to see why a finite allocation can contain meaningful differences on outcome-relevant characteristics.
+
+## Why Exact Coverage Gives Way to Approximate Orthogonality {#sec-orthogonality}
+
+Since we can't cover every profile, what kind of similarity between the groups should we hope for? Start with one characteristic.
+
+```{r ex-22-18}
+#| code-summary: "▶ Correlation between treatment and a binary characteristic, from group counts"
+
+# Correlation between treatment (exactly m treated, m control) and a binary characteristic, given
+# that `a` treated and `b` control participants have X = 1. Constant characteristics (p = 0 or 1)
+# have no group difference, so r = 0 rather than NaN.
+treat_cov_cor <- function(a, b, m) {
+  p1 <- a / m; p0 <- b / m; p <- (a + b) / (2 * m)
+  ifelse(p == 0 | p == 1, 0, (p1 - p0) / (2 * sqrt(p * (1 - p))))
+}
+treat_cov_cor_ex <- treat_cov_cor(22, 18, 40)      # 55% vs. 45% high among 40 + 40 participants
+```
+
+Take 80 participants, 40 per condition, and say exactly 40 have high environmental concern. Perfect balance puts 20 high-concern people in each group, 50% versus 50%. A perfectly valid random assignment might put 22 in one group and 18 in the other: 55% versus 45%, a ten-percentage-point gap from moving two people. In this balanced binary setup the correlation between treatment and the characteristic equals that gap, so here **r = `r sprintf("%.2f", treat_cov_cor_ex)`**.
+
+Now suppose we care about ten characteristics rather than one. Even if each is reasonably likely to be balanced, the chance that *all ten* are balanced can be much lower. We can compute this exactly in a deliberately simple setup: equal-sized groups, *D* independent binary characteristics each "high" for half the sample, valid randomization every time, and "balanced" meaning $|r| < 0.10$.
+
+```{r balance-prob-functions}
+#| code-summary: "▶ Exact probability of meeting the marginal-balance criterion (code)"
+
+# q(N): probability that ONE independent Bernoulli(0.5) characteristic has |cor(T, X)| < thresh
+# under complete randomization with N/2 per arm. The inequality is strict; exact ties
+# (|r| = thresh) count as failing, with a tiny tolerance to guard against floating-point error.
+q_balance <- function(N, thresh = 0.10) {
+  stopifnot(N %% 2 == 0)
+  m  <- N / 2
+  pm <- dbinom(0:m, m, 0.5)                          # P(a) and P(b): Binomial(N/2, 0.5)
+  g  <- expand.grid(a = 0:m, b = 0:m)
+  r  <- treat_cov_cor(g$a, g$b, m)
+  sum(pm[g$a + 1] * pm[g$b + 1] * (abs(r) < thresh - 1e-9))
+}
+
+# P(pass on all D independent characteristics) = q(N)^D
+p_balance_all <- function(N, D, thresh = 0.10) q_balance(N, thresh)^D
+
+bal_tab <- expand.grid(N = c(80, 200, 400), D = c(1, 2, 5, 10)) |>
+  mutate(p = mapply(p_balance_all, N, D))
+```
+
+At 80 participants, the chance of meeting the criterion on every characteristic is `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 1)` for two characteristics and `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.01)` for ten.
+
+```{r balance-prob-figure, fig.height=4.8}
+#| code-summary: "▶ Plot: probability of meeting the criterion as N grows"
+
+N_grid <- seq(40, 1000, by = 20)
+bal_curve <- expand.grid(N = N_grid, D = c(2, 10)) |>
+  mutate(p = mapply(p_balance_all, N, D), D = factor(D, labels = c("D = 2", "D = 10")))
+
+ggplot(bal_curve, aes(N, p, colour = D)) +
+  geom_line(linewidth = 1.3) +
+  scale_colour_manual(values = c("D = 2" = "#0072B2", "D = 10" = "#D55E00"), name = "Characteristics") +
+  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+  labs(x = "Total sample size (N)",
+       y = "Probability of meeting the stated\nbalance criterion on every dimension",
+       title = "Valid Randomization Still Rarely Balances Many Characteristics in Small Samples",
+       subtitle = "Complete randomization in every case  ·  criterion: max |cor(T, X)| < 0.10  ·  independent binary X") +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+Every assignment here is genuinely randomized. These probabilities refer only to achieving a strict balance criterion; they are **not** the probability that exchangeability holds, that the randomization was valid, or that the estimate is close to the truth. They show two things: more characteristics make strict simultaneous balance harder, and a larger sample makes it easier.
+
+The statistical term for what this figure is about is **approximate orthogonality**: small observed relationships between treatment assignment and baseline characteristics. Under valid randomization the *expected* relationship is zero, but in any finite sample it generally isn't exactly zero. For one characteristic, its typical size shrinks at roughly the $1/\sqrt{N}$ rate.
+
+**As N increases, realized balance becomes more likely. Exchangeability does not become increasingly valid; it was supplied by the assignment mechanism at any N.**
+
+::: {.callout-note collapse="true"}
+## Technical note: probability table and sample-size planning
+
+For each possible pair of counts of "high" participants in the two groups, we work out the correlation and its probability, add up the pairs with $|r| < 0.10$, and raise the one-characteristic answer to the power *D*.
+
+```{r balance-prob-table}
+#| code-summary: "▶ Table: probability of meeting the criterion on every characteristic"
+
+bal_wide <- bal_tab |>
+  mutate(p = percent(p, accuracy = 0.1)) |>
+  pivot_wider(names_from = D, values_from = p, names_prefix = "D = ") |>
+  rename(`Total N` = N)
+kable(bal_wide, align = "lrrrr",
+      caption = "Probability that a valid random assignment meets max |cor(T, X)| < 0.10 on every characteristic")
+```
+
+A conservative planning rule (a Bonferroni argument over the *D* characteristics) says a valid randomization will meet a tolerance $r_{\max}$ on every characteristic with probability at least $1-\alpha$ once $N \gtrsim \left(z_{1-\alpha/(2D)}/r_{\max}\right)^{2}$, where $z$ is the standard normal quantile. That is a planning approximation for hitting a balance target, **not** the sample size needed for a valid randomized experiment.
+
+```{r orthogonality-table}
+#| code-summary: "▶ Calculate: N required for approximate orthogonality"
+
+required_N <- function(D, r_thresh = 0.10, alpha = 0.05) {
+  z_crit <- qnorm(1 - alpha / (2 * D))
+  ceiling((z_crit / r_thresh)^2)
+}
+
+dims_check   <- c(1, 2, 3, 5, 8, 10, 15, 20)
+thresh_check <- c(0.05, 0.10, 0.20, 0.30, 0.40, 0.60)
+
+ortho_table <- expand.grid(D = dims_check, r_max = thresh_check) |>
+  mutate(N_req = mapply(required_N, D, r_max)) |>
+  pivot_wider(names_from = r_max, values_from = N_req,
+              names_prefix = "r_max = ") |>
+  rename(`Characteristics (D)` = D)
+
+kable(ortho_table,
+      caption = "Approximate N at which a valid random assignment meets |r| < r_max on all D independent characteristics with 95% probability (Bonferroni)",
+      format.args = list(big.mark = ","))
+```
+
+For ten characteristics and $r_{\max} = 0.10$ the rule gives N ≈ `r required_N(10, 0.10)`, which is conservative: the exact calculation gives `r percent(p_balance_all(400, 10), accuracy = 1)` at N = 400 and `r percent(p_balance_all(800, 10), accuracy = 1)` at N = 800.
+:::
+
+## When Does Realized Imbalance Actually Matter? {#sec-imbalance-matters}
+
+The previous section explains why exact balance on many characteristics is hard. Now: why does it matter for the estimate? Suppose the outcome is the label's effect $\tau$, plus a contribution from a characteristic $C$, plus noise. Then the difference we observe is
+
+$$\text{Observed effect} = \underbrace{\tau}_{\text{true effect}} + \underbrace{\beta\,(\bar C_T - \bar C_C)}_{\text{prognostic contribution of imbalance}} + \underbrace{(\bar\varepsilon_T - \bar\varepsilon_C)}_{\text{residual difference}} .$$
+
+The middle term is the characteristic's effect on the outcome, $\beta$, times how much the groups differ on it. Take a 10-point gap between the groups:
+
+- **Strongly prognostic** (environmental values, 0.80 SD): $0.10 \times 0.80 = $ `r sprintf("%.2f", 0.10 * 0.80)` SD.
+- **Weakly prognostic** (age, 0.05 SD): $0.10 \times 0.05 = $ `r sprintf("%.3f", 0.10 * 0.05)` SD.
+
+So the number of characteristics alone isn't what matters. Four things do:
+
+- More independently varying characteristics make a strict simultaneous balance criterion harder to meet.
+- Stronger prognostic characteristics make a given imbalance more consequential.
+- Interactions can make balance on individual characteristics insufficient (below).
+- If total variability in potential outcomes is held constant, adding more predictors doesn't mechanically increase the variance of an unadjusted randomized estimate.
+
+The first figure showed *how often* balance is achieved. This one shows *how the estimates vary*. Hold everything else fixed:
+
+- **Fixed:** the same 80 participants, ten baseline characteristics (a few strong, most weak), and both potential outcomes for everyone. The label raises the outcome by exactly 0.40 SD for everyone, so the true effect in this sample is 0.40.
+- **Repeated:** we randomize those 80 people 4,000 times, 40 per condition, and estimate the effect each time. Every assignment is valid.
 
 ```{r repeat-assign, fig.height=4.2, fig.width=8.5}
 #| code-summary: "▶ Re-randomize the same 80 participants 4,000 times (≈10 s)"
@@ -158,9 +453,43 @@ On average the estimate lands right on the true 0.40. But any single assignment 
 
 Randomization lets us estimate the sample's average treatment effect without measuring every other determinant of the outcome. But the precision of our particular estimate still depends on how much potential outcomes vary across participants. Important baseline predictors can help us understand and reduce that uncertainty when used appropriately in the design (for example, blocking) or in a pre-planned analysis. Adjusting for the ten characteristics tightened the spread here from `r sprintf("%.2f", sd_unadj)` to `r sprintf("%.2f", sd_adj)` (the blue curve). Adjustment improves precision. It doesn't make the original assignment more valid, and it isn't something to bolt on after spotting an imbalance.
 
-People sometimes say a complex outcome is harder to randomize. Be careful: more latent constructs, more outcome-relevant characteristics, and more interactions between characteristics are three different things. What affects precision is how much of the outcome's variation the characteristics explain, not how many there are. (The technical notes check this: adding characteristics that don't matter changes nothing.)
+::: {.callout-note collapse="true"}
+## Technical note: does having more characteristics widen the spread?
 
-Balance on each characteristic can also hide imbalance on *combinations*. Suppose purchase intention is high only for participants who are environmentally concerned **and** not price sensitive. Both groups below are 50% concerned and 50% price sensitive, so a balance table that checks one characteristic at a time looks perfect.
+Not by itself. In a completely randomized experiment with equal groups, the spread of the unadjusted estimate is proportional to the SD of the untreated outcome, whatever produced that variability. The table uses the same 80 participants and the same 2,000 assignments in every row.
+
+```{r dim-check}
+#| code-summary: "▶ Controlled comparison: extra characteristics that matter, and extra characteristics that don't"
+
+set.seed(7)
+eff10   <- chars_df$Effect
+X10     <- matrix(rbinom(N_ra * 10, 1, 0.5), nrow = N_ra)
+eps     <- rnorm(N_ra, 0, noise_sd)
+assigns <- replicate(2000, sample(rep(0:1, N_ra / 2)))                       # the same 2,000 assignments for every scenario
+
+Y0_two   <- as.vector(X10[, 1:2] %*% eff10[1:2]) + eps                       # 2 characteristics matter
+Y0_two8  <- as.vector(X10 %*% c(eff10[1:2], rep(0, 8))) + eps                # + 8 characteristics with NO effect
+Y0_ten   <- as.vector(X10 %*% eff10) + eps                                   # all 10 matter (outcome varies more)
+Y0_ten_m <- as.vector(scale(Y0_ten)) * sd(Y0_two)                            # all 10 matter, outcome variability held equal to the first
+
+dim_row <- function(Y0, label) {
+  est <- apply(assigns, 2, function(Tr) { Y <- ifelse(Tr == 1, Y0 + tau_ra, Y0); mean(Y[Tr == 1]) - mean(Y[Tr == 0]) })
+  tibble(Scenario = label, `SD of untreated outcome` = sd(Y0), `SD of unadjusted estimates` = sd(est),
+         `Ratio` = sd(est) / sd(Y0))
+}
+dim_tab <- bind_rows(dim_row(Y0_two, "2 characteristics matter"),
+                     dim_row(Y0_two8, "Same, plus 8 characteristics with no effect"),
+                     dim_row(Y0_ten, "10 characteristics matter"),
+                     dim_row(Y0_ten_m, "10 matter, outcome variability held equal to the first row"))
+kable(dim_tab, digits = 3, caption = "The spread of the estimates tracks the outcome's variability, not the number of characteristics")
+```
+
+Adding eight characteristics with no effect changes nothing (rows 1 and 2 are identical). Making all ten matter widens the estimates because the outcome now varies more; when that variability is held equal, the spread returns. The last column is essentially constant (differences are simulation noise): what matters is how much the characteristics move the outcome, not how many there are.
+:::
+
+### Balanced on each characteristic, but not on the combinations {#sec-joint-profiles}
+
+Even balancing every characteristic one at a time may not make their *joint* distributions similar. Suppose purchase intention is high only for participants who are environmentally concerned **and** not price sensitive. Both groups below are 50% concerned and 50% price sensitive, so a balance table that checks one characteristic at a time looks perfect.
 
 ```{r joint-table}
 #| code-summary: "▶ Two groups with the same balance on each characteristic but different combinations"
@@ -186,13 +515,24 @@ joint_c_cell <- joint$n[joint$group == "Control" & joint$key_cell]
 joint_gap    <- 2 * (joint_t_cell - joint_c_cell) / 40
 ```
 
-But `r joint_t_cell` of the 40 label participants are in the high-intention combination, against `r joint_c_cell` of the 40 controls. If that combination scores 2 points higher on the 7-point scale, the groups differ by about `r sprintf("%.1f", joint_gap)` points before any treatment effect. This is a constructed, extreme case, and valid randomization can produce it. It shows what one-at-a-time balance tables can't see; it isn't evidence that the randomization failed.
+But `r joint_t_cell` of the 40 label participants are in the high-intention combination, against `r joint_c_cell` of the 40 controls. If that combination scores 2 points higher on the 7-point scale, the groups differ by about `r sprintf("%.1f", joint_gap)` points before any treatment effect.
+
+Three things are being kept apart here: **marginal balance** (each characteristic on its own), **joint balance** (combinations of characteristics), and **balance in potential outcomes**, which is what actually matters. A randomized trial doesn't need exact joint balance for valid inference. The example shows why looking only at individual baseline differences can miss outcome-relevant combinations. It is constructed and extreme, though valid randomization can produce it.
 
 In general, imbalance matters more with small samples, strong predictors, interactions, unequal allocation or clustering, and post-randomization selection (see {{< ref sec-selection style="long" >}}).
 
-## Does an Effect on the DV Mean an Effect on the Construct? {#sec-multi-construct-dv}
+## What Randomization Still Cannot Establish {#sec-cannot-establish}
 
-Back to the label experiment. The researchers want to know whether the label raises *environmental motivation*. But the DV is a purchase-intention item (*How likely are you to buy this product?*). A participant's answer reflects at least two things: environmental motivation, and practical willingness to buy given price, income, convenience, and quality. Different characteristics drive each. Environmental values mostly feed motivation; price sensitivity and income mostly feed practical willingness.
+Complexity enters the research process in two different ways, and they are easy to confuse.
+
+- **Complexity in generating potential outcomes:** many baseline characteristics may influence the outcome. That is why chance imbalance can matter for precision, which we just covered.
+- **Complexity in interpreting the DV:** one observed response may reflect several constructs. That is a measurement and construct-validity question.
+
+They can overlap, but they are not the same. Three further limits follow.
+
+### Construct interpretation: does an effect on the DV mean an effect on the construct? {#sec-multi-construct-dv}
+
+Back to the label experiment. The researchers want to know whether the label raises *environmental motivation*. But the DV is a purchase-intention item (*How likely are you to buy this product?*). A participant's answer reflects at least two things: environmental motivation, and practical willingness to buy given price, income, convenience, and quality.
 
 ```{r multi-dv-diagram, fig.height=3.4, fig.width=10}
 #| code-summary: "▶ Diagram: the label, two components of purchase intention, and the observed DV"
@@ -226,11 +566,9 @@ kable(comp, digits = 1)
 
 The DV rises by `r sprintf("%.1f", comp[[2]][3])` points. The same 0.3 would appear if the label had raised *both* components by 0.3. Nothing is wrong with the randomization: the label really did change purchase intention. What the data can't say is *which* component moved, and perfectly balanced groups would leave that ambiguity untouched.
 
-**Randomization can establish that treatment changed the measured outcome without establishing which latent construct changed.**
+**Randomization can establish that treatment changed the measured outcome without establishing which latent construct changed.** Whether the DV represents the construct we intend to study is a question for {{< ref sec-m1 style="long" >}}, not for the assignment procedure. A DV that mixes constructs doesn't make assignment less valid, and it doesn't mechanically mean more estimation uncertainty either.
 
-This is a different problem from chance imbalance. It is a measurement question: does the DV represent the construct we intend to study ({{< ref sec-m1 style="long" >}})? The two concerns are related only loosely. Components with different antecedents mean several characteristics can contribute to chance imbalance, but a more complex DV doesn't make assignment less valid.
-
-## Does the Estimate Answer the Population-Level Question? {#sec-sate-pate}
+### Population generalization: does the estimate answer the population-level question? {#sec-sate-pate}
 
 Even a precise, correctly interpreted estimate describes the people who were studied. Three quantities need to stay apart: the **observed estimate** from our experiment, the **sample average treatment effect** (the average effect among these 80 participants, given their what-ifs), and the **population average treatment effect** (the average effect among the consumers we care about).
 
@@ -254,9 +592,9 @@ Suppose the label works strongly for environmentally motivated consumers (+0.8 p
 
 **Randomizing treatment does not randomize who enters the study, and it does not guarantee that an effect transports to another population.**
 
-## Why Detecting an Effect Doesn't Establish Comparability {#sec-balance-power}
+### Flawed assignment: why detecting an effect doesn't establish comparability {#sec-balance-power}
 
-The last question is about evidence for the assignment process itself. Two scenarios show the limits of what the data can tell us.
+The last limit is about evidence for the assignment process itself. Two scenarios show what the data can and can't tell us. (A third threat, losing comparability *after* assignment through dropout or exclusions, is covered in {{< ref sec-selection style="long" >}}.)
 
 ```{r scenario-a}
 #| code-summary: "▶ Scenario A: a valid randomization with a real effect (3,000 experiments)"
@@ -322,7 +660,9 @@ The orange line is how often a convincing-looking effect appears when there is n
 
 **A significant treatment-outcome relationship doesn't validate the assignment mechanism, and a non-significant balance test doesn't show that important differences are absent.** Equally, a correctly randomized experiment doesn't need to pass a baseline significance test for its causal inference to be valid. Whether assignment worked is established by how it was carried out, not inferred from the results.
 
-## What Can You Actually Conclude After Randomizing? {#sec-conclusions}
+## What Researchers Should Do {#sec-researcher-actions}
+
+### What can you actually conclude after randomizing? {#sec-conclusions}
 
 Each claim a researcher might make needs evidence beyond the one before it.
 
@@ -336,7 +676,7 @@ Each claim a researcher might make needs evidence beyond the one before it.
 
 None of this is a reason to distrust randomized experiments. It is a reason to be precise about what they establish.
 
-## Researcher Checklist: Exchangeability {#sec-checklist-randomization}
+### Researcher Checklist: Exchangeability {#sec-checklist-randomization}
 
 ::: {.callout-note}
 ## What to do in practice
@@ -350,195 +690,6 @@ None of this is a reason to distrust randomized experiments. It is a reason to b
 :::
 
 ## Optional Technical Notes {#sec-technical-notes}
-
-These notes hold the calculations behind the claims above. Nothing in the main argument depends on reading them.
-
-::: {.callout-note collapse="true"}
-## Understanding randomization: how many riffle shuffles are enough?
-
-For a real shuffle, the question "is it random yet?" has an exact answer ([Bayer & Diaconis, 1992](https://www.stat.berkeley.edu/users/aldous/157/Papers/bayer_diaconis.pdf)). The figure shows how far the order of a deck is from perfectly random after *k* riffle shuffles. A score of 0 means every ordering is equally likely; a score near 1 means the shuffle leaves the deck stuck in a small corner of all possible orders.
-
-```{r riffle-tv-functions}
-#| code-summary: "▶ Exact total variation distance for GSR riffle shuffles (code)"
-
-# Eulerian counts E(n, r) for r = 1..n: the number of permutations of n cards with exactly
-# r rising sequences. Recurrence: E(1,1) = 1; E(n,r) = r * E(n-1,r) + (n-r+1) * E(n-1,r-1),
-# with values outside 1..n-1 equal to zero. The counts for each n sum to n!.
-eulerian_counts <- function(n) {
-  E <- 1
-  if (n > 1) for (m in 2:n) {
-    r     <- seq_len(m)
-    prev  <- c(E, rep(0, m - length(E)))                    # E(m-1, r)
-    prev1 <- c(0, E, rep(0, m - 1 - length(E)))             # E(m-1, r-1)
-    E <- r * prev + (m - r + 1) * prev1
-  }
-  E
-}
-
-# Exact total variation distance from the uniform distribution on the n! orderings after k GSR
-# riffle shuffles (Bayer & Diaconis, 1992). Probabilities are computed on the log scale.
-riffle_tv <- function(n, k) {
-  a    <- 2^k
-  r    <- seq_len(n)
-  P_r  <- exp(lchoose(a + n - r, n) - n * log(a))           # probability of ONE permutation with r rising sequences
-  0.5 * sum(eulerian_counts(n) * abs(P_r - exp(-lgamma(n + 1))))
-}
-
-deck_sizes <- c(5, 10, 20, 52)
-tv_df <- expand.grid(cards = deck_sizes, shuffles = 0:12) |>
-  mutate(tv = mapply(riffle_tv, cards, shuffles),
-         cards_f = factor(cards))
-```
-
-```{r riffle-tv-figure, fig.height=5.5}
-#| code-summary: "▶ Plot: exact TV distance from uniform vs. number of riffle shuffles"
-
-deck_cols <- c("5" = "#0072B2", "10" = "#009E73", "20" = "#E69F00", "52" = "#D55E00")  # colour-blind safe
-
-ggplot(tv_df, aes(shuffles, tv, colour = cards_f, shape = cards_f, group = cards_f)) +
-  geom_hline(yintercept = 0.10, linetype = "dashed", colour = "gray40") +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 2.6) +
-  annotate("text", x = 12.3, y = 0.135, hjust = 1, size = 3.4, colour = "gray30",
-           label = "illustrative mixing criterion (TV = 0.10)") +
-  scale_x_continuous(breaks = 0:12) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
-  scale_colour_manual(values = deck_cols, name = "Cards") +
-  scale_shape_manual(values = c(16, 17, 15, 18), name = "Cards") +
-  labs(x = "Number of riffle shuffles",
-       y = "Total variation distance from uniform",
-       title = "Larger Decks Require More Shuffles to Approach Randomness",
-       subtitle = "Exact distance from a uniformly random permutation under the GSR riffle-shuffle model") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top")
-```
-
-```{r riffle-tv-table}
-#| code-summary: "▶ Table: first number of shuffles with TV < 0.10"
-
-first_below <- tv_df |>
-  group_by(cards) |>
-  summarise(`Required riffle shuffles` = min(shuffles[tv < 0.10]), .groups = "drop") |>
-  rename(Cards = cards)
-kable(first_below, caption = "First number of riffle shuffles at which TV falls below 0.10")
-
-tv_one_shuffle_5 <- riffle_tv(5, 1)
-tv_52 <- sapply(7:9, function(k) riffle_tv(52, k))
-```
-
-One riffle shuffle leaves even a 5-card deck far from random (distance `r sprintf("%.3f", tv_one_shuffle_5)`). For 52 cards the distance is about `r sprintf("%.3f", tv_52[1])` after seven shuffles, `r sprintf("%.3f", tv_52[2])` after eight, and `r sprintf("%.3f", tv_52[3])` after nine. The familiar "seven shuffles" rule marks the point where things start to settle down fast, not the point of perfect randomness.
-
-For the mathematically inclined: with $a = 2^k$, a permutation of *n* cards with *r* rising sequences has probability $\binom{a+n-r}{n}/a^{n}$ after *k* riffle shuffles, and the distance is $\tfrac12\sum_{r=1}^{n} E(n,r)\,\bigl|P(n,k,r) - 1/n!\bigr|$, where $E(n,r)$ counts permutations with *r* rising sequences. This is a property of the whole *distribution* of decks a shuffle can produce; you can't read it off one deck. It is an analogy for a *physical* shuffle. A software randomization draws the assignment directly from the intended distribution.
-:::
-
-::: {.callout-note collapse="true"}
-## How likely is strict balance when we check many characteristics?
-
-```{r ex-22-18}
-#| code-summary: "▶ Correlation between treatment and a binary characteristic, from group counts"
-
-# Correlation between treatment (exactly m treated, m control) and a binary characteristic, given
-# that `a` treated and `b` control participants have X = 1. Constant characteristics (p = 0 or 1)
-# have no group difference, so r = 0 rather than NaN.
-treat_cov_cor <- function(a, b, m) {
-  p1 <- a / m; p0 <- b / m; p <- (a + b) / (2 * m)
-  ifelse(p == 0 | p == 1, 0, (p1 - p0) / (2 * sqrt(p * (1 - p))))
-}
-treat_cov_cor_ex <- treat_cov_cor(22, 18, 40)      # 55% vs. 45% high among 40 + 40 participants
-```
-
-Take 80 participants, 40 per condition, with half the sample high on some characteristic. Perfect balance puts 20 high people in each group. A perfectly valid assignment might put 22 in one and 18 in the other, 55% versus 45%. With equal groups the correlation between treatment and the characteristic equals that gap, here **r = `r sprintf("%.2f", treat_cov_cor_ex)`**.
-
-Now suppose we want every one of *D* independent characteristics to have $|r| < 0.10$, under valid complete randomization. The probability is the one-characteristic probability raised to the power *D*.
-
-```{r balance-prob-functions}
-#| code-summary: "▶ Exact probability of meeting the marginal-balance criterion (code)"
-
-# q(N): probability that ONE independent Bernoulli(0.5) characteristic has |cor(T, X)| < thresh
-# under complete randomization with N/2 per arm. The inequality is strict; exact ties
-# (|r| = thresh) count as failing, with a tiny tolerance to guard against floating-point error.
-q_balance <- function(N, thresh = 0.10) {
-  stopifnot(N %% 2 == 0)
-  m  <- N / 2
-  pm <- dbinom(0:m, m, 0.5)                          # P(a) and P(b): Binomial(N/2, 0.5)
-  g  <- expand.grid(a = 0:m, b = 0:m)
-  r  <- treat_cov_cor(g$a, g$b, m)
-  sum(pm[g$a + 1] * pm[g$b + 1] * (abs(r) < thresh - 1e-9))
-}
-
-# P(pass on all D independent characteristics) = q(N)^D
-p_balance_all <- function(N, D, thresh = 0.10) q_balance(N, thresh)^D
-
-bal_tab <- expand.grid(N = c(80, 200, 400), D = c(1, 2, 5, 10)) |>
-  mutate(p = mapply(p_balance_all, N, D))
-```
-
-```{r balance-prob-table}
-#| code-summary: "▶ Table: probability of meeting the criterion on every characteristic"
-
-bal_wide <- bal_tab |>
-  mutate(p = percent(p, accuracy = 0.1)) |>
-  pivot_wider(names_from = D, values_from = p, names_prefix = "D = ") |>
-  rename(`Total N` = N)
-kable(bal_wide, align = "lrrrr",
-      caption = "Probability that a valid random assignment meets max |cor(T, X)| < 0.10 on every characteristic")
-```
-
-```{r balance-prob-figure, fig.height=4.8}
-#| code-summary: "▶ Plot: probability of meeting the criterion as N grows"
-
-N_grid <- seq(40, 1000, by = 20)
-bal_curve <- expand.grid(N = N_grid, D = c(2, 10)) |>
-  mutate(p = mapply(p_balance_all, N, D), D = factor(D, labels = c("D = 2", "D = 10")))
-
-ggplot(bal_curve, aes(N, p, colour = D)) +
-  geom_line(linewidth = 1.3) +
-  scale_colour_manual(values = c("D = 2" = "#0072B2", "D = 10" = "#D55E00"), name = "Characteristics") +
-  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
-  labs(x = "Total sample size (N)",
-       y = "Probability of meeting the stated\nbalance criterion on every dimension",
-       title = "Valid Randomization Still Rarely Balances Many Characteristics in Small Samples",
-       subtitle = "Complete randomization in every case  ·  criterion: max |cor(T, X)| < 0.10  ·  independent binary X") +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top")
-```
-
-These are not the probability that randomization "worked," that the estimate is unbiased, or that the estimate is close to the truth: the assignment is valid throughout. They illustrate only that checking more characteristics gives more chances to see a difference. And $2^D$ counts the possible joint profiles of *D* binary characteristics (1,024 for ten); it is not a sample size anyone needs.
-:::
-
-::: {.callout-note collapse="true"}
-## Does having more characteristics widen the spread of estimates?
-
-Not by itself. In a completely randomized experiment with equal groups, the spread of the unadjusted estimate is proportional to the SD of the untreated outcome, whatever produced that variability. Writing the outcome as $Y = \tau T + \sum_j \beta_j C_j + \varepsilon$, the unadjusted estimate equals the treatment effect, plus imbalance in each characteristic weighted by its effect, plus leftover noise. The table uses the same 80 participants and the same 2,000 assignments in every row.
-
-```{r dim-check}
-#| code-summary: "▶ Controlled comparison: extra characteristics that matter, and extra characteristics that don't"
-
-set.seed(7)
-eff10   <- chars_df$Effect
-X10     <- matrix(rbinom(N_ra * 10, 1, 0.5), nrow = N_ra)
-eps     <- rnorm(N_ra, 0, noise_sd)
-assigns <- replicate(2000, sample(rep(0:1, N_ra / 2)))                       # the same 2,000 assignments for every scenario
-
-Y0_two   <- as.vector(X10[, 1:2] %*% eff10[1:2]) + eps                       # 2 characteristics matter
-Y0_two8  <- as.vector(X10 %*% c(eff10[1:2], rep(0, 8))) + eps                # + 8 characteristics with NO effect
-Y0_ten   <- as.vector(X10 %*% eff10) + eps                                   # all 10 matter (outcome varies more)
-Y0_ten_m <- as.vector(scale(Y0_ten)) * sd(Y0_two)                            # all 10 matter, outcome variability held equal to the first
-
-dim_row <- function(Y0, label) {
-  est <- apply(assigns, 2, function(Tr) { Y <- ifelse(Tr == 1, Y0 + tau_ra, Y0); mean(Y[Tr == 1]) - mean(Y[Tr == 0]) })
-  tibble(Scenario = label, `SD of untreated outcome` = sd(Y0), `SD of unadjusted estimates` = sd(est),
-         `Ratio` = sd(est) / sd(Y0))
-}
-dim_tab <- bind_rows(dim_row(Y0_two, "2 characteristics matter"),
-                     dim_row(Y0_two8, "Same, plus 8 characteristics with no effect"),
-                     dim_row(Y0_ten, "10 characteristics matter"),
-                     dim_row(Y0_ten_m, "10 matter, outcome variability held equal to the first row"))
-kable(dim_tab, digits = 3, caption = "The spread of the estimates tracks the outcome's variability, not the number of characteristics")
-```
-
-Adding eight characteristics with no effect changes nothing (rows 1 and 2 are identical). Making all ten matter widens the estimates because the outcome now varies more; when that variability is held equal, the spread returns. The last column is essentially constant (differences are simulation noise): what matters is how much the characteristics move the outcome, not how many there are.
-:::
 
 ::: {.callout-note collapse="true"}
 ## When the characteristics are correlated with each other
@@ -676,6 +827,12 @@ mc <- data.frame(N = c(80, 80, 200), D = c(2, 10, 10))
 mc$exact     <- mapply(p_balance_all, mc$N, mc$D)
 mc$simulated <- mapply(mc_pass_all, mc$N, mc$D)
 chk(all(abs(mc$exact - mc$simulated) < 4 * sqrt(mc$exact * (1 - mc$exact) / 6000) + 0.002), "Monte Carlo agrees with the exact probabilities")
+
+# ── Deck orderings and profile counts ─────────────────────────────────────────
+chk(factorial(5) == 120 && factorial(10) == 3628800, "5 and 10 cards have 120 and 3,628,800 orderings")
+chk(abs(log10(factorial(20)) - log10(2.432902e18)) < 1e-6 && abs(log10(factorial(52)) - log10(8.065818e67)) < 1e-6, "20 and 52 cards have about 2.43e18 and 8.07e67 orderings")
+chk(2^2 == 4 && 2^10 == 1024 && nrow(profiles_all) == 1024 && nrow(prof4) == 4, "four versus 1,024 joint profiles")
+chk(required_N(10, 0.10) == 788 && required_N(2, 0.20) == 126, "approximate sample sizes (Bonferroni formula)")
 
 # ── Repeated assignment of the same 80 participants ───────────────────────────
 chk(abs(sate_ra - tau_ra) < 1e-12 && abs(sd(Y1_ra - Y0_ra)) < 1e-12, "the sample average treatment effect is fixed at 0.40 for every assignment")
