@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -109,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -365,7 +368,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#sec-construct-equiv" id="toc-sec-construct-equiv" class="nav-link" data-scroll-target="#sec-construct-equiv">Section 4: The Construct Equivalence Assumption</a>
   <ul class="collapse">
-  <li><a href="#the-module-1-and-module-2-connection-made-concrete" id="toc-the-module-1-and-module-2-connection-made-concrete" class="nav-link" data-scroll-target="#the-module-1-and-module-2-connection-made-concrete">The Module 1 and Module 2 connection made concrete</a></li>
+  <li><a href="#the-measurement-and-experimentation-connection-made-concrete" id="toc-the-measurement-and-experimentation-connection-made-concrete" class="nav-link" data-scroll-target="#the-measurement-and-experimentation-connection-made-concrete">The Module 1 and Module 2 connection made concrete</a></li>
   <li><a href="#a-simulation-what-happens-when-construct-equivalence-fails" id="toc-a-simulation-what-happens-when-construct-equivalence-fails" class="nav-link" data-scroll-target="#a-simulation-what-happens-when-construct-equivalence-fails">A simulation: what happens when construct equivalence fails</a></li>
   </ul></li>
   <li><a href="#sec-ecc-limits" id="toc-sec-ecc-limits" class="nav-link" data-scroll-target="#sec-ecc-limits">Section 5: What the Design Can and Cannot Establish</a>
@@ -373,7 +376,7 @@ window.Quarto = {
   <li><a href="#what-it-does-establish" id="toc-what-it-does-establish" class="nav-link" data-scroll-target="#what-it-does-establish">What it does establish</a></li>
   <li><a href="#what-it-does-not-establish" id="toc-what-it-does-not-establish" class="nav-link" data-scroll-target="#what-it-does-not-establish">What it does not establish</a></li>
   </ul></li>
-  <li><a href="#sec-checklist-part5-m3" id="toc-sec-checklist-part5-m3" class="nav-link" data-scroll-target="#sec-checklist-part5-m3">Researcher Checklist: Experimental Causal Chain Designs</a></li>
+  <li><a href="#sec-checklist-ecc" id="toc-sec-checklist-ecc" class="nav-link" data-scroll-target="#sec-checklist-ecc">Researcher Checklist: Experimental Causal Chain Designs</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -404,7 +407,7 @@ window.Quarto = {
 </iframe>
 <section id="sec-ecc" class="level1">
 <h1>Part 5: Experimental Causal Chain Designs</h1>
-<p>Part 4 showed how to estimate a mediation effect statistically — fitting a path model, computing the indirect effect <span class="math inline">\(a \times b\)</span>, and testing its sensitivity to unmeasured confounding between M and Y. The trouble with that approach is that the <span class="math inline">\(b\)</span>-path (M → Y) is observational. Randomisation of X establishes the <span class="math inline">\(a\)</span>-path cleanly, but M is never randomised. As Part 4 noted, an unobserved variable that drives both M and Y can produce an apparent indirect effect that is entirely spurious.</p>
+<p><a href="part4.html" class="quarto-xref">Part 4</a> showed how to estimate a mediation effect statistically — fitting a path model, computing the indirect effect <span class="math inline">\(a \times b\)</span>, and testing its sensitivity to unmeasured confounding between M and Y. The trouble with that approach is that the <span class="math inline">\(b\)</span>-path (M → Y) is observational. Randomisation of X establishes the <span class="math inline">\(a\)</span>-path cleanly, but M is never randomised. As <a href="part4.html" class="quarto-xref">Part 4</a> noted, an unobserved variable that drives both M and Y can produce an apparent indirect effect that is entirely spurious.</p>
 <p>This part addresses that problem directly. Rather than estimating the causal chain from correlations in a single study, <strong>experimental causal chain designs</strong> test each link in the chain with a separate experimental manipulation:</p>
 <ol type="1">
 <li><strong>Study 1:</strong> Randomise X → measure M. Does X causally influence M?</li>
@@ -422,15 +425,15 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Module 1</strong> was about measuring the latent dimension of Y: does your scale capture the right construct, or is it contaminated by method variance, confounds, and poor discriminant validity? The same measurement challenge applies to M in Study 1. If your mediator measure has poor construct validity — low reliability, poor discriminant validity from adjacent constructs, sensitivity to measurement artefacts — then the <span class="math inline">\(a\)</span>-path estimate is attenuated and the construct you think you have measured may not be the one that actually matters.</p>
-<p><strong>Module 2</strong> was about what is in X: when you randomise participants to an eco-label vs.&nbsp;no-label condition, what exactly have you manipulated? The same validity question applies to the M* manipulation in Study 2. A high-vs.-low sustainability framing manipulates something, but is it specifically <em>perceived sustainability</em>, or does it simultaneously activate perceptions of product quality, price-worthiness, brand authenticity, and personal identity? All the construct validity problems from Module 2 reappear here — not for the treatment, but for the mediator manipulation.</p>
-<p>Experimental causal chain designs require you to solve both measurement problems simultaneously: M must be measured validly in Study 1 <strong>and</strong> manipulated purely and specifically in Study 2. These two demands point directly back to what Modules 1 and 2 taught.</p>
+<p><strong><a href="../module-1/intro.html" class="quarto-xref">Module 1</a></strong> was about measuring the latent dimension of Y: does your scale capture the right construct, or is it contaminated by method variance, confounds, and poor discriminant validity? The same measurement challenge applies to M in Study 1. If your mediator measure has poor construct validity — low reliability, poor discriminant validity from adjacent constructs, sensitivity to measurement artefacts — then the <span class="math inline">\(a\)</span>-path estimate is attenuated and the construct you think you have measured may not be the one that actually matters.</p>
+<p><strong><a href="../module-2/intro.html" class="quarto-xref">Module 2</a></strong> was about what is in X: when you randomise participants to an eco-label vs.&nbsp;no-label condition, what exactly have you manipulated? The same validity question applies to the M* manipulation in Study 2. A high-vs.-low sustainability framing manipulates something, but is it specifically <em>perceived sustainability</em>, or does it simultaneously activate perceptions of product quality, price-worthiness, brand authenticity, and personal identity? All the construct validity problems from <a href="../module-2/intro.html" class="quarto-xref">Module 2</a> reappear here — not for the treatment, but for the mediator manipulation.</p>
+<p>Experimental causal chain designs require you to solve both measurement problems simultaneously: M must be measured validly in Study 1 <strong>and</strong> manipulated purely and specifically in Study 2. These two demands point directly back to what Modules <a href="../module-1/intro.html" class="quarto-xref">1</a> and <a href="../module-2/intro.html" class="quarto-xref">2</a> taught.</p>
 </div>
 </div>
 <hr>
 <section id="sec-ecc-motivation" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ecc-motivation">Section 1: Why the Statistical Approach Alone Is Not Enough</h2>
-<p>The key identification problem in standard mediation was foreshadowed at the end of Part 4. Randomising X satisfies the first of two sequential ignorability conditions — no confounding of X → M — but it does nothing for the second: no confounding of M → Y. The diagram below shows the structural problem.</p>
+<p>The key identification problem in standard mediation was foreshadowed at the end of <a href="part4.html" class="quarto-xref">Part 4</a>. Randomising X satisfies the first of two sequential ignorability conditions — no confounding of X → M — but it does nothing for the second: no confounding of M → Y. The diagram below shows the structural problem.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -704,14 +707,14 @@ window.Quarto = {
 <p><strong>Measuring M (Study 1):</strong> A five-item scale asking participants to rate the product’s environmental benefit, carbon footprint awareness, long-term sustainability, and eco-friendliness. The latent construct captured by this scale reflects the entire network of beliefs and affects that participants associate with <em>environmental impact</em> — built up from prior experience, media exposure, personal values, and in-study processing.</p>
 <p><strong>Manipulating M* (Study 2):</strong> A three-sentence paragraph describing a product as “made with sustainably sourced materials from certified suppliers, produced using renewable energy, and designed to minimise packaging waste.” This paragraph activates something — but what? Perceptions of environmental benefit, yes. But also product quality signals, price-worthiness inferences, brand authenticity judgements, and perhaps identity-relevant motivations (“I’m the kind of person who chooses sustainable products”).</p>
 <p>The construct activated by the Study 2 manipulation may overlap substantially with what the Study 1 scale measures — but it is not the same operation. And if the part of the Study 2 manipulation that drives WTP is product quality signals rather than environmental perceptions, then the ECC design has established that eco-labels raise environmental perceptions (Study 1) and that product quality signals raise WTP (Study 2), while the actual operative link between the two studies is broken.</p>
-<section id="the-module-1-and-module-2-connection-made-concrete" class="level3">
-<h3 class="anchored" data-anchor-id="the-module-1-and-module-2-connection-made-concrete">The Module 1 and Module 2 connection made concrete</h3>
-<p>Module 1 showed that a measurement instrument can be contaminated by adjacent constructs — that a scale intended to measure perceived sustainability might also be loading on general product affect, trust in brands, or environmental identity. The solution was discriminant validity testing, CFA, and HTMT analysis.</p>
-<p>Module 2 showed that a manipulation that ostensibly operationalises “eco-label exposure” might simultaneously change product quality inferences, perceived price fairness, and brand associations — what Spencer et al.&nbsp;(2005) called the <em>exclusion restriction</em> for the treatment (Module 2, Part 2). The solution was careful manipulation checks and attention to what the manipulation uniquely activated.</p>
+<section id="the-measurement-and-experimentation-connection-made-concrete" class="level3">
+<h3 class="anchored" data-anchor-id="the-measurement-and-experimentation-connection-made-concrete">The Module 1 and Module 2 connection made concrete</h3>
+<p><a href="../module-1/intro.html" class="quarto-xref">Module 1</a> showed that a measurement instrument can be contaminated by adjacent constructs — that a scale intended to measure perceived sustainability might also be loading on general product affect, trust in brands, or environmental identity. The solution was discriminant validity testing, CFA, and HTMT analysis.</p>
+<p><a href="../module-2/intro.html" class="quarto-xref">Module 2</a> showed that a manipulation that ostensibly operationalises “eco-label exposure” might simultaneously change product quality inferences, perceived price fairness, and brand associations — what Spencer et al.&nbsp;(2005) called the <em>exclusion restriction</em> for the treatment (<a href="../module-2/part4.html" class="quarto-xref">Module 2, Part 4</a>). The solution was careful manipulation checks and attention to what the manipulation uniquely activated.</p>
 <p>Both of these disciplines are required <strong>simultaneously</strong> for the ECC design to be interpretable:</p>
 <ul>
-<li>The Study 1 mediator measure needs the measurement validity demonstrated in Module 1: high reliability, good convergent validity, adequate discriminant validity from quality, authenticity, and identity constructs.</li>
-<li>The Study 2 mediator manipulation needs the manipulation validity examined in Module 2: a focused, narrow experimental operationalisation that moves M* specifically, with process checks showing <em>what</em> changed and what did not.</li>
+<li>The Study 1 mediator measure needs the measurement validity demonstrated in <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>: high reliability, good convergent validity, adequate discriminant validity from quality, authenticity, and identity constructs.</li>
+<li>The Study 2 mediator manipulation needs the manipulation validity examined in <a href="../module-2/intro.html" class="quarto-xref">Module 2</a>: a focused, narrow experimental operationalisation that moves M* specifically, with process checks showing <em>what</em> changed and what did not.</li>
 </ul>
 <p>Without both, construct equivalence is an assumption asserted, not a condition verified.</p>
 </section>
@@ -849,7 +852,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>The two distributions overlap — which is why the chain appears to hold — but the <em>mechanism</em> in each study is different. This is exactly the kind of failure that measurement validity work (Module 1) and manipulation validity work (Module 2) are designed to detect before the ECC design is published.</p>
+<p>The two distributions overlap — which is why the chain appears to hold — but the <em>mechanism</em> in each study is different. This is exactly the kind of failure that measurement validity work (<a href="../module-1/intro.html" class="quarto-xref">Module 1</a>) and manipulation validity work (<a href="../module-2/intro.html" class="quarto-xref">Module 2</a>) are designed to detect before the ECC design is published.</p>
 <hr>
 </section>
 </section>
@@ -884,15 +887,15 @@ window.Quarto = {
 <ol type="1">
 <li><p><strong>Measure M in Study 2 as well.</strong> Even though Study 2 is designed to manipulate M*, also administer the Study 1 mediator scale after the manipulation. Check that (a) the manipulation changes the scale scores and (b) the manipulation-induced scale shift is in the direction and of the magnitude implied by Study 1. This is the closest available empirical check on construct equivalence.</p></li>
 <li><p><strong>Use multiple operationalisations of M*.</strong> If construct equivalence is critical, run a Study 2b with a different manipulation of M* and confirm that results replicate. Replication across operationalisations strengthens the inference that it is the construct — not a specific manipulation feature — that matters.</p></li>
-<li><p><strong>Report manipulation checks that distinguish M from adjacent constructs.</strong> Following Module 2 logic, show that the manipulation moved <em>perceived sustainability</em> but did not move <em>perceived quality</em>, <em>perceived naturalness</em>, or <em>price expectations</em>. The more adjacent constructs are measured and shown not to change, the stronger the claim that M* is a specific manipulation of M.</p></li>
+<li><p><strong>Report manipulation checks that distinguish M from adjacent constructs.</strong> Following <a href="../module-2/intro.html" class="quarto-xref">Module 2</a> logic, show that the manipulation moved <em>perceived sustainability</em> but did not move <em>perceived quality</em>, <em>perceived naturalness</em>, or <em>price expectations</em>. The more adjacent constructs are measured and shown not to change, the stronger the claim that M* is a specific manipulation of M.</p></li>
 </ol>
 </div>
 </div>
 <hr>
 </section>
 </section>
-<section id="sec-checklist-part5-m3" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part5-m3">Researcher Checklist: Experimental Causal Chain Designs</h2>
+<section id="sec-checklist-ecc" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-ecc">Researcher Checklist: Experimental Causal Chain Designs</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -913,7 +916,7 @@ window.Quarto = {
 <ul class="task-list">
 <li><label><input type="checkbox"><strong>Report both paths with confidence intervals and effect sizes.</strong> A significant <span class="math inline">\(a\)</span>-path and a significant <span class="math inline">\(b\)</span>-path are necessary but not sufficient. Report the magnitude — a trivially small <span class="math inline">\(a\)</span>-path with a narrow CI still fails to support the chain practically.</label></li>
 <li><label><input type="checkbox"><strong>Measure M in Study 2 and verify construct equivalence empirically.</strong> Check that the Study 2 manipulation moves Study 1’s mediator scale, in the expected direction, by approximately the amount Study 1 suggests.</label></li>
-<li><label><input type="checkbox"><strong>Report manipulation checks distinguishing M* from adjacent constructs.</strong> Show what the Study 2 manipulation changed <em>and what it did not change</em>. This is the Module 2 validity check applied to the mediator manipulation.</label></li>
+<li><label><input type="checkbox"><strong>Report manipulation checks distinguishing M* from adjacent constructs.</strong> Show what the Study 2 manipulation changed <em>and what it did not change</em>. This is the <a href="../module-2/intro.html" class="quarto-xref">Module 2</a> validity check applied to the mediator manipulation.</label></li>
 </ul>
 <p><strong>Interpretation stage</strong></p>
 <ul class="task-list">
@@ -1021,16 +1024,16 @@ window.Quarto = {
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

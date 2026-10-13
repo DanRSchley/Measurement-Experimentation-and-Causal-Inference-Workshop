@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -467,12 +470,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 <p>This problem shows up in six different parts that marketing researchers encounter regularly:</p>
 <ul>
-<li><p><strong>Part 1 — Discriminant Validity:</strong> Your Green Purchase Intention scale is supposed to measure <em>purchase intention</em> (X) — but its items also pick up <em>environmental concern</em> (something else). The scale cannot be told apart from a different construct.</p></li>
-<li><p><strong>Part 2 — Omitted Variable Bias:</strong> In your secondary data, observed <em>sales</em> (Y) is supposed to reflect <em>advertising spend</em> (X) — but sales also reflects <em>store quality</em> (something else, which you never measured). Your estimated advertising effect is inflated.</p></li>
-<li><p><strong>Part 3 — Measurement Invariance:</strong> Your GPI items are supposed to reflect <em>green purchase intention</em> (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don’t mean the same thing in both groups.</p></li>
-<li><p><strong>Part 4 — Latent Subgroups:</strong> Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn’t apply cleanly to anyone.</p></li>
-<li><p><strong>Part 5 — Outliers:</strong> Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.</p></li>
-<li><p><strong>Part 6 — Systematic Measurement Error:</strong> Your outcome scale has hard bounds. Respondents near the ceiling cannot express upward variation; those near the floor cannot express downward variation. The observed mean is therefore a biased estimate of the true latent mean — not because of random noise, but because of the structure of the scale itself.</p></li>
+<li><p><strong><a href="part1.html" class="quarto-xref">Part 1</a> — Discriminant Validity:</strong> Your Green Purchase Intention scale is supposed to measure <em>purchase intention</em> (X) — but its items also pick up <em>environmental concern</em> (something else). The scale cannot be told apart from a different construct.</p></li>
+<li><p><strong><a href="part2.html" class="quarto-xref">Part 2</a> — Omitted Variable Bias:</strong> In your secondary data, observed <em>sales</em> (Y) is supposed to reflect <em>advertising spend</em> (X) — but sales also reflects <em>store quality</em> (something else, which you never measured). Your estimated advertising effect is inflated.</p></li>
+<li><p><strong><a href="part3.html" class="quarto-xref">Part 3</a> — Measurement Invariance:</strong> Your GPI items are supposed to reflect <em>green purchase intention</em> (X) across both experimental conditions — but two of the items shift upward in the treatment condition for reasons unrelated to the latent construct. The items don’t mean the same thing in both groups. And when your outcome is a single variable (a purchase, a click, one willingness-to-pay response), there is no measurement model to test: you need evidence from outside that one response that it represents the same construct in the same way.</p></li>
+<li><p><strong><a href="part4.html" class="quarto-xref">Part 4</a> — Latent Subgroups:</strong> Your sample contains two very different types of consumers — Green Champions and Price Skeptics — who respond to green marketing completely differently. When you aggregate across both groups, your outcome variable reflects a mixture of two different data-generating processes. The treatment effect you estimate doesn’t apply cleanly to anyone.</p></li>
+<li><p><strong><a href="part5.html" class="quarto-xref">Part 5</a> — Outliers:</strong> Your dataset contains a cluster of luxury flagship stores that operate on completely different economics from regular stores. Including them distorts every coefficient in your model. Collective outliers are a version of the latent-subgroup problem; point outliers are a different statistical challenge. Both can be handled without deleting data.</p></li>
+<li><p><strong><a href="part6.html" class="quarto-xref">Part 6</a> — Systematic Measurement Error:</strong> Your outcome scale has hard bounds. Respondents near the ceiling cannot express upward variation; those near the floor cannot express downward variation. The observed mean is therefore a biased estimate of the true latent mean — not because of random noise, but because of the structure of the scale itself.</p></li>
 </ul>
 <p>The statistical symptoms differ across these six parts, but the <strong>underlying logic is identical</strong>: your observed variable is contaminated by variance — or structurally constrained — in ways that prevent it from faithfully reflecting the latent construct or causal quantity you intend to study.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -489,7 +492,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Diagnose discriminant validity failures using HTMT and the DVI method (Pieters et al., 2025)</li>
 <li>Identify omitted variable bias through residual diagnostics and coefficient sensitivity analysis</li>
-<li>Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan</li>
+<li>Test measurement invariance across groups using a configural → metric → scalar sequence in lavaan, and explain what additional evidence is needed to compare groups when you have only a single dependent variable</li>
 <li>Use modification indices to pinpoint which specific items are non-invariant</li>
 <li>Use Gaussian mixture models (via <code>mclust</code>) to detect latent subgroups that distort your outcome</li>
 <li>Apply Local Outlier Factor (LOF) and DBSCAN to identify collective and point outliers</li>

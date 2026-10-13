@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -338,7 +341,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#in-experimental-designs-a-subtler-version" id="toc-in-experimental-designs-a-subtler-version" class="nav-link" data-scroll-target="#in-experimental-designs-a-subtler-version">In Experimental Designs: A Subtler Version</a></li>
   </ul></li>
   <li><a href="#other-methods-for-detecting-latent-subgroups" id="toc-other-methods-for-detecting-latent-subgroups" class="nav-link" data-scroll-target="#other-methods-for-detecting-latent-subgroups">Other Methods for Detecting Latent Subgroups</a></li>
-  <li><a href="#sec-checklist-part4" id="toc-sec-checklist-part4" class="nav-link" data-scroll-target="#sec-checklist-part4">Researcher Checklist: Latent Subgroups</a></li>
+  <li><a href="#sec-checklist-latent-subgroups" id="toc-sec-checklist-latent-subgroups" class="nav-link" data-scroll-target="#sec-checklist-latent-subgroups">Researcher Checklist: Latent Subgroups</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -386,21 +389,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dbscan)       <span class="co"># Local outlier factor and DBSCAN clustering (Case 5)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQoHWAC3AyWd-Yahv2V9k6wNRzYoUPlJGLzSIhf-NTBjXmlkLXBcGreJB1DjguGUg/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 3: Latent Subgroups">
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQoHWAC3AyWd-Yahv2V9k6wNRzYoUPlJGLzSIhf-NTBjXmlkLXBcGreJB1DjguGUg/pubembed?start=false&amp;loop=false&amp;delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 1 Part 4: Latent Subgroups">
 </iframe>
 <hr>
 <section id="sec-part4" class="level1">
 <h1>Part 4: Latent Subgroups — When Your Sample Contains Two Different Worlds</h1>
 <section id="connecting-to-the-earlier-cases" class="level2">
 <h2 class="anchored" data-anchor-id="connecting-to-the-earlier-cases">Connecting to the Earlier Cases</h2>
-<p>All three previous parts involved a Y variable contaminated by something extra. Part 4 presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?</p>
+<p>All of the previous parts involved a Y variable contaminated by something extra. <a href="part4.html" class="quarto-xref">Part 4</a> presents the same problem from a different angle: what if your sample itself is a mixture of two fundamentally different groups of people who respond to your study variables in completely different ways?</p>
 <p>Imagine your 600 study participants come from two populations:</p>
 <ul>
 <li><strong>Green Champions</strong> (~60% of the sample): Highly environmentally concerned, willing to pay premium prices for eco-friendly products. They respond strongly to the green marketing campaign.</li>
 <li><strong>Price Skeptics</strong> (~40% of the sample): Price-driven, less concerned with environmental credentials. They barely respond to the same campaign.</li>
 </ul>
 <p>If you analyse the full sample as if everyone is the same type of consumer, you get an estimate of the “average” treatment effect. But that average is the mathematical midpoint between two very different responses — it may not accurately describe <em>either</em> group. Your GPI outcome now measures a mixture of “how Green Champions responded” and “how Price Skeptics responded.” That is, once again, Y reflects more than X.</p>
-<p>This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (Part 1): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.</p>
+<p>This pooling-driven inflation of correlations is the same mechanism that produces apparent discriminant validity violations (<a href="part1.html" class="quarto-xref">Part 1</a>): when you have two groups sitting in different positions on both EC and GPI, the pooled correlation between them will be much higher than within-group correlations — and may push you past the HTMT threshold.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -548,7 +551,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p>What you just saw in the two panels is a textbook example of <strong>Simpson’s Paradox</strong>: a relationship that appears strong and consistent in the aggregate data reverses — or dissolves — when you condition on a hidden grouping variable.</p>
 <p>Simpson’s Paradox comes up whenever your data have a <strong>nested structure</strong> that you’re ignoring. The classic marketing contexts: - Survey data pooled across different market segments - Panel data where unit-level effects differ from the aggregate trend - Multi-country datasets where the country effect dominates individual-level effects - Any dataset where “the sample” is actually a mixture of distinct populations</p>
-<p>The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is <em>exactly</em> the mechanism that causes discriminant validity failures when latent subgroups are present (Part 1 connection).</p>
+<p>The high pooled EC–GPI correlation in the left panel does not mean EC and GPI are measuring the same thing within each group. It means the two groups sit in different positions on both variables — and when you pool them, that between-group variance inflates the correlation. This is <em>exactly</em> the mechanism that causes discriminant validity failures when latent subgroups are present (<a href="part1.html" class="quarto-xref">Part 1</a> connection).</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning callout-titled">
@@ -561,7 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Left panel (what you see):</strong> A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from Part 1.</p>
+<p><strong>Left panel (what you see):</strong> A single strong positive relationship between EC and GPI — suggesting the two constructs are highly correlated. This is exactly the discriminant validity warning sign from <a href="part1.html" class="quarto-xref">Part 1</a>.</p>
 <p><strong>Right panel (oracle reveal):</strong> The relationship separates into two distinct clusters. Within each class, the EC–GPI correlation is much weaker. The high <em>pooled</em> correlation is largely a consequence of the two groups sitting at different positions on both axes — not because EC and GPI measure the same thing within a group.</p>
 <p>This is called <strong>Simpson’s paradox</strong> in statistics — aggregate patterns can completely reverse or disappear when you break the data down by a hidden grouping variable.</p>
 </div>
@@ -818,7 +821,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li><strong>Unexpectedly high HTMT / factor correlations</strong> in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (Part 1 connection)</li>
+<li><strong>Unexpectedly high HTMT / factor correlations</strong> in pooled data that seem theoretically implausible — check whether subgroups could be inflating the pooled correlation (<a href="part1.html" class="quarto-xref">Part 1</a> connection)</li>
 <li><strong>Bimodal or non-normal distributions</strong> in your scale scores — histogram with two humps suggests a mixture</li>
 <li><strong>Unstable regression coefficients</strong> across subsamples (men vs.&nbsp;women, different markets, etc.)</li>
 <li><strong>Large heterogeneity in individual responses</strong> — residual variance is very high despite significant effects</li>
@@ -883,7 +886,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The latent subgroup problem is a close cousin of a classical statistical phenomenon called <strong>Simpson’s Paradox</strong>: a relationship that exists or appears significant in pooled data can reverse direction — or disappear entirely — when you look within groups.</p>
 <section id="in-secondary-observational-data" class="level3">
 <h3 class="anchored" data-anchor-id="in-secondary-observational-data">In Secondary (Observational) Data</h3>
-<p>In the Case 4 data you have already computed, you can see this directly. The pooled correlation between EC and GPI is very high — but not because EC drives GPI within each class. It is high because Green Champions score high on <em>both</em>, and Price Skeptics score lower on <em>both</em>. Pooling creates a spurious between-group correlation that looks like a meaningful within-group relationship.</p>
+<p>In the <a href="part4.html" class="quarto-xref">Part 4</a> data you have already computed, you can see this directly. The pooled correlation between EC and GPI is very high — but not because EC drives GPI within each class. It is high because Green Champions score high on <em>both</em>, and Price Skeptics score lower on <em>both</em>. Pooling creates a spurious between-group correlation that looks like a meaningful within-group relationship.</p>
 <p>This is Simpson’s Paradox in observational data: the aggregate pattern (high EC → high GPI) is real in the pooled sample, but it is a <em>group-composition artifact</em>, not an individual-level causal relationship. Within Green Champions, EC and GPI may be only weakly related. Within Price Skeptics, the same. The strong pooled correlation is driven entirely by the groups sitting at different locations on both variables.</p>
 </section>
 <section id="in-experimental-designs-a-subtler-version" class="level3">
@@ -898,10 +901,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This structure is critical: the treatment effect is real (DV is higher in the High condition), but the construct of interest (MC as a latent variable) has zero within-group relationship to the DV. If you report a mediation through MC, that mediation coefficient is spurious — it is capturing the group-level offset, not a construct-level relationship.</p>
 <p>The code below simulates exactly this situation. The <code>beta_within</code> slider lets you control whether there is any within-group relationship between MC and DV. At zero, all apparent relationship is purely between-group — a Simpson’s Paradox induced by experimental assignment.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="431" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 430;"><span id="cb8-431"><a href="#cb8-431" aria-hidden="true" tabindex="-1"></a>viewof beta_within_val <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="fl">0.8</span>]<span class="op">,</span> {</span>
-<span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-group slope β (0 = flat, purely between-group effect)"</span></span>
-<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="432" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 431;"><span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a>viewof beta_within_val <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="fl">0.8</span>]<span class="op">,</span> {</span>
+<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.05</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-group slope β (0 = flat, purely between-group effect)"</span></span>
+<span id="cb8-435"><a href="#cb8-435" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
@@ -909,85 +912,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="443" data-source-offset="-66"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 442;"><span id="cb9-443"><a href="#cb9-443" aria-hidden="true" tabindex="-1"></a>simp_base <span class="op">=</span> {</span>
-<span id="cb9-444"><a href="#cb9-444" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
-<span id="cb9-445"><a href="#cb9-445" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> specs <span class="op">=</span> [</span>
-<span id="cb9-446"><a href="#cb9-446" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">group</span><span class="op">:</span> <span class="st">"Condition Low"</span><span class="op">,</span>  <span class="dt">mu</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">color</span><span class="op">:</span> <span class="st">"#457b9d"</span>}<span class="op">,</span></span>
-<span id="cb9-447"><a href="#cb9-447" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">group</span><span class="op">:</span> <span class="st">"Condition High"</span><span class="op">,</span> <span class="dt">mu</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> <span class="dv">15</span><span class="op">,</span> <span class="dt">color</span><span class="op">:</span> <span class="st">"#e63946"</span>}</span>
-<span id="cb9-448"><a href="#cb9-448" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">;</span></span>
-<span id="cb9-449"><a href="#cb9-449" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> seed <span class="op">=</span> <span class="dv">31415927</span><span class="op">;</span></span>
-<span id="cb9-450"><a href="#cb9-450" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rand <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb9-451"><a href="#cb9-451" aria-hidden="true" tabindex="-1"></a>    seed <span class="op">=</span> (seed <span class="op">*</span> <span class="dv">1664525</span> <span class="op">+</span> <span class="dv">1013904223</span>) <span class="op">&gt;&gt;&gt;</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb9-452"><a href="#cb9-452" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> seed <span class="op">/</span> <span class="bn">0x100000000</span><span class="op">;</span></span>
-<span id="cb9-453"><a href="#cb9-453" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
-<span id="cb9-454"><a href="#cb9-454" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> randn <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb9-455"><a href="#cb9-455" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> u1 <span class="op">=</span> <span class="fu">rand</span>() <span class="op">||</span> <span class="fl">1e-10</span><span class="op">,</span> u2 <span class="op">=</span> <span class="fu">rand</span>()<span class="op">;</span></span>
-<span id="cb9-456"><a href="#cb9-456" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log</span>(u1)) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(<span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> u2)<span class="op">;</span></span>
-<span id="cb9-457"><a href="#cb9-457" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
-<span id="cb9-458"><a href="#cb9-458" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> specs<span class="op">.</span><span class="fu">flatMap</span>(s <span class="kw">=&gt;</span></span>
-<span id="cb9-459"><a href="#cb9-459" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> n}<span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb9-460"><a href="#cb9-460" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> mc    <span class="op">=</span> s<span class="op">.</span><span class="at">mu</span> <span class="op">+</span> <span class="fu">randn</span>()<span class="op">;</span></span>
-<span id="cb9-461"><a href="#cb9-461" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> noise <span class="op">=</span> <span class="fu">randn</span>()<span class="op">;</span></span>
-<span id="cb9-462"><a href="#cb9-462" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> {<span class="dt">group</span><span class="op">:</span> s<span class="op">.</span><span class="at">group</span><span class="op">,</span> <span class="dt">mu</span><span class="op">:</span> s<span class="op">.</span><span class="at">mu</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> s<span class="op">.</span><span class="at">int</span><span class="op">,</span> mc<span class="op">,</span> noise}<span class="op">;</span></span>
-<span id="cb9-463"><a href="#cb9-463" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb9-464"><a href="#cb9-464" aria-hidden="true" tabindex="-1"></a>  )<span class="op">;</span></span>
-<span id="cb9-465"><a href="#cb9-465" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-466"><a href="#cb9-466" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-467"><a href="#cb9-467" aria-hidden="true" tabindex="-1"></a>simp_data <span class="op">=</span> simp_base<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> ({</span>
-<span id="cb9-468"><a href="#cb9-468" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span>d<span class="op">,</span></span>
-<span id="cb9-469"><a href="#cb9-469" aria-hidden="true" tabindex="-1"></a>  <span class="dt">dv</span><span class="op">:</span> d<span class="op">.</span><span class="at">int</span> <span class="op">+</span> beta_within_val <span class="op">*</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> d<span class="op">.</span><span class="at">mu</span>) <span class="op">+</span> d<span class="op">.</span><span class="at">noise</span></span>
-<span id="cb9-470"><a href="#cb9-470" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb9-471"><a href="#cb9-471" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-472"><a href="#cb9-472" aria-hidden="true" tabindex="-1"></a><span class="co">// OLS helper</span></span>
-<span id="cb9-473"><a href="#cb9-473" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ols</span>(pts) {</span>
-<span id="cb9-474"><a href="#cb9-474" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n  <span class="op">=</span> pts<span class="op">.</span><span class="at">length</span><span class="op">;</span></span>
-<span id="cb9-475"><a href="#cb9-475" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xm <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> d<span class="op">.</span><span class="at">mc</span><span class="op">,</span> <span class="dv">0</span>) <span class="op">/</span> n<span class="op">;</span></span>
-<span id="cb9-476"><a href="#cb9-476" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ym <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> d<span class="op">.</span><span class="at">dv</span><span class="op">,</span> <span class="dv">0</span>) <span class="op">/</span> n<span class="op">;</span></span>
-<span id="cb9-477"><a href="#cb9-477" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sxy <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> xm) <span class="op">*</span> (d<span class="op">.</span><span class="at">dv</span> <span class="op">-</span> ym)<span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
-<span id="cb9-478"><a href="#cb9-478" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sxx <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> xm) <span class="op">**</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
-<span id="cb9-479"><a href="#cb9-479" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> sxy <span class="op">/</span> sxx<span class="op">;</span></span>
-<span id="cb9-480"><a href="#cb9-480" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> ym <span class="op">-</span> b <span class="op">*</span> xm<span class="op">;</span></span>
-<span id="cb9-481"><a href="#cb9-481" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {a<span class="op">,</span> b}<span class="op">;</span></span>
-<span id="cb9-482"><a href="#cb9-482" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-483"><a href="#cb9-483" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-484"><a href="#cb9-484" aria-hidden="true" tabindex="-1"></a><span class="co">// Regression lines</span></span>
-<span id="cb9-485"><a href="#cb9-485" aria-hidden="true" tabindex="-1"></a>groups_lines <span class="op">=</span> {</span>
-<span id="cb9-486"><a href="#cb9-486" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> grps <span class="op">=</span> [<span class="st">"Condition Low"</span><span class="op">,</span> <span class="st">"Condition High"</span>]<span class="op">;</span></span>
-<span id="cb9-487"><a href="#cb9-487" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colors <span class="op">=</span> {<span class="st">"Condition Low"</span><span class="op">:</span> <span class="st">"#457b9d"</span><span class="op">,</span> <span class="st">"Condition High"</span><span class="op">:</span> <span class="st">"#e63946"</span>}<span class="op">;</span></span>
-<span id="cb9-488"><a href="#cb9-488" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xrange <span class="op">=</span> [<span class="fl">1.5</span><span class="op">,</span> <span class="fl">8.5</span>]<span class="op">;</span></span>
-<span id="cb9-489"><a href="#cb9-489" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lines <span class="op">=</span> []<span class="op">;</span></span>
-<span id="cb9-490"><a href="#cb9-490" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> g <span class="kw">of</span> grps) {</span>
-<span id="cb9-491"><a href="#cb9-491" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> pts <span class="op">=</span> simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> g)<span class="op">;</span></span>
-<span id="cb9-492"><a href="#cb9-492" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> {a<span class="op">,</span> b} <span class="op">=</span> <span class="fu">ols</span>(pts)<span class="op">;</span></span>
-<span id="cb9-493"><a href="#cb9-493" aria-hidden="true" tabindex="-1"></a>    lines<span class="op">.</span><span class="fu">push</span>({<span class="dt">group</span><span class="op">:</span> g<span class="op">,</span> <span class="dt">x</span><span class="op">:</span> xrange[<span class="dv">0</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> xrange[<span class="dv">0</span>]<span class="op">,</span> <span class="dt">color</span><span class="op">:</span> colors[g]})<span class="op">;</span></span>
-<span id="cb9-494"><a href="#cb9-494" aria-hidden="true" tabindex="-1"></a>    lines<span class="op">.</span><span class="fu">push</span>({<span class="dt">group</span><span class="op">:</span> g<span class="op">,</span> <span class="dt">x</span><span class="op">:</span> xrange[<span class="dv">1</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> xrange[<span class="dv">1</span>]<span class="op">,</span> <span class="dt">color</span><span class="op">:</span> colors[g]})<span class="op">;</span></span>
-<span id="cb9-495"><a href="#cb9-495" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-496"><a href="#cb9-496" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> lines<span class="op">;</span></span>
-<span id="cb9-497"><a href="#cb9-497" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-498"><a href="#cb9-498" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-499"><a href="#cb9-499" aria-hidden="true" tabindex="-1"></a>pooled_line <span class="op">=</span> {</span>
-<span id="cb9-500"><a href="#cb9-500" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {a<span class="op">,</span> b} <span class="op">=</span> <span class="fu">ols</span>(simp_data)<span class="op">;</span></span>
-<span id="cb9-501"><a href="#cb9-501" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [{<span class="dt">x</span><span class="op">:</span> <span class="fl">1.5</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> <span class="fl">1.5</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">8.5</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> <span class="fl">8.5</span>}]<span class="op">;</span></span>
-<span id="cb9-502"><a href="#cb9-502" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-503"><a href="#cb9-503" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-504"><a href="#cb9-504" aria-hidden="true" tabindex="-1"></a>pooled_reg <span class="op">=</span> <span class="fu">ols</span>(simp_data)</span>
-<span id="cb9-505"><a href="#cb9-505" aria-hidden="true" tabindex="-1"></a>low_reg    <span class="op">=</span> <span class="fu">ols</span>(simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> <span class="st">"Condition Low"</span>))</span>
-<span id="cb9-506"><a href="#cb9-506" aria-hidden="true" tabindex="-1"></a>high_reg   <span class="op">=</span> <span class="fu">ols</span>(simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> <span class="st">"Condition High"</span>))</span>
-<span id="cb9-507"><a href="#cb9-507" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-508"><a href="#cb9-508" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.9em;"&gt;</span></span>
-<span id="cb9-509"><a href="#cb9-509" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;"&gt;</span></span>
-<span id="cb9-510"><a href="#cb9-510" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Pooled slope:&lt;/strong&gt; </span><span class="sc">${</span>pooled_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs"> &amp;nbsp;</span></span>
-<span id="cb9-511"><a href="#cb9-511" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style="color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(pooled_reg<span class="op">.</span><span class="at">b</span>) <span class="op">&gt;</span> <span class="fl">0.3</span> <span class="op">?</span> <span class="st">'#e63946'</span> <span class="op">:</span> <span class="st">'#2a9d8f'</span><span class="sc">}</span><span class="vs">"&gt;</span></span>
-<span id="cb9-512"><a href="#cb9-512" aria-hidden="true" tabindex="-1"></a><span class="vs">      (</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(pooled_reg<span class="op">.</span><span class="at">b</span>) <span class="op">&gt;</span> <span class="fl">0.3</span> <span class="op">?</span> <span class="st">'appears significant'</span> <span class="op">:</span> <span class="st">'near zero'</span><span class="sc">}</span><span class="vs">)</span></span>
-<span id="cb9-513"><a href="#cb9-513" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/span&gt;</span></span>
-<span id="cb9-514"><a href="#cb9-514" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb9-515"><a href="#cb9-515" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;"&gt;</span></span>
-<span id="cb9-516"><a href="#cb9-516" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Within-group slope (Low):&lt;/strong&gt; </span><span class="sc">${</span>low_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span></span>
-<span id="cb9-517"><a href="#cb9-517" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb9-518"><a href="#cb9-518" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;"&gt;</span></span>
-<span id="cb9-519"><a href="#cb9-519" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Within-group slope (High):&lt;/strong&gt; </span><span class="sc">${</span>high_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span></span>
-<span id="cb9-520"><a href="#cb9-520" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb9-521"><a href="#cb9-521" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="444" data-source-offset="-66"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 443;"><span id="cb9-444"><a href="#cb9-444" aria-hidden="true" tabindex="-1"></a>simp_base <span class="op">=</span> {</span>
+<span id="cb9-445"><a href="#cb9-445" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb9-446"><a href="#cb9-446" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> specs <span class="op">=</span> [</span>
+<span id="cb9-447"><a href="#cb9-447" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">group</span><span class="op">:</span> <span class="st">"Condition Low"</span><span class="op">,</span>  <span class="dt">mu</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">color</span><span class="op">:</span> <span class="st">"#457b9d"</span>}<span class="op">,</span></span>
+<span id="cb9-448"><a href="#cb9-448" aria-hidden="true" tabindex="-1"></a>    {<span class="dt">group</span><span class="op">:</span> <span class="st">"Condition High"</span><span class="op">,</span> <span class="dt">mu</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> <span class="dv">15</span><span class="op">,</span> <span class="dt">color</span><span class="op">:</span> <span class="st">"#e63946"</span>}</span>
+<span id="cb9-449"><a href="#cb9-449" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">;</span></span>
+<span id="cb9-450"><a href="#cb9-450" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> seed <span class="op">=</span> <span class="dv">31415927</span><span class="op">;</span></span>
+<span id="cb9-451"><a href="#cb9-451" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rand <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-452"><a href="#cb9-452" aria-hidden="true" tabindex="-1"></a>    seed <span class="op">=</span> (seed <span class="op">*</span> <span class="dv">1664525</span> <span class="op">+</span> <span class="dv">1013904223</span>) <span class="op">&gt;&gt;&gt;</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-453"><a href="#cb9-453" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> seed <span class="op">/</span> <span class="bn">0x100000000</span><span class="op">;</span></span>
+<span id="cb9-454"><a href="#cb9-454" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb9-455"><a href="#cb9-455" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> randn <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-456"><a href="#cb9-456" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> u1 <span class="op">=</span> <span class="fu">rand</span>() <span class="op">||</span> <span class="fl">1e-10</span><span class="op">,</span> u2 <span class="op">=</span> <span class="fu">rand</span>()<span class="op">;</span></span>
+<span id="cb9-457"><a href="#cb9-457" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log</span>(u1)) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(<span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> u2)<span class="op">;</span></span>
+<span id="cb9-458"><a href="#cb9-458" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb9-459"><a href="#cb9-459" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> specs<span class="op">.</span><span class="fu">flatMap</span>(s <span class="kw">=&gt;</span></span>
+<span id="cb9-460"><a href="#cb9-460" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> n}<span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-461"><a href="#cb9-461" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> mc    <span class="op">=</span> s<span class="op">.</span><span class="at">mu</span> <span class="op">+</span> <span class="fu">randn</span>()<span class="op">;</span></span>
+<span id="cb9-462"><a href="#cb9-462" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> noise <span class="op">=</span> <span class="fu">randn</span>()<span class="op">;</span></span>
+<span id="cb9-463"><a href="#cb9-463" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> {<span class="dt">group</span><span class="op">:</span> s<span class="op">.</span><span class="at">group</span><span class="op">,</span> <span class="dt">mu</span><span class="op">:</span> s<span class="op">.</span><span class="at">mu</span><span class="op">,</span> <span class="dt">int</span><span class="op">:</span> s<span class="op">.</span><span class="at">int</span><span class="op">,</span> mc<span class="op">,</span> noise}<span class="op">;</span></span>
+<span id="cb9-464"><a href="#cb9-464" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb9-465"><a href="#cb9-465" aria-hidden="true" tabindex="-1"></a>  )<span class="op">;</span></span>
+<span id="cb9-466"><a href="#cb9-466" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-467"><a href="#cb9-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-468"><a href="#cb9-468" aria-hidden="true" tabindex="-1"></a>simp_data <span class="op">=</span> simp_base<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> ({</span>
+<span id="cb9-469"><a href="#cb9-469" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span>d<span class="op">,</span></span>
+<span id="cb9-470"><a href="#cb9-470" aria-hidden="true" tabindex="-1"></a>  <span class="dt">dv</span><span class="op">:</span> d<span class="op">.</span><span class="at">int</span> <span class="op">+</span> beta_within_val <span class="op">*</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> d<span class="op">.</span><span class="at">mu</span>) <span class="op">+</span> d<span class="op">.</span><span class="at">noise</span></span>
+<span id="cb9-471"><a href="#cb9-471" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb9-472"><a href="#cb9-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-473"><a href="#cb9-473" aria-hidden="true" tabindex="-1"></a><span class="co">// OLS helper</span></span>
+<span id="cb9-474"><a href="#cb9-474" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ols</span>(pts) {</span>
+<span id="cb9-475"><a href="#cb9-475" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n  <span class="op">=</span> pts<span class="op">.</span><span class="at">length</span><span class="op">;</span></span>
+<span id="cb9-476"><a href="#cb9-476" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xm <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> d<span class="op">.</span><span class="at">mc</span><span class="op">,</span> <span class="dv">0</span>) <span class="op">/</span> n<span class="op">;</span></span>
+<span id="cb9-477"><a href="#cb9-477" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ym <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> d<span class="op">.</span><span class="at">dv</span><span class="op">,</span> <span class="dv">0</span>) <span class="op">/</span> n<span class="op">;</span></span>
+<span id="cb9-478"><a href="#cb9-478" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sxy <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> xm) <span class="op">*</span> (d<span class="op">.</span><span class="at">dv</span> <span class="op">-</span> ym)<span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb9-479"><a href="#cb9-479" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sxx <span class="op">=</span> pts<span class="op">.</span><span class="fu">reduce</span>((s<span class="op">,</span> d) <span class="kw">=&gt;</span> s <span class="op">+</span> (d<span class="op">.</span><span class="at">mc</span> <span class="op">-</span> xm) <span class="op">**</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb9-480"><a href="#cb9-480" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> sxy <span class="op">/</span> sxx<span class="op">;</span></span>
+<span id="cb9-481"><a href="#cb9-481" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> ym <span class="op">-</span> b <span class="op">*</span> xm<span class="op">;</span></span>
+<span id="cb9-482"><a href="#cb9-482" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {a<span class="op">,</span> b}<span class="op">;</span></span>
+<span id="cb9-483"><a href="#cb9-483" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-484"><a href="#cb9-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-485"><a href="#cb9-485" aria-hidden="true" tabindex="-1"></a><span class="co">// Regression lines</span></span>
+<span id="cb9-486"><a href="#cb9-486" aria-hidden="true" tabindex="-1"></a>groups_lines <span class="op">=</span> {</span>
+<span id="cb9-487"><a href="#cb9-487" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> grps <span class="op">=</span> [<span class="st">"Condition Low"</span><span class="op">,</span> <span class="st">"Condition High"</span>]<span class="op">;</span></span>
+<span id="cb9-488"><a href="#cb9-488" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colors <span class="op">=</span> {<span class="st">"Condition Low"</span><span class="op">:</span> <span class="st">"#457b9d"</span><span class="op">,</span> <span class="st">"Condition High"</span><span class="op">:</span> <span class="st">"#e63946"</span>}<span class="op">;</span></span>
+<span id="cb9-489"><a href="#cb9-489" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xrange <span class="op">=</span> [<span class="fl">1.5</span><span class="op">,</span> <span class="fl">8.5</span>]<span class="op">;</span></span>
+<span id="cb9-490"><a href="#cb9-490" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lines <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb9-491"><a href="#cb9-491" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> g <span class="kw">of</span> grps) {</span>
+<span id="cb9-492"><a href="#cb9-492" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> pts <span class="op">=</span> simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> g)<span class="op">;</span></span>
+<span id="cb9-493"><a href="#cb9-493" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> {a<span class="op">,</span> b} <span class="op">=</span> <span class="fu">ols</span>(pts)<span class="op">;</span></span>
+<span id="cb9-494"><a href="#cb9-494" aria-hidden="true" tabindex="-1"></a>    lines<span class="op">.</span><span class="fu">push</span>({<span class="dt">group</span><span class="op">:</span> g<span class="op">,</span> <span class="dt">x</span><span class="op">:</span> xrange[<span class="dv">0</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> xrange[<span class="dv">0</span>]<span class="op">,</span> <span class="dt">color</span><span class="op">:</span> colors[g]})<span class="op">;</span></span>
+<span id="cb9-495"><a href="#cb9-495" aria-hidden="true" tabindex="-1"></a>    lines<span class="op">.</span><span class="fu">push</span>({<span class="dt">group</span><span class="op">:</span> g<span class="op">,</span> <span class="dt">x</span><span class="op">:</span> xrange[<span class="dv">1</span>]<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> xrange[<span class="dv">1</span>]<span class="op">,</span> <span class="dt">color</span><span class="op">:</span> colors[g]})<span class="op">;</span></span>
+<span id="cb9-496"><a href="#cb9-496" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-497"><a href="#cb9-497" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> lines<span class="op">;</span></span>
+<span id="cb9-498"><a href="#cb9-498" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-499"><a href="#cb9-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-500"><a href="#cb9-500" aria-hidden="true" tabindex="-1"></a>pooled_line <span class="op">=</span> {</span>
+<span id="cb9-501"><a href="#cb9-501" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> {a<span class="op">,</span> b} <span class="op">=</span> <span class="fu">ols</span>(simp_data)<span class="op">;</span></span>
+<span id="cb9-502"><a href="#cb9-502" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [{<span class="dt">x</span><span class="op">:</span> <span class="fl">1.5</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> <span class="fl">1.5</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="fl">8.5</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> a <span class="op">+</span> b <span class="op">*</span> <span class="fl">8.5</span>}]<span class="op">;</span></span>
+<span id="cb9-503"><a href="#cb9-503" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-504"><a href="#cb9-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-505"><a href="#cb9-505" aria-hidden="true" tabindex="-1"></a>pooled_reg <span class="op">=</span> <span class="fu">ols</span>(simp_data)</span>
+<span id="cb9-506"><a href="#cb9-506" aria-hidden="true" tabindex="-1"></a>low_reg    <span class="op">=</span> <span class="fu">ols</span>(simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> <span class="st">"Condition Low"</span>))</span>
+<span id="cb9-507"><a href="#cb9-507" aria-hidden="true" tabindex="-1"></a>high_reg   <span class="op">=</span> <span class="fu">ols</span>(simp_data<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">group</span> <span class="op">===</span> <span class="st">"Condition High"</span>))</span>
+<span id="cb9-508"><a href="#cb9-508" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-509"><a href="#cb9-509" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:.9em;"&gt;</span></span>
+<span id="cb9-510"><a href="#cb9-510" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #222;padding:6px 12px;background:#f5f5f5;border-radius:4px;"&gt;</span></span>
+<span id="cb9-511"><a href="#cb9-511" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Pooled slope:&lt;/strong&gt; </span><span class="sc">${</span>pooled_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs"> &amp;nbsp;</span></span>
+<span id="cb9-512"><a href="#cb9-512" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;span style="color:</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(pooled_reg<span class="op">.</span><span class="at">b</span>) <span class="op">&gt;</span> <span class="fl">0.3</span> <span class="op">?</span> <span class="st">'#e63946'</span> <span class="op">:</span> <span class="st">'#2a9d8f'</span><span class="sc">}</span><span class="vs">"&gt;</span></span>
+<span id="cb9-513"><a href="#cb9-513" aria-hidden="true" tabindex="-1"></a><span class="vs">      (</span><span class="sc">${</span><span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(pooled_reg<span class="op">.</span><span class="at">b</span>) <span class="op">&gt;</span> <span class="fl">0.3</span> <span class="op">?</span> <span class="st">'appears significant'</span> <span class="op">:</span> <span class="st">'near zero'</span><span class="sc">}</span><span class="vs">)</span></span>
+<span id="cb9-514"><a href="#cb9-514" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/span&gt;</span></span>
+<span id="cb9-515"><a href="#cb9-515" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb9-516"><a href="#cb9-516" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #457b9d;padding:6px 12px;background:#f0f4f8;border-radius:4px;"&gt;</span></span>
+<span id="cb9-517"><a href="#cb9-517" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Within-group slope (Low):&lt;/strong&gt; </span><span class="sc">${</span>low_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span></span>
+<span id="cb9-518"><a href="#cb9-518" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb9-519"><a href="#cb9-519" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="border-left:4px solid #e63946;padding:6px 12px;background:#fdf0f0;border-radius:4px;"&gt;</span></span>
+<span id="cb9-520"><a href="#cb9-520" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;Within-group slope (High):&lt;/strong&gt; </span><span class="sc">${</span>high_reg<span class="op">.</span><span class="at">b</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span></span>
+<span id="cb9-521"><a href="#cb9-521" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb9-522"><a href="#cb9-522" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-2-1" data-nodetype="declaration">
@@ -1053,24 +1056,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="527" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 526;"><span id="cb10-527"><a href="#cb10-527" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb10-528"><a href="#cb10-528" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">650</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">380</span><span class="op">,</span></span>
-<span id="cb10-529"><a href="#cb10-529" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
-<span id="cb10-530"><a href="#cb10-530" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Manipulation Check (MC)"</span>}<span class="op">,</span></span>
-<span id="cb10-531"><a href="#cb10-531" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Outcome (DV)"</span>}<span class="op">,</span></span>
-<span id="cb10-532"><a href="#cb10-532" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
-<span id="cb10-533"><a href="#cb10-533" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb10-534"><a href="#cb10-534" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Condition Low"</span><span class="op">,</span> <span class="st">"Condition High"</span>]<span class="op">,</span></span>
-<span id="cb10-535"><a href="#cb10-535" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
-<span id="cb10-536"><a href="#cb10-536" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb10-537"><a href="#cb10-537" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb10-538"><a href="#cb10-538" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(simp_data<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"mc"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"dv"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.35</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">4</span>})<span class="op">,</span></span>
-<span id="cb10-539"><a href="#cb10-539" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(groups_lines<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
-<span id="cb10-540"><a href="#cb10-540" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pooled_line<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"#222"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"6,4"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
-<span id="cb10-541"><a href="#cb10-541" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>([{<span class="dt">x</span><span class="op">:</span> <span class="fl">7.8</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> pooled_line[<span class="dv">1</span>]<span class="op">.</span><span class="at">y</span> <span class="op">+</span> <span class="fl">0.4</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Pooled OLS"</span>}]<span class="op">,</span></span>
-<span id="cb10-542"><a href="#cb10-542" aria-hidden="true" tabindex="-1"></a>              {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#222"</span><span class="op">,</span> <span class="dt">fontSize</span><span class="op">:</span> <span class="dv">11</span>})</span>
-<span id="cb10-543"><a href="#cb10-543" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb10-544"><a href="#cb10-544" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="528" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 527;"><span id="cb10-528"><a href="#cb10-528" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb10-529"><a href="#cb10-529" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">650</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">380</span><span class="op">,</span></span>
+<span id="cb10-530"><a href="#cb10-530" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
+<span id="cb10-531"><a href="#cb10-531" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Manipulation Check (MC)"</span>}<span class="op">,</span></span>
+<span id="cb10-532"><a href="#cb10-532" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Outcome (DV)"</span>}<span class="op">,</span></span>
+<span id="cb10-533"><a href="#cb10-533" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
+<span id="cb10-534"><a href="#cb10-534" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb10-535"><a href="#cb10-535" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Condition Low"</span><span class="op">,</span> <span class="st">"Condition High"</span>]<span class="op">,</span></span>
+<span id="cb10-536"><a href="#cb10-536" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
+<span id="cb10-537"><a href="#cb10-537" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb10-538"><a href="#cb10-538" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-539"><a href="#cb10-539" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(simp_data<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"mc"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"dv"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">fillOpacity</span><span class="op">:</span> <span class="fl">0.35</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb10-540"><a href="#cb10-540" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(groups_lines<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"group"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
+<span id="cb10-541"><a href="#cb10-541" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pooled_line<span class="op">,</span>  {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"#222"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"6,4"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.2</span>})<span class="op">,</span></span>
+<span id="cb10-542"><a href="#cb10-542" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>([{<span class="dt">x</span><span class="op">:</span> <span class="fl">7.8</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> pooled_line[<span class="dv">1</span>]<span class="op">.</span><span class="at">y</span> <span class="op">+</span> <span class="fl">0.4</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Pooled OLS"</span>}]<span class="op">,</span></span>
+<span id="cb10-543"><a href="#cb10-543" aria-hidden="true" tabindex="-1"></a>              {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#222"</span><span class="op">,</span> <span class="dt">fontSize</span><span class="op">:</span> <span class="dv">11</span>})</span>
+<span id="cb10-544"><a href="#cb10-544" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb10-545"><a href="#cb10-545" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-ojs-cell-3" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ojs-cell-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1114,8 +1117,8 @@ Figure&nbsp;7.1: Scatter plot of manipulation check vs.&nbsp;DV. Solid lines = w
 </ul>
 <hr>
 </section>
-<section id="sec-checklist-part4" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part4">Researcher Checklist: Latent Subgroups</h2>
+<section id="sec-checklist-latent-subgroups" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-latent-subgroups">Researcher Checklist: Latent Subgroups</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1244,16 +1247,16 @@ window._ojs.runtime.interpretFromScriptTags();
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

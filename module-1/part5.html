@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -339,7 +342,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#inliers-contaminate-regression-estimates" id="toc-inliers-contaminate-regression-estimates" class="nav-link" data-scroll-target="#inliers-contaminate-regression-estimates">Inliers Contaminate Regression Estimates</a></li>
   </ul></li>
   <li><a href="#other-methods-for-outlier-detection-and-robust-estimation" id="toc-other-methods-for-outlier-detection-and-robust-estimation" class="nav-link" data-scroll-target="#other-methods-for-outlier-detection-and-robust-estimation">Other Methods for Outlier Detection and Robust Estimation</a></li>
-  <li><a href="#sec-checklist-part5" id="toc-sec-checklist-part5" class="nav-link" data-scroll-target="#sec-checklist-part5">Researcher Checklist: Outliers</a></li>
+  <li><a href="#sec-checklist-outliers" id="toc-sec-checklist-outliers" class="nav-link" data-scroll-target="#sec-checklist-outliers">Researcher Checklist: Outliers</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -394,17 +397,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Part 5: Outlier Detection and Robust Estimation</h1>
 <section id="connecting-to-the-earlier-cases" class="level2">
 <h2 class="anchored" data-anchor-id="connecting-to-the-earlier-cases">Connecting to the Earlier Cases</h2>
-<p>Part 4 showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. <strong>Part 5 is a continuation of exactly that problem</strong>, extended to observational data and reframed as the problem of <em>outliers</em>.</p>
-<p>The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in Part 4. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster’s data-generating process. These are statistical implementations of the same conceptual question Part 4 posed directly: <em>are all observations in this dataset from the same population?</em></p>
-<p>The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of Part 4, not just the statistical tools of Part 5.</p>
+<p><a href="part4.html" class="quarto-xref">Part 4</a> showed what happens when your sample contains two fundamentally different types of respondents — latent subgroups with distinct data-generating processes. <strong><a href="part5.html" class="quarto-xref">Part 5</a> is a continuation of exactly that problem</strong>, extended to observational data and reframed as the problem of <em>outliers</em>.</p>
+<p>The methods covered here — LOF, DBSCAN, robust regression — are, in structural terms, derived from or closely related to the latent subgroup logic in <a href="part4.html" class="quarto-xref">Part 4</a>. LOF and DBSCAN identify clusters and density anomalies that often correspond to distinct latent populations mixed into your sample. Robust regression downweights points that do not fit the dominant cluster’s data-generating process. These are statistical implementations of the same conceptual question <a href="part4.html" class="quarto-xref">Part 4</a> posed directly: <em>are all observations in this dataset from the same population?</em></p>
+<p>The section on inliers at the end of this part makes the connection explicit in the opposite direction. Inliers are a latent subgroup that happens to be statistically invisible — they cannot be detected by any of the methods covered here. Handling them correctly requires the conceptual reasoning of <a href="part4.html" class="quarto-xref">Part 4</a>, not just the statistical tools of <a href="part5.html" class="quarto-xref">Part 5</a>.</p>
 <p>Not all outliers are the same. Two important distinctions that are easy to conflate:</p>
 <p><strong>Statistical outliers vs.&nbsp;conceptual outliers</strong></p>
 <p>A <em>statistical outlier</em> is any observation that is unusual relative to the rest of the sample — it has a high LOF score, a large residual, or sits far from the regression line. The statistical definition is purely data-driven and says nothing about whether the observation represents a problem.</p>
 <p>A <em>conceptual outlier</em> is an observation that comes from a fundamentally different data-generating process than the rest of your sample. Luxury flagship stores in a dataset of convenience stores are conceptual outliers: they do not just deviate from the regression line, they operate on entirely different economics. The same statistical method (advertising spend → sales) applies, but the parameters are different.</p>
-<p><strong>Why the distinction matters:</strong> Statistical outliers that are <em>not</em> conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a <em>sampling problem</em>, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is Part 4 logic (latent subgroup analysis), not just downweighting the extreme values.</p>
+<p><strong>Why the distinction matters:</strong> Statistical outliers that are <em>not</em> conceptual outliers (a data entry error, an extreme but real observation) should be checked, corrected if erroneous, and handled with robust methods. Conceptual outliers that are also statistical outliers are a <em>sampling problem</em>, not a statistical noise problem — they reveal that your sample is actually a mixture of populations. The right response is <a href="part4.html" class="quarto-xref">Part 4</a> logic (latent subgroup analysis), not just downweighting the extreme values.</p>
 <p>Within the statistical outlier category, two types behave differently:</p>
 <ul>
-<li><p><strong>Collective outliers</strong> are a group of observations that form their own cluster, far from the rest of the data. They usually represent a <em>different population</em> — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from Part 4: if you include them, your regression line tries to average over two different data-generating processes. These are the conceptual outliers described above.</p></li>
+<li><p><strong>Collective outliers</strong> are a group of observations that form their own cluster, far from the rest of the data. They usually represent a <em>different population</em> — like luxury flagship stores in a dataset of regular convenience stores. These are a version of the latent-subgroup problem from <a href="part4.html" class="quarto-xref">Part 4</a>: if you include them, your regression line tries to average over two different data-generating processes. These are the conceptual outliers described above.</p></li>
 <li><p><strong>Point outliers</strong> (or global outliers) are individual observations that are simply extreme on one or more variables. They may represent data errors, rare events, or genuinely unusual cases. They pull the regression line toward them and inflate standard errors. These are more likely to be pure statistical outliers — unusual, but not necessarily from a different population.</p></li>
 </ul>
 <p>Both types distort your results — but in different ways, and the solutions are different.</p>
@@ -434,7 +437,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn’t “wrong data” — it’s a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from Part 4: the resulting coefficient doesn’t accurately describe either group. The statistical tools in Part 5 (LOF, DBSCAN, robust regression) detect these clusters empirically. Part 4’s finite mixture models detect them probabilistically. Both are answering the same question.</p>
+<p>Collective outliers are, structurally, the same problem as latent subgroups. A cluster of luxury flagship stores isn’t “wrong data” — it’s a different population with a different data-generating process. Including them in your pooled model is like combining Green Champions and Price Skeptics from <a href="part4.html" class="quarto-xref">Part 4</a>: the resulting coefficient doesn’t accurately describe either group. The statistical tools in <a href="part5.html" class="quarto-xref">Part 5</a> (LOF, DBSCAN, robust regression) detect these clusters empirically. <a href="part4.html" class="quarto-xref">Part 4</a>’s finite mixture models detect them probabilistically. Both are answering the same question.</p>
 <p>Point outliers, by contrast, are statistical problems rather than conceptual ones. A single data entry error or an unusually extreme store doesn’t imply a hidden population — it’s just a disruptive data point that needs to be handled carefully.</p>
 <p>The hardest case — inliers — is a latent subgroup that neither approach can detect statistically. That requires domain knowledge about whether observations belong in your target population in the first place.</p>
 </div>
@@ -723,7 +726,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p><strong>What LOF is telling you:</strong> Each store’s LOF score compares how densely packed its neighborhood is relative to its neighbors’ neighborhoods. A score near 1.0 means the store is in a region as dense as its surroundings — it looks like a typical store. A score of 2 or 3 means the store is in a region roughly 2–3 times sparser than its neighbors’ neighborhoods — it is noticeably isolated. Very high scores (5+) indicate severe outliers.</p>
 <p><strong>The critical point about classification:</strong> LOF scores do NOT give you clean “outlier” vs “not outlier” categories. There is no universal threshold that separates outliers from normal observations — you have to choose one, and that choice involves judgment. Common practice is to flag observations with LOF &gt; 2 or LOF &gt; 3 for investigation, but these cutoffs are conventions, not laws of nature.</p>
-<p><strong>Practical steps for each high-LOF observation:</strong> 1. Look at the observation. What are its actual values? Does anything look unusual? 2. Is it a data quality issue (entry error, unit mismatch)? Fix or remove. 3. Is it a legitimately extreme but real observation (a genuinely exceptional store)? Keep and investigate — it may be telling you something important about your data. 4. Does it form part of a coherent group of unusual observations? If yes, that’s a collective outlier — treat it as a Part 4 problem (latent subgroup), not a Part 5 problem.</p>
+<p><strong>Practical steps for each high-LOF observation:</strong> 1. Look at the observation. What are its actual values? Does anything look unusual? 2. Is it a data quality issue (entry error, unit mismatch)? Fix or remove. 3. Is it a legitimately extreme but real observation (a genuinely exceptional store)? Keep and investigate — it may be telling you something important about your data. 4. Does it form part of a coherent group of unusual observations? If yes, that’s a collective outlier — treat it as a <a href="part4.html" class="quarto-xref">Part 4</a> problem (latent subgroup), not a <a href="part5.html" class="quarto-xref">Part 5</a> problem.</p>
 <p><strong>Never delete observations just because they have high LOF scores.</strong> LOF is a signal to investigate, not an automatic deletion criterion.</p>
 </div>
 </div>
@@ -791,7 +794,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What the clusters mean:</strong> - <strong>Cluster 0 (noise/green):</strong> Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one. - <strong>Cluster 1 (main mass):</strong> The main group of regular stores. This is your target population for most analyses. - <strong>Cluster 2+ (secondary clusters):</strong> Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem (Part 4), not a statistical noise problem.</p>
+<p><strong>What the clusters mean:</strong> - <strong>Cluster 0 (noise/green):</strong> Points too isolated to belong to any cluster. These are candidates for point outliers — individually anomalous observations. Check each one. - <strong>Cluster 1 (main mass):</strong> The main group of regular stores. This is your target population for most analyses. - <strong>Cluster 2+ (secondary clusters):</strong> Coherent groups separated from the main mass — collective outliers. These are a latent subgroup problem (<a href="part4.html" class="quarto-xref">Part 4</a>), not a statistical noise problem.</p>
 <p><strong>Important: these are inferred, probabilistic classifications.</strong> DBSCAN does not know “the truth” about which stores are outliers any more than you do. It finds density-based patterns in the data, but: - The clusters depend on your choice of <code>eps</code> and <code>minPts</code> — different settings will produce different cluster assignments - A store assigned to cluster 0 (noise) may simply be on the outskirts of a real cluster that DBSCAN missed with your parameter settings - A store assigned to the main cluster may still be unusual in ways DBSCAN cannot see with just two variables</p>
 <p><strong>The classifications are a starting point, not a verdict.</strong> Use them to flag observations for further investigation. Do not treat cluster assignment as definitive.</p>
 <p><strong>Choosing eps and minPts:</strong> There is no single correct answer. A practical approach: plot the k-nearest-neighbor distances (sorted) and look for an “elbow” — the point where the distance curve bends sharply. That elbow value is a good starting point for eps. For minPts, a common default is 2 × (number of dimensions in your data).</p>
@@ -854,7 +857,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p><strong>Practical implication for this case:</strong> LOF flags both luxury flagships and point outliers with high scores, but does not tell you <em>why</em> they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup (Part 4 problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.</p>
+<p><strong>Practical implication for this case:</strong> LOF flags both luxury flagships and point outliers with high scores, but does not tell you <em>why</em> they are outlying or whether they belong together. DBSCAN reveals that the luxury flagships form their own coherent cluster — which means they represent a latent subgroup (<a href="part4.html" class="quarto-xref">Part 4</a> problem), not random noise. That distinction changes the recommended response: a separate subgroup analysis, not just robust estimation.</p>
 <p>Use LOF to <em>rank</em> observations by how unusual they are. Use DBSCAN to understand <em>whether</em> unusual observations are isolated data points or an alternative population. Both are diagnostic tools, not verdicts.</p>
 </div>
 </div>
@@ -983,7 +986,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>OLS (all stores):</strong> Pulled sharply toward the luxury cluster and point outliers. The luxury flagship stores are at high advertising values (x ≈ 20), giving them enormous leverage — even though they are only 4% of the sample, they contribute more than half the total variation in advertising spend. Combined with the point outliers, OLS produces a slope well above the true value of 0.40. Predictions for a regular store using this coefficient will be systematically biased.</p>
 <p><strong>True DGP (slope = 0.40):</strong> The known data-generating process for regular stores — included in the plot because we simulated the data and know the ground truth. In real research you would not see this line; you would only see how OLS and robust estimates diverge.</p>
 <p><strong>Robust MM-estimation (all stores):</strong> Addresses both high-residual outliers and high-leverage points. The initial S-estimation step finds a robust fit resistant to the luxury cluster’s leverage; the M-estimation refinement achieves efficiency on the regular-store observations. The result is a slope close to the true 0.40 — without deciding in advance which observations to delete.</p>
-<p><strong>Practical advice:</strong> 1. Always plot your data and check for visual outliers before running any regression 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually 3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a Part 4 problem 4. For point outliers, verify the data and report results with and without them as a robustness check 5. Use <code>rlm(method = "MM")</code> rather than the default Huber M-estimator when your data contains high-leverage clusters — the default Huber weighting can still be dominated by high-leverage points</p>
+<p><strong>Practical advice:</strong> 1. Always plot your data and check for visual outliers before running any regression 2. Use LOF and/or DBSCAN to systematically detect outliers you might miss visually 3. For collective outliers (like luxury stores), investigate whether they represent a distinct subgroup — if so, treat them as a <a href="part4.html" class="quarto-xref">Part 4</a> problem 4. For point outliers, verify the data and report results with and without them as a robustness check 5. Use <code>rlm(method = "MM")</code> rather than the default Huber M-estimator when your data contains high-leverage clusters — the default Huber weighting can still be dominated by high-leverage points</p>
 </div>
 </div>
 </section>
@@ -1066,7 +1069,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Recall that in Part 4, latent subgroup analysis worked because the subgroups had <em>statistically detectable</em> differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.</p>
+<p>Recall that in <a href="part4.html" class="quarto-xref">Part 4</a>, latent subgroup analysis worked because the subgroups had <em>statistically detectable</em> differences — Green Champions and Price Skeptics responded differently on the measured items, and finite mixture models could identify them from the data alone.</p>
 <p>The inlier problem is a harder version of the same structure. Inliers belong to a different latent subgroup — a different population with a different data-generating process — but they are <strong>statistically indistinguishable</strong> from the target population on the variables you have measured. No mixture model, no LOF score, no density cluster will separate them. The subgroup is latent in the deepest sense: invisible to all available statistical tools.</p>
 <p>This is why the inlier problem is ultimately a <em>measurement and sampling problem</em>, not a statistical one. The relevant question — “are these observations from the same population as the phenomenon I am studying?” — is answered by domain knowledge about what you are measuring and who belongs in your target sample, not by any diagnostic statistic.</p>
 </div>
@@ -1389,12 +1392,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Isolation Forest (isotree package in R):</strong> A tree-based outlier detection method. Anomalies are easier to isolate than normal points, so they end up in shorter trees. Scales well to large datasets. No distance computation needed.</li>
 <li><strong>One-class SVM:</strong> Learns the boundary of “normal” observations and flags points outside it. Useful when you have a large clean training set and want to detect anomalies in new data.</li>
 <li><strong>Quantile regression (quantreg package):</strong> Instead of modeling the mean, model multiple quantiles of Y. Outliers that pull the mean line don’t affect quantile regression as severely. Useful when you care about the full distribution, not just the central tendency.</li>
-<li><strong>Sandwich standard errors (sandwich package):</strong> If heteroskedasticity (the fan pattern from Part 2) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.</li>
+<li><strong>Sandwich standard errors (sandwich package):</strong> If heteroskedasticity (the fan pattern from <a href="part2.html" class="quarto-xref">Part 2</a>) is due to outliers or model misspecification, heteroskedasticity-consistent (HC) standard errors give valid inference without reweighting observations.</li>
 </ul>
 <hr>
 </section>
-<section id="sec-checklist-part5" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part5">Researcher Checklist: Outliers</h2>
+<section id="sec-checklist-outliers" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-outliers">Researcher Checklist: Outliers</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1511,16 +1514,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

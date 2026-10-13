@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -111,7 +114,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -397,7 +400,7 @@ window.Quarto = {
   <li><a href="#why-cronbachs-alpha-cannot-detect-discriminant-validity-failures" id="toc-why-cronbachs-alpha-cannot-detect-discriminant-validity-failures" class="nav-link" data-scroll-target="#why-cronbachs-alpha-cannot-detect-discriminant-validity-failures">Why Cronbach’s Alpha Cannot Detect Discriminant Validity Failures</a></li>
   <li><a href="#the-item-addition-problem-spearmanbrown" id="toc-the-item-addition-problem-spearmanbrown" class="nav-link" data-scroll-target="#the-item-addition-problem-spearmanbrown">The Item-Addition Problem (Spearman–Brown)</a></li>
   <li><a href="#interactive-simulator-reliability-vs.-discriminant-validity" id="toc-interactive-simulator-reliability-vs.-discriminant-validity" class="nav-link" data-scroll-target="#interactive-simulator-reliability-vs.-discriminant-validity">Interactive Simulator: Reliability vs.&nbsp;Discriminant Validity</a></li>
-  <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1">Researcher Checklist: Discriminant Validity</a></li>
+  <li><a href="#sec-checklist-discriminant-validity" id="toc-sec-checklist-discriminant-validity" class="nav-link" data-scroll-target="#sec-checklist-discriminant-validity">Researcher Checklist: Discriminant Validity</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -456,13 +459,14 @@ window.Quarto = {
 <p>Every measurement model in the social sciences begins from the same core assumption: the observed score you record is a sum of the <em>true</em> score and <em>measurement error</em>.</p>
 <p><span class="math display">\[X_\text{observed} = T_\text{true} + \varepsilon\]</span></p>
 <p>Classical test theory (CTT) assumes the error term <span class="math inline">\(\varepsilon\)</span> is <em>random and symmetric</em> — equally likely to push the observed score up or down, averaging to zero across many observations. Under this assumption, observable scores are noisy but unbiased indicators of the latent construct you care about.</p>
-<p>But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by <em>something else</em>. The five parts in this tutorial are five different ways that “something else” creeps into your observed score:</p>
+<p>But this assumption is almost always violated in practice. The measurement error is not symmetric — it is contaminated by <em>something else</em>. The six parts in this tutorial are six different ways that “something else” creeps into your observed score:</p>
 <ul>
-<li>When your scale picks up a second construct (<strong>Part 1</strong>), ε includes that construct’s variance — and is no longer random.</li>
-<li>When an omitted variable drives both your predictor and outcome (<strong>Part 2</strong>), the “error” in your regression coefficient is systematic, not random.</li>
-<li>When scale items shift their baseline across groups (<strong>Part 3</strong>), ε differs systematically between conditions.</li>
-<li>When your sample mixes two populations (<strong>Part 4</strong>), ε has a bimodal structure that standard models cannot represent.</li>
-<li>When your data contain influential outliers (<strong>Part 5</strong>), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.</li>
+<li>When your scale picks up a second construct (<strong><a href="part1.html" class="quarto-xref">Part 1</a></strong>), ε includes that construct’s variance — and is no longer random.</li>
+<li>When an omitted variable drives both your predictor and outcome (<strong><a href="part2.html" class="quarto-xref">Part 2</a></strong>), the “error” in your regression coefficient is systematic, not random.</li>
+<li>When scale items shift their baseline across groups (<strong><a href="part3.html" class="quarto-xref">Part 3</a></strong>), ε differs systematically between conditions.</li>
+<li>When your sample mixes two populations (<strong><a href="part4.html" class="quarto-xref">Part 4</a></strong>), ε has a bimodal structure that standard models cannot represent.</li>
+<li>When your data contain influential outliers (<strong><a href="part5.html" class="quarto-xref">Part 5</a></strong>), ε includes extreme values that disproportionately distort regression coefficients — collective outliers are a version of the latent-subgroup problem.</li>
+<li>When your outcome scale has hard bounds (<strong><a href="part6.html" class="quarto-xref">Part 6</a></strong>), ε is truncated at the ends of the scale, so it is no longer symmetric — observed means are pulled toward the middle of the scale.</li>
 </ul>
 <p><strong>Discriminant validity failure is the case where the measurement error ε in your observed scale is not random noise — it is structured variance from a second latent construct.</strong> Consider a case where we are trying to measure Green Purchase Intentions (GPI) but our measurement also captures a related but separable construct Environmental Concern (EC), then the CTT equation becomes:</p>
 <p><span class="math display">\[X_\text{GPI} = T_\text{true GPI} + \lambda \cdot T_\text{EC} + \varepsilon_\text{random}\]</span></p>
@@ -528,7 +532,7 @@ window.Quarto = {
 </tbody>
 </table>
 <p><strong>The hidden problem we planted in the data:</strong> The GPI scale was designed to measure purchase intention — but its items ended up being nearly indistinguishable from items measuring environmental concern. In real research, this often happens when constructs are conceptually close (caring about the environment vs.&nbsp;intending to buy green products). The two scales fail discriminant validity.</p>
-<p>In all five parts in this tutorial, the core problem is the same: the <strong>observed Y</strong> you are working with is an imperfect, contaminated proxy for the <strong>latent Y</strong> you are trying to study.</p>
+<p>In all six parts in this tutorial, the core problem is the same: the <strong>observed Y</strong> you are working with is an imperfect, contaminated proxy for the <strong>latent Y</strong> you are trying to study.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1035,7 +1039,7 @@ Note
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Loadings:
-     ML1    ML2    ML3   
+     ML3    ML1    ML2   
 EC1   0.775              
 EC2   0.782              
 EC3   0.782              
@@ -1048,7 +1052,7 @@ BA1          0.586
 BA2          0.783       
 BA3          0.724       
 
-                 ML1   ML2   ML3
+                 ML3   ML1   ML2
 SS loadings    4.193 1.505 0.300
 Proportion Var 0.381 0.137 0.027
 Cumulative Var 0.381 0.518 0.545</code></pre>
@@ -1104,21 +1108,21 @@ Cumulative Var 0.381 0.518 0.545</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">ML1</td>
+<td style="text-align: left;">ML3</td>
 <td style="text-align: left;">Factor 1</td>
 <td style="text-align: right;">4.319</td>
 <td style="text-align: right;">0.393</td>
 <td style="text-align: right;">0.393</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ML2</td>
+<td style="text-align: left;">ML1</td>
 <td style="text-align: left;">Factor 2</td>
 <td style="text-align: right;">1.592</td>
 <td style="text-align: right;">0.145</td>
 <td style="text-align: right;">0.537</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">ML3</td>
+<td style="text-align: left;">ML2</td>
 <td style="text-align: left;">Factor 3</td>
 <td style="text-align: right;">0.353</td>
 <td style="text-align: right;">0.032</td>
@@ -1185,7 +1189,7 @@ Cumulative Var 0.381 0.518 0.545</code></pre>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_conv, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>lavaan 0.6-21 ended normally after 24 iterations
+<pre><code>lavaan 0.7-3 ended normally after 24 iterations
 
   Estimator                                         ML
   Optimization method                           NLMINB
@@ -1198,6 +1202,11 @@ Model Test User Model:
   Test statistic                                45.994
   Degrees of freedom                                41
   P-value (Chi-square)                           0.273
+                                                      
+  Browne's residual (NT model-based) test             
+  Test statistic                                46.454
+  Degrees of freedom                                41
+  P-value (Chi-square)                           0.258
 
 Model Test Baseline Model:
 
@@ -1230,6 +1239,12 @@ Root Mean Square Error of Approximation:
 Standardized Root Mean Square Residual:
 
   SRMR                                           0.027
+
+Goodness of Fit Index:
+
+  Goodness of Fit Index (GFI)                    0.998
+  90 Percent confidence interval - lower         0.988
+  90 Percent confidence interval - upper         1.000
 
 Parameter Estimates:
 
@@ -1835,7 +1850,7 @@ BA  0.491 0.538 1.000</code></pre>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_wald, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>lavaan 0.6-21 ended normally after 24 iterations
+<pre><code>lavaan 0.7-3 ended normally after 24 iterations
 
   Estimator                                         ML
   Optimization method                           NLMINB
@@ -1848,6 +1863,11 @@ Model Test User Model:
   Test statistic                                45.994
   Degrees of freedom                                41
   P-value (Chi-square)                           0.273
+                                                      
+  Browne's residual (NT model-based) test             
+  Test statistic                                46.454
+  Degrees of freedom                                41
+  P-value (Chi-square)                           0.258
 
 Model Test Baseline Model:
 
@@ -1880,6 +1900,12 @@ Root Mean Square Error of Approximation:
 Standardized Root Mean Square Residual:
 
   SRMR                                           0.027
+
+Goodness of Fit Index:
+
+  Goodness of Fit Index (GFI)                    0.998
+  90 Percent confidence interval - lower         0.988
+  90 Percent confidence interval - upper         1.000
 
 Parameter Estimates:
 
@@ -2851,7 +2877,7 @@ BA_text       0.47       0.52      0.85</code></pre>
 <h1>Interlude: Reliability Is Not Validity</h1>
 <section id="the-core-distinction" class="level2">
 <h2 class="anchored" data-anchor-id="the-core-distinction">The Core Distinction</h2>
-<p>Case 1 showed how to detect discriminant validity failures using HTMT and DVI. But there is a related, subtler failure mode that trips up researchers constantly: <strong>a scale can be highly reliable and still be invalid</strong>.</p>
+<p>The sections above showed how to detect discriminant validity failures using HTMT and DVI. But there is a related, subtler failure mode that trips up researchers constantly: <strong>a scale can be highly reliable and still be invalid</strong>.</p>
 <p><strong>Reliability</strong> measures <em>consistency</em> — do the items within a scale hang together? Cronbach’s alpha is the most common index. A high alpha (typically &gt; 0.70) means the items are consistently measuring <em>something</em>, but says nothing about <em>what</em> that something is, or whether it can be distinguished from other constructs.</p>
 <p><strong>Discriminant validity</strong> asks a different question: is what you are measuring <em>distinct from other constructs</em>? A scale can achieve a Cronbach’s alpha of 0.95 and simultaneously have an HTMT of 1.20 — perfectly reliable at measuring something indistinguishable from an entirely different construct.</p>
 <p>This distinction matters because most researchers check reliability and stop there. But:</p>
@@ -2893,18 +2919,18 @@ BA_text       0.47       0.52      0.85</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb46" data-startfrom="1262" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1261;"><span id="cb46-1262"><a href="#cb46-1262" aria-hidden="true" tabindex="-1"></a>viewof sim_k <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> {</span>
-<span id="cb46-1263"><a href="#cb46-1263" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
-<span id="cb46-1264"><a href="#cb46-1264" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of items per scale (k)"</span></span>
-<span id="cb46-1265"><a href="#cb46-1265" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb46-1266"><a href="#cb46-1266" aria-hidden="true" tabindex="-1"></a>viewof sim_within_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.10</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
-<span id="cb46-1267"><a href="#cb46-1267" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.50</span><span class="op">,</span></span>
-<span id="cb46-1268"><a href="#cb46-1268" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-scale inter-item correlation (ρ̄)"</span></span>
-<span id="cb46-1269"><a href="#cb46-1269" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb46-1270"><a href="#cb46-1270" aria-hidden="true" tabindex="-1"></a>viewof sim_between_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.00</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
-<span id="cb46-1271"><a href="#cb46-1271" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.30</span><span class="op">,</span></span>
-<span id="cb46-1272"><a href="#cb46-1272" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Between-scale correlation (discriminant validity threat)"</span></span>
-<span id="cb46-1273"><a href="#cb46-1273" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb46" data-startfrom="1264" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1263;"><span id="cb46-1264"><a href="#cb46-1264" aria-hidden="true" tabindex="-1"></a>viewof sim_k <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">2</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> {</span>
+<span id="cb46-1265"><a href="#cb46-1265" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb46-1266"><a href="#cb46-1266" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of items per scale (k)"</span></span>
+<span id="cb46-1267"><a href="#cb46-1267" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb46-1268"><a href="#cb46-1268" aria-hidden="true" tabindex="-1"></a>viewof sim_within_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.10</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
+<span id="cb46-1269"><a href="#cb46-1269" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.50</span><span class="op">,</span></span>
+<span id="cb46-1270"><a href="#cb46-1270" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Within-scale inter-item correlation (ρ̄)"</span></span>
+<span id="cb46-1271"><a href="#cb46-1271" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb46-1272"><a href="#cb46-1272" aria-hidden="true" tabindex="-1"></a>viewof sim_between_r <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.00</span><span class="op">,</span> <span class="fl">0.95</span>]<span class="op">,</span> {</span>
+<span id="cb46-1273"><a href="#cb46-1273" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.30</span><span class="op">,</span></span>
+<span id="cb46-1274"><a href="#cb46-1274" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Between-scale correlation (discriminant validity threat)"</span></span>
+<span id="cb46-1275"><a href="#cb46-1275" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -2928,37 +2954,37 @@ BA_text       0.47       0.52      0.85</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb47" data-startfrom="1279" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1278;"><span id="cb47-1279"><a href="#cb47-1279" aria-hidden="true" tabindex="-1"></a>rel_alpha <span class="op">=</span> (sim_k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (sim_k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)</span>
-<span id="cb47-1280"><a href="#cb47-1280" aria-hidden="true" tabindex="-1"></a>rel_htmt  <span class="op">=</span> sim_between_r <span class="op">/</span> sim_within_r</span>
-<span id="cb47-1281"><a href="#cb47-1281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-1282"><a href="#cb47-1282" aria-hidden="true" tabindex="-1"></a>alpha_col <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span> <span class="op">:</span> <span class="st">"#e63946"</span></span>
-<span id="cb47-1283"><a href="#cb47-1283" aria-hidden="true" tabindex="-1"></a>htmt_col  <span class="op">=</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span></span>
-<span id="cb47-1284"><a href="#cb47-1284" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"#e9c46a"</span></span>
-<span id="cb47-1285"><a href="#cb47-1285" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"#e63946"</span></span>
-<span id="cb47-1286"><a href="#cb47-1286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-1287"><a href="#cb47-1287" aria-hidden="true" tabindex="-1"></a>alpha_label <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"Excellent"</span></span>
-<span id="cb47-1288"><a href="#cb47-1288" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.80</span> <span class="op">?</span> <span class="st">"Good"</span></span>
-<span id="cb47-1289"><a href="#cb47-1289" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"Acceptable"</span></span>
-<span id="cb47-1290"><a href="#cb47-1290" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">"Too low"</span></span>
-<span id="cb47-1291"><a href="#cb47-1291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-1292"><a href="#cb47-1292" aria-hidden="true" tabindex="-1"></a>htmt_label <span class="op">=</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"✓ Discriminant validity supported"</span></span>
-<span id="cb47-1293"><a href="#cb47-1293" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"⚠ Borderline — approaching threshold"</span></span>
-<span id="cb47-1294"><a href="#cb47-1294" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"✗ Discriminant validity VIOLATED"</span></span>
-<span id="cb47-1295"><a href="#cb47-1295" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-1296"><a href="#cb47-1296" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;"&gt;</span></span>
-<span id="cb47-1297"><a href="#cb47-1297" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
-<span id="cb47-1298"><a href="#cb47-1298" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;Cronbach's Alpha&lt;/div&gt;</span></span>
-<span id="cb47-1299"><a href="#cb47-1299" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_alpha<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb47-1300"><a href="#cb47-1300" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>alpha_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb47-1301"><a href="#cb47-1301" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold ≥ 0.70&lt;/div&gt;</span></span>
-<span id="cb47-1302"><a href="#cb47-1302" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb47-1303"><a href="#cb47-1303" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
-<span id="cb47-1304"><a href="#cb47-1304" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;HTMT&lt;/div&gt;</span></span>
-<span id="cb47-1305"><a href="#cb47-1305" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_htmt<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb47-1306"><a href="#cb47-1306" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>htmt_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb47-1307"><a href="#cb47-1307" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold &lt; 0.85&lt;/div&gt;</span></span>
-<span id="cb47-1308"><a href="#cb47-1308" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb47-1309"><a href="#cb47-1309" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb47" data-startfrom="1281" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1280;"><span id="cb47-1281"><a href="#cb47-1281" aria-hidden="true" tabindex="-1"></a>rel_alpha <span class="op">=</span> (sim_k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (sim_k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)</span>
+<span id="cb47-1282"><a href="#cb47-1282" aria-hidden="true" tabindex="-1"></a>rel_htmt  <span class="op">=</span> sim_between_r <span class="op">/</span> sim_within_r</span>
+<span id="cb47-1283"><a href="#cb47-1283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-1284"><a href="#cb47-1284" aria-hidden="true" tabindex="-1"></a>alpha_col <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span> <span class="op">:</span> <span class="st">"#e63946"</span></span>
+<span id="cb47-1285"><a href="#cb47-1285" aria-hidden="true" tabindex="-1"></a>htmt_col  <span class="op">=</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"#2a9d8f"</span></span>
+<span id="cb47-1286"><a href="#cb47-1286" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt  <span class="op">&lt;</span>  <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"#e9c46a"</span></span>
+<span id="cb47-1287"><a href="#cb47-1287" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"#e63946"</span></span>
+<span id="cb47-1288"><a href="#cb47-1288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-1289"><a href="#cb47-1289" aria-hidden="true" tabindex="-1"></a>alpha_label <span class="op">=</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"Excellent"</span></span>
+<span id="cb47-1290"><a href="#cb47-1290" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.80</span> <span class="op">?</span> <span class="st">"Good"</span></span>
+<span id="cb47-1291"><a href="#cb47-1291" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> rel_alpha <span class="op">&gt;=</span> <span class="fl">0.70</span> <span class="op">?</span> <span class="st">"Acceptable"</span></span>
+<span id="cb47-1292"><a href="#cb47-1292" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">"Too low"</span></span>
+<span id="cb47-1293"><a href="#cb47-1293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-1294"><a href="#cb47-1294" aria-hidden="true" tabindex="-1"></a>htmt_label <span class="op">=</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.85</span> <span class="op">?</span> <span class="st">"✓ Discriminant validity supported"</span></span>
+<span id="cb47-1295"><a href="#cb47-1295" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> rel_htmt <span class="op">&lt;</span> <span class="fl">0.90</span> <span class="op">?</span> <span class="st">"⚠ Borderline — approaching threshold"</span></span>
+<span id="cb47-1296"><a href="#cb47-1296" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span> <span class="st">"✗ Discriminant validity VIOLATED"</span></span>
+<span id="cb47-1297"><a href="#cb47-1297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-1298"><a href="#cb47-1298" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`&lt;div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;"&gt;</span></span>
+<span id="cb47-1299"><a href="#cb47-1299" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
+<span id="cb47-1300"><a href="#cb47-1300" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;Cronbach's Alpha&lt;/div&gt;</span></span>
+<span id="cb47-1301"><a href="#cb47-1301" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_alpha<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb47-1302"><a href="#cb47-1302" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>alpha_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>alpha_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb47-1303"><a href="#cb47-1303" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold ≥ 0.70&lt;/div&gt;</span></span>
+<span id="cb47-1304"><a href="#cb47-1304" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb47-1305"><a href="#cb47-1305" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="flex:1;min-width:200px;border:2px solid </span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;border-radius:8px;padding:16px;text-align:center;background:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">18;"&gt;</span></span>
+<span id="cb47-1306"><a href="#cb47-1306" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.8em;color:#555;text-transform:uppercase;letter-spacing:.05em;"&gt;HTMT&lt;/div&gt;</span></span>
+<span id="cb47-1307"><a href="#cb47-1307" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:2.4em;font-weight:700;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;"&gt;</span><span class="sc">${</span>rel_htmt<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb47-1308"><a href="#cb47-1308" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.9em;color:</span><span class="sc">${</span>htmt_col<span class="sc">}</span><span class="vs">;font-weight:600;"&gt;</span><span class="sc">${</span>htmt_label<span class="sc">}</span><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb47-1309"><a href="#cb47-1309" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;div style="font-size:.75em;color:#888;margin-top:4px;"&gt;Threshold &lt; 0.85&lt;/div&gt;</span></span>
+<span id="cb47-1310"><a href="#cb47-1310" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb47-1311"><a href="#cb47-1311" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-2-1" data-nodetype="declaration">
@@ -3010,34 +3036,34 @@ BA_text       0.47       0.52      0.85</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb48" data-startfrom="1317" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1316;"><span id="cb48-1317"><a href="#cb48-1317" aria-hidden="true" tabindex="-1"></a>k_vals <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">14</span>}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">2</span>)</span>
-<span id="cb48-1318"><a href="#cb48-1318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-1319"><a href="#cb48-1319" aria-hidden="true" tabindex="-1"></a>alpha_long <span class="op">=</span> k_vals<span class="op">.</span><span class="fu">flatMap</span>(k <span class="kw">=&gt;</span> [</span>
-<span id="cb48-1320"><a href="#cb48-1320" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)}<span class="op">,</span></span>
-<span id="cb48-1321"><a href="#cb48-1321" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"HTMT"</span><span class="op">,</span>         <span class="dt">value</span><span class="op">:</span> sim_between_r <span class="op">/</span> sim_within_r}</span>
-<span id="cb48-1322"><a href="#cb48-1322" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb48-1323"><a href="#cb48-1323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-1324"><a href="#cb48-1324" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb48-1325"><a href="#cb48-1325" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">640</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">280</span><span class="op">,</span></span>
-<span id="cb48-1326"><a href="#cb48-1326" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb48-1327"><a href="#cb48-1327" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
-<span id="cb48-1328"><a href="#cb48-1328" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb48-1329"><a href="#cb48-1329" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="st">"HTMT"</span>]<span class="op">,</span></span>
-<span id="cb48-1330"><a href="#cb48-1330" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
-<span id="cb48-1331"><a href="#cb48-1331" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb48-1332"><a href="#cb48-1332" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items per scale (k)"</span><span class="op">,</span> <span class="dt">tickValues</span><span class="op">:</span> [<span class="dv">2</span><span class="op">,</span><span class="dv">4</span><span class="op">,</span><span class="dv">6</span><span class="op">,</span><span class="dv">8</span><span class="op">,</span><span class="dv">10</span><span class="op">,</span><span class="dv">12</span><span class="op">,</span><span class="dv">14</span><span class="op">,</span><span class="dv">15</span>]}<span class="op">,</span></span>
-<span id="cb48-1333"><a href="#cb48-1333" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb48-1334"><a href="#cb48-1334" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span></span>
-<span id="cb48-1335"><a href="#cb48-1335" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="fl">1.3</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="fl">1.1</span><span class="op">,</span> rel_htmt <span class="op">+</span> <span class="fl">0.15</span>))]</span>
-<span id="cb48-1336"><a href="#cb48-1336" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb48-1337"><a href="#cb48-1337" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb48-1338"><a href="#cb48-1338" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.70</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#f4a261"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
-<span id="cb48-1339"><a href="#cb48-1339" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.85</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#e63946"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
-<span id="cb48-1340"><a href="#cb48-1340" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(alpha_long<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
-<span id="cb48-1341"><a href="#cb48-1341" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(alpha_long<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">k</span> <span class="op">===</span> sim_k)<span class="op">,</span></span>
-<span id="cb48-1342"><a href="#cb48-1342" aria-hidden="true" tabindex="-1"></a>             {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">7</span>})</span>
-<span id="cb48-1343"><a href="#cb48-1343" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb48-1344"><a href="#cb48-1344" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb48" data-startfrom="1319" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1318;"><span id="cb48-1319"><a href="#cb48-1319" aria-hidden="true" tabindex="-1"></a>k_vals <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">14</span>}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> i <span class="op">+</span> <span class="dv">2</span>)</span>
+<span id="cb48-1320"><a href="#cb48-1320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-1321"><a href="#cb48-1321" aria-hidden="true" tabindex="-1"></a>alpha_long <span class="op">=</span> k_vals<span class="op">.</span><span class="fu">flatMap</span>(k <span class="kw">=&gt;</span> [</span>
+<span id="cb48-1322"><a href="#cb48-1322" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> (k <span class="op">*</span> sim_within_r) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> (k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> sim_within_r)}<span class="op">,</span></span>
+<span id="cb48-1323"><a href="#cb48-1323" aria-hidden="true" tabindex="-1"></a>  {k<span class="op">,</span> <span class="dt">metric</span><span class="op">:</span> <span class="st">"HTMT"</span><span class="op">,</span>         <span class="dt">value</span><span class="op">:</span> sim_between_r <span class="op">/</span> sim_within_r}</span>
+<span id="cb48-1324"><a href="#cb48-1324" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb48-1325"><a href="#cb48-1325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-1326"><a href="#cb48-1326" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb48-1327"><a href="#cb48-1327" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">640</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">280</span><span class="op">,</span></span>
+<span id="cb48-1328"><a href="#cb48-1328" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">55</span><span class="op">,</span> <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb48-1329"><a href="#cb48-1329" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
+<span id="cb48-1330"><a href="#cb48-1330" aria-hidden="true" tabindex="-1"></a>    <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb48-1331"><a href="#cb48-1331" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="st">"Cronbach's α"</span><span class="op">,</span> <span class="st">"HTMT"</span>]<span class="op">,</span></span>
+<span id="cb48-1332"><a href="#cb48-1332" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span>  [<span class="st">"#457b9d"</span><span class="op">,</span>      <span class="st">"#e63946"</span>]</span>
+<span id="cb48-1333"><a href="#cb48-1333" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb48-1334"><a href="#cb48-1334" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items per scale (k)"</span><span class="op">,</span> <span class="dt">tickValues</span><span class="op">:</span> [<span class="dv">2</span><span class="op">,</span><span class="dv">4</span><span class="op">,</span><span class="dv">6</span><span class="op">,</span><span class="dv">8</span><span class="op">,</span><span class="dv">10</span><span class="op">,</span><span class="dv">12</span><span class="op">,</span><span class="dv">14</span><span class="op">,</span><span class="dv">15</span>]}<span class="op">,</span></span>
+<span id="cb48-1335"><a href="#cb48-1335" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb48-1336"><a href="#cb48-1336" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span></span>
+<span id="cb48-1337"><a href="#cb48-1337" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="fl">1.3</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="fl">1.1</span><span class="op">,</span> rel_htmt <span class="op">+</span> <span class="fl">0.15</span>))]</span>
+<span id="cb48-1338"><a href="#cb48-1338" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb48-1339"><a href="#cb48-1339" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb48-1340"><a href="#cb48-1340" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.70</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#f4a261"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
+<span id="cb48-1341"><a href="#cb48-1341" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="fl">0.85</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"#e63946"</span><span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"5,3"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">1.4</span>})<span class="op">,</span></span>
+<span id="cb48-1342"><a href="#cb48-1342" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(alpha_long<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="fl">2.5</span>})<span class="op">,</span></span>
+<span id="cb48-1343"><a href="#cb48-1343" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(alpha_long<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">k</span> <span class="op">===</span> sim_k)<span class="op">,</span></span>
+<span id="cb48-1344"><a href="#cb48-1344" aria-hidden="true" tabindex="-1"></a>             {<span class="dt">x</span><span class="op">:</span> <span class="st">"k"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"metric"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">7</span>})</span>
+<span id="cb48-1345"><a href="#cb48-1345" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb48-1346"><a href="#cb48-1346" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-ojs-cell-3" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ojs-cell-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3105,8 +3131,8 @@ Figure&nbsp;5.1: Cronbach’s alpha climbs with each additional item (blue). HTM
 </div>
 <hr>
 </section>
-<section id="sec-checklist-part1" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part1">Researcher Checklist: Discriminant Validity</h2>
+<section id="sec-checklist-discriminant-validity" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-discriminant-validity">Researcher Checklist: Discriminant Validity</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -3234,16 +3260,16 @@ window._ojs.runtime.interpretFromScriptTags();
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

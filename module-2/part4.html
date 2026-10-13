@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -333,7 +336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#alternative-lda-topic-modeling-unsupervised-discovery" id="toc-alternative-lda-topic-modeling-unsupervised-discovery" class="nav-link" data-scroll-target="#alternative-lda-topic-modeling-unsupervised-discovery">Alternative: LDA Topic Modeling (Unsupervised Discovery)</a></li>
   <li><a href="#from-text-to-numbers-measuring-and-modeling-the-nomological-net" id="toc-from-text-to-numbers-measuring-and-modeling-the-nomological-net" class="nav-link" data-scroll-target="#from-text-to-numbers-measuring-and-modeling-the-nomological-net">From Text to Numbers: Measuring and Modeling the Nomological Net</a></li>
   </ul></li>
-  <li><a href="#sec-checklist-part4" id="toc-sec-checklist-part4" class="nav-link" data-scroll-target="#sec-checklist-part4">Researcher Checklist: The Exclusion Restriction</a></li>
+  <li><a href="#sec-checklist-exclusion" id="toc-sec-checklist-exclusion" class="nav-link" data-scroll-target="#sec-checklist-exclusion">Researcher Checklist: The Exclusion Restriction</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -382,8 +385,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Part 4: The Exclusion Restriction — What Else Is in Your Treatment?</h1>
 <section id="one-button-many-signals" class="level2">
 <h2 class="anchored" data-anchor-id="one-button-many-signals">One Button, Many Signals</h2>
-<p>In Part 1 we treated the eco-label manipulation as a clean, unidimensional intervention: it either increases WTP (H₁) or it does not (H₀). This framing is convenient, but it hides a problem that is exactly analogous to what Module 1 revealed about <em>measuring</em> Y.</p>
-<p>Recall the core lesson from Module 1:</p>
+<p>In <a href="part1.html" class="quarto-xref">Part 1</a> we treated the eco-label manipulation as a clean, unidimensional intervention: it either increases WTP (H₁) or it does not (H₀). This framing is convenient, but it hides a problem that is exactly analogous to what <a href="../module-1/intro.html" class="quarto-xref">Module 1</a> revealed about <em>measuring</em> Y.</p>
+<p>Recall the core lesson from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>:</p>
 <blockquote class="blockquote">
 <p>A scale item labeled “Green Purchase Intention” often captures several distinct latent constructs simultaneously — environmental values, social signaling, perceived quality, price expectations, and more. The scale <em>appears</em> to measure one thing while actually measuring many. This is a violation of <strong>discriminant validity</strong>.</p>
 </blockquote>
@@ -439,7 +442,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>These terms are related family resemblances, not exact synonyms — they arose in different empirical traditions to describe structurally distinct scenarios. The coffee example in this section is closest to <strong>stimulus confounding</strong> or <strong>treatment-bundle ambiguity</strong>: the manipulation packages multiple causal signals into a single condition label, creating mechanism ambiguity even when assignment is random. Classic backdoor confounding and endogeneity typically involve non-random exposure to a treatment, not a bundled randomized manipulation. What all share is the common diagnosis: <strong>there is more than one latent link between X and Y</strong>.</p>
 <p>If X injects additional unintended signals that also causally influence Y — and if those signals vary across participants — then the estimated “treatment effect” is a weighted mixture of several distinct causal effects, not a clean estimate of any one mechanism. <strong>Note that this is a problem of interpretation, not identification.</strong> When assignment is random, the coefficient on the treatment dummy still identifies the average causal effect of the full bundle. What cannot be recovered from that single coefficient is which component of the bundle generated the effect.</p>
-<p><strong>This is the mechanism ambiguity problem in experimentation</strong>, and it is the direct analogue of discriminant invalidity in measurement. In Module 1 you saw that <strong>measured Y can measure too much</strong>. Here you will see that <strong>manipulated X can inject too much</strong>.</p>
+<p><strong>This is the mechanism ambiguity problem in experimentation</strong>, and it is the direct analogue of discriminant invalidity in measurement. In <a href="../module-1/intro.html" class="quarto-xref">Module 1</a> you saw that <strong>measured Y can measure too much</strong>. Here you will see that <strong>manipulated X can inject too much</strong>.</p>
 </div>
 </div>
 </section>
@@ -1027,7 +1030,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>This is the most important figure in Section 2 — read it carefully
+<span class="screen-reader-only">Important</span>This is the most important figure in Part 4 — read it carefully
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1037,13 +1040,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>The blue lines are the problem.</strong> Each blue line is a latent pathway from X to Y that exists <em>in addition to</em> the one the researcher intends. When any of these additional pathways carry variance, the treatment coefficient in a regression is not “the effect of eco-labeling on environmental value”. It is a conflation of all connected pathways, weighted by how strongly each latent construct in Y is activated by X.</p>
 <p><strong>The researcher’s responsibility</strong> is to:</p>
 <ol type="1">
-<li><p><em>Before</em> running the study: use the measurement tools from Module 1 (pilot text analysis, CFA, construct mapping) to enumerate the latent space of both X and Y. Every construct in that space that is common to both columns is a pathway you must account for — either by measuring it (so you can check balance) or by designing the manipulation to deactivate it.</p></li>
+<li><p><em>Before</em> running the study: use the measurement tools from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a> (pilot text analysis, CFA, construct mapping) to enumerate the latent space of both X and Y. Every construct in that space that is common to both columns is a pathway you must account for — either by measuring it (so you can check balance) or by designing the manipulation to deactivate it.</p></li>
 <li><p><em>After</em> data collection: check balance on every measured common construct. Acknowledge that unmeasured common constructs remain a threat.</p></li>
 </ol>
 <p>The question “What’s in the X?” is the discriminant validity question asked about a <em>manipulation</em> rather than a <em>scale</em>. The tools are the same; the object of inquiry has shifted from the outcome variable to the treatment variable.</p>
 </div>
 </div>
-<p>The analysis above lets us ask the same question we posed in Module 1 about outcome measurement, but now about the treatment:</p>
+<p>The analysis above lets us ask the same question we posed in <a href="../module-1/intro.html" class="quarto-xref">Module 1</a> about outcome measurement, but now about the treatment:</p>
 <blockquote class="blockquote">
 <p><strong>“What’s in the X?” and “What’s in the Y?” — and where do they overlap?</strong></p>
 </blockquote>
@@ -1180,7 +1183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In Module 1, we said that a <em>scale</em> violates discriminant validity when it correlates too strongly with constructs it is not supposed to measure. The scale “measures too much.”</p>
+<p>In <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>, we said that a <em>scale</em> violates discriminant validity when it correlates too strongly with constructs it is not supposed to measure. The scale “measures too much.”</p>
 <p>Here, the <em>eco-label manipulation</em> violates an analogous principle: it injects multiple independent constructs simultaneously — not just “environmental responsibility” but also quality expectations, price priors, social identity signals, health inferences, certification trust, and guilt-offset motivation. The manipulation “does too much.”</p>
 <p><strong>Constructs unique to X (not in Y):</strong> Guilt reduction. This signal is activated by the eco-label but does not translate into WTP variance in this simulation.</p>
 <p><strong>Constructs unique to Y (not activated by X):</strong> Hedonic taste expectations and habitual spending patterns. These explain variance in WTP in both conditions but are not triggered by the eco-label.</p>
@@ -1195,8 +1198,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>This is the nomological net scan.</strong> It serves three purposes simultaneously:</p>
 <ol type="1">
 <li><strong>Enumeration:</strong> it tells you <em>how many</em> latent pathways from X to Y exist — the practical answer to “What’s in X? What’s in Y?”</li>
-<li><strong>Measurement guidance:</strong> every concept the text reveals is a mediator you should measure quantitatively in the main study (using the scale construction tools from Module 1)</li>
-<li><strong>Identification strategy:</strong> once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in detail in Module 3)</li>
+<li><strong>Measurement guidance:</strong> every concept the text reveals is a mediator you should measure quantitatively in the main study (using the scale construction tools from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>)</li>
+<li><strong>Identification strategy:</strong> once you have measured mediators, you can decompose the total treatment effect into its component channels via structural models (which we address in detail in <a href="../module-3/intro.html" class="quarto-xref">Module 3</a>)</li>
 </ol>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1208,7 +1211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In Module 1 we showed that a scale conflates multiple latent constructs (discriminant invalidity) — and the fix was to <em>measure</em> those constructs separately and check that they can be discriminated.</p>
+<p>In <a href="../module-1/intro.html" class="quarto-xref">Module 1</a> we showed that a scale conflates multiple latent constructs (discriminant invalidity) — and the fix was to <em>measure</em> those constructs separately and check that they can be discriminated.</p>
 <p>Here, the treatment X activates multiple causal pathways to Y. The fix is identical: <em>measure</em> those pathways as mediators, then use a structural model to identify which channels carry the effect. Without measurement, you are left with an identification problem — no statistical model can tell you which pathway generated the observed X→Y association.</p>
 <p><strong>The nomological net scan gives you the list. Quantitative measurement gives you the data. Structural modeling gives you the decomposition.</strong></p>
 </div>
@@ -1653,7 +1656,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-3-parallel-mediation-model" class="level4">
 <h4 class="anchored" data-anchor-id="step-3-parallel-mediation-model">Step 3: Parallel Mediation Model</h4>
 <p>A parallel mediation model regresses each mediator on treatment (the <em>a</em> paths) and regresses WTP on treatment + all mediators simultaneously (the <em>b</em> paths + direct effect <em>c’</em>). The indirect effects (a × b) decompose the total X→Y effect into specific causal channels.</p>
-<p>This model assumes the mediators are <strong>independent</strong> of each other (no correlated residuals). This is the standard Hayes PROCESS approach. <strong>We will address mediation models in much greater detail in Module 3</strong>, where we formalize the causal assumptions required for valid mediation inference and introduce more flexible structural equation modeling approaches. Here, we use parallel mediation as a first-pass decomposition tool to illustrate the concept — and to show where it breaks down.</p>
+<p>This model assumes the mediators are <strong>independent</strong> of each other (no correlated residuals). This is the standard Hayes PROCESS approach. <strong>We will address mediation models in much greater detail in <a href="../module-3/intro.html" class="quarto-xref">Module 3</a></strong>, where we formalize the causal assumptions required for valid mediation inference and introduce more flexible structural equation modeling approaches. Here, we use parallel mediation as a first-pass decomposition tool to illustrate the concept — and to show where it breaks down.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Step 3: Parallel mediation via lavaan (fits model; no standalone plot)</summary>
@@ -1698,7 +1701,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-4-sem-with-latent-factors" class="level4">
 <h4 class="anchored" data-anchor-id="step-4-sem-with-latent-factors">Step 4: SEM with Latent Factors</h4>
 <p><strong>Why parallel mediation underestimates the eco-cluster effect:</strong> The eco-label activates a <em>cluster</em> of correlated constructs — sustainability, social values, health/natural, and trust in certification — all driven by the same underlying eco-mindedness latent factor. Regressing WTP on all 10 mediators simultaneously creates <strong>multicollinearity</strong> among those four; the regression splits their shared variance arbitrarily across four rows. Each individual eco-cluster pathway appears small and noisy.</p>
-<p><strong>The SEM solution:</strong> instead of treating each indicator as an independent mediator, model the shared variance explicitly as a <em>latent factor</em> using a CFA measurement model. The latent <code>eco_factor</code> extracts the common variance from its four indicators, accounts for measurement error in each, and serves as a single, well-identified mediator in the structural part of the model. This is precisely the link to Module 1: the CFA measurement model IS a discriminant/convergent validity check applied directly to the mediator set.</p>
+<p><strong>The SEM solution:</strong> instead of treating each indicator as an independent mediator, model the shared variance explicitly as a <em>latent factor</em> using a CFA measurement model. The latent <code>eco_factor</code> extracts the common variance from its four indicators, accounts for measurement error in each, and serves as a single, well-identified mediator in the structural part of the model. This is precisely the link to <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>: the CFA measurement model IS a discriminant/convergent validity check applied directly to the mediator set.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Step 4: SEM with latent eco-factor (CFA + structural mediation)</summary>
@@ -1966,11 +1969,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ol>
 <p>By contrast, the SEM explicitly defines a latent <code>eco_factor</code> via a CFA measurement model. The CFA correctly partitions eco_latent signal from measurement noise and method-factor variance, yielding an <strong>unattenuated</strong> b-path estimate from eco_factor to WTP. The residual covariance constraints (<code>sustainability ~~ health_natural</code>; <code>social_values ~~ trust_cert</code>) further correct for the within-pair shared method variance that parallel mediation ignores. The result is a structural path estimate that closely tracks the true latent-factor oracle.</p>
 <p>Neither model is perfect. The key insight is that <strong>any structural model is only as good as the list of mediators you feed into it</strong>. The text analysis gave us that list. Without the text analysis, you would have entered the study with an incomplete nomological map — and the “treatment effect” coefficient would have remained an uninterpretable mixture of all active pathways.</p>
-<p>This is the direct parallel to Module 1’s discriminant validity problem: just as measuring only some sub-dimensions of Y produces a biased estimate of your latent construct, measuring only some mediators of the X→Y relationship produces a biased estimate of the causal effect. In both cases, the solution is the same: map the latent space carefully, measure what you can, and report the gap transparently.</p>
+<p>This is the direct parallel to <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>’s discriminant validity problem: just as measuring only some sub-dimensions of Y produces a biased estimate of your latent construct, measuring only some mediators of the X→Y relationship produces a biased estimate of the causal effect. In both cases, the solution is the same: map the latent space carefully, measure what you can, and report the gap transparently.</p>
 </div>
 </div>
 <p><strong>5. Two Further Threats to Mediation Inference — and Their Remedies</strong></p>
-<p>The parallel mediation and SEM above address <em>which</em> mediators to include and <em>how</em> to model them. Two additional threats remain regardless of model specification: <strong>non-normal residuals / influential outliers</strong> (which can corrupt OLS <em>b</em>-path estimates) and <strong>unmeasured M–Y confounders</strong> which we will discuss in Module 3.</p>
+<p>The parallel mediation and SEM above address <em>which</em> mediators to include and <em>how</em> to model them. Two additional threats remain regardless of model specification: <strong>non-normal residuals / influential outliers</strong> (which can corrupt OLS <em>b</em>-path estimates) and <strong>unmeasured M–Y confounders</strong> which we will discuss in <a href="../module-3/intro.html" class="quarto-xref">Module 3</a>.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1982,16 +1985,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Every concept in this tutorial maps directly onto a concept from Module 1:</p>
+<p>Every concept in this tutorial maps directly onto a concept from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Module 1 (Measurement)</th>
-<th>Module 2 (Experimentation and Identification)</th>
+<th><a href="../module-1/intro.html" class="quarto-xref">Module 1</a> (Measurement)</th>
+<th><a href="intro.html" class="quarto-xref">Module 2</a> (Experimentation and Identification)</th>
 </tr>
 </thead>
 <tbody>
@@ -2032,8 +2031,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 </section>
-<section id="sec-checklist-part4" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part4">Researcher Checklist: The Exclusion Restriction</h2>
+<section id="sec-checklist-exclusion" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-exclusion">Researcher Checklist: The Exclusion Restriction</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -2063,11 +2062,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The exclusion restriction is not unique to lab experiments. Every method in <strong>Module 3 (Causal Inference)</strong> requires an analogous assumption — that the source of variation used to identify a causal effect operates <em>only</em> through the intended pathway:</p>
+<p>The exclusion restriction is not unique to lab experiments. Every method in <strong><a href="../module-3/intro.html" class="quarto-xref">Module 3</a> (Causal Inference)</strong> requires an analogous assumption — that the source of variation used to identify a causal effect operates <em>only</em> through the intended pathway:</p>
 <ul>
-<li><strong>Regression discontinuity (Part 3):</strong> The cutoff that determines treatment assignment must affect the outcome <em>only</em> through treatment status — not through any other mechanism that also changes sharply at the threshold.</li>
-<li><strong>Difference-in-differences (Part 4):</strong> The event or policy that causes the treatment group to change must not simultaneously affect the outcome through a separate channel.</li>
-<li><strong>Instrumental variables (background to Part 3):</strong> A valid instrument must be correlated with treatment but affect the outcome <em>only through</em> treatment — the exclusion restriction in its original, formal sense.</li>
+<li><strong>Regression discontinuity (<a href="../module-3/part3.html#sec-rdd" class="quarto-xref">Module 3, Part 3</a>):</strong> The cutoff that determines treatment assignment must affect the outcome <em>only</em> through treatment status — not through any other mechanism that also changes sharply at the threshold.</li>
+<li><strong>Difference-in-differences (<a href="../module-3/part3.html#sec-did" class="quarto-xref">Module 3, Part 3</a>):</strong> The event or policy that causes the treatment group to change must not simultaneously affect the outcome through a separate channel.</li>
+<li><strong>Instrumental variables (background to <a href="../module-3/part3.html#sec-iv" class="quarto-xref">Module 3, Part 3</a>):</strong> A valid instrument must be correlated with treatment but affect the outcome <em>only through</em> treatment — the exclusion restriction in its original, formal sense.</li>
 </ul>
 <p>In each case, the underlying question is the same one raised here: does this source of variation inject a single clean signal, or a bundle of signals that cannot be disentangled? The vocabulary and intuition you built in this section apply directly to all of those designs.</p>
 </div>
@@ -2171,16 +2170,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -453,13 +456,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p><strong>Your observable may not accurately reflect the latent construct you need.</strong></p>
 </blockquote>
-<p>In Module 1, that problem lived in your <em>outcome variable Y</em> — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in <strong>two places at once</strong>: in your <em>treatment variable X</em>, and in the act of <em>randomization</em> that is supposed to make X interpretable.</p>
-<p>This tutorial covers four ideas:</p>
+<p>In <a href="../module-1/intro.html" class="quarto-xref">Module 1</a>, that problem lived in your <em>outcome variable Y</em> — your scale picked up variance from constructs you never intended to measure. Here, the same problem appears in <strong>two places at once</strong>: in your <em>treatment variable X</em>, and in the act of <em>randomization</em> that is supposed to make X interpretable.</p>
+<p>This module covers five ideas:</p>
 <ul>
-<li><p><strong>Part 1 — P-values:</strong> What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.</p></li>
-<li><p><strong>Part 2 — Randomization:</strong> Why “clicking randomize” (the observable) is not the same as “achieving randomization” (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.</p></li>
-<li><p><strong>Part 3 — Selection Effects:</strong> Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.</p></li>
-<li><p><strong>Part 4 — The Exclusion Restriction:</strong> Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.</p></li>
+<li><p><strong><a href="part1.html" class="quarto-xref">Part 1</a> — P-values:</strong> What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.</p></li>
+<li><p><strong><a href="part2.html" class="quarto-xref">Part 2</a> — Randomization:</strong> What a valid random-assignment mechanism establishes (independence by design) and what it does not (balanced groups in any one realized sample), and why meeting a demanding simultaneous balance criterion gets harder as the construct Y you are studying becomes broader and more complex.</p></li>
+<li><p><strong><a href="part3.html" class="quarto-xref">Part 3</a> — Selection Effects:</strong> Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.</p></li>
+<li><p><strong><a href="part4.html" class="quarto-xref">Part 4</a> — The Exclusion Restriction:</strong> Just as a measured outcome Y can fail discriminant validity by absorbing multiple constructs, a manipulated treatment X can inject multiple independent signals into the system simultaneously. When assignment is random, the treatment coefficient still estimates the causal effect of the bundle participants actually received. What becomes ambiguous is the narrower mechanistic claim: the coefficient cannot tell you whether the effect came from eco-certification, the premium packaging, demand cues, or their interaction — and that mechanism ambiguity is the experimental analogue of discriminant invalidity in measurement.</p></li>
+<li><p><strong><a href="part5.html" class="quarto-xref">Part 5</a> — Experimental Design Strategies:</strong> How the structure of the design itself — stratified and clustered assignment, factorial and Latin square designs, within-participant designs, and metastudies — can buy back orthogonality and power, and what each structural choice costs in carryover risk, lost interaction information, or underpowered individual microstudies.</p></li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -478,9 +482,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Identify the three ingredients that give a p-value inferential power</li>
 <li>Explain why a treatment manipulation can violate discriminant validity in the same way a measurement scale can</li>
 <li>Use open-ended text to map the constructs injected by an experimental manipulation and those driving an outcome</li>
-<li>Articulate the difference between <strong>observable randomization</strong> and <strong>latent randomization</strong> using the construct-validity language from Module 1</li>
-<li>Calculate the minimum observations needed for approximate orthogonality given the complexity of Y</li>
-<li>Run diagnostic checks to assess whether your observed randomization achieved approximate orthogonality</li>
+<li>Distinguish the randomness of an assignment mechanism from the realized balance of a particular sample, using the observable-vs-latent language from <a href="../module-1/intro.html" class="quarto-xref">Module 1</a></li>
+<li>Calculate the approximate sample size at which a valid random assignment typically meets a simultaneous balance tolerance, given the complexity of Y</li>
+<li>Describe realized covariate balance with diagnostic checks, and interpret them as description rather than certification of randomization</li>
 <li>Identify the four classes of selection effect (non-representativeness, self-selection, survivorship/attrition, exclusion bias) and explain why each makes exchangeability structurally unachievable within the affected sample</li>
 <li>Distinguish survivorship bias (missing observations never entered the sample) from attrition bias (observations entered the sample but left non-randomly)</li>
 <li>Diagnose differential attrition across conditions and explain why conditioning on a post-randomization event breaks exchangeability even in a properly randomized experiment</li>
@@ -602,16 +606,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

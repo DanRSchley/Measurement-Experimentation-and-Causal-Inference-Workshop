@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -109,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -365,7 +368,7 @@ window.Quarto = {
   <li><a href="#how-big-an-effect-can-n-60-actually-detect" id="toc-how-big-an-effect-can-n-60-actually-detect" class="nav-link" data-scroll-target="#how-big-an-effect-can-n-60-actually-detect">How big an effect can N = 60 actually detect?</a></li>
   </ul></li>
   <li><a href="#the-assumptions-behind-every-p-value" id="toc-the-assumptions-behind-every-p-value" class="nav-link" data-scroll-target="#the-assumptions-behind-every-p-value">The Assumptions Behind Every P-value</a></li>
-  <li><a href="#sec-checklist-part1" id="toc-sec-checklist-part1" class="nav-link" data-scroll-target="#sec-checklist-part1">Researcher Checklist: P-Values and Statistical Inference</a></li>
+  <li><a href="#sec-checklist-pvalues" id="toc-sec-checklist-pvalues" class="nav-link" data-scroll-target="#sec-checklist-pvalues">Researcher Checklist: P-Values and Statistical Inference</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -955,11 +958,11 @@ window.Quarto = {
 </blockquote>
 <p>This assumption is satisfied when: - Participants are a random sample from the population - Treatment was assigned randomly and independently</p>
 <p>If either fails, the null distribution we construct by shuffling labels does not correspond to the distribution under the true null. The p-value becomes meaningless — or worse, systematically biased.</p>
-<p><strong>The act of randomization is what makes exchangeability plausible.</strong> Which brings us to Parts 2 and 3.</p>
+<p><strong>The act of randomization is what makes exchangeability plausible.</strong> Which brings us to Parts <a href="part2.html" class="quarto-xref">2</a> and <a href="part3.html" class="quarto-xref">3</a>.</p>
 <hr>
 </section>
-<section id="sec-checklist-part1" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part1">Researcher Checklist: P-Values and Statistical Inference</h2>
+<section id="sec-checklist-pvalues" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-pvalues">Researcher Checklist: P-Values and Statistical Inference</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1076,16 +1079,16 @@ window.Quarto = {
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {

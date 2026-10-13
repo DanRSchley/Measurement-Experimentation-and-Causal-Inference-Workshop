@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5c1318cf63eba56dbef7ba16bc7d56f5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-0fc569d25ffc1d4ecb53dd1a69368ab4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -350,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#sec-forward-part3" id="toc-sec-forward-part3" class="nav-link" data-scroll-target="#sec-forward-part3">Forward Connections</a>
   <ul class="collapse">
-  <li><a href="#sec-checklist-part3" id="toc-sec-checklist-part3" class="nav-link" data-scroll-target="#sec-checklist-part3">Researcher Checklist: Selection Effects</a></li>
+  <li><a href="#sec-checklist-selection" id="toc-sec-checklist-selection" class="nav-link" data-scroll-target="#sec-checklist-selection">Researcher Checklist: Selection Effects</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Measurement-Experimentation-and-Causal-Inference-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -394,27 +397,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Part 3: Selection Effects — Structural Threats to Exchangeability</h1>
 <section id="the-problem-that-randomization-cannot-fix" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem-that-randomization-cannot-fix">The Problem That Randomization Cannot Fix</h2>
-<p>Part 2 established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of <em>degree</em> — in principle, you can always collect more data.</p>
-<p>This part introduces a different and more fundamental problem. <strong>Selection effects</strong> are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of Part 2, these are not fixable by random assignment alone — the selection process operates outside the researcher’s randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike Part 2 failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.</p>
+<p><a href="part2.html" class="quarto-xref">Part 2</a> showed that a valid random-assignment procedure supplies independence by design but not guaranteed balance in any one sample. How well a draw balances the characteristics that matter depends on sample size and on how many such characteristics there are. That was a problem of <em>degree</em> — in principle, you can always collect more data.</p>
+<p>This part introduces a different and more fundamental problem. <strong>Selection effects</strong> are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of <a href="part2.html" class="quarto-xref">Part 2</a>, these are not fixable by random assignment alone — the selection process operates outside the researcher’s randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike <a href="part2.html" class="quarto-xref">Part 2</a> failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.</p>
 <p>The distinction is worth making precise:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Part 2 failure</th>
-<th>Part 3 failure</th>
+<th><a href="part2.html" class="quarto-xref">Part 2</a> failure</th>
+<th><a href="part3.html" class="quarto-xref">Part 3</a> failure</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Random assignment is executed, but the sample is too small to achieve exchangeability by chance</td>
+<td>Random assignment is executed validly, but in a finite sample realized balance on the characteristics that matter is imperfect</td>
 <td>The pool of observations entering (or remaining in) the analysis is itself non-randomly determined</td>
 </tr>
 <tr class="even">
-<td>Fixable with more data, blocked randomization, or structural designs (Part 5)</td>
+<td>Fixable with more data, blocked randomization, or structural designs (<a href="part5.html" class="quarto-xref">Part 5</a>)</td>
 <td>Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions</td>
 </tr>
 <tr class="odd">
@@ -433,7 +432,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Module 1 showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed <em>sample</em> can fail to reflect your intended <em>population</em> or <em>analysis group</em> for parallel reasons.</p>
+<p><a href="../module-1/intro.html" class="quarto-xref">Module 1</a> showed that your observed Y can fail to reflect your latent construct because of measurement artifacts — your scale picks up variance from unintended constructs, from non-invariant item parameters, or from latent subgroups. Selection effects represent the exact same problem one level up: your observed <em>sample</em> can fail to reflect your intended <em>population</em> or <em>analysis group</em> for parallel reasons.</p>
 <blockquote class="blockquote">
 <p>Just as a biased scale gives you the wrong latent score for a respondent, a biased sampling or exclusion process gives you the wrong set of respondents.</p>
 </blockquote>
@@ -574,7 +573,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="stimulus-non-representativeness-bahník-vranka-2017" class="level2">
 <h2 class="anchored" data-anchor-id="stimulus-non-representativeness-bahník-vranka-2017">Stimulus Non-Representativeness: Bahník &amp; Vranka (2017)</h2>
-<p>Non-representativeness does not only afflict participant samples — it also afflicts <strong>stimulus samples</strong>. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells &amp; Windschitl (1999) stimulus sampling reading in the Module 2 introduction.</p>
+<p>Non-representativeness does not only afflict participant samples — it also afflicts <strong>stimulus samples</strong>. This is the direct stimulus-level analog of the participant selection problem, and it connects directly to the Wells &amp; Windschitl (1999) stimulus sampling reading in the <a href="intro.html" class="quarto-xref">Module 2</a> introduction.</p>
 <p><strong>The original finding.</strong> Song &amp; Schwarz (2009) reported that food additives and amusement-park rides with difficult-to-pronounce names were judged as more hazardous than easier-to-pronounce versions. The explanation was <em>processing fluency</em>: names that are hard to process feel unfamiliar and foreign, activating a heuristic that foreign = risky. The result became a widely cited demonstration of how subtle perceptual cues influence risk judgment.</p>
 <p><strong>The problem.</strong> Song &amp; Schwarz did not randomly sample their stimuli from the population of food additives and roller coasters. They selected specific stimuli and then assigned pronounceability labels to them. Bahník &amp; Vranka (2017) noticed that the stimuli assigned to the “hard to pronounce” condition were not merely harder to pronounce — they had other features that genuinely made them seem more exotic or obscure. The conditions were not exchangeable at the stimulus level.</p>
 <p><strong>The replication.</strong> When Bahník &amp; Vranka drew stimuli randomly from a broader population of additives and rides and assigned them to pronunciation conditions, the fluency-risk effect did not replicate. The observed correlation between pronounceability and perceived risk in the original study reflected the non-random selection of specific stimuli, not a generalizable cognitive effect.</p>
@@ -588,7 +587,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Recall from Part 2 that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:</p>
+<p>Recall from <a href="part2.html" class="quarto-xref">Part 2</a> that exchangeability requires treatment and control groups to be interchangeable on every potential cause of Y. When participants are randomized, we worry about whether the person-level covariates are balanced. When stimuli are hand-picked rather than randomly sampled, we face the exact same problem at the stimulus level:</p>
 <blockquote class="blockquote">
 <p>The “hard to pronounce” stimuli and “easy to pronounce” stimuli may differ on dimensions other than pronounceability — and those other dimensions may independently predict the outcome.</p>
 </blockquote>
@@ -857,7 +856,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <p>A researcher might think the solution is to include non-donors in the amount analysis — just force every participant to report an amount, and let them respond with $0. The problem is that <strong>$0 from a non-donor is categorically different from $0.01 from a reluctant donor</strong>. These two data points reflect different decisions from different decision processes. A participant who decided not to donate and reported $0 was never in the donation decision-making process; a participant who decided to donate a small amount was. Pooling them into a single continuous outcome conflates two qualitatively different behavioral states.</p>
-<p>The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the <em>probability</em> of donating (where groups remain exchangeable); (2) separately report and analyze the effect on <em>conditional donation amount</em> with the explicit caveat that this second analysis is compromised by the conditioning problem. Module 3, Part 2 will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.</p>
+<p>The correct approach is to separate the two-stage process analytically: (1) report and analyze the effect of the default on the <em>probability</em> of donating (where groups remain exchangeable); (2) separately report and analyze the effect on <em>conditional donation amount</em> with the explicit caveat that this second analysis is compromised by the conditioning problem. <a href="../module-3/part2.html" class="quarto-xref">Module 3, Part 2</a> will discuss methods — including Heckman selection models — for addressing selection into a conditional sample.</p>
 </div>
 </div>
 <hr>
@@ -1204,7 +1203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Recall from Part 1 that a p-value’s validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of <strong>researcher degrees of freedom</strong> (Simmons, Nelson &amp; Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.</p>
+<p>Recall from <a href="part1.html" class="quarto-xref">Part 1</a> that a p-value’s validity depends on the null distribution being correctly specified — which requires that the test statistic was computed on data whose collection and analysis were determined before the data were seen. Post-hoc exclusion decisions are a form of <strong>researcher degrees of freedom</strong> (Simmons, Nelson &amp; Simonsohn, 2011): the effective number of tests conducted is larger than the reported number, and the nominal false-positive rate no longer controls actual Type I errors.</p>
 <p>The solution is not to avoid excluding outliers — some exclusions are genuinely principled. The solution is to pre-register the exclusion rule before collecting data, apply it blindly without knowledge of its effect on the result, and report the primary analysis under that rule alongside sensitivity checks under alternatives.</p>
 </div>
 </div>
@@ -1223,13 +1222,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Module 2, Part 5</strong> covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.</p>
-<p><strong>Module 3, Part 2 — Selection on Observables</strong> addresses how to <em>reestablish</em> approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate <em>why</em> participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.</p>
+<p><strong><a href="part5.html" class="quarto-xref">Module 2, Part 5</a></strong> covers experimental design strategies that can prevent some of these selection problems from arising in the first place. Stratified and clustered randomization reduce non-representativeness within the sampled pool. Within-participant designs reduce exposure to attrition. Pre-registration and analysis plans eliminate exclusion bias. These are upstream, design-based solutions — they prevent the problem rather than correcting for it after the fact.</p>
+<p><strong><a href="../module-3/part2.html" class="quarto-xref">Module 3, Part 2</a> — Re-establishing Exchangeability</strong> addresses how to <em>reestablish</em> approximate exchangeability after self-selection has already occurred, using matching, weighting, and regression adjustment. These methods work downstream — after the selection process — and require strong assumptions about what drives selection. Understanding the mechanisms covered in this Part is essential for evaluating whether those assumptions are plausible. A researcher who cannot articulate <em>why</em> participants self-selected into a group is in a poor position to argue that controlling for observed covariates has removed the selection bias.</p>
 </div>
 </div>
 <hr>
-<section id="sec-checklist-part3" class="level2">
-<h2 class="anchored" data-anchor-id="sec-checklist-part3">Researcher Checklist: Selection Effects</h2>
+<section id="sec-checklist-selection" class="level2">
+<h2 class="anchored" data-anchor-id="sec-checklist-selection">Researcher Checklist: Selection Effects</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1244,7 +1243,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><label><input type="checkbox"><strong>Is your sample representative of the population you want to generalize to?</strong> If using crowdsourcing platforms, document who self-selected in and what demographic and attitudinal features your platform, reward structure, and study topic likely over- or under-sample.</label></li>
 <li><label><input type="checkbox"><strong>Are your stimuli randomly sampled or hand-picked?</strong> If you chose specific stimuli, check whether the hard vs.&nbsp;easy, interesting vs.&nbsp;boring, or novel vs.&nbsp;familiar conditions are confounded with other features that might drive your outcome. Consider using multiple stimuli per condition and treating stimulus as a random effect.</label></li>
 <li><label><input type="checkbox"><strong>Does your analysis condition on a post-randomization event?</strong> Comparing only donors, only completers, only non-dropouts, or only non-excluded participants breaks the exchangeability achieved at randomization. Report outcomes at every stage of the decision process, not just the stage that is most convenient.</label></li>
-<li><label><input type="checkbox"><strong>Are attrition rates equal across conditions?</strong> Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as Part 2.</label></li>
+<li><label><input type="checkbox"><strong>Are attrition rates equal across conditions?</strong> Report completion and retention rates by condition. If they differ significantly, test whether baseline characteristics of completers differ across conditions using the same balance-table approach as <a href="part2.html" class="quarto-xref">Part 2</a>.</label></li>
 <li><label><input type="checkbox"><strong>Were your exclusion rules pre-registered and applied blind to condition assignment?</strong> If not, the choice of exclusion rule is an additional researcher degree of freedom. Report your primary analysis under the pre-registered rule and include results under alternative rules as a sensitivity check.</label></li>
 </ul>
 </div>
@@ -1347,16 +1346,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
