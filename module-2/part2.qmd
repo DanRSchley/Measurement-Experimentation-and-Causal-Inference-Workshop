@@ -60,11 +60,9 @@ So when two groups look different, there are two very different explanations:
 
 This echoes {{< ref sec-m1 style="long" >}}: something you can see (a balance table) is not the whole story about the process behind it. But the assignment procedure isn't a hidden construct you measure with error. It's something you can and should verify directly.
 
-> **A balance table describes the groups we received. It does not certify how they were assigned.**
-
 ## Shuffling Cards: The Mechanism Versus the Hand You Receive {#sec-cards}
 
-Playing cards keep the two ideas apart nicely.
+Consider how random assignment works when shuffling a deck of cards.
 
 **Was the deck shuffled properly?** Start with a deck sorted by suit and shuffle it once, badly. A lot of the original order survives, so the shuffle didn't get you anywhere near a random deck. A sloppy shuffle is the analogue of a flawed assignment. The question is how the order was *produced*, not whether one particular arrangement looks random.
 
@@ -190,7 +188,7 @@ One riffle shuffle leaves even a 5-card deck far from random (distance `r sprint
 
 For the mathematically inclined: with $a = 2^k$, a permutation of *n* cards with *r* rising sequences has probability $\binom{a+n-r}{n}/a^{n}$ after *k* riffle shuffles, and the distance is $\tfrac12\sum_{r=1}^{n} E(n,r)\,\bigl|P(n,k,r) - 1/n!\bigr|$, where $E(n,r)$ counts permutations with *r* rising sequences. This is a property of the whole *distribution* of decks a shuffle can produce. You can't read it off one deck, and a quick check like "is the deck still in its original order?" can look fine while the distribution is still far from random.
 
-**Don't push the analogy too far.** A well-written assignment algorithm doesn't need to be run over and over to become valid. It draws the assignment from the intended distribution in one step (`sample()` picks a random subset directly).
+**The point is that the more cards there are in the deck, the more times you need to press the "randomize" button to get something that looks random. In the next section, we discuss how this relates to the dependent variables we aim to study in our research.**
 
 ## From Playing Cards to Psychological Constructs {#sec-balancing-groups}
 
@@ -254,11 +252,11 @@ The left panel shows the four profiles of the fixation example, with the counts 
 | Sample size | 80 | 80 |
 | Every profile represented | Possible, not guaranteed | Impossible |
 
-**Does that mean 80 participants can't validly estimate the effect of treatment on sustainable purchase intention? No.** To estimate the average treatment effect, you don't need every kind of person in both groups. Random assignment gets you there through the *assignment procedure*, not by matching people cell by cell. Full coverage only matters if you want a separate estimate for every profile, you're digging into fine-grained differences in who responds, or you want to say things about people your sample doesn't represent.
-
-So if we can't, and don't need to, cover every profile, what kind of similarity between the groups *should* we care about?
+**Does that mean every experiment with 80 participants breaks the rules of an experiment, just because it can't represent every profile? No.** What matters is *how those 80 participants end up distributed across the profiles*, that is, the composition of the groups. This is worth taking seriously, because we rarely care only about the people in front of us. We study average treatment effects because we want to say something that generalizes. If chance imbalance on characteristics that matter is producing part of the difference we observe, that gets in the way of the effect we are actually after. Whether it does depends on how the groups are composed, and that is what the next section is about.
 
 ## From Exact Coverage to Approximate Orthogonality {#sec-orthogonality}
+
+We can't cover every profile, so the goal becomes more modest: we want who got treated to be roughly unrelated to the characteristics that drive the outcome. (The technical name for "roughly unrelated" is *approximately orthogonal*.) Let's see what that looks like.
 
 ### Step A: make the imbalance concrete
 
@@ -372,53 +370,7 @@ ggplot(bal_curve, aes(N, p, colour = D)) +
 
 At 80 participants the chance of meeting the criterion on every characteristic is `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 0.1)` for two characteristics and `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)` for ten. **More participants make strict balance easier; more characteristics make it harder.** These aren't the probabilities that randomization "worked" or that exchangeability holds: the assignment is valid throughout. They also rest on the simple setup above, so they aren't universal sample-size rules. (The math behind them: for each possible pair of counts of "high" people in the two groups we work out the correlation and its probability, add up the pairs with $|r| < 0.10$, and raise the one-characteristic answer to the power *D*.)
 
-### Step C: approximate orthogonality
-
-"Approximately orthogonal" is just a fancy way of saying the realized links between who got treatment and the baseline characteristics are small. Valid randomization makes those links zero **on average**, not in every draw. How big they typically are shrinks like $1/\sqrt{N}$, so bigger samples tend to look more balanced. That's the fact that matters here. Exchangeability itself doesn't get "more valid" as N grows. It holds by design at any N.
-
-If you want a rough planning number, a conservative rule of thumb (a Bonferroni argument over the *D* characteristics) says a valid randomization will meet a tolerance $r_{\max}$ on every characteristic with probability at least $1-\alpha$ once
-
-$$N \gtrsim \left(\frac{z_{1-\alpha/(2D)}}{r_{\max}}\right)^{2},$$
-
-where $z$ is the standard normal quantile. That's a planning approximation for hitting a balance target, **not** the sample size you need for a valid randomized experiment.
-
-```{r required-N}
-#| code-summary: "▶ Approximate N for a simultaneous balance tolerance (code)"
-
-required_N <- function(D, r_thresh = 0.10, alpha = 0.05) {
-  z_crit <- qnorm(1 - alpha / (2 * D))
-  ceiling((z_crit / r_thresh)^2)
-}
-```
-
-For ten characteristics and $r_{\max} = 0.10$ the rule gives N ≈ `r required_N(10, 0.10)`, which is conservative: the exact calculation gives `r percent(p_balance_all(400, 10), accuracy = 1)` at N = 400 and `r percent(p_balance_all(800, 10), accuracy = 1)` at N = 800.
-
-::: {.callout-note collapse="true"}
-## More detail: approximate N across tolerances and numbers of characteristics
-
-```{r orthogonality-table}
-#| code-summary: "▶ Calculate: N required for approximate orthogonality"
-
-required_N <- function(D, r_thresh = 0.10, alpha = 0.05) {
-  z_crit <- qnorm(1 - alpha / (2 * D))
-  ceiling((z_crit / r_thresh)^2)
-}
-
-dims_check   <- c(1, 2, 3, 5, 8, 10, 15, 20)
-thresh_check <- c(0.05, 0.10, 0.20, 0.30, 0.40, 0.60)
-
-ortho_table <- expand.grid(D = dims_check, r_max = thresh_check) |>
-  mutate(N_req = mapply(required_N, D, r_max)) |>
-  pivot_wider(names_from = r_max, values_from = N_req,
-              names_prefix = "r_max = ") |>
-  rename(`Characteristics (D)` = D)
-
-kable(ortho_table,
-      caption = "Approximate N at which a valid random assignment meets |r| < r_max on all D independent characteristics with 95% probability (Bonferroni)",
-      format.args = list(big.mark = ","))
-```
-
-:::
+This is the playing-card lesson in new clothes. As the deck gets bigger, you need more shuffles before it looks random. In the same way, as the number of meaningful characteristics grows from *D* = 2 to *D* = 10, you need more participants to have a reasonable chance of being balanced on all of them. It reinforces the point that pressing a randomization button doesn't guarantee what we would colloquially call a nicely randomized set of observations.
 
 ## When Does Imbalance Actually Matter? {#sec-imbalance-matters}
 
@@ -465,20 +417,24 @@ ggplot(contrib_df, aes(imbalance_f, contribution, fill = predictor)) +
 The algebra above is the same algebra as omitted-variable bias in {{< ref sec-omitted-variable-bias style="long" >}}, but what it *means* depends on how the groups came to differ.
 
 - **A flawed or observational assignment.** Say the eco-label version of a study was advertised on an environmental forum and the control version wasn't. Now environmental values are tied to who got treated, so leaving them out creates systematic bias. With a 0.23 gap in the share of environmentally minded participants and an effect of \$1.20 on WTP, that's about \$`r sprintf("%.2f", 1.20 * 0.23)` baked into the comparison.
-- **A valid randomization.** A gap in that characteristic is a chance wobble that averages to zero across possible assignments. It adds uncertainty, not systematic bias. It's not a new kind of bias hiding in a valid experiment.
+- **A valid randomization, but an unlucky draw.** The assignment was random, yet we still ended up with imbalance. Across all possible assignments that imbalance averages out to zero, but we only ran *one* of them.
 
-And good randomization doesn't make ordinary sampling variability, differences in who responds to treatment, or measurement error go away.
+That second case leads to a distinction worth knowing. The **sample average treatment effect** is the average effect for the people actually in your study. The **average treatment effect** is what we usually want when we generalize beyond them. An unlucky draw can push the first away from the second.
+
+It also shows what randomization really buys us. Because assignment is random, characteristics related to the outcome (say, prior green behavior) are unrelated to who got treated, so we can leave them out of our analysis rather than controlling for them. That is the dream: just compare the groups, and don't measure anything else in the data-generating process. But the dream rests on those characteristics being balanced in *our* sample. When they aren't, they can distort the estimated treatment effect in the same way an omitted variable would, and we then need to have measured them so that we can control for them.
+
+This is where the complexity of the context comes in. For visual attention there are only a few profiles to worry about. For sustainable purchase intention the set of possible profiles is vastly larger, so we need much larger samples to get close to approximate orthogonality. If we can't get samples that large, we still need to measure the characteristics that drive the outcome, so that we can check balance and correct for imbalance. Randomization doesn't remove ordinary sampling variability, differences in who responds to treatment, or measurement error either.
 
 ## What Makes Balance Harder, or More Consequential? {#sec-balance-difficulty}
 
-| Factor | What it does |
+| Factor | Where we saw it on this page |
 |---|---|
-| Smaller N | Bigger chance swings in group makeup |
-| More independent characteristics | Strict balance on all of them gets harder |
-| Characteristics that predict the outcome strongly | A given gap costs more |
-| Characteristics that are correlated with each other | Fewer separate checks, but the effects can pile up or cancel |
-| Interactions and non-linear effects | Balance on each characteristic can hide differences in combinations |
-| Unequal group sizes or clustering | Changes how much information you have and how much comparisons wobble |
+| Smaller N | With 80 people, strict balance on ten characteristics is `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)` likely; with 400 it is `r percent(bal_tab$p[bal_tab$N == 400 & bal_tab$D == 10], accuracy = 1)` |
+| More independent characteristics | Visual fixation (2 characteristics) versus sustainable intention (10): at 80 people, `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 1)` versus `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)` |
+| Characteristics that predict the outcome strongly | The same 10-point gap adds `r sprintf("%.2f", 0.10 * 0.80)` SD for environmental values (0.80 SD) but only `r sprintf("%.3f", 0.10 * 0.05)` SD for age (0.05 SD) |
+| Characteristics correlated with each other | Environmental values, social norms, and health motivation travel together; if they all push WTP up, imbalances pile up (panel B below) |
+| Interactions and non-linear effects | Eco-friendly coffee: WTP is high only for people who are concerned *and* not price sensitive, which single-variable balance tables miss |
+| Unequal group sizes or clustering | Assigning whole cafés instead of individual customers, as in the café example in {{< ref sec-designs style="part" >}}, leaves far fewer independent units to balance |
 
 Some of these change how *likely* it is that you meet a balance target. Others change what an imbalance *does* to your estimate. Measuring more covariates doesn't by itself make a randomized estimate less precise. What matters is how much outcome variation they explain.
 
@@ -591,6 +547,39 @@ p_a + p_b
 
 So correlation among characteristics can greatly worsen things or greatly improve them, and it's an empirical question which one you're in. The practical takeaway is the one from the previous section: random assignment having balanced the characteristics that sit **closest to the data-generating process**, the ones that really drive the outcome, is what protects you. Balance on characteristics that barely matter is not worth much, and imbalance on the ones that matter is the thing to worry about.
 
+## Balance Versus Power: Two Different Sample-Size Questions {#sec-balance-power}
+
+One last comparison, because it clears up a lot of confusion. "How many participants do I need?" can mean two very different things:
+
+- **Power:** enough participants to reliably *detect a treatment effect*.
+- **Balance:** enough participants that the groups *look similar* on a strict criterion across many characteristics.
+
+```{r balance-power, fig.height=4.4}
+#| code-summary: "▶ Plot: sample size for power vs. sample size for strict balance"
+
+d_eff  <- 0.40
+N_pw   <- seq(40, 1000, by = 20)
+pw     <- sapply(N_pw, function(N) power.t.test(n = N / 2, delta = d_eff, sd = 1, sig.level = 0.05)$power)
+bal10  <- sapply(N_pw, p_balance_all, D = 10)
+
+bp_df <- tibble(N = N_pw, `Power to detect an effect of 0.4 SD` = pw, `Strict balance on all 10 characteristics` = bal10) |>
+  pivot_longer(-N, names_to = "what", values_to = "p")
+
+N_power80 <- min(N_pw[pw >= 0.80]); N_bal80 <- min(N_pw[bal10 >= 0.80])
+
+ggplot(bp_df, aes(N, p, colour = what)) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", colour = "gray50") +
+  geom_line(linewidth = 1.3) +
+  scale_colour_manual(values = c("#D55E00", "#0072B2"), name = NULL) +
+  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+  labs(x = "Total sample size (N)", y = "Probability",
+       title = "Detecting an Effect Takes Far Fewer People Than Balancing Everything",
+       subtitle = "Power: two-group t-test, 0.4 SD effect  ·  balance: |r| < 0.10 on 10 independent characteristics") +
+  theme_minimal(base_size = 12) + theme(legend.position = "top", panel.grid.minor = element_blank())
+```
+
+With an effect of 0.4 SD, you reach 80% power at about N = `r N_power80`. Reaching an 80% chance of strict balance on ten characteristics takes about N = `r N_bal80`. The sample you need to *find* a difference is much smaller than the sample you'd need to make the groups look alike on everything, and that's fine. A valid randomized experiment doesn't need strict balance to give you an unbiased estimate, and the standard error already accounts for the luck of the draw. Balance matters for the characteristics that drive the outcome, and for those you have better tools than sample size: blocking, rerandomization, and adjustment.
+
 ## What Should Researchers Actually Do? {#sec-researcher-actions}
 
 Three different problems can undermine a randomized comparison:
@@ -602,7 +591,7 @@ Three different problems can undermine a randomized comparison:
 ### Before the experiment
 
 - **Document and protect the assignment procedure.** Write down the unit you randomize, the allocation ratio, how it's implemented, who can see it, and how you'll handle non-compliance and dropout.
-- **Pick a manageable set of characteristics that really predict the outcome.** Use theory, past research, and pilot data. You don't need to measure everything that might possibly matter: estimating an intention-to-treat effect under valid random assignment doesn't require it.
+- **Pick a manageable set of characteristics that really predict the outcome.** Use theory, past research, and pilot data to find the ones that drive your outcome most. The more complex the outcome, the more of them there are, and the larger the sample you need to be balanced on them. If you can't get a sample that large, measure them anyway so that you can check balance and correct for imbalance. You don't need to measure everything that might possibly matter, just the characteristics that matter most.
 - **Consider blocking.** If you already know a few strong predictors, randomize within groups defined by them (see {{< ref sec-designs style="long" >}}). That improves balance on those, not on everything else.
 - **Consider rerandomization.** You can decide in advance what counts as acceptable balance and redraw the assignment until it's met ([Morgan & Rubin, 2012](https://doi.org/10.1214/12-AOS1008)). That's a design choice made up front, not fishing, and your analysis should reflect the restriction.
 
@@ -611,7 +600,7 @@ Three different problems can undermine a randomized comparison:
 - **Verify the procedure.** Check assignment logs, deviations from the plan, group sizes, and any sign that assignment wasn't really random.
 - **Describe the balance you got.** Report standardized differences for characteristics measured *before* treatment, and focus on how big the differences are and how much those characteristics predict the outcome, rather than pass/fail cutoffs. Things that respond to the manipulation (perceived quality, emotional reactions) aren't baseline characteristics.
 - **Watch for post-randomization selection.** Looking only at people who received the treatment, dropping some participants, or analyzing only completers can break a randomized comparison if who gets dropped is related to treatment and outcomes. Keep an intention-to-treat analysis and look carefully at missing data and non-compliance.
-- **Adjust for strong baseline predictors in your plan.** Pre-specified adjustment can improve precision, especially if the groups ended up different on them. It won't fix imbalance on things you didn't measure or repair a flawed assignment. And don't adjust for mediators or other post-treatment variables when you want the total effect.
+- **Correct for imbalance that matters.** If the groups ended up different on characteristics that strongly predict the outcome, control for them, ideally in an analysis you planned in advance. Left alone, that imbalance can distort your estimate the way an omitted variable would, and it separates the effect in your sample from the effect you want to generalize. Adjustment won't fix imbalance on things you didn't measure or repair a flawed assignment, and don't adjust for mediators or other post-treatment variables when you want the total effect.
 
 To see what a descriptive balance check looks like, we simulate a study whose assignment was **flawed**: participants who saw it on an eco-forum were more likely to get the eco-label version, so assignment depended on environmental values and income. Every characteristic below is measured *before* treatment.
 
@@ -760,39 +749,6 @@ cat(sprintf("Omnibus LRT p = %.4f\n", lrt$`Pr(>Chi)`[2]))
 
 :::
 
-## Balance Versus Power: Two Different Sample-Size Questions {#sec-balance-power}
-
-One last comparison, because it clears up a lot of confusion. "How many participants do I need?" can mean two very different things:
-
-- **Power:** enough participants to reliably *detect a treatment effect*.
-- **Balance:** enough participants that the groups *look similar* on a strict criterion across many characteristics.
-
-```{r balance-power, fig.height=4.4}
-#| code-summary: "▶ Plot: sample size for power vs. sample size for strict balance"
-
-d_eff  <- 0.40
-N_pw   <- seq(40, 1000, by = 20)
-pw     <- sapply(N_pw, function(N) power.t.test(n = N / 2, delta = d_eff, sd = 1, sig.level = 0.05)$power)
-bal10  <- sapply(N_pw, p_balance_all, D = 10)
-
-bp_df <- tibble(N = N_pw, `Power to detect an effect of 0.4 SD` = pw, `Strict balance on all 10 characteristics` = bal10) |>
-  pivot_longer(-N, names_to = "what", values_to = "p")
-
-N_power80 <- min(N_pw[pw >= 0.80]); N_bal80 <- min(N_pw[bal10 >= 0.80])
-
-ggplot(bp_df, aes(N, p, colour = what)) +
-  geom_hline(yintercept = 0.80, linetype = "dashed", colour = "gray50") +
-  geom_line(linewidth = 1.3) +
-  scale_colour_manual(values = c("#D55E00", "#0072B2"), name = NULL) +
-  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
-  labs(x = "Total sample size (N)", y = "Probability",
-       title = "Detecting an Effect Takes Far Fewer People Than Balancing Everything",
-       subtitle = "Power: two-group t-test, 0.4 SD effect  ·  balance: |r| < 0.10 on 10 independent characteristics") +
-  theme_minimal(base_size = 12) + theme(legend.position = "top", panel.grid.minor = element_blank())
-```
-
-With an effect of 0.4 SD, you reach 80% power at about N = `r N_power80`. Reaching an 80% chance of strict balance on ten characteristics takes about N = `r N_bal80`. The sample you need to *find* a difference is much smaller than the sample you'd need to make the groups look alike on everything, and that's fine. A valid randomized experiment doesn't need strict balance to give you an unbiased estimate, and the standard error already accounts for the luck of the draw. Balance matters for the characteristics that drive the outcome, and for those you have better tools than sample size: blocking, rerandomization, and adjustment.
-
 ::: {.callout-note collapse="true"}
 ## Technical appendix: verification of the calculations on this page
 
@@ -834,7 +790,6 @@ bench$exact <- 100 * mapply(p_balance_all, bench$N, bench$D)
 chk(all(abs(bench$exact - bench$pct) < 0.15), "N = 80/200/400 with D = 2/10 match their benchmarks to rounding precision")
 chk(!anyNA(treat_cov_cor(c(0, 20, 0), c(0, 20, 20), 20)) && treat_cov_cor(0, 0, 20) == 0 && treat_cov_cor(20, 20, 20) == 0,
     "constant characteristics are handled without NaN and count as balanced")
-chk(required_N(10, 0.10) == 788 && required_N(2, 0.20) == 126, "approximate sample sizes (Bonferroni formula)")
 
 set.seed(7)
 asg <- replicate(2000, { Tr <- sample(rep(0:1, 40)); x <- rbinom(80, 1, 0.5); c(sum(Tr), cor(Tr, x)) })
@@ -883,11 +838,13 @@ cat("All verification checks passed.\\n")
 
 - [ ] **Was treatment assigned independently of what participants' outcomes would have been, through a valid procedure?**
 - [ ] **Were there departures from the intended assignment procedure?**
-- [ ] **How do the groups we actually got differ?**
-- [ ] **Which of those differences are likely to matter for the outcome?**
-- [ ] **Did we use the strong baseline predictors well, in the design or the analysis?**
+- [ ] **How complex is the context?** How many characteristics plausibly drive the outcome, and is my sample large enough to expect reasonable balance on them?
+- [ ] **Have I measured the characteristics that matter most**, so I can check balance and correct for imbalance if my sample is too small?
+- [ ] **How do the groups we actually got differ, and which of those differences are likely to matter for the outcome?**
+- [ ] **Did I use the strong baseline predictors well, in the design or the analysis?**
 - [ ] **Could dropout, exclusions, or non-compliance undermine the comparison?**
 - [ ] **Does the analysis respect how randomization was actually done?**
+- [ ] **Am I interpreting my result as the effect in my sample, or as the effect I want to generalize, and could imbalance be getting in the way of the second?**
 :::
 
 Randomization doesn't guarantee identical groups. It guarantees a valid assignment procedure, one where differences between the groups aren't systematically driven by what participants' outcomes would have been. What's left in any one experiment is chance variation. The job of good design and analysis is to understand and manage that variation, not to pretend it isn't there.
