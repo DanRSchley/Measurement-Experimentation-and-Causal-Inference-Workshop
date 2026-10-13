@@ -74,7 +74,7 @@ This module covers {{< nparts >}} ideas:
 
 - **{{< ref sec-pvalues style="part" >}} — P-values:** What they actually mean, where their inferential power comes from, and what assumptions they require — demonstrated by building null distributions from scratch using permutation.
 
-- **{{< ref sec-randomization style="part" >}} — Randomization:** Why "clicking randomize" (the observable) is not the same as "achieving randomization" (the latent property), and why this gap grows as the construct Y you are studying becomes broader and more complex.
+- **{{< ref sec-randomization style="part" >}} — Randomization:** What a valid random-assignment mechanism establishes (independence by design) and what it does not (balanced groups in any one realized sample), and why meeting a demanding simultaneous balance criterion gets harder as the construct Y you are studying becomes broader and more complex.
 
 - **{{< ref sec-selection style="part" >}} — Selection Effects:** Why some data-collection environments make exchangeability structurally impossible, regardless of how randomization is conducted. Non-representativeness, self-selection, survivorship, attrition, and exclusion bias are not failures of randomization — they are failures that occur before, during, or after data collection, and they cannot be fixed by collecting more data within the same design.
 
@@ -92,9 +92,9 @@ By the end of this tutorial, you will be able to:
 - Identify the three ingredients that give a p-value inferential power
 - Explain why a treatment manipulation can violate discriminant validity in the same way a measurement scale can
 - Use open-ended text to map the constructs injected by an experimental manipulation and those driving an outcome
-- Articulate the difference between **observable randomization** and **latent randomization** using the construct-validity language from {{< ref sec-m1 style="long" >}}
-- Calculate the minimum observations needed for approximate orthogonality given the complexity of Y
-- Run diagnostic checks to assess whether your observed randomization achieved approximate orthogonality
+- Distinguish the randomness of an assignment mechanism from the realized balance of a particular sample, using the observable-vs-latent language from {{< ref sec-m1 style="long" >}}
+- Calculate the approximate sample size at which a valid random assignment typically meets a simultaneous balance tolerance, given the complexity of Y
+- Describe realized covariate balance with diagnostic checks, and interpret them as description rather than certification of randomization
 - Identify the four classes of selection effect (non-representativeness, self-selection, survivorship/attrition, exclusion bias) and explain why each makes exchangeability structurally unachievable within the affected sample
 - Distinguish survivorship bias (missing observations never entered the sample) from attrition bias (observations entered the sample but left non-randomly)
 - Diagnose differential attrition across conditions and explain why conditioning on a post-randomization event breaks exchangeability even in a properly randomized experiment

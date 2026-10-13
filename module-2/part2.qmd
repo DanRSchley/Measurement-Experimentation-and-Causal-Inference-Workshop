@@ -36,22 +36,24 @@ set.seed(2025)
 ::: {.callout-warning}
 ## The central message of {{< ref sec-randomization style="part" link="false" >}} {#the-central-message}
 
-**Never assume that random assignment has achieved actual randomization.** Random assignment is a *procedure* — clicking "Randomize" in Qualtrics, running `sample()` in R. What that procedure is supposed to deliver is **exchangeability** — the latent property that treatment and control groups are interchangeable with respect to every potential cause of Y, so that any difference in outcomes can be attributed solely to the treatment. The procedure does not guarantee the property. Whether it does depends on (1) how complex your outcome variable Y is and (2) how many participants you have. This section develops the gap between the two and equips you to evaluate — not assume — whether exchangeability was achieved.
+**A valid random-assignment mechanism establishes independence by design. It does not guarantee that the groups in any one experiment are balanced.** Random assignment is a *procedure* — clicking "Randomize" in Qualtrics, running `sample()` in R. If the procedure is implemented correctly, treatment is independent of every pre-treatment characteristic and of every potential outcome. That independence is what makes the groups **exchangeable** in the sense that licenses causal inference, and it holds no matter how many characteristics affect Y. But exchangeability is a property of the *assignment mechanism*, defined over hypothetical repetitions of the assignment. In one realized experiment the two groups will almost always differ somewhat, on measured and unmeasured characteristics alike, and the more characteristics matter, the less likely it is that *all* of them are well balanced at once.
+
+This part separates four ideas: (1) the randomness of the assignment mechanism, (2) balance in expectation, (3) realized balance in one finite sample, and (4) balance on single characteristics versus balance on their joint distribution.
 :::
 
 ::: {.callout-note}
-## Three failure modes that can produce imbalanced groups
+## Three reasons treatment groups can differ
 
-Not all imbalance has the same cause or the same remedy:
+Not all differences between groups have the same cause or the same remedy:
 
-1. **A flawed assignment mechanism** — the procedure itself was not truly random (e.g., participants self-selected into conditions, blocks were allocated predictably, or the algorithm had a bug). The imbalance is structural; better analysis cannot fix a broken procedure.
-2. **A valid randomization with unlucky realized imbalance** — the procedure was correct, but any finite-sample draw will produce some imbalance by chance. The diagnostic reflects the *realized sample*, not the quality of the procedure. Failed balance is not the same thing as failed randomization.
-3. **Latent imbalance on unmeasured dimensions** — measured covariates balance out, but unobserved antecedents of Y do not. This is undetectable from the balance table and is the primary threat this section addresses.
+1. **A flawed assignment mechanism** — the procedure itself was not truly random (e.g., participants self-selected into conditions, blocks were allocated predictably, or the algorithm had a bug). The difference is structural and systematic; better analysis cannot fix a broken procedure.
+2. **A valid randomization with realized imbalance on measured characteristics** — the procedure was correct, but any finite-sample draw will produce some imbalance by chance. A balance table *describes* the realized sample; it does not grade the procedure.
+3. **Realized imbalance on unmeasured characteristics** — a special case of the second reason that no balance table can reveal, because the relevant characteristics were never measured.
 
-The right language for cases 2 and 3 is "realized imbalance" or "failed balance diagnostic" — not "randomization failed." A valid randomization can produce an unlucky balance outcome in a finite sample. The question is always whether that imbalance is small enough, relative to the covariate's effect on Y, that the treatment contrast remains substantively credible.
+The right language for cases 2 and 3 is "realized imbalance," not "randomization failed." Chance imbalance does not make a valid procedure invalid, does not by itself bias the estimator (it averages to zero over repetitions of the assignment), and is already reflected in the estimator's sampling variability. What it can do is move *this particular* estimate away from the effect you care about, and it matters more when the imbalanced characteristic strongly predicts Y. Whether a given imbalance matters depends on how the characteristic relates to the outcome.
 :::
 
-## The Measurement Analogy: Observable vs. Latent
+## The Measurement Analogy: What You Observe vs. What You Want to Know
 
 In {{< ref sec-m1 style="long" >}}, we introduced a distinction that runs through all of empirical research:
 
@@ -62,126 +64,322 @@ In {{< ref sec-m1 style="long" >}}, we introduced a distinction that runs throug
 
 The observable is what you can see. The latent construct is what you actually want to know. The entire {{< ref sec-m1 style="long" >}} was about the gap between these two things: your observed scale picks up variance from the wrong latent constructs (discriminant validity), from unequal measurement properties across groups (non-invariance), and from subpopulations that behave differently (latent classes).
 
-**Exactly the same distinction applies to randomization:**
+The same distinction helps with randomization, with one important difference. There are two different things to look at, and they are checked in different ways:
 
-| | In Randomization |
-|---|---|
-| **Observable (indicator)** | Pressing "Randomize" in Qualtrics, running `sample()` in R, using a random number table |
-| **Latent construct** | **Exchangeability** — the property that treatment and control groups are interchangeable with respect to all potential causes of Y; no systematic pre-existing difference remains between conditions |
+| | What you can verify or observe | What you want to be able to say |
+|---|---|---|
+| **The assignment mechanism** | How assignment was actually implemented: a documented random number generator, concealed allocation, no deviations from the allocation sequence | Assignment is independent of potential outcomes — exchangeability by design |
+| **The realized sample** | Balance tables, standardized mean differences, and other descriptions of how the two groups look on the characteristics you measured | How similar the groups are on the characteristics that drive Y — including the ones you did not measure |
 
-Just as a 7-point scale can *look* like it measures Green Purchase Intention while actually reflecting Environmental Concern, a randomization *procedure* can look random (you clicked the button — the observable is there) while failing to achieve **exchangeability** — the latent property that the groups truly have no pre-existing differences on anything that affects Y.
+Unlike a Likert item, which is an imperfect *indicator* of an attitude you can never see directly, a correctly implemented random mechanism is a *design guarantee*, not a noisy measurement of exchangeability. The measurement problem arises one step later: your sample is a finite draw from that mechanism, and what you can inspect about it (the measured covariates) is only part of what matters for Y.
 
 ::: {.callout-important}
-## The construct validity question for randomization
+## Two questions to keep separate
 
-Ask yourself the question from {{< ref sec-m1 style="long" >}}, applied to your treatment variable:
+1. **Was the assignment mechanism a valid random procedure?** Answer this from how the experiment was run — software, allocation concealment, protocol deviations — not from a balance table.
+2. **How balanced did this particular draw turn out to be?** Answer this descriptively, for the characteristics you measured, and ask whether any imbalance is large relative to how strongly those characteristics predict Y.
 
-> **"Does your observable act of randomization have construct validity as an indicator of latent exchangeability?"**
-
-Exchangeability is not checked by confirming that a randomization algorithm was run — it must be *verified empirically*. Its validity depends entirely on **how complex the outcome variable Y is** and how many participants you have. We will now build the intuition for why.
+A balanced table does not certify the first, and an imbalanced table does not refute it.
 :::
 
-## A Concrete Anchor: The Playing Cards Analogy
+## A Concrete Anchor: The Playing Cards Analogy {#sec-cards}
 
-Imagine you have a sorted deck of cards — you know exactly what order the cards are in. Before a game, you need to make the deck random. So you shuffle it once.
+Imagine a deck of cards in a known order. Before a game, you shuffle it. **Did the shuffle make the deck random?**
 
-**Did one shuffle make the deck random?**
+"Random" has a precise meaning here: each of the *n*! possible orderings is equally likely. The usual way to shuffle by hand is a *riffle shuffle* — cut the deck in two and interleave the halves — and its standard mathematical model is the Gilbert–Shannon–Reeds (GSR) model, whose behaviour is known exactly ([Bayer & Diaconis, 1992](https://www.stat.berkeley.edu/users/aldous/157/Papers/bayer_diaconis.pdf)). We can ask how far the *distribution* of deck orders produced by *k* riffle shuffles is from the uniform distribution over all *n*! orderings.
 
-The answer depends on the size of the deck.
+The natural measure of that distance is the **total variation (TV) distance**: the largest difference, over any collection of orderings, between the probability the shuffling procedure assigns to it and the probability a perfectly random deck would. TV = 0 means the procedure produces every ordering with equal probability. TV near 1 means the procedure concentrates its probability on a small fraction of the orderings.
 
-- **5 cards:** There are 5! = 120 possible orderings. One riffle shuffle covers a substantial fraction of these. The deck is close to random.
-- **52 cards:** There are 52! ≈ 8 × 10⁶⁷ possible orderings. One riffle shuffle covers an astronomically small fraction of these. Significant structure from the original sorted order survives.
+::: {.callout-note collapse="true"}
+## Why not just check how correlated the shuffled deck is with the original order?
 
-This is why casino dealers shuffle 7 times — a mathematical result (Bayer & Diaconis, 1992) showing that 7 GSR riffle shuffles are sufficient for a 52-card deck to approach uniformity. One shuffle is not enough.
+A natural check is whether a shuffled deck still resembles its original order (for example, Kendall's τ). That is a statistic of *one* deck. A shuffling procedure can produce decks with almost no correlation with the original order and still be far from uniform, because the distribution can retain a great deal of structure that one correlation does not reveal. TV distance is a property of the whole distribution the procedure generates, which is what "random" refers to.
+:::
 
-We can visualize this directly. We simulate one-through-ten riffle shuffles for decks of different sizes and measure how much structure (correlation with the original sorted order) survives.
+For *n* cards and *k* riffle shuffles, let $a = 2^k$. Under the GSR model, any particular permutation with *r* rising sequences has probability
 
-```{r cards-shuffle-sim, fig.height=5.5}
-#| code-summary: "▶ Simulate riffle shuffles for different deck sizes"
+$$P(n,k,r) = \frac{\binom{a+n-r}{n}}{a^{n}}.$$
 
-one_riffle <- function(deck) {
-  n <- length(deck)
-  k <- rbinom(1, n, 0.5)
-  if (k == 0L || k == n) return(deck[sample(n)])
-  pile_a <- deck[1:k]; pile_b <- deck[(k + 1):n]
-  result <- integer(n); idx <- 1L
-  while (length(pile_a) > 0L && length(pile_b) > 0L) {
-    p_a <- length(pile_a) / (length(pile_a) + length(pile_b))
-    if (runif(1) < p_a) { result[idx] <- pile_a[1]; pile_a <- pile_a[-1]
-    } else               { result[idx] <- pile_b[1]; pile_b <- pile_b[-1] }
-    idx <- idx + 1L
+If $E(n,r)$ is the number of permutations of *n* cards with exactly *r* rising sequences (an Eulerian number), the exact total variation distance from uniform is
+
+$$\mathrm{TV}(n,k) = \frac{1}{2}\sum_{r=1}^{n} E(n,r)\,\left|P(n,k,r) - \frac{1}{n!}\right|.$$
+
+This is a deterministic calculation — no simulation is needed.
+
+```{r riffle-tv-functions}
+#| code-summary: "▶ Exact total variation distance for GSR riffle shuffles"
+
+# Eulerian counts E(n, r) for r = 1..n: the number of permutations of n cards with exactly
+# r rising sequences. Recurrence: E(1,1) = 1; E(n,r) = r * E(n-1,r) + (n-r+1) * E(n-1,r-1),
+# with values outside 1..n-1 equal to zero. The counts for each n sum to n!.
+eulerian_counts <- function(n) {
+  E <- 1
+  if (n > 1) for (m in 2:n) {
+    r     <- seq_len(m)
+    prev  <- c(E, rep(0, m - length(E)))                    # E(m-1, r)
+    prev1 <- c(0, E, rep(0, m - 1 - length(E)))             # E(m-1, r-1)
+    E <- r * prev + (m - r + 1) * prev1
   }
-  if (length(pile_a) > 0L) result[idx:n] <- pile_a
-  if (length(pile_b) > 0L) result[idx:n] <- pile_b
-  result
+  E
 }
 
-set.seed(42)
-shuffle_sim <- expand.grid(deck_size = c(5L, 10L, 20L, 52L),
-                           n_shuffles = 1:10, sim = 1:400) |>
-  dplyr::mutate(tau = mapply(function(n, k) {
-    deck <- 1:n
-    for (i in seq_len(k)) deck <- one_riffle(deck)
-    cor(1:n, deck, method = "kendall")
-  }, deck_size, n_shuffles))
+# Exact total variation distance from the uniform distribution on the n! orderings after k GSR
+# riffle shuffles (Bayer & Diaconis, 1992). Probabilities are computed on the log scale.
+riffle_tv <- function(n, k) {
+  a    <- 2^k
+  r    <- seq_len(n)
+  P_r  <- exp(lchoose(a + n - r, n) - n * log(a))           # probability of ONE permutation with r rising sequences
+  0.5 * sum(eulerian_counts(n) * abs(P_r - exp(-lgamma(n + 1))))
+}
 
-shuffle_summary <- shuffle_sim |>
-  group_by(deck_size, n_shuffles) |>
-  summarise(mean_tau = mean(tau), lo = quantile(tau, 0.10),
-            hi = quantile(tau, 0.90), .groups = "drop") |>
-  mutate(deck_label = paste0(deck_size, " cards"))
-
-ggplot(shuffle_summary,
-       aes(x = n_shuffles, y = mean_tau,
-           color = factor(deck_size), fill = factor(deck_size), group = deck_size)) +
-  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.14, color = NA) +
-  geom_line(linewidth = 1.3) +
-  geom_point(size = 3) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.8) +
-  annotate("text", x = 10.2, y = 0.03, label = "Random\n(\u03c4 \u2248 0)",
-           size = 3.5, color = "gray40", hjust = 0) +
-  scale_x_continuous(breaks = 1:10) +
-  scale_color_manual(values = c("5"  = "#4a90d9", "10" = "#52b788",
-                                "20" = "#f4a261", "52" = "#e63946"),
-                     name = "Deck size") +
-  scale_fill_manual(values  = c("5"  = "#4a90d9", "10" = "#52b788",
-                                "20" = "#f4a261", "52" = "#e63946"),
-                    name = "Deck size") +
-  labs(x = "Number of riffle shuffles",
-       y = "Kendall's \u03c4 with original sorted order\n(1 = perfectly sorted  \u00b7  0 = random)",
-       title = "How Many Shuffles Are Needed to Achieve Randomness?",
-       subtitle = "Ribbon = 10th\u201390th percentile across 400 simulations per deck size") +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank())
+deck_sizes <- c(5, 10, 20, 52)
+tv_df <- expand.grid(cards = deck_sizes, shuffles = 0:12) |>
+  mutate(tv = mapply(riffle_tv, cards, shuffles),
+         cards_f = factor(cards))
 ```
 
-The analogy to experiments maps directly:
+```{r riffle-tv-figure, fig.height=5.5}
+#| code-summary: "▶ Plot: exact TV distance from uniform vs. number of riffle shuffles"
 
-| Playing Cards | Research Experiment |
-|---|---|
-| Cards in the deck | Participants in the study |
-| Order before shuffling | Values on potential confounders |
-| One shuffle | Clicking "Randomize" once in Qualtrics |
-| "Truly random" deck | Treatment and control groups balanced on ALL confounders |
-| **Size of the deck** | **Complexity (number of dimensions) of the outcome Y** |
+deck_cols <- c("5" = "#0072B2", "10" = "#009E73", "20" = "#E69F00", "52" = "#D55E00")  # colour-blind safe
 
-**The key takeaway:** just as a larger deck needs more shuffles to achieve randomness, a more complex outcome variable Y needs more observations to achieve true independence between treatment and all potential confounders.
+ggplot(tv_df, aes(shuffles, tv, colour = cards_f, shape = cards_f, group = cards_f)) +
+  geom_hline(yintercept = 0.10, linetype = "dashed", colour = "gray40") +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2.6) +
+  annotate("text", x = 12.3, y = 0.135, hjust = 1, size = 3.4, colour = "gray30",
+           label = "illustrative mixing criterion (TV = 0.10)") +
+  scale_x_continuous(breaks = 0:12) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+  scale_colour_manual(values = deck_cols, name = "Cards") +
+  scale_shape_manual(values = c(16, 17, 15, 18), name = "Cards") +
+  labs(x = "Number of riffle shuffles",
+       y = "Total variation distance from uniform",
+       title = "Larger Decks Require More Shuffles to Approach Randomness",
+       subtitle = "Exact distance from a uniformly random permutation under the GSR riffle-shuffle model") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
 
-## Exchangeability: The Latent Property Random Assignment Is Supposed to Deliver
+- **TV = 0** is the uniform distribution over all orderings; values near **1** are a distribution very far from uniform.
+- TV is a property of the *probability distribution* the shuffling procedure generates. It cannot be recovered by inspecting one observed deck arrangement.
+- The dashed line at 0.10 is an **illustrative** benchmark, not a universal definition of "random enough."
 
-The permutation logic in {{< ref sec-pvalues style="part" >}} rested on **exchangeability**: if treatment had no effect, we could have assigned any participant to either condition without changing what we would observe. In formal terms, exchangeability means:
+```{r riffle-tv-table}
+#| code-summary: "▶ Table: first number of shuffles with TV < 0.10"
+
+first_below <- tv_df |>
+  group_by(cards) |>
+  summarise(`Required riffle shuffles` = min(shuffles[tv < 0.10]), .groups = "drop") |>
+  rename(Cards = cards)
+kable(first_below, caption = "First number of riffle shuffles at which TV falls below 0.10")
+
+tv_one_shuffle_5 <- riffle_tv(5, 1)
+tv_52 <- sapply(7:9, function(k) riffle_tv(52, k))
+```
+
+One riffle shuffle does **not** make even a small deck random: after a single shuffle a 5-card deck is still at TV = `r sprintf("%.3f", tv_one_shuffle_5)` from uniform. The familiar seven-shuffle result for a 52-card deck is not a claim of perfect uniformity either. The distance after seven shuffles is about `r sprintf("%.3f", tv_52[1])`, after eight about `r sprintf("%.3f", tv_52[2])`, and after nine about `r sprintf("%.3f", tv_52[3])`. Seven shuffles marks the *rapid-mixing transition* — the distance collapses from near 1 to a few tenths and then falls geometrically — not a threshold at which randomness suddenly becomes complete.
+
+### What the card example does — and does not — show
+
+The deck has *n*! possible orderings, and a limited randomizing process (a few riffle shuffles) can leave important structure in the distribution of orderings even when a simple summary of one deck makes it look random. Larger decks need more shuffles under this particular mixing model. That is the intuition worth keeping: **checking one limited feature of randomness is not the same as examining the whole distribution.**
+
+But the card problem is not the same as random treatment assignment, and the analogy should not be pushed literally. Deck size is not the dimensionality of an outcome, and the number of shuffles is not the number of times Qualtrics must randomize. A correct assignment algorithm draws the assignment from its intended distribution in one step (`sample()` draws a uniformly random subset directly); it does not need more applications as the number of outcome-relevant characteristics grows. The assignment mechanism is valid however many characteristics there are.
+
+What *does* grow with the number of characteristics is a different quantity: how hard it is for one valid draw to look balanced on all of them at once. That is the question that matters for the experiment:
+
+> **As the number of outcome-relevant characteristics increases, how difficult is it for one valid random assignment to produce treatment and control groups that satisfy a demanding balance criterion across all of them?**
+
+## From Shuffling Cards to Balancing Experimental Groups {#sec-balancing-groups}
+
+Here is a deliberately simple experiment in which the assignment mechanism is **valid in every scenario**:
+
+- There are *N* participants (*N* even). Each has *D* binary pre-treatment characteristics. Think of them as hypothetical baseline characteristics that might predict the outcome (for example, high vs. low environmental values), not as dimensions of the outcome measure itself.
+- Each characteristic is generated independently with P(X = 1) = 0.5.
+- Treatment is assigned by **complete randomization**: exactly *N*/2 participants are treated and *N*/2 are controls, independently of the characteristics.
+
+Because assignment is valid, the groups are exchangeable *by design*. The question is what one realized draw looks like. For each characteristic, compute the correlation between treatment assignment and that characteristic. Call a draw **marginally balanced** at the illustrative tolerance of 0.10 if
+
+$$\max_{j=1,\dots,D}\,\bigl|\mathrm{cor}(T, X_j)\bigr| < 0.10 .$$
+
+This is a descriptive criterion for this exercise. It is not a test of whether random assignment was valid, and 0.10 is not a universal scientific cutoff.
+
+**An exact calculation.** With *N*/2 participants per arm and independent Bernoulli(0.5) characteristics, the number of participants with X = 1 in each arm follows a Binomial(*N*/2, 0.5) distribution. For every pair of counts we can compute the treatment–characteristic correlation and its probability. With group proportions $p_1$ and $p_0$ and pooled proportion $p$, the correlation for equal-sized arms is
+
+$$r = \frac{p_1 - p_0}{2\sqrt{p\,(1-p)}} .$$
+
+If $p = 0$ or $p = 1$ the characteristic is constant, there is no observed group difference, and it is not treated as a failed balance check. Summing the probabilities of all count pairs with |*r*| < 0.10 gives *q*(*N*), the probability of passing the criterion on one characteristic. Because characteristics are independent, the probability of passing on all *D* is *q*(*N*)<sup>*D*</sup>.
+
+```{r balance-prob-functions}
+#| code-summary: "▶ Exact probability of meeting the marginal-balance criterion"
+
+# Correlation between treatment (exactly m treated, m control) and a binary characteristic, given
+# that `a` treated and `b` control participants have X = 1. Constant characteristics (p = 0 or 1)
+# have no group difference, so r = 0 rather than NaN.
+treat_cov_cor <- function(a, b, m) {
+  p1 <- a / m; p0 <- b / m; p <- (a + b) / (2 * m)
+  ifelse(p == 0 | p == 1, 0, (p1 - p0) / (2 * sqrt(p * (1 - p))))
+}
+
+# q(N): probability that ONE independent Bernoulli(0.5) characteristic has |cor(T, X)| < thresh
+# under complete randomization with N/2 per arm. The inequality is strict; exact ties
+# (|r| = thresh) count as failing, with a tiny tolerance to guard against floating-point error.
+q_balance <- function(N, thresh = 0.10) {
+  stopifnot(N %% 2 == 0)
+  m  <- N / 2
+  pm <- dbinom(0:m, m, 0.5)                          # P(a) and P(b): Binomial(N/2, 0.5)
+  g  <- expand.grid(a = 0:m, b = 0:m)
+  r  <- treat_cov_cor(g$a, g$b, m)
+  sum(pm[g$a + 1] * pm[g$b + 1] * (abs(r) < thresh - 1e-9))
+}
+
+# P(pass on all D independent characteristics) = q(N)^D
+p_balance_all <- function(N, D, thresh = 0.10) q_balance(N, thresh)^D
+
+bal_tab <- expand.grid(N = c(80, 200, 400), D = c(2, 10)) |>
+  mutate(p = mapply(p_balance_all, N, D))
+```
+
+```{r balance-prob-table}
+#| code-summary: "▶ Table: probability of meeting the criterion on every characteristic"
+
+bal_wide <- bal_tab |>
+  mutate(p = percent(p, accuracy = 0.1)) |>
+  pivot_wider(names_from = D, values_from = p, names_prefix = "D = ") |>
+  rename(`Total N` = N)
+kable(bal_wide, align = "lrr",
+      caption = "Probability that a valid random assignment meets max |cor(T, X)| < 0.10 on every characteristic")
+```
+
+```{r balance-prob-figure, fig.height=4.8}
+#| code-summary: "▶ Plot: probability of meeting the criterion as N grows"
+
+N_grid <- seq(40, 1000, by = 20)
+bal_curve <- expand.grid(N = N_grid, D = c(2, 10)) |>
+  mutate(p = mapply(p_balance_all, N, D), D = factor(D, labels = c("D = 2", "D = 10")))
+
+ggplot(bal_curve, aes(N, p, colour = D)) +
+  geom_line(linewidth = 1.3) +
+  scale_colour_manual(values = c("D = 2" = "#0072B2", "D = 10" = "#D55E00"), name = "Characteristics") +
+  scale_y_continuous(limits = c(0, 1), labels = percent_format(accuracy = 1)) +
+  labs(x = "Total sample size (N)",
+       y = "Probability of meeting the stated\nbalance criterion on every dimension",
+       title = "Valid Randomization Still Rarely Balances Many Characteristics in Small Samples",
+       subtitle = "Complete randomization in every case  ·  criterion: max |cor(T, X)| < 0.10  ·  independent binary X") +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), legend.position = "top")
+```
+
+What the table and graph show:
+
+- **Assignment is genuinely randomized in every scenario.** Nothing here is a defective procedure.
+- **At a fixed sample size, meeting the same simultaneous criterion is much less likely when more independent characteristics are considered.** With 80 participants the probability of meeting the criterion on two characteristics is about `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 1)`; on ten characteristics it is about `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 10], accuracy = 0.1)`.
+- **Increasing N makes a demanding realized-balance criterion easier to meet.**
+- **Not meeting the criterion does not mean the randomization was invalid.** It is what a valid mechanism will do, with the stated probability.
+
+These are results from a stylized model — independent, binary, equally prevalent characteristics and one particular tolerance — not universal sample-size requirements. And a draw that misses the criterion is not necessarily a *problem*: whether realized imbalance matters depends on how strongly the characteristics predict the outcome.
+
+### Marginal Balance Is Not Joint Balance {#sec-joint-profiles}
+
+Balancing each characteristic separately says nothing about how they are balanced *together*. Take two binary characteristics, A and B, and four participant profiles: 00, 01, 10, and 11. Let treatment consist of profiles 00 and 11, and control of profiles 01 and 10.
+
+```{r joint-profiles}
+#| code-summary: "▶ Two groups with identical marginal means but different joint distributions"
+
+profiles <- data.frame(
+  Profile   = c("00", "11", "01", "10"),
+  Group     = c("Treatment", "Treatment", "Control", "Control"),
+  A         = c(0, 1, 0, 1),
+  B         = c(0, 1, 1, 0)
+) |> mutate(`Untreated outcome Y(0)` = as.numeric(A == B))   # 1 when A and B match, 0 otherwise
+
+kable(profiles, caption = "Four participant profiles")
+
+kable(profiles |> group_by(Group) |>
+        summarise(`Mean of A` = mean(A), `Mean of B` = mean(B),
+                  `Mean untreated outcome` = mean(`Untreated outcome Y(0)`), .groups = "drop"),
+      caption = "Both groups have the same marginal means, but different mean untreated outcomes")
+```
+
+Both groups have the same mean on A (0.5) and the same mean on B (0.5), so a balance table that looks at one characteristic at a time would show perfect balance. Yet their joint distributions are completely different. If untreated outcomes depend on the *interaction* of A and B (here, Y(0) = 1 when A and B match and 0 otherwise), the treatment group has a mean untreated potential outcome of 1 and the control group has 0.
+
+This is a deliberately extreme illustration, not a claim that such a configuration is typical. Its purpose is to show that **balancing individual characteristics does not guarantee balancing their joint distribution, or the potential outcomes**. It also connects to the 2<sup>*D*</sup> participant profiles discussed below: the number of joint profiles grows quickly with *D*. That count describes how many ways a sample can differ; it does not mean a valid randomized experiment must observe or balance every possible profile.
+
+```{r verification-checks}
+#| code-summary: "▶ Verification checks for the calculations above (run every time the page renders)"
+
+# Deterministic checks of the mathematics. If any check fails, the page fails to render.
+chk <- function(ok, msg) { if (!isTRUE(ok)) stop("Check failed: ", msg, call. = FALSE); invisible(TRUE) }
+
+# ── Riffle shuffles ───────────────────────────────────────────────────────────
+for (n in c(3, 5, 10, 20, 52))
+  chk(isTRUE(all.equal(sum(eulerian_counts(n)), factorial(n))), paste("Eulerian counts sum to n! (n =", n, ")"))
+chk(all(tv_df$tv >= 0 & tv_df$tv <= 1 + 1e-12), "all TV distances lie between 0 and 1")
+chk(all(tapply(tv_df$tv, tv_df$cards, function(x) all(diff(x) <= 1e-12))), "TV does not increase with more shuffles")
+chk(max(abs(tv_52 - c(0.334061, 0.167159, 0.085420))) < 5e-7, "TV for 52 cards after 7, 8, 9 shuffles")
+chk(all(first_below$`Required riffle shuffles` == c(4, 6, 7, 9)), "first k with TV < 0.10 is 4, 6, 7, 9")
+chk(abs(tv_one_shuffle_5 - 0.775) < 1e-9, "TV after one shuffle of 5 cards is 0.775")
+
+# ── Assignment balance ────────────────────────────────────────────────────────
+chk(inherits(try(q_balance(81), silent = TRUE), "try-error"), "odd N is rejected (arms must each have N/2)")
+chk(all(bal_tab$p >= 0 & bal_tab$p <= 1), "probabilities lie in [0, 1]")
+for (N in c(40, 80, 200, 400))
+  chk(all(diff(sapply(1:10, function(d) p_balance_all(N, d))) <= 1e-12), paste("P(pass all D) does not increase with D at N =", N))
+for (d in c(2, 10))
+  chk(all(diff(sapply(c(80, 200, 400), p_balance_all, D = d)) > 0), paste("P(pass all D) increases with N for D =", d))
+bench <- data.frame(N = c(80, 200, 400, 80, 200, 400), D = c(2, 2, 2, 10, 10, 10),
+                    pct = c(32.0, 67.4, 90.0, 0.3, 13.9, 59.2))
+bench$exact <- 100 * mapply(p_balance_all, bench$N, bench$D)
+chk(all(abs(bench$exact - bench$pct) < 0.15), "the six table values match their benchmarks to rounding precision")
+chk(!anyNA(treat_cov_cor(c(0, 20, 0), c(0, 20, 20), 20)) && treat_cov_cor(0, 0, 20) == 0 && treat_cov_cor(20, 20, 20) == 0,
+    "constant characteristics are handled without NaN and count as balanced")
+
+# Assignment is exactly N/2 per arm and independent of the characteristics
+set.seed(7)
+asg <- replicate(2000, { Tr <- sample(rep(0:1, 40)); x <- rbinom(80, 1, 0.5); c(sum(Tr), cor(Tr, x)) })
+chk(all(asg[1, ] == 40), "exactly N/2 participants are treated")
+chk(abs(mean(asg[2, ])) < 4 * sd(asg[2, ]) / sqrt(ncol(asg)), "assignment is independent of the characteristics (mean correlation ~ 0)")
+
+# Secondary Monte Carlo validation of the exact probabilities
+mc_pass_all <- function(N, D, nsim = 6000) mean(replicate(nsim, {
+  X  <- matrix(rbinom(N * D, 1, 0.5), nrow = N); Tr <- sample(rep(0:1, N / 2))
+  max(abs(apply(X, 2, function(x) if (sd(x) == 0) 0 else cor(x, Tr)))) < 0.10 - 1e-9 }))
+mc <- data.frame(N = c(80, 80, 200), D = c(2, 10, 10))
+mc$exact     <- mapply(p_balance_all, mc$N, mc$D)
+mc$simulated <- mapply(mc_pass_all, mc$N, mc$D)
+chk(all(abs(mc$exact - mc$simulated) < 4 * sqrt(mc$exact * (1 - mc$exact) / 6000) + 0.002), "Monte Carlo agrees with the exact probabilities")
+
+kable(transmute(mc, `Total N` = N, D = D, `Exact` = percent(exact, accuracy = 0.1),
+                `Monte Carlo (6,000 draws)` = percent(simulated, accuracy = 0.1)),
+      caption = "Secondary check: exact probabilities vs. simulation")
+cat("All verification checks passed.\n")
+```
+
+## Exchangeability: What Random Assignment Establishes {#sec-exchangeability}
+
+The permutation logic in {{< ref sec-pvalues style="part" >}} rested on **exchangeability**: if treatment had no effect, we could have assigned any participant to either condition without changing what we would observe. In formal terms, exchangeability of the potential outcomes with respect to treatment means:
 
 $$Y^{(0)}, Y^{(1)} \perp\!\!\!\perp T$$
 
-That is, potential outcomes (what Y would be under control, what Y would be under treatment) are independent of which condition a participant actually received. This is the statistical expression of "the groups have no pre-existing differences that matter."
+That is, potential outcomes (what Y would be under control, what Y would be under treatment) are independent of which condition a participant actually received. This is the statistical expression of "the groups have no pre-existing differences that matter, on average, across repetitions of the assignment."
 
-Exchangeability holds when treatment assignment is truly independent of all potential causes of Y. In practice, researchers **assume** this is achieved by the act of randomization — but you should **never** make this assumption without empirical verification. The gap between the observable and the latent is stark:
+Three ideas need to be kept apart:
 
-- **What the researcher observes:** Qualtrics assigned participants to conditions using a random number generator. ✓
-- **What the researcher needs (latent):** Exchangeability — treatment assignment is uncorrelated with *all* potential causal antecedents of Y — every dimension, every subdimension, every latent moderator in the entire data-generating process. ?
+**Design-based exchangeability.** When treatment is assigned independently of potential outcomes through a valid randomization mechanism, the independence condition is supplied by the research design. It does not depend on how many characteristics affect Y, and it is what justifies randomization-based inference.
 
-Whether the randomization procedure achieves the exchangeability property depends on two things:
-1. How many antecedents Y has (the complexity of the construct)
+**Realized balance.** A particular randomized allocation can produce treatment and control groups that differ on observed or unobserved characteristics. These realized differences affect the observed treatment contrast, its precision, and — conditional on the draw — how far the estimate sits from the effect of interest. They do not mean the mechanism was invalid.
+
+**Dimensionality.** As the number of characteristics or relevant interactions increases, it becomes harder for any single draw to satisfy a demanding simultaneous balance requirement. Whether the resulting imbalances meaningfully affect estimation depends on how those characteristics relate to potential outcomes.
+
+Two things this does *not* say. It does not say that every nonzero sample correlation is a failure of randomization, identification, or validity. And it does not say that a randomized experiment can be declared valid or invalid by empirical balance testing alone.
+
+In practice, what a researcher can do is separate two kinds of evidence:
+
+- **About the mechanism:** how assignment was implemented — documented random assignment, concealed allocation, no protocol deviations. This is verified by process.
+- **About the realized sample:** how the groups turned out on the characteristics you measured. This is *described* by balance diagnostics, and it says nothing directly about characteristics you did not measure.
+
+How much realized imbalance you should expect, and whether it matters, depends on two things:
+1. How many characteristics affect Y, and how strongly (the complexity of the construct)
 2. How many participants you have (the sample size)
 
 ---
@@ -190,7 +388,7 @@ Whether the randomization procedure achieves the exchangeability property depend
 
 Suppose your outcome variable Y is **total gaze duration (in milliseconds) on an eco-label during a product display**, measured via eye-tracking. This is a narrow, physiological measure driven by a small number of simple perceptual factors.
 
-Think of **dimensions** as all the hidden moderators in the data-generating process — every property of the participant or their environment that makes them more or less likely to fixate on the label, regardless of the experimental manipulation. These are the variables that, if correlated with treatment assignment by chance, would confound your estimate of the treatment effect. In the entire data-generating process for visual fixation, suppose there are only **2 such binary dimensions**:
+Think of **dimensions** as all the hidden moderators in the data-generating process — every property of the participant or their environment that makes them more or less likely to fixate on the label, regardless of the experimental manipulation. These are the variables that, if correlated with treatment assignment by chance, would confound your estimate of the treatment effect. In the entire data-generating process for visual fixation, suppose — purely as a hypothetical assumption for illustration, not an established fact about eye-tracking — that there are only **2 such binary dimensions**:
 
 | Dimension | Low (0) | High (1) |
 |---|---|---|
@@ -199,7 +397,7 @@ Think of **dimensions** as all the hidden moderators in the data-generating proc
 
 These are simple physical factors. They are not set by the researcher and could vary unsystematically across participants assigned to each condition.
 
-Because both dimensions are binary, the complete "design space" of all possible hidden-moderator combinations is a **2 × 2 matrix** of 4 cells:
+Because both dimensions are binary, the complete set of possible hidden-moderator profiles is a **2 × 2 matrix** of 4 cells:
 
 ```{r narrow-matrix, fig.height=4.5, fig.width=7}
 #| code-summary: "▶ Visualize: 2×2 cell matrix for narrow construct"
@@ -214,23 +412,22 @@ ggplot(cells, aes(x = Luminance, y = Distance)) +
   geom_tile(fill = "#d6ecff", color = "#4a90d9", linewidth = 1.2,
             width = 0.92, height = 0.92) +
   geom_text(aes(label = label), size = 5.5, fontface = "bold", color = "#1a3a6b") +
-  geom_text(aes(label = "n \u2265 1"), size = 3.8, color = "#555", vjust = 3.2) +
   labs(title = "Design Space for Visual Fixation (Narrow Construct)",
-       subtitle = "2 binary hidden moderators \u2192 2\u00b2 = 4 cells  \u00b7  Minimum N to populate matrix = 4",
+       subtitle = "2 binary hidden moderators \u2192 2\u00b2 = 4 possible profiles",
        x = "Screen Luminance", y = "Viewing Distance") +
   theme_minimal(base_size = 13) +
   theme(panel.grid = element_blank(), axis.text = element_text(size = 10))
 ```
 
 ::: {.callout-note}
-## Why 4 cells?
+## Where the cell count comes from
 
-With **k binary dimensions** in the data-generating process, the total number of unique hidden-moderator combinations is **2^k**. Each cell represents one possible "type" of participant in terms of everything that drives Y. For randomization to succeed, treatment and control groups must be approximately balanced across all 2^k cells — the smaller k is, the easier this is to achieve.
+With **k binary dimensions**, the number of possible hidden-moderator profiles is **2^k**. Each cell is one possible "type" of participant in terms of everything that drives Y. That number describes the size of the space of possible participants. It is **not** a requirement of every valid randomized experiment: a randomized experiment does not need to observe every profile, and it does not guarantee that it will.
 
-For k = 2: **2² = 4 cells**. A minimal experiment of N = 4 would cover the space; N = 40 gives 10 per cell with very reliable balance.
+For k = 2 there are **2² = 4 profiles**. Four participants could in principle cover them all, but under random sampling they typically would not, and N = 40 gives ten per cell *on average*, with the actual counts varying from cell to cell. The count matters because it measures how many ways a realized sample can differ from the intended balance as k grows.
 :::
 
-With only 4 meaningful combinations in the design space, even a modest experiment (e.g., N = 40, 10 per cell) will very likely achieve approximate balance between treatment and control. One act of randomization is almost certainly sufficient.
+With only 4 possible profiles there are few ways for the realized groups to differ, and each imbalance has limited room to matter. But realized balance is still a matter of degree. In the exact calculation above, even with just **two** characteristics a sample of 80 meets the 0.10 tolerance on both only about `r percent(bal_tab$p[bal_tab$N == 80 & bal_tab$D == 2], accuracy = 1)` of the time, and a sample of 400 about `r percent(bal_tab$p[bal_tab$N == 400 & bal_tab$D == 2], accuracy = 1)`.
 
 ---
 
@@ -238,7 +435,7 @@ With only 4 meaningful combinations in the design space, even a modest experimen
 
 Now suppose your outcome Y is **sustainable product purchase intention** — the kind of broad, latent, multi-faceted attitude that appears throughout consumer and organizational research, and that you saw in {{< ref sec-m1 style="long" >}} struggling to maintain discriminant validity across measurement attempts.
 
-In the data-generating process, suppose there are **10 binary determinants** of this construct:
+In the data-generating process, suppose — again as a hypothetical assumption — that there are **10 binary determinants** of this construct:
 
 ```{r broad-construct-table}
 #| code-summary: "▶ Table: 10 binary dimensions of sustainable purchase intention"
@@ -259,7 +456,7 @@ dims_table <- data.frame(
 )
 kable(dims_table,
       col.names = c("#", "Dimension", "Level: Low (0)", "Level: High (1)"),
-      caption   = "10 binary antecedents of Sustainable Purchase Intention")
+      caption   = "10 hypothetical binary antecedents of Sustainable Purchase Intention")
 ```
 
 With **k = 10 binary dimensions**, the total number of unique participant profiles in the design space is **2^10 = 1,024 cells**. Notice how quickly this grows compared to the narrow construct:
@@ -323,34 +520,44 @@ ggplot(plot_df_m, aes(x = profile_id, y = Dimension, fill = factor(Level))) +
         panel.grid = element_blank(), legend.position = "top")
 ```
 
-To **exactly** fill this matrix — one observation per cell — you would need **N = 1,024 participants**. That is just to have a single observation per cell, with no statistical power to spare.
+To **exactly** fill this matrix — one observation per cell — you would need **N = 1,024 participants**, with no statistical power to spare. Random assignment does not require this: a valid randomized experiment does not need to observe, or balance, every possible profile. The count shows how many ways a finite sample can differ.
 
 ---
 
 ## From Exact Coverage to Approximate Orthogonality {#sec-orthogonality}
 
-Here is the key insight: **you do not need to fill every cell exactly**.
+Here is the key insight: **a valid randomized experiment does not need to fill every cell.** What matters for any given outcome is how far the realized treatment groups differ on the characteristics that affect it.
 
-In a randomized experiment, what you need is not *exact* coverage, but *approximate independence* — the correlation between treatment assignment and each of the 10 dimensions should be close to zero.
+With random assignment and N participants, the expected correlation between treatment T and any single characteristic C is zero. The *realized* correlation in any given sample deviates from zero by chance, with standard error ≈ **1 / √N**. If we want the realized correlations on ALL D characteristics to stay below a tolerance $|r_{\max}|$ with probability at least $1-\alpha$, a Bonferroni argument over the D simultaneous comparisons gives the approximate sample size
 
-How many observations do you need for that? With random assignment and N participants, the expected correlation between treatment T and any single confounder C is zero. The *actual* correlation in any given sample will deviate from zero by chance, with standard error ≈ **1 / √N**. If you want ALL D correlations to stay below some threshold $|r_{\max}|$, you must account for D simultaneous comparisons (Bonferroni):
+$$N \gtrsim \left(\frac{z_{1-\alpha/(2D)}}{r_{\max}}\right)^2 .$$
 
-$$N \geq \left(\frac{z_{1-\alpha/(2D)}}{r_{\max}}\right)^2$$
+This is a conservative planning approximation under stated assumptions (independent characteristics and a normal approximation for the correlation). It says how large N must be for a **valid** randomization to *typically meet* a chosen balance tolerance on every characteristic. It is **not** the number of participants needed to verify that randomization was valid. {{< ref sec-balancing-groups >}} computed the corresponding probabilities exactly for binary characteristics.
 
-### What does $r_{\max}$ actually mean?
+### What does $r_{\max}$ actually mean? {#sec-rmax-meaning}
 
-Before looking at the numbers, it is worth anchoring $r_{\max}$ concretely. If your treatment T accidentally correlates r with omitted confounder C, and C has effect β (**in SD units of Y — this is identical to Cohen's d when Y is standardized**) on the outcome, then the omitted variable bias in your estimated treatment effect is approximately **β × r**.
+$r_{\max}$ is a tolerance for *realized* imbalance, expressed as a correlation between treatment and a characteristic. To see why the size of that imbalance matters, suppose outcomes follow an additive model with a constant treatment effect $\tau$:
 
-> **A quick reminder from the power table above:** Cohen's d expresses the treatment effect in the same SD-unit currency. An effect of d = 0.40 means the group means differ by 0.40 standard deviations of Y. The β values below use that same ruler — so a β of 0.50 means the confounder shifts Y by half a standard deviation.
+$$Y = \tau T + \beta_C\, C + \varepsilon .$$
+
+The observed difference in group means is then
+
+$$\bar Y_T - \bar Y_C \;=\; \tau \;+\; \underbrace{\beta_C\,(\bar C_T - \bar C_C)}_{\text{prognostic contribution of realized imbalance}} \;+\; (\bar\varepsilon_T - \bar\varepsilon_C).$$
+
+The middle term is the effect of C on Y times the realized difference in C between the groups, in whatever units the model uses. Over repeated valid randomizations its expected value is zero, so it is **not bias in the estimator**; it is realized variability, and it is part of what the standard error describes. But in the draw you actually got, it moves your estimate away from $\tau$.
+
+For a binary characteristic with prevalence 0.5 and equal-sized arms, the realized correlation equals the difference in proportions, so the contribution is simply $\beta_C \times r_{T,C}$, where $\beta_C$ is the outcome difference between the high and low levels of C. (For other characteristics the scaling differs; the contribution is always $\beta_C$ times the realized mean difference in C.) We express $\beta_C$ in SD units of Y, which is identical to Cohen's d when Y is standardized.
+
+> **A quick reminder from the power table in {{< ref sec-pvalues style="part" >}}:** Cohen's d expresses the treatment effect in the same SD-unit currency. An effect of d = 0.40 means the group means differ by 0.40 standard deviations of Y. The β values below use that same ruler — so a β of 0.50 means the characteristic shifts Y by half a standard deviation.
 
 ```{r rmax-concrete, fig.height=5.5, fig.width=11}
-#| code-summary: "▶ Plot: how r_max tolerance maps to omitted-variable bias"
+#| code-summary: "▶ Plot: how r_max tolerance maps to the contribution of realized imbalance"
 
 rmax_vals <- c(0.05, 0.10, 0.20, 0.30, 0.40, 0.60)
 beta_vals <- seq(0.1, 1.5, by = 0.1)
 
 bias_df <- expand.grid(r_max = rmax_vals, beta = beta_vals) |>
-  mutate(bias   = r_max * beta,
+  mutate(contribution = r_max * beta,                     # beta x r, for a binary characteristic with prevalence 0.5
          r_label = sprintf("r = %.2f", r_max))
 
 # Cohen's d reference lines
@@ -359,7 +566,7 @@ cohen_refs <- data.frame(
   label = c("Small effect\n(d = 0.20)", "Medium effect\n(d = 0.50)", "Large effect\n(d = 0.80)")
 )
 
-ggplot(bias_df, aes(x = beta, y = bias,
+ggplot(bias_df, aes(x = beta, y = contribution,
                     color = factor(r_max), group = factor(r_max))) +
   geom_hline(data = cohen_refs, aes(yintercept = d),
              linetype = "dotted", color = "gray60", linewidth = 0.6) +
@@ -374,69 +581,68 @@ ggplot(bias_df, aes(x = beta, y = bias,
     name   = "Correlation\ntolerance (r_max)"
   ) +
   scale_x_continuous(breaks = seq(0.2, 1.4, 0.2),
-                     labels = function(x) sprintf("\u03b2 = %.1f SD", x)) +
+                     labels = function(x) sprintf("β = %.1f SD", x)) +
   scale_y_continuous(labels = function(x) sprintf("%.2f SD", x),
                      limits = c(0, 0.95)) +
   coord_cartesian(clip = "off") +
-  labs(x = "Effect of omitted confounder on Y (\u03b2 = Cohen's d equivalent; SD units)",
-       y = "Omitted-variable bias in your treatment estimate",
-       title = "How Much Bias Does Residual Imbalance Create?",
-       subtitle = paste0("Bias \u2248 r_max \u00d7 \u03b2  \u00b7  Dotted lines = small/medium/large effect benchmarks\n",
-                         "Lower r_max = less bias once achieved, but requires more N to verify")) +
+  labs(x = "Effect of the characteristic on Y (β, SD units; high vs. low level)",
+       y = "Contribution of realized imbalance\nto the observed difference (SD of Y)",
+       title = "How Much Can Realized Imbalance Move an Estimate?",
+       subtitle = paste0("Contribution = β × r for a binary characteristic with prevalence 0.5  ·  Dotted lines = small/medium/large effect benchmarks\n",
+                         "A tighter r_max limits the contribution, but requires more N before a valid randomization typically meets it")) +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), legend.position = "bottom",
         legend.direction = "horizontal",
         plot.margin = margin(5, 50, 5, 5))
 ```
 
-In the coffee WTP context (SD ≈ $1.50):
+In the coffee WTP context (SD ≈ $1.50), a realized imbalance of the stated size would move the observed difference by:
 
-- r = 0.05 with β = 0.8 SD: bias ≈ 0.04 SD ≈ **$0.06** — negligible
-- r = 0.10 with β = 0.8 SD: bias ≈ 0.08 SD ≈ **$0.12** — small but detectable
-- r = 0.20 with β = 0.8 SD: bias ≈ 0.16 SD ≈ **$0.24** — now as large as a small true effect
-- r = 0.40 with β = 1.0 SD → bias ≈ 0.40 SD ≈ **$0.60** — larger than many published effects
-- r = 0.60 with β = 1.0 SD → bias ≈ 0.60 SD ≈ **$0.90** — could reverse the sign of your treatment estimate entirely
+- r = 0.05 with β = 0.8 SD: ≈ 0.04 SD ≈ **$0.06** — negligible
+- r = 0.10 with β = 0.8 SD: ≈ 0.08 SD ≈ **$0.12** — small but detectable
+- r = 0.20 with β = 0.8 SD: ≈ 0.16 SD ≈ **$0.24** — now as large as a small true effect
+- r = 0.40 with β = 1.0 SD: ≈ 0.40 SD ≈ **$0.60** — larger than many published effects (but an extreme imbalance for a valid randomization at moderate N)
+- r = 0.60 with β = 1.0 SD: ≈ 0.60 SD ≈ **$0.90** — more extreme still; could reverse the sign of an estimate of a small effect
 
-### A Violation of Exchangeability Is Omitted Variable Bias
+### Realized Imbalance, Flawed Assignment, and Omitted Variable Bias {#sec-ovb-link}
 
-Before turning to sample size requirements, it is worth being precise about what a violation of exchangeability actually is — because the answer connects directly to **{{< ref sec-omitted-variable-bias style="long" >}}** on omitted variable bias.
+The additive algebra above is the same algebra as omitted variable bias in {{< ref sec-omitted-variable-bias style="long" >}}. What differs is the *status* of the middle term, and that depends on how the groups came to differ:
 
-Recall the OVB formula. When a variable C is omitted from a regression, the estimated effect of treatment T is:
+- **When assignment depends on C** — an observational comparison, self-selection, or a flawed assignment mechanism — the expected difference in C is not zero, so the term is a **systematic bias**: omitted variable bias in the usual sense.
+- **When assignment is a valid randomization**, the expected difference in C is zero. The term is then a **mean-zero realized deviation** — part of the estimator's sampling variability, reduced by larger samples, by blocking, or by adjusting for C when it is measured — and not bias in the estimator.
 
-$$\hat{\beta}_T = \beta_T + \underbrace{\beta_C \cdot r_{T,C}}_{\text{omitted variable bias}}$$
-
-where $\beta_C$ is C's true effect on Y and $r_{T,C}$ is the correlation between T and C. In a well-designed experiment, randomization drives $r_{T,C} \approx 0$ for every confounder C — making the OVB term vanish by construction. When exchangeability fails — when treatment assignment becomes accidentally correlated with some confounder — $r_{T,C} \neq 0$, and OVB enters the experimental estimate through exactly the same channel as in observational research.
-
-**A concrete example.** Suppose your eco-label WTP study recruited participants through an environmental forum, creating a systematic imbalance on environmental values:
+**A concrete example of the first case.** Suppose the eco-label version of the study was advertised on an environmental forum, while the control version ran through a general panel, so that assignment is related to environmental values:
 
 | Group | High env. values (%) | Observed WTP |
 |---|---|---|
 | Control (N = 95) | 38% | $4.20 |
 | Eco-label (N = 105) | 61% | $5.50 |
 
-This imbalance corresponds to r(T, env\_values) ≈ 0.23. Environmental values have a direct positive effect on WTP of β ≈ 0.8 SD (≈ $1.20) even without any eco-label stimulus present.
+The share of high-environmental-values participants differs by 0.23 between groups, and high environmental values raise WTP by about β ≈ 0.8 SD (≈ $1.20) even without any eco-label stimulus.
 
 **What you observe:** Eco-label group mean WTP = $5.50, control mean = $4.20. **Observed difference = $1.30.**
 
-**The bias:** $\beta_C \cdot r_{T,C} = 1.20 \times 0.23 \approx \$0.28$.
+**The contribution:** $\beta_C \times (\bar C_T - \bar C_C) = 1.20 \times 0.23 \approx \$0.28$.
 
-**True eco-label effect:** $1.30 − $0.28 = **$1.02** — your estimate is inflated by roughly 27%.
+**Eco-label effect net of that contribution:** $1.30 − $0.28 = **$1.02** — the raw estimate is inflated by roughly 27%.
 
-The groups are no longer exchangeable. You are not comparing "eco-label vs. no eco-label" — you are comparing "eco-label + environmentally minded participants" against "no eco-label + less environmentally minded participants." The imbalance on environmental values correlates with WTP *independently* of the eco-label, injecting bias into what was supposed to be a clean experimental estimate.
+Here the groups are not exchangeable, because they were not formed by a valid randomization: assignment depended on environmental values. You are comparing "eco-label + environmentally minded participants" against "no eco-label + less environmentally minded participants." Had the same participants instead been randomized, the expected difference in environmental values would have been zero, and only a smaller, mean-zero chance contribution would remain.
 
 ::: {.callout-tip}
-## Reading the direction of bias from the balance table
+## Reading the direction of the contribution from a balance table
 
-Because the bias formula is $\beta_C \cdot r_{T,C}$, you can reason about direction and magnitude for any confounder you measured:
+Because the contribution is $\beta_C \times$ (realized difference in C), you can reason about its direction for any characteristic you measured:
 
-- **Treated group has more of a positive confounder** (r > 0, β > 0): bias **inflates** the treatment estimate — your effect looks larger than it is
-- **Treated group has less of a positive confounder** (r < 0, β > 0): bias **deflates** the estimate — your effect looks smaller than it is
-- **Confounder has a negative effect on Y** (β < 0): these directions flip
+- **Treated group has more of a positively prognostic characteristic** (difference > 0, β > 0): the contribution is positive — the observed effect looks larger than $\tau$ in this draw
+- **Treated group has less of a positively prognostic characteristic** (difference < 0, β > 0): the contribution is negative — the effect looks smaller
+- **The characteristic has a negative effect on Y** (β < 0): these directions flip
 
-For confounders you did *not* measure, the direction is unknown — which is why preventing imbalance through design (blocked randomization, large N) is always preferable to correcting for it post hoc.
+For characteristics you did *not* measure, the direction is unknown. That is why preventing imbalance by design (blocked randomization, larger N) and adjusting for measured prognostic covariates are preferable to hoping the draw was lucky.
 :::
 
-This connection is not incidental. It is the reason why the entire framework for evaluating randomization in this section is built around $r_{\max}$: that tolerance parameter *is* the limit you are placing on permissible OVB. A looser $r_{\max}$ allows more OVB to enter through treatment-covariate correlations; a stricter one requires more observations to achieve.
+This is why $r_{\max}$ is a useful tolerance: it limits how much a realized imbalance can contribute to the observed difference for a given $\beta$. A looser tolerance allows larger deviations; a stricter one requires more observations before a valid randomization will typically meet it.
+
+### Sample Size for a Simultaneous Balance Tolerance
 
 ### Required N for Approximate Orthogonality
 
@@ -459,7 +665,7 @@ ortho_table <- expand.grid(D = dims_check, r_max = thresh_check) |>
   rename(`Dimensions (D)` = D, `Exact cells (2^D)` = exact_cells)
 
 kable(ortho_table,
-      caption = "Minimum N for approximate orthogonality at \u03b1 = .05 (Bonferroni-corrected)",
+      caption = "Approximate N at which a valid random assignment meets |r| < r_max on all D independent characteristics with 95% probability (Bonferroni)",
       format.args = list(big.mark = ","))
 ```
 
@@ -492,8 +698,8 @@ ggplot(ortho_plot_df, aes(x = D)) +
   coord_cartesian(clip = "off") +
   labs(x = "Number of binary dimensions of Y (D)",
        y = "Observations required (log scale)",
-       title = "How Many Observations for Approximate Orthogonality?",
-       subtitle = "Dashed = exact fill (2^D)  \u00b7  Colored lines = Bonferroni-corrected independence threshold") +
+       title = "Approximate N for a Simultaneous Balance Tolerance",
+       subtitle = "Dashed = number of possible profiles (2^D)  \u00b7  Colored lines = N at which a valid randomization typically meets the tolerance on all D") +
   theme_minimal(base_size = 13) +
   theme(panel.grid.minor = element_blank(), legend.position = "right",
         plot.margin = margin(5, 30, 5, 5))
@@ -502,391 +708,229 @@ ggplot(ortho_plot_df, aes(x = D)) +
 ::: {.callout-note}
 ## Reading the table: Why does r_max = 0.05 at D = 10 require *more* N than the Exact cells column?
 
-At first glance, a row like D = 10 looks paradoxical: the **Exact cells (2^D) = 1,024** column is smaller than the **r_max = 0.05** column (≈ 3,152). Doesn't that mean structured assignment needs *fewer* people than random assignment — even while achieving *perfect* orthogonality?
+At first glance, a row like D = 10 looks paradoxical: the **Exact cells (2^D) = 1,024** column is smaller than the **r_max = 0.05** column (≈ 3,152). The two columns answer different questions:
 
-Yes — and that is exactly right, for a subtle reason. The two columns are measuring different things:
+- **Exact cells (2^D):** the number of possible profiles of D binary characteristics. It is also the size of a *fully structured full-factorial assignment* in which every profile appears once. By construction every characteristic is perfectly balanced and the characteristics are uncorrelated with each other, so no statistical question arises. But one participant per cell cannot support estimating variance: a realistic full factorial at D = 10 needs at least 10–30 observations per cell, putting the total at **10,240–30,720**.
 
-- **Exact cells (2^D):** This is the total number of cells in a *fully structured full-factorial design* — every possible combination of D binary dimensions gets exactly one observation. By construction, all D factors are perfectly balanced and mutually uncorrelated (r = 0 exactly). No statistical test is needed; orthogonality is guaranteed by design. The 1,024 figure is simply the number of cells, not a sample size adequate for inference.
+- **r_max columns:** the N at which a *random*, unstructured assignment will typically (about 95% of the time, under the approximation) meet the tolerance on all D characteristics. With random assignment there is no structural guarantee of balance in any one draw; the guarantee holds in expectation.
 
-- **r_max columns:** These are the N required to *verify* that a random, unstructured assignment achieved approximate orthogonality at the stated tolerance, using a Bonferroni-corrected independence test. With random assignment, there is no structural guarantee — you must check empirically, and the check requires enough power to detect any correlation exceeding r_max.
-
-The full factorial is more efficient per cell because its structure eliminates random correlation entirely. But that efficiency evaporates quickly in practice: with only 1 observation per cell you cannot estimate variance or make inferential statements. A realistic full factorial at D = 10 needs at least 10–30 observations per cell, putting the total at **10,240–30,720** — far more than the 3,152 needed under random assignment with r_max = 0.05.
-
-In short: the exact-cells column tells you the minimum to *fill the design*; the r_max columns tell you the minimum to *trust random assignment*. At moderate D, random assignment wins on cost; at small D and large cells, full factorial wins on precision.
+So the exact-cells column tells you how large the space of profiles is, and the r_max columns tell you how many participants random assignment typically needs to look balanced to a given tolerance. A structured design (blocking or stratifying on characteristics you know about) can *guarantee* balance on those characteristics, at the price of measuring them in advance.
 :::
 
 ::: {.callout-warning}
-## The key tradeoff — and why most experiments are implicitly operating at high $r_{\max}$
+## The key tradeoff: stricter balance criteria need many more observations
 
-The table above reveals an uncomfortable tension that sits at the heart of experimental practice:
+**Lower $r_{\max}$** = a stricter standard for realized balance = a smaller possible contribution from chance imbalance.
 
-**Lower $r_{\max}$** = a stricter standard = less confounding once achieved = better causal inference.
-
-**But lower $r_{\max}$ also requires far more observations** to reliably verify. N scales as $1/r_{\max}^2$, so halving your tolerance quadruples the required sample.
+**But lower $r_{\max}$ also requires far more observations** before a valid randomization will typically meet it. N scales as $1/r_{\max}^2$, so halving your tolerance quadruples the required sample.
 
 ::: {.callout-important}
 ## The core punchline
 
-This is the central tension in designing experiments for complex constructs. The researcher faces a dilemma:
+- **Set a strict $r_{\max}$ (e.g., 0.05–0.10) across many characteristics:** a valid randomization will typically meet it only at sample sizes few lab studies can afford.
+- **Accept a lenient $r_{\max}$ (e.g., 0.30–0.40):** achievable sample sizes, but any single draw can carry a noticeable contribution from chance imbalance when individual characteristics have strong effects (β ≈ 0.5–1.0 SD) on Y.
 
-- **Set a strict $r_{\max}$ (e.g., 0.05–0.10):** Your causal inferences will be clean — but you need sample sizes that few lab studies can afford.
-- **Accept a lenient $r_{\max}$ (e.g., 0.30–0.40):** Your sample size is achievable — but residual confounding may be large enough to bias your estimates substantially, especially when individual confounders have strong effects (β ≈ 0.5–1.0 SD) on Y.
-
-A typical psychology or marketing experiment with **N = 60–120** participants is, at best, achieving $r_{\max} \approx 0.30$–$0.40$ for a construct with D = 5–10 dimensions — regardless of whether Qualtrics randomized. Researchers who report a balance table with N = 80 and declare "randomization succeeded" are not wrong about the observable; they are implicitly operating at a very lenient latent $r_{\max}$, where substantial confounding remains undetected.
-
-In {{< ref sec-m1 style="long" >}}'s language: their randomization observable has **low construct validity** as an indicator of latent randomization, because the gap between the observable and the latent property is too wide to close at typical sample sizes.
+A typical psychology or marketing experiment with **N = 60–120** participants will often miss tight simultaneous balance criteria across many characteristics, even though its assignment is valid. That is the expected behaviour of a valid mechanism in a small sample, not a defect. The practical implication is that, with many strongly prognostic characteristics, small samples rely on the standard error to describe their variability, and design choices (blocking on the key characteristics) or analysis choices (adjusting for measured ones) can tighten the estimate.
 :::
 
-With a narrow outcome like **Visual Fixation Time** (D = 2 dimensions):
-- To ensure $|r| < 0.10$ with 95% confidence: N ≈ **`r required_N(2, 0.10)`** — feasible
-- A study with N = 80 comfortably satisfies even a strict $r_{\max} = 0.20$
+With a narrow outcome like **Visual Fixation Time** (D = 2 hypothetical characteristics):
 
-With a broad outcome like **Sustainable Purchase Intention** (D = 10 dimensions):
-- To ensure $|r| < 0.10$: N ≈ **`r required_N(10, 0.10)`** — rarely achieved in practice
-- To ensure $|r| < 0.20$: N ≈ **`r required_N(10, 0.20)`** — still demanding for most lab studies
-- A study with N = 200 barely meets the r_max < 0.20 threshold (required N = `r required_N(10, 0.20)`). A typical lab study with **N = 80**, however, is operating at an effective $r_{\max} \approx 0.31$ — where a single strong confounder (β ≈ 0.8 SD) can inject bias of 0.24 SD or more into your treatment estimate
+- For a ≥95% probability that |r| < 0.10 on both: N ≈ **`r required_N(2, 0.10)`** — feasible
+- For |r| < 0.20 on both: N ≈ **`r required_N(2, 0.20)`**
 
-This is the direct experimental parallel to {{< ref sec-m1 style="long" >}}'s core finding about discriminant validity. A scale with **many correlated sub-dimensions** is hard to measure cleanly; a construct with **many latent antecedents** is hard to randomize cleanly. Both problems grow with construct breadth, and both require you to map the latent space before claiming clean measurement or clean identification.
+With a broad outcome like **Sustainable Purchase Intention** (D = 10 hypothetical characteristics):
+
+- For a ≥95% probability that |r| < 0.10 on all ten: N ≈ **`r required_N(10, 0.10)`** — rarely achieved in practice
+- For |r| < 0.20: N ≈ **`r required_N(10, 0.20)`** — still demanding for most lab studies
+- A typical lab study with **N = 80** has an effective tolerance of about `r sprintf("%.2f", qnorm(1 - 0.05 / (2 * 10)) / sqrt(80))`: with roughly 95% probability the largest realized correlation is below that. In an unlucky draw, a characteristic with β ≈ 0.8 SD can then shift the observed difference by about `r sprintf("%.2f", 0.8 * qnorm(1 - 0.05 / (2 * 10)) / sqrt(80))` SD.
+
+This is the direct experimental parallel to {{< ref sec-m1 style="long" >}}'s core finding about discriminant validity. A scale with **many correlated sub-dimensions** is hard to measure cleanly; a construct with **many latent antecedents** is hard to *balance on every antecedent in one finite draw*. Both problems grow with construct breadth, and both call for mapping the latent space before claiming clean measurement or clean identification.
 :::
 
 ---
 
-## Simulation: Correlated Dimensions — Two Countervailing Forces {#sec-dgp-sim}
+## Simulation: Correlated Characteristics — Two Countervailing Forces {#sec-dgp-sim}
 
-The analysis so far assumed that the 10 latent dimensions of Y are **independent of one another** in the data-generating process. But is that realistic?
+The analysis so far assumed that the 10 hypothetical characteristics are **independent of one another**. But is that realistic?
 
-Think about the constructs driving Sustainable Purchase Intention. Environmental values, health motivation, social norm salience, and peer influence tend to cluster together — the "conscious consumer" profile. Similarly, price sensitivity, income, and habitual spending patterns cluster together — the "pragmatic buyer" profile. The latent dimensions are *correlated*, not orthogonal.
+Think about the characteristics that might drive Sustainable Purchase Intention. Environmental values, health motivation, social norm salience, and peer influence tend to cluster together — the "conscious consumer" profile. Similarly, price sensitivity, income, and habitual spending patterns cluster together — the "pragmatic buyer" profile. The characteristics are *correlated*, not orthogonal.
 
 ### Two forces pull in opposite directions
 
 Before running any simulation, consider the logic:
 
-**Force 1 — fewer independent checks (sometimes helps).** If two dimensions are highly correlated (say, environmental values and social norm salience move together), then for the purpose of *counting* how many independent things can go wrong, you effectively have fewer than 10 independent dimensions. Fewer independent checks = lower probability that *any one* of them exceeds the threshold by chance = **slightly easier to achieve orthogonality** for a given N.
+**Force 1 — fewer independent checks (sometimes helps).** If two characteristics are highly correlated (say, environmental values and social norm salience move together), then for the purpose of *counting* how many independent things can differ between the groups, you effectively have fewer than 10. Fewer independent checks means a lower probability that *any one* of them exceeds the tolerance by chance, so the balance criterion is **slightly easier to meet** for a given N.
 
-**Force 2 — cascade failures (always hurts).** The flip side is severe. When randomization *does* fail on one correlated dimension, it fails on all the correlated ones simultaneously. Imbalance on "environmental values" drags along imbalance on "social norms," "health motivation," and "peer influence" all at once. Each of these has its own independent β effect on Y, so the bias compounds. Instead of one confounder contributing β × r bias, you get four correlated confounders each contributing, with their effects accumulating.
+**Force 2 — correlated imbalances accumulate.** The flip side is that when realized imbalance does occur on one characteristic, it tends to occur on the correlated ones too. Imbalance on "environmental values" drags along imbalance on "social norms," "health motivation," and "peer influence" at the same time. Each has its own effect β on Y, so their contributions to the observed treatment contrast add up in the same direction instead of cancelling.
 
 ### When does correlation help vs. hurt?
 
-The key variable is **why** the dimensions are correlated:
+The key variable is **why** the characteristics are correlated, and how strongly each predicts Y:
 
-| Scenario | Structure | Effect on randomization |
+| Scenario | Structure | Effect on realized balance |
 |---|---|---|
-| **Helpful:** dimensions cluster around a few latent "super-factors" | e.g., all "values-based" dimensions move together as one bloc | Fewer effective checks; orthogonality easier to achieve at smaller N |
-| **Hurtful:** dimensions are correlated *and* each carries independent variance in Y | e.g., environmental values, health focus, and social norms each have separate β effects on WTP | Cascade failures: one imbalanced assignment fails simultaneously on 3 dimensions with additive bias |
-| **Worst case:** high correlation *and* strong independent effects on Y | The dims are correlated with each other AND each has a large β | One randomization failure contaminates every correlated dimension, compounding bias substantially |
+| **Helpful:** characteristics cluster around a few latent "super-factors" with small effects | e.g., all "values-based" characteristics move together as one bloc, each with a modest effect on Y | Fewer effective checks; the criterion is easier to meet, and any imbalance contributes little |
+| **Hurtful:** characteristics are correlated *and* each carries independent variance in Y | e.g., environmental values, health focus, and social norms each have separate β effects on WTP | One draw's imbalance shows up on several characteristics at once, with additive contributions |
+| **Worst case:** high correlation *and* strong independent effects on Y | The characteristics are correlated with each other AND each has a large β | One draw's imbalance can contribute a large amount to the observed contrast |
 
-**The concrete intuition:** imagine you are a researcher measuring balance, and you check environmental values and find it balanced (r ≈ 0). If that dimension was highly correlated with health focus and social norms in your sample, you might infer those are balanced too — and you might be right. That is the *helpful* version. But if each of those three dimensions has an independent effect on WTP that wasn't captured by environmental values alone, then any *failure* of balance cascades to all three simultaneously — that is the *hurtful* version.
+**The concrete intuition:** suppose you check environmental values and find it balanced. If it is highly correlated with health focus and social norms, those are probably balanced too — the *helpful* version. But if each carries an independent effect on WTP that environmental values do not capture, then an imbalance that does occur can show up on all three at once — the *hurtful* version.
 
-This maps directly onto {{< ref sec-m1 style="long" >}}'s concept of **correlated subscales**. When subscales are highly correlated, you gain efficiency in measurement (fewer items needed to capture the same information). But if they are discriminantly invalid — correlated *and* capturing separate variance — then mismeasuring one means mismeasuring all.
+This maps onto {{< ref sec-m1 style="long" >}}'s concept of **correlated subscales**. When subscales are highly correlated, you gain efficiency (fewer items capture the same information). But if they are correlated *and* carry separate predictive variance, then a problem in one cascades to all.
 
 ### Simulation
 
-We run two contrasting scenarios, each featuring correlated dimensions but differing in whether the failure mode is primarily helpful or hurtful:
+We run three scenarios, always with **valid complete randomization** (exactly N/2 treated) and a **true treatment effect of zero**:
 
-- **Scenario A — "Helpful" correlation (ρ = 0.75, uniform small β):** Dimensions are very strongly correlated — effectively 10 measured dimensions but only ~2–3 independent blocs. Each dimension has a similar, small β effect on Y (β = 0.15). When the correlation structure is this tight, the effective number of independent checks drops sharply, making orthogonality easier to achieve.
+- **Independent (ρ = 0, large varied β):** the benchmark from the previous section.
+- **Scenario A — tight clusters (ρ = 0.75, uniform small β = 0.15):** characteristics are very strongly correlated — effectively 10 measured characteristics but only a few independent blocs — each with a small effect on Y.
+- **Scenario B — moderate correlation (ρ = 0.35, heterogeneous large β from 0.05 to 1.50):** characteristics are moderately correlated and each carries a different, large effect on Y.
 
-- **Scenario B — "Hurtful" correlation (ρ = 0.35, heterogeneous large β):** Dimensions have moderate correlation but each carries a meaningfully different and large independent effect on Y (ranging from β = 0.05 to β = 1.50). When randomization fails on one dimension, several correlated ones fail simultaneously — and because each carries its own large β, the cumulative bias explodes.
+For each experiment we record (i) whether it meets the marginal-balance criterion (max |cor| < 0.10), (ii) the **realized prognostic contribution** — how much chance imbalance moves the observed treatment contrast, $\sum_j \beta_j(\bar X_{j,\text{treated}} - \bar X_{j,\text{control}})$ — and (iii) whether the ordinary t-test (and the same test after adjusting for the measured characteristics) falsely rejects.
 
-```{r dgp-simulation, fig.height=16, fig.width=10}
-#| code-summary: "▶ Simulate: three DGP scenarios + Type-1 error rate (may take ~2 min)"
+```{r dgp-simulation, fig.height=13, fig.width=10}
+#| code-summary: "▶ Simulate: balance, realized contribution, and error rates under three scenarios (≈1 min)"
 
 # ── Helper: correlated binary covariates via Cholesky ────────────────────────
 corr_binary <- function(N, D, rho) {
   Sigma <- matrix(rho, D, D); diag(Sigma) <- 1
-  L     <- chol(Sigma)
-  z     <- matrix(rnorm(N * D), nrow = N) %*% L
+  z     <- matrix(rnorm(N * D), nrow = N) %*% chol(Sigma)
   (z > 0L) * 1L
 }
-
-# ── Simulation: P(max |r| < threshold) ───────────────────────────────────────
-sim_orthog <- function(N, D, rho = 0, threshold = 0.10, n_sim = 1500) {
-  mean(replicate(n_sim, {
-    X        <- if (rho == 0) matrix(rbinom(N * D, 1, 0.5), nrow = N)
-                else          corr_binary(N, D, rho)
-    T_assign <- rbinom(N, 1, 0.5)
-    cors     <- apply(X, 2, function(col) abs(cor(col, T_assign)))
-    max(cors) < threshold
-  }))
+draw_X <- function(N, D, rho) {
+  if (rho == 0) matrix(rbinom(N * D, 1, 0.5), nrow = N) else corr_binary(N, D, rho)
 }
 
-# ── Simulation: cumulative bias when any failure occurs ──────────────────────
-sim_bias <- function(N = 200, D = 10, rho = 0, betas, threshold = 0.10, n_sim = 1000) {
-  replicate(n_sim, {
-    X        <- if (rho == 0) matrix(rbinom(N * D, 1, 0.5), nrow = N)
-                else          corr_binary(N, D, rho)
-    T_assign <- rbinom(N, 1, 0.5)
-    cors     <- apply(X, 2, function(col) cor(col, T_assign))
-    sum(abs(cors[abs(cors) > threshold]) * betas[abs(cors) > threshold])
-  })
+# ── One experiment (complete randomization, true effect = 0) ─────────────────
+#   pass       : meets max |cor(T, X_j)| < r_max (strict; exact ties fail)
+#   contrib    : realized prognostic contribution  sum_j beta_j * (mean X_j treated - mean X_j control),
+#                the part of the observed contrast that comes from chance imbalance (outcome units; residual SD = 1)
+#   reject     : unadjusted t-test rejects at 5%
+#   reject_adj : the same test after adjusting for the measured characteristics
+sim_once <- function(N, D, rho, betas, r_max = 0.10) {
+  X    <- draw_X(N, D, rho)
+  Tr   <- sample(rep(0:1, N / 2))
+  cors <- apply(X, 2, function(x) if (sd(x) == 0) 0 else cor(x, Tr))
+  contrib <- sum(betas * (colMeans(X[Tr == 1, , drop = FALSE]) - colMeans(X[Tr == 0, , drop = FALSE])))
+  Y0   <- as.vector(X %*% betas) + rnorm(N)
+  p_adj <- summary(lm(Y0 ~ Tr + X))$coefficients["Tr", 4]
+  c(pass       = as.numeric(max(abs(cors)) < r_max - 1e-9),
+    contrib    = contrib,
+    reject     = as.numeric(t.test(Y0[Tr == 1], Y0[Tr == 0])$p.value < 0.05),
+    reject_adj = as.numeric(p_adj < 0.05))
 }
 
-# ── Simulation: Type-1 and Type-2 error rates, conditional on orthogonality failing ──
-# The key insight: under PERFECT randomization, Type-1 is always ~5% regardless of betas.
-# The interesting question is: given your experiment FAILED the orthogonality check
-# (as many real experiments do), how bad are your error rates?
-# Large betas (Scenario B) turn small residual imbalance into large bias → inflated Type-1.
-# Tiny betas (Scenario A) produce negligible bias even when imbalance exists → Type-1 near 5%.
-sim_error_rates <- function(N, D, rho, betas, r_max = 0.10,
-                            true_eff = 0.40, n_sim = 2000) {
-  results <- t(replicate(n_sim, {
-    X        <- if (rho == 0) matrix(rbinom(N * D, 1, 0.5), nrow = N)
-                else          corr_binary(N, D, rho)
-    T_assign <- rbinom(N, 1, 0.5)
-    cors     <- apply(X, 2, function(x) abs(cor(x, T_assign)))
-    orth_ok  <- max(cors) <= r_max          # did this experiment pass the balance check?
-    Y_null   <- as.vector(X %*% betas) + rnorm(N, 0, 1)
-    p_null   <- t.test(Y_null[T_assign == 1], Y_null[T_assign == 0])$p.value
-    Y_alt    <- true_eff * T_assign + as.vector(X %*% betas) + rnorm(N, 0, 1)
-    p_alt    <- t.test(Y_alt[T_assign == 1], Y_alt[T_assign == 0])$p.value
-    c(t1 = as.integer(p_null < 0.05), t2 = as.integer(p_alt > 0.05),
-      orth_ok = as.integer(orth_ok))
-  }))
-  failed <- results[, "orth_ok"] == 0L
-  passed <- results[, "orth_ok"] == 1L
-  # Type-1: false-positive rate CONDITIONAL ON orthogonality FAILING (violations present)
-  t1_cond  <- if (sum(failed) > 10) mean(results[failed, "t1"]) else NA_real_
-  # Type-2: miss rate CONDITIONAL ON orthogonality PASSING (no violations; p-values are valid here)
-  t2_valid <- if (sum(passed) > 10) mean(results[passed, "t2"]) else NA_real_
-  data.frame(t1_rate = t1_cond, t2_rate = t2_valid,
-             pct_fail = mean(failed))
-}
+D      <- 10
+N_vals <- c(50, 100, 200, 400, 800)
+betas_helpful <- rep(0.15, D)                                           # uniform small effects
+betas_hurtful <- c(1.50, 1.20, 1.00, 0.90, 0.70, 0.50, 0.30, 0.20, 0.10, 0.05)  # large heterogeneous effects
+
+scen_levels <- c("Independent (rho = 0, large varied β)",
+                 "Scenario A: tight clusters (rho = 0.75, small uniform β)",
+                 "Scenario B: moderate correlation (rho = 0.35, large varied β)")
+scen <- tibble(scenario = factor(scen_levels, scen_levels),
+               rho      = c(0.00, 0.75, 0.35),
+               betas    = list(betas_hurtful, betas_helpful, betas_hurtful))
+scen_colors <- setNames(c("#0072B2", "#009E73", "#D55E00"), scen_levels)
 
 set.seed(42)
+n_sim <- 3000
+sim_res <- scen |>
+  tidyr::crossing(N = N_vals) |>
+  mutate(out = purrr::pmap(list(N, rho, betas), function(N, rho, betas)
+    as_tibble(t(replicate(n_sim, sim_once(N, D, rho, betas)))))) |>
+  select(-betas) |>
+  unnest(out)
 
-N_vals <- c(50, 100, 200, 400, 800)
-D      <- 10
+# (1) Probability of meeting the balance criterion
+prob_df <- sim_res |> group_by(scenario, N) |> summarise(p_pass = mean(pass), .groups = "drop")
 
-# Scenario betas — made more extreme to amplify the contrast
-betas_helpful <- rep(0.15, D)                    # uniform tiny betas
-betas_hurtful <- c(1.50, 1.20, 1.00, 0.90, 0.70,
-                   0.50, 0.30, 0.20, 0.10, 0.05) # large heterogeneous betas
-
-# P(orthogonal) across N, for three DGP types
-prob_df <- bind_rows(
-  data.frame(N   = N_vals, DGP = "Independent (rho = 0)",
-             prob = sapply(N_vals, sim_orthog, D = D, rho = 0.00)),
-  data.frame(N   = N_vals, DGP = "Scenario A: Helpful (rho = 0.75, uniform small \u03b2)",
-             prob = sapply(N_vals, sim_orthog, D = D, rho = 0.75)),
-  data.frame(N   = N_vals, DGP = "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)",
-             prob = sapply(N_vals, sim_orthog, D = D, rho = 0.35))
-)
-
-scen_colors <- c(
-  "Independent (rho = 0)"                                  = "#4a90d9",
-  "Scenario A: Helpful (rho = 0.75, uniform small \u03b2)" = "#52b788",
-  "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)"  = "#e63946"
-)
-
-p_prob <- ggplot(prob_df, aes(x = N, y = prob, color = DGP, group = DGP)) +
-  geom_line(linewidth = 1.3) +
-  geom_point(size = 3.5) +
-  geom_hline(yintercept = 0.95, linetype = "dashed", color = "gray40") +
-  annotate("text", x = 820, y = 0.957, label = "95% target",
-           size = 3.0, color = "gray40", hjust = 0) +
+p_prob <- ggplot(prob_df, aes(N, p_pass, colour = scenario, group = scenario)) +
+  geom_line(linewidth = 1.3) + geom_point(size = 3) +
+  geom_hline(yintercept = 0.95, linetype = "dashed", colour = "gray40") +
+  annotate("text", x = 820, y = 0.965, label = "95%", size = 3, colour = "gray40", hjust = 0) +
   scale_x_continuous(breaks = N_vals) +
   scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  scale_color_manual(values = scen_colors, name = NULL) +
-  labs(x = "Sample size (N)",
-       y = "P(max |r| < 0.10 across all 10 dimensions)",
-       title = "Probability of Achieving Orthogonality (D = 10)",
-       subtitle = paste0("Scenario A (strong clustering, tiny betas): easier — correlation reduces effective checks\n",
-                         "Scenario B (moderate correlation, large varied betas): hardest — and most dangerous when it fails")) +
-  theme_minimal(base_size = 13) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top",
-        legend.text = element_text(size = 9))
-
-# ── Bias when randomization fails ─────────────────────────────────────────────
-set.seed(42)
-bias_indep   <- sim_bias(N = 200, D = D, rho = 0.00, betas = betas_hurtful)
-bias_helpful <- sim_bias(N = 200, D = D, rho = 0.75, betas = betas_helpful)
-bias_hurtful <- sim_bias(N = 200, D = D, rho = 0.35, betas = betas_hurtful)
-
-bias_df <- bind_rows(
-  data.frame(bias = bias_indep,   DGP = "Independent (rho = 0)"),
-  data.frame(bias = bias_helpful, DGP = "Scenario A: Helpful (rho = 0.75, uniform small \u03b2)"),
-  data.frame(bias = bias_hurtful, DGP = "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)")
-) |>
-  mutate(DGP = factor(DGP, levels = c("Independent (rho = 0)",
-                                       "Scenario A: Helpful (rho = 0.75, uniform small \u03b2)",
-                                       "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)")))
-
-p_bias <- ggplot(bias_df |> filter(bias > 0),
-                 aes(x = bias, fill = DGP)) +
-  geom_histogram(bins = 35, alpha = 0.80, color = "white", linewidth = 0.2) +
-  geom_vline(data = bias_df |> filter(bias > 0) |>
-               group_by(DGP) |> summarise(med = median(bias), .groups = "drop"),
-             aes(xintercept = med, color = DGP), linewidth = 1.1, linetype = "dashed") +
-  facet_wrap(~DGP, nrow = 3, scales = "free") +
-  scale_fill_manual(values = scen_colors, guide = "none") +
-  scale_color_manual(values = scen_colors, guide = "none") +
-  scale_x_continuous(labels = function(x) sprintf("%.2f SD", x)) +
-  labs(x = "Cumulative OVB when randomization fails (SD units of Y)",
-       y = "Frequency across 1,000 experiments",
-       title = "When Randomization Fails: How Large Is the Bias? (N = 200)",
-       subtitle = "Dashed = median cumulative bias  \u00b7  Only experiments with \u2265 1 failing dimension shown") +
+  scale_colour_manual(values = scen_colors, name = NULL) +
+  labs(x = "Sample size (N)", y = "P(max |r| < 0.10 on all 10 characteristics)",
+       title = "How Often Does a Valid Randomization Meet the Balance Criterion? (D = 10)",
+       subtitle = "Tight clustering lowers the number of effective checks, so the criterion is met more often") +
   theme_minimal(base_size = 12) +
-  theme(panel.grid.minor = element_blank(),
+  theme(panel.grid.minor = element_blank(), legend.position = "top", legend.text = element_text(size = 8.5))
+
+# (2) Distribution of the realized prognostic contribution at N = 200
+contrib_df <- sim_res |> filter(N == 200)
+contrib_sd <- contrib_df |> group_by(scenario) |> summarise(sd = sd(contrib), mean = mean(contrib), .groups = "drop")
+
+p_contrib <- ggplot(contrib_df, aes(contrib, fill = scenario, colour = scenario)) +
+  geom_density(alpha = 0.30, linewidth = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "gray30") +
+  scale_fill_manual(values = scen_colors, guide = "none") +
+  scale_colour_manual(values = scen_colors, guide = "none") +
+  labs(x = "Realized prognostic contribution of chance imbalance to the observed contrast (outcome units)",
+       y = "Density across 3,000 experiments",
+       title = "Chance Imbalance Averages to Zero but Moves Individual Estimates (N = 200)",
+       subtitle = "Dashed line: zero. The spread is realized imbalance, part of the estimator's sampling variability") +
+  theme_minimal(base_size = 12) + theme(panel.grid.minor = element_blank())
+
+# (3) False-positive rates: overall vs. conditional on failing the balance check
+err_df <- sim_res |>
+  group_by(scenario, N) |>
+  summarise(`All experiments`                         = mean(reject),
+            `Only experiments that fail the check`    = if (sum(pass == 0) > 30) mean(reject[pass == 0]) else NA_real_,
+            `Same, after adjusting for measured X`    = if (sum(pass == 0) > 30) mean(reject_adj[pass == 0]) else NA_real_,
+            frac_fail = mean(pass == 0), .groups = "drop") |>
+  pivot_longer(c(`All experiments`, `Only experiments that fail the check`, `Same, after adjusting for measured X`),
+               names_to = "which", values_to = "rate") |>
+  mutate(which = factor(which, c("All experiments", "Only experiments that fail the check", "Same, after adjusting for measured X")))
+
+p_err <- ggplot(err_df |> filter(!startsWith(as.character(scenario), "Independent")),
+                aes(N, rate, colour = which, linetype = which, group = which)) +
+  geom_hline(yintercept = 0.05, colour = "gray50") +
+  geom_line(linewidth = 1.1) + geom_point(size = 2.6) +
+  facet_wrap(~scenario, nrow = 1) +
+  scale_x_continuous(breaks = N_vals) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, NA)) +
+  scale_colour_manual(values = c("gray20", "#D55E00", "#0072B2"), name = NULL) +
+  scale_linetype_manual(values = c("solid", "solid", "dashed"), name = NULL) +
+  labs(x = "Sample size (N)", y = "False-positive rate (true effect = 0)",
+       title = "Overall, the Test Is Valid; Conditional on Failing a Balance Check, It Need Not Be",
+       subtitle = "Grey line: 5% nominal rate") +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank(), legend.position = "bottom", legend.text = element_text(size = 8.5),
         strip.text = element_text(face = "bold", size = 8.5))
 
-# ── Type-1 error rates across N (Type-2 intentionally excluded — see note below) ──
-set.seed(42)
-err_df <- bind_rows(
-  lapply(N_vals, function(n) {
-    cbind(N = n, DGP = "Independent (rho = 0)",
-          sim_error_rates(n, D, rho = 0.00, betas = betas_hurtful))
-  }),
-  lapply(N_vals, function(n) {
-    cbind(N = n,
-          DGP = "Scenario A: Helpful (rho = 0.75, uniform small \u03b2)",
-          sim_error_rates(n, D, rho = 0.75, betas = betas_helpful))
-  }),
-  lapply(N_vals, function(n) {
-    cbind(N = n,
-          DGP = "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)",
-          sim_error_rates(n, D, rho = 0.35, betas = betas_hurtful))
-  })
-) |>
-  mutate(N        = as.integer(N),
-         t1_rate  = as.numeric(t1_rate),
-         pct_fail = as.numeric(pct_fail),
-         DGP      = as.character(DGP))
+p_prob / p_contrib / p_err
+```
 
-# Show Type-1 error only (Type-2 is not reported — see callout below)
-p_err <- ggplot(err_df |> filter(DGP != "Independent (rho = 0)"),
-                aes(x = N, y = t1_rate, color = DGP, group = DGP)) +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 3.0) +
-  geom_hline(yintercept = 0.05, linetype = "dashed", color = "gray40") +
-  annotate("text", x = max(N_vals) * 1.02, y = 0.055, label = "5% nominal",
-           color = "gray40", size = 3.2, hjust = 0) +
-  scale_x_continuous(breaks = N_vals) +
-  scale_y_continuous(labels = percent_format(accuracy = 1),
-                     limits = c(0, NA)) +
-  scale_color_manual(values = scen_colors[names(scen_colors) != "Independent (rho = 0)"],
-                     name = NULL) +
-  labs(x = "Sample size (N)",
-       y = "Type-1 error rate (among failed experiments)",
-       title = "False-Positive Rate Rises with N When Orthogonality Fails",
-       subtitle = paste0(
-         "Conditional on |r(T, X)| > 0.10  \u00b7  ",
-         "Dashed = 5% nominal  \u00b7  ",
-         "Scenario B's large \u03b2s amplify residual imbalance into detectable bias")) +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid.minor = element_blank(), legend.position = "top",
-        legend.text = element_text(size = 8.5),
-        plot.margin = margin(5, 50, 5, 5))
-
-p_prob / p_bias / p_err
+```{r dgp-simulation-numbers}
+#| code-summary: "▶ Numbers quoted in the text below"
+fail_big <- err_df |> filter(startsWith(as.character(scenario), "Scenario B"), N == 800)
+frac_fail_big <- sim_res |> filter(startsWith(as.character(scenario), "Scenario B"), N == 800) |> summarise(f = mean(pass == 0)) |> pull(f)
+q90 <- contrib_df |> group_by(scenario) |> summarise(lo = quantile(contrib, .05), hi = quantile(contrib, .95), .groups = "drop")
+overall_range <- range(err_df$rate[err_df$which == "All experiments"])
 ```
 
 ::: {.callout-warning}
-## Reading the three plots together
+## Reading the three panels together
 
-**Top plot — P(achieving orthogonality):** Scenario A (ρ = 0.75, tiny uniform betas) is the *easiest* case. The very strong correlation among dimensions collapses the effective number of independent checks, so a smaller N achieves the 95% target. This is the helpful force at work. Scenario B (ρ = 0.35, large varied betas) offers little advantage over independent dimensions on this metric.
+**Top — meeting the balance criterion.** With tightly clustered characteristics (Scenario A) the criterion is met most often, which is the *helpful* force at work: strong correlation collapses the number of effective checks. Scenario B behaves much like independent characteristics.
 
-**Middle plot — bias when randomization fails:** This is where the scenarios diverge dramatically. When Scenario A fails, it fails on a highly clustered bloc with tiny β values — cumulative bias remains small. When Scenario B fails, it fails on moderately correlated dimensions each with large independent β effects — the bias distribution has a fat right tail, with individual experiments easily incurring > 1.0 SD of cumulative confound. Notice how much wider the Scenario B distribution is compared to A.
+**Middle — realized contribution of chance imbalance.** In every scenario the contribution is centred on zero: complete randomization does not bias the estimator in expectation. But individual experiments deviate. At N = 200 the middle 90% of draws spans about ±`r sprintf("%.2f", max(abs(q90$lo[3]), abs(q90$hi[3])))` outcome units in Scenario B, versus ±`r sprintf("%.2f", max(abs(q90$lo[2]), abs(q90$hi[2])))` in Scenario A. This is the sense in which large, correlated, strongly prognostic characteristics make a single realized experiment noisier — and that variability is already part of the estimator's sampling variability.
 
-**Bottom plot — Type-1 error rate (given orthogonality failed):** Conditional on at least one covariate being imbalanced (|r| > 0.10), Scenario B's large betas turn even small residual correlations into substantial bias — false positive rates rise well above 5% **and continue rising as N increases**. Scenario A stays near 5% because its tiny betas keep the omitted-variable bias small even when imbalance exists. This plot conditions on experiments with bad *realized* balance — it is a stylized sensitivity demonstration showing how dangerous residual imbalance can become when covariates strongly predict Y. It is not the unconditional false-positive rate of a properly randomized design, which remains near 5% regardless of N.
+**Bottom — false-positive rates.** Across *all* experiments the ordinary t-test rejects about 5% of the time in every scenario and at every N (observed range `r percent(overall_range[1], accuracy = 0.1)`–`r percent(overall_range[2], accuracy = 0.1)`). Conditioning on a post-randomization diagnostic is a different matter: among the experiments that **fail** the fixed 0.10 criterion, the *unadjusted* test rejects more often, most clearly in Scenario B at large N (`r percent(fail_big$rate[fail_big$which == "Only experiments that fail the check"], accuracy = 1)` at N = 800, where only `r percent(frac_fail_big, accuracy = 1)` of experiments fail). Adjusting for the measured characteristics brings the conditional rate back to roughly the nominal level.
+:::
 
 ::: {.callout-note}
-## Why is Type-2 error (power) not shown?
+## What this does — and does not — show
 
-**Because the question of power is irrelevant when exchangeability is violated.**
-
-Power analysis asks: "If there is a true effect, how often will my test correctly detect it?" That question is only valid when the p-value is a valid test statistic — i.e., when treatment is exchangeable with control. When orthogonality fails, the p-value is **not** a valid measure of the treatment effect. A "detection" (p < 0.05) in an experiment where orthogonality failed could mean either (a) you correctly found a real effect, or (b) the confound inflated the test statistic into significance independently of whether an effect exists. You cannot distinguish them. Power therefore has no valid interpretation under a violated exchangeability assumption — the right question is how to restore valid inference, not how often the broken test produces p < 0.05.
+- **It is not evidence that larger valid experiments are more dangerous.** The overall error rate stays near 5% at every N. The *conditional* rate rises because a fixed cutoff of |r| = 0.10 corresponds to an ever more extreme standardized imbalance as N grows (the standard error of r shrinks like 1/√N). The experiments that still fail at large N are the extreme tail of the assignment distribution, and in this simulation the unadjusted test ignores information that the measured imbalance carries.
+- **The practical lesson is to use measured prognostic covariates, not to certify balance with them.** If you know which characteristics strongly predict Y, block on them in the design or adjust for them in the analysis (and pre-specify that choice). Adjustment uses the information in realized imbalance; a balance table alone does not.
+- **None of this makes the p-value "invalid" because a diagnostic flagged imbalance.** Validity of the randomization-based test is a statement about the assignment mechanism averaged over its possible draws. Conditional on a particular realized imbalance, the unadjusted test can be miscalibrated, which is why adjustment and blocking are useful.
 :::
 
-::: {.callout-important}
-## Counterintuitive danger: larger N makes invalid tests *more* dangerous, not less
+**The practical lesson:** correlated characteristics are not uniformly good or bad for realized balance. The key question is what their β values look like. If correlated characteristics carry similar, modest effects, correlation genuinely helps by reducing the number of effective checks and keeps the contribution of any imbalance small. If they carry large, heterogeneous effects, a realized imbalance can move the estimate substantially — and that is invisible unless you look at the contribution, not just at whether the balance criterion was met.
 
-Most researchers assume larger samples make experiments safer. The bottom plot reveals the opposite: **among experiments that fail the orthogonality check, the false-positive rate rises with N** — the very opposite of what researchers intuitively expect.
-
-**The mechanism:** the plot conditions on experiments where |r(T, X)| > 0.10. Among those "failing" experiments, the residual bias (r × β) is roughly constant across N — the failing correlation barely exceeds 0.10 in all cases. What *does* change is the **standard error of the t-test**, which shrinks as 1/√N. The same small bias that was invisible noise at small N becomes a statistically detectable "effect" at large N.
-
-**The compounding trap visualized:** The plot below shows — for Scenario B (the dangerous case) — how Type-1 error (among experiments *with* violations) and Type-2 error/miss rate (among experiments *without* violations) evolve as N grows. Point size is proportional to the frequency of orthogonality violations. Read it as a race: the red line (false-positive danger) climbs faster than the blue line (miss rate) falls.
-
-```{r danger-overlay, fig.height=6.5, fig.width=11}
-#| code-summary: "▶ Side-by-side: Type-1 error (violations) vs power (no violations) as N grows"
-
-# Extract Scenario B only; compute power = 1 - miss rate; reshape to long for facets
-danger_df <- err_df |>
-  filter(DGP == "Scenario B: Hurtful (rho = 0.35, large varied \u03b2)") |>
-  dplyr::select(N, t1_rate, t2_rate, pct_fail) |>
-  mutate(power = 1 - t2_rate) |>                     # power = 1 - miss rate
-  tidyr::pivot_longer(c(t1_rate, power),
-                      names_to  = "metric",
-                      values_to = "rate") |>
-  mutate(
-    panel = dplyr::case_when(
-      metric == "t1_rate" ~
-        "Type-1 Error Rate\n(experiments WITH orthogonality violations — p-values INVALID)",
-      metric == "power" ~
-        "Power (1 \u2212 Miss Rate)\n(experiments WITHOUT violations — p-values VALID)"
-    ),
-    panel = factor(panel, levels = c(
-      "Type-1 Error Rate\n(experiments WITH orthogonality violations — p-values INVALID)",
-      "Power (1 \u2212 Miss Rate)\n(experiments WITHOUT violations — p-values VALID)"
-    )),
-    color_val = ifelse(metric == "t1_rate", "#e63946", "#457b9d")
-  )
-
-# Reference line data: 5% for Type-1 panel, 80% for power panel
-ref_lines <- data.frame(
-  panel = factor(c(
-    "Type-1 Error Rate\n(experiments WITH orthogonality violations — p-values INVALID)",
-    "Power (1 \u2212 Miss Rate)\n(experiments WITHOUT violations — p-values VALID)"
-  ), levels = levels(danger_df$panel)),
-  yref  = c(0.05, 0.80),
-  label = c("5% nominal \u03b1", "80% power")
-)
-
-ggplot(danger_df, aes(x = N, y = rate, group = panel)) +
-  geom_hline(data = ref_lines, aes(yintercept = yref),
-             linetype = "dashed", color = "gray50", linewidth = 0.8) +
-  geom_text(data = ref_lines, aes(x = 820, y = yref + 0.025, label = label),
-            color = "gray40", size = 3.0, hjust = 0, inherit.aes = FALSE) +
-  geom_line(aes(color = panel), linewidth = 1.4) +
-  geom_point(aes(size = pct_fail, color = panel), alpha = 0.88) +
-  facet_wrap(~panel, nrow = 1, scales = "free_y") +
-  scale_color_manual(values = c(
-    "Type-1 Error Rate\n(experiments WITH orthogonality violations — p-values INVALID)" = "#e63946",
-    "Power (1 \u2212 Miss Rate)\n(experiments WITHOUT violations — p-values VALID)"      = "#457b9d"
-  ), guide = "none") +
-  scale_size_continuous(
-    name   = "Proportion of experiments\nwith |r(T,X)| > 0.10",
-    range  = c(2, 8),
-    labels = scales::percent_format(accuracy = 1)) +
-  scale_x_continuous(breaks = N_vals) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(
-    x        = "Sample size (N)",
-    y        = NULL,
-    title    = "Larger N: Type-1 Error Climbs Faster Than Power Grows — Among Experiments That Fail Orthogonality",
-    subtitle = paste0(
-      "Scenario B (rho = 0.35, large heterogeneous \u03b2s)  \u00b7  ",
-      "Point size = proportion of experiments with at least one |r(T,X)| > 0.10\n",
-      "Left: false-positive danger rises with N (invalid experiments)  \u00b7  ",
-      "Right: power in valid experiments rises with N (as expected)")) +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.minor  = element_blank(),
-    legend.position   = "bottom",
-    legend.direction  = "horizontal",
-    legend.text       = element_text(size = 8),
-    strip.text        = element_text(face = "bold", size = 9.5),
-    plot.margin       = margin(5, 20, 5, 5)
-  )
-```
-
-**Reading the panels:** The left panel shows Type-1 error (false-positive rate) *conditional on orthogonality having failed* — rising from ~6% at N = 50 to 20–30% at N = 800, far above the 5% nominal level. The right panel shows power *in the experiments that passed the orthogonality check* — rising as expected, because larger N does increase power for valid experiments. The **critical asymmetry**: point size (proportion of experiments with violations) shrinks as N grows, so the situation looks increasingly safe to a researcher monitoring only the balance check pass rate. Yet the rare failures that remain become dramatically more dangerous. **The compounding trap:** sample size DOES reduce the frequency of orthogonality violations — but it reduces violations *slower* than it amplifies the danger of the violations that remain.
-
-**Larger N does not license looser balance checking — it demands stricter checking.** Tighten your orthogonality criterion (lower r_max) as N grows. Never assume you have achieved actual randomization; random assignment is a procedure, not a guarantee, and its validity must be verified empirically every time.
-:::
-
-**The practical lesson:** correlated dimensions are not uniformly good or bad. The key question is what their β values look like. If correlated dimensions all carry similar, modest effects, correlation genuinely helps by reducing effective checks. If correlated dimensions carry large, heterogeneous effects, correlation is a liability — and that liability is invisible unless you examine conditional bias and error rates, not just P(orthogonality).
-
-This mirrors a core lesson from {{< ref sec-m1 style="long" >}}: a tight subscale structure looks efficient and reliable, but if the subscales carry separate predictive variance (discriminant invalidity), a failure in one cascades to all. The structural parallel is exact.
-:::
+This mirrors a core lesson from {{< ref sec-m1 style="long" >}}: a tight subscale structure looks efficient and reliable, but if the subscales carry separate predictive variance (discriminant invalidity), a problem in one cascades to all. The structural parallel is close.
 
 ---
 
@@ -895,21 +939,21 @@ This mirrors a core lesson from {{< ref sec-m1 style="long" >}}: a tight subscal
 ::: {.callout-important}
 ## A fundamental limitation — you can only check what you measured
 
-**You can only discover failures of randomization on dimensions you thought to measure.**
+**You can only discover realized imbalance on characteristics you thought to measure.**
 
 This is the direct experimental parallel to {{< ref sec-m1 style="long" >}}'s measurement problem. In {{< ref sec-m1 style="long" >}}, we showed that unmeasured sub-dimensions of Y produce a biased estimate of your latent construct — you cannot diagnose measurement failure on dimensions you never operationalized. The same logic applies here: if a potential confounder was never measured as a covariate, no balance table, no Love plot, and no omnibus test will catch it.
 
-This constraint is not a limitation of statistics — it is a fundamental epistemological constraint. Its implication is that **randomization checking is only as good as the covariate measurement you did before the study began**. The tools from {{< ref sec-m1 style="long" >}} — CFA to identify sub-dimensions of Y, pilot text analysis to map what's in X and Y (see {{< ref sec-exclusion style="part" >}}), discriminant validity checks — are not just measurement tools. They are *pre-registration scaffolding* that determines whether your eventual randomization check has the construct coverage to be meaningful.
+This constraint is not a limitation of statistics — it is a fundamental epistemological constraint. Its implication is that **randomization checking is only as good as the covariate measurement you did before the study began**. The tools from {{< ref sec-m1 style="long" >}} — CFA to identify sub-dimensions of Y, pilot text analysis to map what's in X and Y (see {{< ref sec-exclusion style="part" >}}), discriminant validity checks — are not just measurement tools. They are *pre-registration scaffolding* that determines whether your eventual balance diagnostics have the construct coverage to be meaningful.
 
-**The practical lesson:** Before collecting data, use the construct-mapping tools from {{< ref sec-m1 style="long" >}} to enumerate every plausible antecedent of Y. Measure them all. Then, after randomization, check balance on every one of them. The diagnostics below are only valuable if you did that groundwork first.
+**The practical lesson:** Before collecting data, use the construct-mapping tools from {{< ref sec-m1 style="long" >}} to enumerate every plausible antecedent of Y. Measure them all. Then, after randomization, describe balance on every one of them. The diagnostics below are only informative if you did that groundwork first.
 :::
 
-Even though you cannot directly observe the latent dimensions, you can check the observable proxies you did measure. A balance table checks whether measured characteristics are distributed similarly across conditions — a necessary but not sufficient condition for latent randomization.
+You cannot observe characteristics you did not measure, but you can describe the ones you did. Balance tables, standardized mean differences, and omnibus tests describe the *observed baseline differences* in the realized sample, and they can help to investigate implementation problems — a broken allocation script, or non-random recruitment into conditions. They are **not** a certification procedure. In a properly randomized experiment, a significance test of a baseline difference tests a null hypothesis that is known to be true, so about 5% of such tests will "fail" by chance; standardized differences, read against how strongly each characteristic predicts Y, are more informative than p-values.
 
-Here we simulate a study where randomization partially failed (treatment assignment was inadvertently correlated with one confounder) and show how to detect it.
+Here we simulate a study in which the assignment mechanism was *flawed* — participants who saw the study on an eco-forum were more likely to receive the eco-label version, so assignment depended on environmental values and income — and show how these diagnostics can reveal it.
 
 ```{r randomization-check-setup}
-#| code-summary: "▶ Simulate study with imperfect randomization"
+#| code-summary: "▶ Simulate a study with a flawed assignment mechanism"
 
 set.seed(42)
 N_study <- 200
@@ -927,7 +971,7 @@ observed_chars <- data.frame(
   emotion_resp   = rbinom(N_study, 1, 0.50)
 )
 
-# "Random" assignment — inadvertently correlated with env_values and income
+# Flawed assignment — correlated with env_values and income
 # (e.g., participants self-selected into a study they saw on an eco-forum)
 treatment_prob <- 0.35 +
   0.25 * observed_chars$env_values +
@@ -954,7 +998,7 @@ balance_results <- lapply(names(observed_chars), function(var) {
     `Eco-label (%)` = round(mean(trt)  * 100, 1),
     Difference      = round((mean(trt) - mean(ctrl)) * 100, 1),
     p_value         = round(chi$p.value, 3),
-    Flag            = ifelse(chi$p.value < 0.05, "\u26a0\ufe0f Imbalanced", "")
+    Flag            = ifelse(chi$p.value < 0.05, "\u26a0\ufe0f p < .05", "")
   )
 }) |> bind_rows()
 
@@ -1002,7 +1046,7 @@ ggplot(smd_df, aes(x = SMD, y = Characteristic, color = flag)) +
 
 ### Omnibus Randomization Test
 
-For a single omnibus test, we use logistic regression predicting treatment from all characteristics. If randomization succeeded, no characteristic should significantly predict assignment, and the model R² should be near zero.
+For a single omnibus test, we use logistic regression predicting treatment from all characteristics. If assignment was independent of the characteristics, none should predict it beyond chance and the model R² should be near zero. A small p-value is consistent with assignment depending on the measured characteristics — a possible implementation problem — but with several diagnostics some will flag by chance even in a valid experiment.
 
 ```{r omnibus-test}
 #| code-summary: "▶ Omnibus randomization test via logistic regression"
@@ -1027,7 +1071,7 @@ cat(sprintf("Omnibus LRT: p = %.4f\n",  lrt_p))
 cat(sprintf("Nagelkerke R\u00b2: %.3f\n", r2_nag))
 cat(sprintf("Interpretation: Covariates explain %.1f%% of variance in treatment assignment.\n",
             r2_nag * 100))
-cat("Good randomization should produce R\u00b2 \u2248 0 and p well above .05.\n")
+cat("Under independent assignment, expect R\u00b2 near 0 and p not small (about 5% of valid experiments show p < .05 by chance).\n")
 ```
 
 #### Handling mixed covariate types {.unnumbered}
@@ -1080,19 +1124,19 @@ cat(sprintf("Nagelkerke R² = %.3f\n", nag_r2))
 - **Nominal** (unordered) covariates: **must** be `factor` — `glm` automatically creates K-1 dummy variables (one per category minus the reference level).
 - **Continuous** covariates: pass as-is (numeric). No transformation needed.
 
-The omnibus LRT tests whether **any** covariate — regardless of type — predicts treatment assignment better than chance. If p < .05 or R² > .05, investigate which covariates are driving the imbalance using the individual balance table and Love plot above.
+The omnibus LRT tests whether **any** covariate — regardless of type — predicts treatment assignment better than chance. If p < .05 or R² > .05, look at which covariates drive it using the individual balance table and Love plot above, and ask whether assignment was implemented as intended.
 
 ::: {.callout-warning}
 ## What to look for
 
-| Diagnostic | Well-balanced realized sample | Potential realized imbalance |
+| Diagnostic | Little observed baseline difference | Larger observed baseline difference |
 |---|---|---|
-| Balance table p-values | All p > .05 | Any p < .05 |
-| Love plot SMDs | All \|SMD\| < 0.10 | Any \|SMD\| > 0.10 |
-| Omnibus LRT p-value | p well above .05 | p < .05 |
+| Balance table p-values | No small p-values | Some small p-values |
+| Love plot SMDs | All \|SMD\| < 0.10 | Some \|SMD\| > 0.10 |
+| Omnibus LRT p-value | p not small | p < .05 |
 | Nagelkerke R² | R² ≈ 0 | R² > 0.05 |
 
-These diagnostics provide **evidence about the realized sample** — they are not certification that the randomization procedure did or did not work. A balance table with all p > .05 shows you got a well-balanced draw from your randomization procedure; it does not prove the procedure was valid, nor does a failed balance check prove it was not. The deeper issue is that these checks only evaluate the **observable** dimensions you measured. The latent dimensions — all the antecedents of Y you did not think to measure — remain unverified regardless of what the balance table says.
+These diagnostics describe **observed baseline differences in the realized sample**. A non-significant balance test does not verify that randomization was successful, and a significant baseline difference is not, by itself, evidence that the assignment mechanism was invalid — about 5% of valid randomizations will flag at least one characteristic by chance, more when many are tested. We do not recommend significance-testing baseline balance as a required certification step for a properly randomized experiment. Report standardized differences, ask whether any imbalanced characteristic is strongly prognostic, and justify (ideally in advance) any adjustment. The deeper limitation is that these checks only describe the characteristics you **measured**; everything you did not measure remains unexamined regardless of what the balance table says.
 :::
 
 ---
@@ -1113,11 +1157,13 @@ What can you do?
 
 **2. Blocked (stratified) randomization.** If you know in advance that certain dimensions of Y are likely to be distributed unevenly in your sample, pre-stratify on them. Assign treatment within blocks defined by those dimensions. This guarantees balance on the dimensions you can observe — reducing the degrees of freedom for latent imbalance to exploit.
 
-**3. Collect more observations.** As {{< ref sec-orthogonality >}} showed quantitatively, the probability of achieving approximate orthogonality on all D dimensions grows with N. If your outcome is broad (large D), power calculations based on the treatment effect alone dramatically underestimate the required sample.
+**3. Collect more observations.** As {{< ref sec-orthogonality >}} showed, the probability of meeting a given simultaneous balance tolerance on all D characteristics grows with N. If your outcome is broad (large D), a sample size chosen for the treatment effect alone will often leave realized imbalance on prognostic characteristics larger than you would like.
 
 ### What you can do after data collection
 
-**4. Open-ended text as a nomological net scanner — and an identification strategy.**
+**4. Adjust for measured prognostic covariates.** If you measured characteristics that strongly predict Y, adjusting for them in the analysis (a pre-specified choice) uses the information in any realized imbalance on those characteristics. It does not help with characteristics you did not measure.
+
+**5. Open-ended text as a nomological net scanner — and an identification strategy.**
 
 As developed in detail in {{< ref sec-exclusion style="part" >}} (*What's in X? What's in Y?*), open-ended text responses from a small pilot are the most powerful tool for mapping the construct space before collecting main-study data. The nomological net scan reveals the exhaustive list of intermediary variables in the causal chain from X to Y. Every concept the text reveals is a mediator you should measure quantitatively — and a confounder you should check balance on.
 
@@ -1132,10 +1178,11 @@ The complete structural modeling demonstration — quantitative mediator scoring
 ::: {.callout-note}
 ## Key questions about your randomization
 
-- [ ] **Did you verify exchangeability empirically, not just procedurally?** Running a randomization algorithm is the observable. Exchangeability — no pre-existing group differences on any cause of Y — is the latent property you need. Report a balance table; don't just assert that you randomized.
-- [ ] **What is the effective $r_{\max}$ your sample size delivers?** With N = 80 and D = 10 antecedents of Y, you are operating at r_max ≈ 0.31. Any confounder with β > 0.5 SD on Y can inject 0.15 SD of OVB — check whether that is acceptable.
-- [ ] **Do any imbalanced covariates predict Y?** Imbalance is only dangerous when the imbalanced variable also affects the outcome. Estimate the implied OVB: $\hat{\text{bias}} = \hat{\beta}_C \cdot r_{T,C}$.
-- [ ] **Is your Y narrow or broad?** Broader constructs have more antecedents and require larger samples or blocked randomization to achieve exchangeability. A power calculation based on effect size alone does not account for this.
+- [ ] **Did you document how assignment was implemented?** The validity of randomization comes from the mechanism: report the procedure (software, concealed allocation, any deviations), not just a balance table.
+- [ ] **Did you describe realized balance on the characteristics you measured?** Report standardized differences rather than certifying with significance tests, and remember that unmeasured characteristics remain unexamined.
+- [ ] **What simultaneous balance tolerance does your N typically deliver?** With N = 80 and D = 10 independent characteristics, a valid randomization typically keeps the largest realized correlation below about 0.31. A characteristic with β ≈ 0.8 SD can then shift the observed difference by roughly 0.25 SD in an unlucky draw.
+- [ ] **Do any imbalanced characteristics predict Y?** Imbalance matters through the characteristic's relationship to the outcome. The prognostic contribution is $\hat{\beta}_C \times (\bar C_T - \bar C_C)$ in the units of your model; consider blocking or pre-specified adjustment.
+- [ ] **Is your Y narrow or broad?** Broader constructs have more antecedents, so meeting a given balance tolerance on all of them requires larger samples or blocking on the most prognostic ones. A power calculation based on effect size alone does not account for this.
 :::
 
 ---

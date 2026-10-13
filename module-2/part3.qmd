@@ -30,7 +30,7 @@ set.seed(2025)
 
 ## The Problem That Randomization Cannot Fix
 
-{{< ref sec-randomization style="part" >}} established that random assignment is a procedure, not a guarantee. Its success depends on sample size and the complexity of the outcome construct: the more dimensions Y has, the more observations you need for randomization to plausibly achieve exchangeability. That was a problem of *degree* — in principle, you can always collect more data.
+{{< ref sec-randomization style="part" >}} showed that a valid random-assignment procedure supplies independence by design but not guaranteed balance in any one sample. How well a draw balances the characteristics that matter depends on sample size and on how many such characteristics there are. That was a problem of *degree* — in principle, you can always collect more data.
 
 This part introduces a different and more fundamental problem. **Selection effects** are features of the data-collection environment that create systematic, non-random differences between groups before, during, or after data collection. Unlike the orthogonality failures of {{< ref sec-randomization style="part" >}}, these are not fixable by random assignment alone — the selection process operates outside the researcher's randomization step. A study can have perfect randomization of a fundamentally non-representative or self-selected sample and still produce entirely invalid conclusions. Unlike {{< ref sec-randomization style="part" >}} failures, most structural selection problems cannot be resolved by collecting more participants within the same design, though some can be partially mitigated — under additional assumptions about the selection mechanism — through inverse probability weighting, Heckman selection models, multiple imputation, or sensitivity analysis.
 
@@ -38,7 +38,7 @@ The distinction is worth making precise:
 
 | {{< ref sec-randomization style="part" >}} failure | {{< ref sec-selection style="part" >}} failure |
 |---|---|
-| Random assignment is executed, but the sample is too small to achieve exchangeability by chance | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
+| Random assignment is executed validly, but in a finite sample realized balance on the characteristics that matter is imperfect | The pool of observations entering (or remaining in) the analysis is itself non-randomly determined |
 | Fixable with more data, blocked randomization, or structural designs ({{< ref sec-designs style="part" >}}) | Not fixable by random assignment alone — the selection process operates outside the randomization step; partial remedies require additional assumptions |
 | Creates imbalance between conditions on pre-existing covariates | Creates a sample that misrepresents the intended population or analysis set |
 
