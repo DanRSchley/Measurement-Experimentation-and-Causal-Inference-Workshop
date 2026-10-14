@@ -389,23 +389,54 @@ For ten characteristics and $r_{\max} = 0.10$ the rule gives N ≈ `r required_N
 
 ## When Does Realized Imbalance Actually Matter? {#sec-imbalance-matters}
 
-The previous section explains why exact balance on many characteristics is hard. Now: why does it matter for the estimate? Suppose the outcome is the label's effect $\tau$, plus a contribution from a characteristic $C$, plus noise. Then the difference we observe is
+The previous section explains why exact balance on many characteristics is hard. Why does it matter for the estimate? An earlier lesson already gave us the tool: omitted-variable bias ({{< ref sec-omitted-variable-bias style="long" >}}).
 
-$$\text{Observed effect} = \underbrace{\tau}_{\text{true effect}} + \underbrace{\beta\,(\bar C_T - \bar C_C)}_{\text{prognostic contribution of imbalance}} + \underbrace{(\bar\varepsilon_T - \bar\varepsilon_C)}_{\text{residual difference}} .$$
+Just as different properties of playing cards matter for different games, different participant characteristics matter for different dependent variables. When those characteristics happen to correlate with treatment in the realized assignment, they can contribute to the estimated effect in proportion to how strongly they predict the outcome.
 
-The middle term is the characteristic's effect on the outcome, $\beta$, times how much the groups differ on it. Take a 10-point gap between the groups:
+### The omitted-variable equation
 
-- **Strongly prognostic** (environmental values, 0.80 SD): $0.10 \times 0.80 = $ `r sprintf("%.2f", 0.10 * 0.80)` SD.
-- **Weakly prognostic** (age, 0.05 SD): $0.10 \times 0.05 = $ `r sprintf("%.3f", 0.10 * 0.05)` SD.
+In the label experiment, let $T$ indicate the label (1) versus control (0), $C$ indicate environmental concern, and $Y$ indicate purchase intention. Suppose
 
-So the number of characteristics alone isn't what matters. Four things do:
+$$Y = \tau\,T + \beta\,C + \varepsilon .$$
 
-- More independently varying characteristics make a strict simultaneous balance criterion harder to meet.
-- Stronger prognostic characteristics make a given imbalance more consequential.
-- Interactions can make balance on individual characteristics insufficient (below).
-- If total variability in potential outcomes is held constant, adding more predictors doesn't mechanically increase the variance of an unadjusted randomized estimate.
+A researcher who regresses $Y$ on $T$ alone gets, in a realized dataset,
 
-The first figure showed *how often* balance is achieved. This one shows *how the estimates vary*. Hold everything else fixed:
+$$\hat\tau = \underbrace{\tau}_{\text{true effect}} + \underbrace{\beta\,\frac{\operatorname{Cov}(T,C)}{\operatorname{Var}(T)}}_{\text{omitted-variable contribution}} + \underbrace{\frac{\operatorname{Cov}(T,\varepsilon)}{\operatorname{Var}(T)}}_{\text{noise}} .$$
+
+The middle term is the familiar omitted-variable contribution. For a binary treatment, $\operatorname{Cov}(T,C)/\operatorname{Var}(T)$ is simply the difference in mean $C$ between the treatment and control groups.
+
+Here is a concrete case. Of 80 participants, 40 per condition, 22 label participants and 18 controls have high environmental concern, a difference of 0.10 in the share of high-concern participants. High concern raises purchase intention by 0.80 points, and the label's true effect is 0.40 points. The imbalance contributes $0.80 \times 0.10 = 0.08$ points, so with no other noise the unadjusted effect is $0.40 + 0.08 = 0.48$.
+
+```{r omitted-var-demo}
+#| code-summary: "▶ The 22-versus-18 example as a regression"
+
+library(dplyr)
+library(tibble)
+
+demo <- tibble(
+  T = rep(0:1, each = 40),
+  C = c(rep(1, 18), rep(0, 22),
+        rep(1, 22), rep(0, 18))
+) |>
+  mutate(Y = 0.40 * T + 0.80 * C)
+
+demo_unadj <- coef(lm(Y ~ T, data = demo))["T"]       # 0.48
+demo_adj   <- coef(lm(Y ~ T + C, data = demo))["T"]   # 0.40
+c(unadjusted = unname(demo_unadj), adjusted = unname(demo_adj))
+```
+
+The unadjusted regression returns `r sprintf("%.2f", demo_unadj)`. Adding $C$ recovers `r sprintf("%.2f", demo_adj)` exactly, because these illustrative data contain no additional noise and the model is correctly specified. The same 10-point gap on a weakly prognostic characteristic, such as age (effect 0.05), would contribute only `r sprintf("%.3f", 0.10 * 0.05)` points. What matters is the size of the gap *and* how strongly the characteristic predicts the outcome.
+
+### Random imbalance versus systematic confounding
+
+The algebra is the same in two very different situations. What differs is the assignment mechanism.
+
+- **Valid randomization.** $\operatorname{Cov}(T,C)$ may be nonzero in one realized allocation, as in the 22-versus-18 example, but its expected value over possible allocations is zero. The omitted-variable contribution is part of randomization uncertainty. It isn't systematic omitted-variable bias, and it doesn't invalidate the experiment.
+- **Flawed assignment.** If allocation systematically depends on $C$ (say the label version was advertised on an environmental forum), $\operatorname{Cov}(T,C)$ need not average to zero. Omitting $C$ now produces systematic confounding bias under this outcome model.
+
+### The same idea across repeated assignments
+
+The simulation below is the repeated-assignment counterpart to the 22-versus-18 calculation. The first figure in this part showed *how often* strict balance is achieved; this one shows *how the estimates vary*. Hold everything else fixed:
 
 - **Fixed:** the same 80 participants, ten baseline characteristics (a few strong, most weak), and both potential outcomes for everyone. The label raises the outcome by exactly 0.40 SD for everyone, so the true effect in this sample is 0.40.
 - **Repeated:** we randomize those 80 people 4,000 times, 40 per condition, and estimate the effect each time. Every assignment is valid.
@@ -447,11 +478,16 @@ sd_unadj <- sd(ra$unadjusted); sd_adj <- sd(ra$adjusted)
 big_miss <- mean(abs(ra$unadjusted - sate_ra) > 0.30)
 ```
 
-On average the estimate lands right on the true 0.40. But any single assignment can miss. The typical miss is `r sprintf("%.2f", sd_unadj)` SD, and `r percent(big_miss, accuracy = 1)` of assignments miss the true effect by more than 0.30. The participants never changed. Only *which* of them landed in the label group did.
+In any one assignment, omitting the prognostic characteristics moves the unadjusted estimate up or down: the typical miss is `r sprintf("%.2f", sd_unadj)` SD, and `r percent(big_miss, accuracy = 1)` of assignments miss the true effect by more than 0.30. Across valid assignments these chance contributions average to zero, so the estimator is unbiased (the average is `r sprintf("%.2f", mean(ra$unadjusted))`, against a true 0.40) even though individual estimates differ from the truth. The participants never changed; only *which* of them landed in the label group did.
 
 **A valid experiment does not guarantee a precise estimate from one particular assignment. Chance differences in characteristics that predict outcomes are one source of that uncertainty.**
 
-Randomization lets us estimate the sample's average treatment effect without measuring every other determinant of the outcome. But the precision of our particular estimate still depends on how much potential outcomes vary across participants. Important baseline predictors can help us understand and reduce that uncertainty when used appropriately in the design (for example, blocking) or in a pre-planned analysis. Adjusting for the ten characteristics tightened the spread here from `r sprintf("%.2f", sd_unadj)` to `r sprintf("%.2f", sd_adj)` (the blue curve). Adjustment improves precision. It doesn't make the original assignment more valid, and it isn't something to bolt on after spotting an imbalance.
+Randomization lets us estimate the sample's average treatment effect without measuring every other determinant of the outcome. A pre-specified adjustment for important baseline predictors, or blocking on them, can improve precision: adjusting for the ten characteristics tightened the spread from `r sprintf("%.2f", sd_unadj)` to `r sprintf("%.2f", sd_adj)` (the blue curve). Adjustment doesn't make the original assignment more valid, and it isn't something to bolt on after spotting an imbalance.
+
+Two further points keep the number of characteristics in perspective:
+
+- Stronger prognostic characteristics make a given imbalance more consequential, and interactions can make balance on individual characteristics insufficient (below).
+- If total variability in potential outcomes is held constant, adding more determinants doesn't mechanically increase the variance of an unadjusted randomized estimate (see the technical note).
 
 ::: {.callout-note collapse="true"}
 ## Technical note: does having more characteristics widen the spread?
@@ -517,18 +553,13 @@ joint_gap    <- 2 * (joint_t_cell - joint_c_cell) / 40
 
 But `r joint_t_cell` of the 40 label participants are in the high-intention combination, against `r joint_c_cell` of the 40 controls. If that combination scores 2 points higher on the 7-point scale, the groups differ by about `r sprintf("%.1f", joint_gap)` points before any treatment effect.
 
-Three things are being kept apart here: **marginal balance** (each characteristic on its own), **joint balance** (combinations of characteristics), and **balance in potential outcomes**, which is what actually matters. A randomized trial doesn't need exact joint balance for valid inference. The example shows why looking only at individual baseline differences can miss outcome-relevant combinations. It is constructed and extreme, though valid randomization can produce it.
+In the equation above, the omitted term can come from a combination of characteristics, not only from a single one. Three things are being kept apart here: **marginal balance** (each characteristic on its own), **joint balance** (combinations of characteristics), and **balance in potential outcomes**, which is what actually matters. A randomized trial doesn't need exact joint balance for valid inference. The example shows why looking only at individual baseline differences can miss outcome-relevant combinations. It is constructed and extreme, though valid randomization can produce it.
 
 In general, imbalance matters more with small samples, strong predictors, interactions, unequal allocation or clustering, and post-randomization selection (see {{< ref sec-selection style="long" >}}).
 
 ## What Randomization Still Cannot Establish {#sec-cannot-establish}
 
-Complexity enters the research process in two different ways, and they are easy to confuse.
-
-- **Complexity in generating potential outcomes:** many baseline characteristics may influence the outcome. That is why chance imbalance can matter for precision, which we just covered.
-- **Complexity in interpreting the DV:** one observed response may reflect several constructs. That is a measurement and construct-validity question.
-
-They can overlap, but they are not the same. Three further limits follow.
+Three further limits remain even when assignment is valid and the omitted-variable contribution is small. The first is easy to confuse with what we just covered.
 
 ### Construct interpretation: does an effect on the DV mean an effect on the construct? {#sec-multi-construct-dv}
 
@@ -566,7 +597,9 @@ kable(comp, digits = 1)
 
 The DV rises by `r sprintf("%.1f", comp[[2]][3])` points. The same 0.3 would appear if the label had raised *both* components by 0.3. Nothing is wrong with the randomization: the label really did change purchase intention. What the data can't say is *which* component moved, and perfectly balanced groups would leave that ambiguity untouched.
 
-**Randomization can establish that treatment changed the measured outcome without establishing which latent construct changed.** Whether the DV represents the construct we intend to study is a question for {{< ref sec-m1 style="long" >}}, not for the assignment procedure. A DV that mixes constructs doesn't make assignment less valid, and it doesn't mechanically mean more estimation uncertainty either.
+**Randomization can establish that treatment changed the measured outcome without establishing which latent construct changed.**
+
+An omitted-variable problem concerns what the estimated treatment coefficient captures. A construct-validity problem concerns what the dependent variable represents. Adjusting for baseline covariates can help with the former but cannot, by itself, establish the latter ({{< ref sec-m1 style="long" >}}). A DV that mixes constructs doesn't make assignment less valid, and it doesn't mechanically mean more estimation uncertainty.
 
 ### Population generalization: does the estimate answer the population-level question? {#sec-sate-pate}
 
@@ -656,7 +689,7 @@ ggplot(flaw_long, aes(N, rate, colour = what, linetype = what)) +
 fp80 <- flaw_res[flaw_res$N == 80, ]; fp160 <- flaw_res[flaw_res$N == 160, ]; fp640 <- flaw_res[flaw_res$N == 640, ]
 ```
 
-The orange line is how often a convincing-looking effect appears when there is none. The blue lines are how often the balance diagnostic notices the problem. Noisier measurement of the baseline characteristic weakens the diagnostic, and a characteristic nobody measured can't be checked at all.
+The orange line is how often a convincing-looking effect appears when there is none. The blue lines are how often the balance diagnostic notices the problem. Noisier measurement of the baseline characteristic weakens the diagnostic, and a characteristic nobody measured can't be checked at all. The false positives are the systematic omitted-variable term from earlier: because assignment depends on environmental values, $\operatorname{Cov}(T,C)$ doesn't average to zero, so the unadjusted estimate is off by about `r sprintf("%.2f", mean(flaw_res$bias))` SD at every sample size.
 
 **A significant treatment-outcome relationship doesn't validate the assignment mechanism, and a non-significant balance test doesn't show that important differences are absent.** Equally, a correctly randomized experiment doesn't need to pass a baseline significance test for its causal inference to be valid. Whether assignment worked is established by how it was carried out, not inferred from the results.
 
@@ -681,8 +714,8 @@ None of this is a reason to distrust randomized experiments. It is a reason to b
 ::: {.callout-note}
 ## What to do in practice
 
-- [ ] **Document and audit the assignment mechanism**, including group sizes, deviations, and who could see the allocation.
-- [ ] **Identify the major pre-treatment predictors of the outcome** and use them in the design (blocking) or in a pre-specified analysis. If you rerandomize, pre-specify the balance criterion ([Morgan & Rubin, 2012](https://doi.org/10.1214/12-AOS1008)).
+- [ ] **Rule out systematic confounding first.** Document and audit the assignment mechanism (group sizes, deviations, who could see the allocation). A flawed assignment produces systematic omitted-variable bias that no balance table can certify away.
+- [ ] **Treat chance imbalance as uncertainty, not bias.** Identify the major pre-treatment predictors of the outcome and use them in the design (blocking) or in a pre-specified analysis. If you rerandomize, pre-specify the balance criterion ([Morgan & Rubin, 2012](https://doi.org/10.1214/12-AOS1008)).
 - [ ] **Describe baseline differences** on pre-treatment measures without treating p-values as a certificate, and judge a difference by how strongly that characteristic relates to the outcome.
 - [ ] **Check for differential attrition, exclusions, and non-compliance** after assignment.
 - [ ] **Separate the effect on the observed DV from the effect on the construct**, and state which one you are claiming.
@@ -827,6 +860,14 @@ mc <- data.frame(N = c(80, 80, 200), D = c(2, 10, 10))
 mc$exact     <- mapply(p_balance_all, mc$N, mc$D)
 mc$simulated <- mapply(mc_pass_all, mc$N, mc$D)
 chk(all(abs(mc$exact - mc$simulated) < 4 * sqrt(mc$exact * (1 - mc$exact) / 6000) + 0.002), "Monte Carlo agrees with the exact probabilities")
+
+# ── Omitted-variable example (22 vs. 18 high-concern participants) ────────────
+stopifnot(
+  abs(coef(lm(Y ~ T, data = demo))["T"] - 0.48) < 1e-10,
+  abs(coef(lm(Y ~ T + C, data = demo))["T"] - 0.40) < 1e-10
+)
+chk(abs(mean(demo$C[demo$T == 1]) - mean(demo$C[demo$T == 0]) - 0.10) < 1e-12, "high-concern share differs by 0.10 between conditions")
+chk(abs(0.80 * 0.10 - 0.08) < 1e-12, "omitted-variable contribution is 0.80 x 0.10 = 0.08")
 
 # ── Deck orderings and profile counts ─────────────────────────────────────────
 chk(factorial(5) == 120 && factorial(10) == 3628800, "5 and 10 cards have 120 and 3,628,800 orderings")
