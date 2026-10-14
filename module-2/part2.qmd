@@ -29,9 +29,13 @@ library(lavaan)
 set.seed(2025)
 ```
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSyGh6sF8I9YHHL9ShrSBqS8CPrZXcaSYYJoyuLJJMOSpYxA2RKTmtfVyold85MpQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 2: Random Assignment"></iframe>
-
 # Part 2: What Does "Random Assignment" Actually Require? {#sec-randomization}
+
+::: {.callout-note collapse="true" appearance="minimal"}
+## Workshop slides
+
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSyGh6sF8I9YHHL9ShrSBqS8CPrZXcaSYYJoyuLJJMOSpYxA2RKTmtfVyold85MpQ/pubembed?start=false&loop=false&delayms=3000" width="100%" height="500px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" title="Module 2 Part 2: Random Assignment"></iframe>
+:::
 
 ## What Does Random Assignment Actually Guarantee? {#sec-guarantee}
 
@@ -119,11 +123,7 @@ ggplot(tv_df, aes(shuffles, tv, colour = cards_f, shape = cards_f, group = cards
   theme(panel.grid.minor = element_blank(), legend.position = "top")
 ```
 
-What to notice:
-
-- Small decks approach uniformity after relatively few riffle shuffles.
-- Larger decks need more.
-- A deck that *looks* shuffled doesn't show that the procedure that produced it was random enough. The question is about the procedure, not about one arrangement.
+Larger decks need more riffle shuffles to approach uniformity, and the appearance of one shuffled deck cannot establish that the procedure behind it was adequate.
 
 ::: {.callout-note collapse="true"}
 ## Technical note: the exact calculation and a table
@@ -148,12 +148,7 @@ One riffle shuffle leaves even a 5-card deck far from random (distance `r sprint
 
 ## Even a Randomized Deck Can Produce Unequal Hands {#sec-hands}
 
-Now suppose the deck *was* shuffled well, and we deal it into two hands of 26. Two different questions are now in play:
-
-1. **Was the deck randomized adequately?** This concerns the mechanism: the distribution of arrangements it can produce.
-2. **How similar are the hands we got?** This concerns the realized allocation: the one arrangement that actually came up.
-
-On average each hand gets two aces and 13 red cards. But in any one deal the split can be lopsided.
+Now suppose the deck *was* shuffled well, and we deal it into two hands of 26. Whether the shuffle was fair (the mechanism) is a different question from how similar the two hands turned out to be (the realized allocation). On average each hand gets two aces and 13 red cards, but in any one deal the split can be lopsided.
 
 ```{r card-hands, fig.height=4.8}
 #| code-summary: "▶ A constructed deal of two 26-card hands (one possible outcome, not a typical draw)"
@@ -197,15 +192,11 @@ We can have a poorly randomized deck that produces apparently balanced hands, or
 
 Whether an imbalance matters depends on the game. If we're playing a game where aces matter, the imbalance in aces matters. If we're playing a game where only red cards matter, it may not. The same is true of characteristics that predict our experimental outcome.
 
-**Where the analogy stops.** A correctly implemented computer randomization draws the assignment from its intended distribution in one step. Adding more baseline characteristics doesn't make that mechanism less random, and no one needs to "press Randomize" more times. (Pressing it repeatedly until the groups look good is not the same thing, and it isn't automatically legitimate; pre-specified rerandomization is a separate design.) What carries over is this: the number of possible participant profiles can be enormous, one realized allocation can differ across many characteristics, and those differences can matter when the characteristics predict potential outcomes. Randomization doesn't guarantee the kind of balance researchers often assume.
+**Where the analogy stops.** A computer randomization draws the assignment from its intended distribution in one step, so adding baseline characteristics doesn't make it less random and no one needs to "press Randomize" more times. (Pressing it until the groups look good is a different matter; pre-specified rerandomization is a separate design.) What carries over is that the number of possible participant profiles can be enormous, one realized allocation can differ on many characteristics, and those differences can matter when the characteristics predict potential outcomes.
 
 ## From Cards to Consumers: How Complex Is the Outcome-Generating Process? {#sec-balancing-groups}
 
-A playing card has properties we can inspect: its color, suit, rank, whether it is an ace. Whether two hands are meaningfully similar depends on which of those properties matter for the game.
-
-Participants are more complicated. They differ in environmental values, price sensitivity, habits, social influences, and more. Which differences matter depends on the outcome we are studying. Some outcomes may be strongly affected by relatively few **outcome-relevant baseline characteristics**; others depend on a much richer combination. As that number grows, so does the number of possible participant profiles and the number of ways two randomized groups can differ.
-
-Here are two hypothetical outcome-generating processes. They aren't claims about how real psychological constructs work, and a more complex *construct* doesn't necessarily have more determinants. They show what changes when the number of relevant characteristics grows. In both, not all characteristics matter equally; the effect columns give each one's hypothetical effect on the outcome, in standard deviations.
+A playing card has properties we can inspect, and whether two hands are similar depends on which of them matter for the game. Participants differ in environmental values, price sensitivity, habits, and more, and which differences matter depends on the outcome we study. Some outcomes may be strongly affected by relatively few **outcome-relevant baseline characteristics**; others depend on a much richer combination, and as that number grows, so do the possible participant profiles and the ways two randomized groups can differ. Below are two hypothetical outcome-generating processes (not claims about real constructs, and a more complex *construct* doesn't necessarily have more determinants). In both, some characteristics matter more than others; the effect columns give each one's hypothetical effect on the outcome, in SD.
 
 ### Case 1. A stylized outcome with two determinants
 
@@ -265,13 +256,6 @@ p_right <- ggplot(profiles_all, aes(col, row, fill = n > 0)) +
 p_left + p_right + plot_layout(widths = c(1, 1.5))
 ```
 
-| | Two determinants | Ten determinants |
-|---|---|---|
-| Binary characteristics | 2 | 10 |
-| Possible joint profiles | 4 | 1,024 |
-| Participants | 80 | 80 |
-| Every profile represented | Possible, not guaranteed | Impossible |
-
 With only 80 participants, how can the label and control groups possibly represent all 1,024 profiles? They can't, and that doesn't invalidate random assignment. Randomization doesn't require exhaustive representation of every joint profile; it provides a valid mechanism for estimating average treatment effects under its design assumptions. But the expanding profile space makes it easier to see why a finite allocation can contain meaningful differences on outcome-relevant characteristics.
 
 ## Why Exact Coverage Gives Way to Approximate Orthogonality {#sec-orthogonality}
@@ -293,7 +277,7 @@ treat_cov_cor_ex <- treat_cov_cor(22, 18, 40)      # 55% vs. 45% high among 40 +
 
 Take 80 participants, 40 per condition, and say exactly 40 have high environmental concern. Perfect balance puts 20 high-concern people in each group, 50% versus 50%. A perfectly valid random assignment might put 22 in one group and 18 in the other: 55% versus 45%, a ten-percentage-point gap from moving two people. In this balanced binary setup the correlation between treatment and the characteristic equals that gap, so here **r = `r sprintf("%.2f", treat_cov_cor_ex)`**.
 
-Now suppose we care about ten characteristics rather than one. Even if each is reasonably likely to be balanced, the chance that *all ten* are balanced can be much lower. We can compute this exactly in a deliberately simple setup: equal-sized groups, *D* independent binary characteristics each "high" for half the sample, valid randomization every time, and "balanced" meaning $|r| < 0.10$.
+Now suppose we care about ten characteristics rather than one. Even if each is reasonably likely to be balanced, the chance that *all ten* are balanced can be much lower. We can compute this exactly in a deliberately simple setup: equal-sized groups, *D* independent binary characteristics each "high" with probability 0.5 (so about half the sample), valid randomization every time, and "balanced" meaning $|r| < 0.10$.
 
 ```{r balance-prob-functions}
 #| code-summary: "▶ Exact probability of meeting the marginal-balance criterion (code)"
@@ -338,11 +322,7 @@ ggplot(bal_curve, aes(N, p, colour = D)) +
   theme(panel.grid.minor = element_blank(), legend.position = "top")
 ```
 
-Every assignment here is genuinely randomized. These probabilities refer only to achieving a strict balance criterion; they are **not** the probability that exchangeability holds, that the randomization was valid, or that the estimate is close to the truth. They show two things: more characteristics make strict simultaneous balance harder, and a larger sample makes it easier.
-
-The statistical term for what this figure is about is **approximate orthogonality**: small observed relationships between treatment assignment and baseline characteristics. Under valid randomization the *expected* relationship is zero, but in any finite sample it generally isn't exactly zero. For one characteristic, its typical size shrinks at roughly the $1/\sqrt{N}$ rate.
-
-**As N increases, realized balance becomes more likely. Exchangeability does not become increasingly valid; it was supplied by the assignment mechanism at any N.**
+Every assignment here is genuinely randomized, so these probabilities concern only a strict balance criterion. They are **not** the probability that exchangeability holds or that the estimate is close to the truth. More characteristics make strict simultaneous balance harder; a larger sample makes it easier. The statistical term is **approximate orthogonality**: small observed relationships between treatment assignment and baseline characteristics. Under valid randomization the *expected* relationship is zero, but in a finite sample it generally isn't, and for one characteristic its typical size shrinks at roughly the $1/\sqrt{N}$ rate. **As N increases, realized balance becomes more likely; exchangeability does not become more valid, because the assignment mechanism supplied it at any N.**
 
 ::: {.callout-note collapse="true"}
 ## Technical note: probability table and sample-size planning
@@ -395,7 +375,7 @@ Just as different properties of playing cards matter for different games, differ
 
 ### The omitted-variable equation
 
-In the label experiment, let $T$ indicate the label (1) versus control (0), $C$ indicate environmental concern, and $Y$ indicate purchase intention. Suppose
+If environmental concern predicts purchase intention and the label group happens to contain more environmentally concerned participants, the unadjusted estimate captures both the label's effect and that difference in group composition. This is the omitted-variable algebra from the earlier lesson. In the label experiment, let $T$ indicate the label (1) versus control (0), $C$ indicate environmental concern, and $Y$ indicate purchase intention. Suppose
 
 $$Y = \tau\,T + \beta\,C + \varepsilon .$$
 
@@ -425,14 +405,11 @@ demo_adj   <- coef(lm(Y ~ T + C, data = demo))["T"]   # 0.40
 c(unadjusted = unname(demo_unadj), adjusted = unname(demo_adj))
 ```
 
-The unadjusted regression returns `r sprintf("%.2f", demo_unadj)`. Adding $C$ recovers `r sprintf("%.2f", demo_adj)` exactly, because these illustrative data contain no additional noise and the model is correctly specified. The same 10-point gap on a weakly prognostic characteristic, such as age (effect 0.05), would contribute only `r sprintf("%.3f", 0.10 * 0.05)` points. What matters is the size of the gap *and* how strongly the characteristic predicts the outcome.
+The unadjusted regression returns `r sprintf("%.2f", demo_unadj)`. Controlling for environmental concern recovers `r sprintf("%.2f", demo_adj)` exactly, because these illustrative data contain no additional noise and the model is correctly specified. A weakly prognostic characteristic such as age (effect 0.05) would contribute only `r sprintf("%.3f", 0.10 * 0.05)` points from the same 10-point gap. Under valid randomization, the omitted-variable contribution averages to zero across assignments: it creates variability in individual estimates, not systematic bias.
 
 ### Random imbalance versus systematic confounding
 
-The algebra is the same in two very different situations. What differs is the assignment mechanism.
-
-- **Valid randomization.** $\operatorname{Cov}(T,C)$ may be nonzero in one realized allocation, as in the 22-versus-18 example, but its expected value over possible allocations is zero. The omitted-variable contribution is part of randomization uncertainty. It isn't systematic omitted-variable bias, and it doesn't invalidate the experiment.
-- **Flawed assignment.** If allocation systematically depends on $C$ (say the label version was advertised on an environmental forum), $\operatorname{Cov}(T,C)$ need not average to zero. Omitting $C$ now produces systematic confounding bias under this outcome model.
+The algebra is the same if assignment is flawed; the assignment mechanism is what differs. If allocation systematically depends on $C$ (say the label version was advertised on an environmental forum), $\operatorname{Cov}(T,C)$ need not average to zero, and omitting $C$ produces systematic confounding bias. Chance imbalance under valid randomization doesn't invalidate the experiment.
 
 ### The same idea across repeated assignments
 
@@ -478,16 +455,9 @@ sd_unadj <- sd(ra$unadjusted); sd_adj <- sd(ra$adjusted)
 big_miss <- mean(abs(ra$unadjusted - sate_ra) > 0.30)
 ```
 
-In any one assignment, omitting the prognostic characteristics moves the unadjusted estimate up or down: the typical miss is `r sprintf("%.2f", sd_unadj)` SD, and `r percent(big_miss, accuracy = 1)` of assignments miss the true effect by more than 0.30. Across valid assignments these chance contributions average to zero, so the estimator is unbiased (the average is `r sprintf("%.2f", mean(ra$unadjusted))`, against a true 0.40) even though individual estimates differ from the truth. The participants never changed; only *which* of them landed in the label group did.
+In any one assignment, omitting the prognostic characteristics moves the unadjusted estimate up or down: the typical miss is `r sprintf("%.2f", sd_unadj)` SD, and `r percent(big_miss, accuracy = 1)` of assignments miss the true effect by more than 0.30. Across valid assignments these chance contributions average to zero, so the estimator is unbiased (the average is `r sprintf("%.2f", mean(ra$unadjusted))`, against a true 0.40). The participants never changed; only *which* of them landed in the label group did.
 
-**A valid experiment does not guarantee a precise estimate from one particular assignment. Chance differences in characteristics that predict outcomes are one source of that uncertainty.**
-
-Randomization lets us estimate the sample's average treatment effect without measuring every other determinant of the outcome. A pre-specified adjustment for important baseline predictors, or blocking on them, can improve precision: adjusting for the ten characteristics tightened the spread from `r sprintf("%.2f", sd_unadj)` to `r sprintf("%.2f", sd_adj)` (the blue curve). Adjustment doesn't make the original assignment more valid, and it isn't something to bolt on after spotting an imbalance.
-
-Two further points keep the number of characteristics in perspective:
-
-- Stronger prognostic characteristics make a given imbalance more consequential, and interactions can make balance on individual characteristics insufficient (below).
-- If total variability in potential outcomes is held constant, adding more determinants doesn't mechanically increase the variance of an unadjusted randomized estimate (see the technical note).
+A pre-specified adjustment for important baseline predictors, or blocking on them, can improve precision (adjusting for the ten characteristics tightened the spread from `r sprintf("%.2f", sd_unadj)` to `r sprintf("%.2f", sd_adj)`, the blue curve). It doesn't make the original assignment more valid, and it isn't something to bolt on after spotting an imbalance. Adding more determinants doesn't by itself widen the spread when total outcome variability is held constant (see the technical note).
 
 ::: {.callout-note collapse="true"}
 ## Technical note: does having more characteristics widen the spread?
@@ -559,155 +529,21 @@ In general, imbalance matters more with small samples, strong predictors, intera
 
 ## What Randomization Still Cannot Establish {#sec-cannot-establish}
 
-Three further limits remain even when assignment is valid and the omitted-variable contribution is small. The first is easy to confuse with what we just covered.
+Even when assignment is valid and the omitted-variable contribution is small, three limits remain.
 
-### Construct interpretation: does an effect on the DV mean an effect on the construct? {#sec-multi-construct-dv}
+### Construct interpretation {#sec-multi-construct-dv}
 
-Back to the label experiment. The researchers want to know whether the label raises *environmental motivation*. But the DV is a purchase-intention item (*How likely are you to buy this product?*). A participant's answer reflects at least two things: environmental motivation, and practical willingness to buy given price, income, convenience, and quality.
+Randomization establishes a causal comparison for the outcome we measure, not necessarily for the construct we intend to study. An eco-label might raise purchase intention because it raises environmental motivation, perceived product quality, or both. Even perfectly balanced groups cannot distinguish these explanations from a single purchase-intention response. An omitted-variable problem concerns what the estimated treatment coefficient captures; a construct-validity problem concerns what the dependent variable represents. Adjusting for baseline covariates can help with the former but cannot, by itself, establish the latter ({{< ref sec-m1 style="long" >}}).
 
-```{r multi-dv-diagram, fig.height=3.4, fig.width=10}
-#| code-summary: "▶ Diagram: the label, two components of purchase intention, and the observed DV"
+### Population generalization {#sec-sate-pate}
 
-bx <- tibble(x = c(1.4, 5.2, 5.2, 9), y = c(1.9, 2.9, 0.9, 1.9),
-             label = c("Eco-label\n(treatment)", "Environmental\nmotivation", "Practical willingness\n(price, income, convenience)", "Purchase-intention\nDV"),
-             fill = c("#D55E00", "#fdd0a2", "#fdd0a2", "#c7e9c0"), txt = c("white", "black", "black", "black"))
-arr <- arrow(length = unit(0.22, "cm"))
-ggplot() +
-  geom_segment(aes(x = 2.35, xend = 3.75, y = 2.2, yend = 2.75), arrow = arr, colour = "#D55E00", linewidth = 1) +
-  geom_segment(aes(x = 2.35, xend = 3.45, y = 1.6, yend = 1.1), arrow = arr, colour = "#D55E00", linetype = "dashed") +
-  geom_segment(aes(x = 6.7, xend = 7.9, y = 2.75, yend = 2.2), arrow = arr) +
-  geom_segment(aes(x = 6.9, xend = 7.9, y = 1.05, yend = 1.6), arrow = arr) +
-  geom_label(data = bx, aes(x, y, label = label, fill = fill, colour = txt), size = 3.7, label.padding = unit(0.6, "lines"), fontface = "bold") +
-  annotate("text", x = 2.55, y = 2.75, label = "raises it\n(in our example)", size = 3.2, colour = "#D55E00", lineheight = 0.9) +
-  annotate("text", x = 2.55, y = 1.05, label = "may or may not\nmove it", size = 3.2, colour = "#D55E00", lineheight = 0.9) +
-  annotate("text", x = 5.2, y = 3.55, label = "What the researchers want to learn about", size = 3.2, colour = "gray35") +
-  annotate("text", x = 9, y = 1.1, label = "What the study\nactually measures", size = 3.2, colour = "gray35", lineheight = 0.9) +
-  scale_fill_identity() + scale_colour_identity() + coord_cartesian(xlim = c(0, 10.4), ylim = c(0.3, 3.8)) + theme_void()
-```
+A valid randomization supports causal inference for the participants studied. It does not guarantee that those participants represent the population of interest. If the eco-label works differently for environmentally motivated consumers, a sample with many such consumers may yield a different average effect (the sample average treatment effect) than we would expect in the broader population (the population average treatment effect). That is a generalization problem, not a failure of treatment randomization: randomizing treatment does not randomize who enters the study.
 
-Suppose both components are scored on the same 1–7 scale, the DV is their average, and the label raises motivation by 0.6 points while leaving practical willingness unchanged.
+### Flawed assignment {#sec-balance-power}
 
-```{r composite-dv}
-#| code-summary: "▶ Effect of the label on each component and on the composite DV"
-
-comp <- tibble(Measure = c("Environmental motivation", "Practical willingness", "DV (average of the two)"),
-               `Effect of the label (points on the 1-7 scale)` = c(0.6, 0.0, 0.5 * 0.6 + 0.5 * 0.0))
-kable(comp, digits = 1)
-```
-
-The DV rises by `r sprintf("%.1f", comp[[2]][3])` points. The same 0.3 would appear if the label had raised *both* components by 0.3. Nothing is wrong with the randomization: the label really did change purchase intention. What the data can't say is *which* component moved, and perfectly balanced groups would leave that ambiguity untouched.
-
-**Randomization can establish that treatment changed the measured outcome without establishing which latent construct changed.**
-
-An omitted-variable problem concerns what the estimated treatment coefficient captures. A construct-validity problem concerns what the dependent variable represents. Adjusting for baseline covariates can help with the former but cannot, by itself, establish the latter ({{< ref sec-m1 style="long" >}}). A DV that mixes constructs doesn't make assignment less valid, and it doesn't mechanically mean more estimation uncertainty.
-
-### Population generalization: does the estimate answer the population-level question? {#sec-sate-pate}
-
-Even a precise, correctly interpreted estimate describes the people who were studied. Three quantities need to stay apart: the **observed estimate** from our experiment, the **sample average treatment effect** (the average effect among these 80 participants, given their what-ifs), and the **population average treatment effect** (the average effect among the consumers we care about).
-
-```{r gaps-diagram, fig.height=2.2, fig.width=9}
-#| code-summary: "▶ Diagram: two gaps between the estimate and the effect we care about"
-
-boxes <- tibble(x = c(1, 5, 9), label = c("Observed treatment\nestimate", "Sample average\ntreatment effect", "Population average\ntreatment effect"),
-                fill = c("#D55E00", "#0072B2", "#009E73"))
-ggplot() +
-  geom_segment(aes(x = 2.35, xend = 3.65, y = 1, yend = 1), arrow = arrow(length = unit(0.25, "cm"), ends = "both")) +
-  geom_segment(aes(x = 6.35, xend = 7.65, y = 1, yend = 1), arrow = arrow(length = unit(0.25, "cm"), ends = "both")) +
-  geom_label(data = boxes, aes(x, 1, label = label, fill = fill), colour = "white", fontface = "bold", size = 4, label.padding = unit(0.7, "lines")) +
-  annotate("text", x = 3, y = 1.55, label = "assignment\nuncertainty", size = 3.6) +
-  annotate("text", x = 7, y = 1.55, label = "sampling / generalization\nuncertainty", size = 3.6) +
-  scale_fill_identity() + coord_cartesian(xlim = c(0, 10), ylim = c(0.4, 1.9)) + theme_void()
-```
-
-The first gap is **assignment uncertainty**: the sample effect is fixed by who is in the study, and the random draw decides how far our estimate lands from it. That is the spread you saw above. The second gap is **sampling and generalization uncertainty**: the people in the study may not represent the people we care about.
-
-Suppose the label works strongly for environmentally motivated consumers (+0.8 points) and weakly for everyone else (+0.2). If `r percent(0.60, accuracy = 1)` of our sample is environmentally motivated but only `r percent(0.30, accuracy = 1)` of the target population is, the sample effect is `r sprintf("%.2f", 0.6 * 0.8 + 0.4 * 0.2)` while the population effect is `r sprintf("%.2f", 0.3 * 0.8 + 0.7 * 0.2)`. Perfectly balanced label and control groups would not change that. (Measurement can also differ across populations, so the same DV may not mean the same thing everywhere.)
-
-**Randomizing treatment does not randomize who enters the study, and it does not guarantee that an effect transports to another population.**
-
-### Flawed assignment: why detecting an effect doesn't establish comparability {#sec-balance-power}
-
-The last limit is about evidence for the assignment process itself. Two scenarios show what the data can and can't tell us. (A third threat, losing comparability *after* assignment through dropout or exclusions, is covered in {{< ref sec-selection style="long" >}}.)
-
-```{r scenario-a}
-#| code-summary: "▶ Scenario A: a valid randomization with a real effect (3,000 experiments)"
-#| output: false
-
-set.seed(9)
-tau_a <- 0.6
-sc_a <- as_tibble(t(replicate(3000, {
-  Tr <- sample(rep(0:1, 40)); X <- matrix(rbinom(80 * 10, 1, 0.5), nrow = 80)
-  Y  <- tau_a * Tr + as.vector(X %*% chars_df$Effect) + rnorm(80, 0, noise_sd)
-  c(reject = t.test(Y[Tr == 1], Y[Tr == 0])$p.value < 0.05,
-    strict_balance_fails = max(abs(apply(X, 2, cor, Tr))) >= 0.10 - 1e-9,
-    estimate = mean(Y[Tr == 1]) - mean(Y[Tr == 0]))
-})))
-kable(tibble(`Experiments detecting the effect (p < .05)` = percent(mean(sc_a$reject), accuracy = 1),
-             `Experiments missing the strict 0.10 balance criterion` = percent(mean(sc_a$strict_balance_fails), accuracy = 0.1),
-             `Average estimate (true effect 0.6)` = sprintf("%.2f", mean(sc_a$estimate))),
-      caption = "Scenario A: valid randomization, 80 participants")
-```
-
-**A valid randomization.** In a simulation with 80 participants, a true effect of 0.6 SD, and correct assignment, the effect is detected in `r percent(mean(sc_a$reject), accuracy = 1)` of experiments, even though `r percent(mean(sc_a$strict_balance_fails), accuracy = 0.1)` of them miss a strict balance rule (some characteristic with a treatment correlation of 0.10 or more). The estimates average `r sprintf("%.2f", mean(sc_a$estimate))`. A correctly randomized experiment doesn't need to pass a baseline test.
-
-**A defective assignment.** Now suppose assignment quietly depends on a characteristic that also drives the outcome. For example, the label version was advertised on an environmental forum, so people with strong environmental values were somewhat more likely to get it. The true label effect is zero. The researchers measure environmental values with error (a short questionnaire) and run the usual diagnostic: does the measured proxy predict condition? Any "significant" treatment effect is now a false positive.
-
-```{r scenario-b, fig.height=4.6}
-#| code-summary: "▶ Scenario B: defective assignment, zero true effect, N from 40 to 1,280 (≈40 s)"
-
-sim_flaw <- function(N, gamma = 0.3, beta = 0.8, rels = c(good = 0.6, poor = 0.3), nrep = 2000) {
-  out <- t(replicate(nrep, {
-    U  <- rnorm(N); Tr <- rbinom(N, 1, plogis(gamma * U))                  # defective: assignment depends on U
-    if (length(unique(Tr)) < 2) return(rep(NA_real_, 4))
-    Y  <- beta * U + rnorm(N)                                              # true treatment effect is ZERO
-    det <- sapply(rels, function(rel) {
-      W <- U + rnorm(N, 0, sqrt((1 - rel) / rel))                          # proxy with reliability `rel`
-      summary(glm(Tr ~ W, family = binomial))$coefficients["W", 4] < 0.05 })
-    c(false_pos = t.test(Y[Tr == 1], Y[Tr == 0])$p.value < 0.05, det, bias = mean(Y[Tr == 1]) - mean(Y[Tr == 0]))
-  }))
-  tibble(N = N, `False positive (treatment test)` = mean(out[, 1], na.rm = TRUE),
-         `Diagnostic detects it: decent proxy` = mean(out[, 2], na.rm = TRUE),
-         `Diagnostic detects it: poor proxy` = mean(out[, 3], na.rm = TRUE), bias = mean(out[, 4], na.rm = TRUE))
-}
-set.seed(3)
-flaw_res <- bind_rows(lapply(c(40, 80, 160, 320, 640, 1280), sim_flaw))
-flaw_long <- flaw_res |> pivot_longer(-c(N, bias), names_to = "what", values_to = "rate") |>
-  mutate(what = factor(what, c("False positive (treatment test)", "Diagnostic detects it: decent proxy", "Diagnostic detects it: poor proxy")))
-
-ggplot(flaw_long, aes(N, rate, colour = what, linetype = what)) +
-  geom_hline(yintercept = 0.05, colour = "gray60") +
-  geom_line(linewidth = 1.2) + geom_point(size = 2.2) +
-  scale_x_continuous(trans = "log2", breaks = flaw_res$N) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  scale_colour_manual(values = c("#D55E00", "#0072B2", "#6baed6"), name = NULL) +
-  scale_linetype_manual(values = c("solid", "solid", "dashed"), name = NULL) +
-  labs(x = "Sample size (N, log scale)", y = "Share of experiments",
-       title = "A Convincing-Looking Effect Can Outrun the Evidence About Assignment",
-       subtitle = "True effect = 0; assignment depends modestly on a predictor of the outcome; grey line = 5%") +
-  theme_minimal(base_size = 11) + theme(legend.position = "top", legend.text = element_text(size = 8.5), panel.grid.minor = element_blank())
-
-fp80 <- flaw_res[flaw_res$N == 80, ]; fp160 <- flaw_res[flaw_res$N == 160, ]; fp640 <- flaw_res[flaw_res$N == 640, ]
-```
-
-The orange line is how often a convincing-looking effect appears when there is none. The blue lines are how often the balance diagnostic notices the problem. Noisier measurement of the baseline characteristic weakens the diagnostic, and a characteristic nobody measured can't be checked at all. The false positives are the systematic omitted-variable term from earlier: because assignment depends on environmental values, $\operatorname{Cov}(T,C)$ doesn't average to zero, so the unadjusted estimate is off by about `r sprintf("%.2f", mean(flaw_res$bias))` SD at every sample size.
-
-**A significant treatment-outcome relationship doesn't validate the assignment mechanism, and a non-significant balance test doesn't show that important differences are absent.** Equally, a correctly randomized experiment doesn't need to pass a baseline significance test for its causal inference to be valid. Whether assignment worked is established by how it was carried out, not inferred from the results.
+If the assignment mechanism systematically places environmentally concerned participants in the eco-label condition, the omitted-variable contribution no longer averages to zero. Larger samples may then estimate the wrong effect more precisely. A balanced-looking covariate table cannot rule this out, particularly if the relevant characteristic was measured poorly or not at all. Equally, a correct randomization doesn't need to pass a baseline significance test for its causal inference to be valid. Whether assignment worked is established by how it was carried out, not inferred from the results (the technical notes simulate both cases). Losing comparability *after* assignment through dropout or exclusions is a further threat ({{< ref sec-selection style="long" >}}).
 
 ## What Researchers Should Do {#sec-researcher-actions}
-
-### What can you actually conclude after randomizing? {#sec-conclusions}
-
-Each claim a researcher might make needs evidence beyond the one before it.
-
-**1. "The label changed the observed DV in this experiment."** A correctly implemented randomized design supports this, with an appropriate uncertainty analysis. Chance imbalance doesn't undermine it; it is part of the uncertainty you report.
-
-**2. "The label changed the construct we intended to study."** This needs evidence that the DV represents that construct and that other constructs feeding the measure don't explain the result.
-
-**3. "The label will have the same effect in the population we care about."** This needs a justification for generalizing beyond the participants, including how the sample was drawn and whether the effect differs across people.
-
-**4. "The statistical result proves our randomization worked."** It doesn't. Assignment is established from the research process (how it was implemented and documented), not from significant treatment tests or non-significant balance tests.
-
-None of this is a reason to distrust randomized experiments. It is a reason to be precise about what they establish.
 
 ### Researcher Checklist: Exchangeability {#sec-checklist-randomization}
 
@@ -798,12 +634,74 @@ p_a + p_b
 :::
 
 ::: {.callout-note collapse="true"}
-## Specification of the defective-assignment simulation
+## Can balance diagnostics detect a flawed assignment? Two simulations
 
-- **Assignment:** each participant is treated with probability $\text{logistic}(0.3\,U)$, where $U$ is a standard-normal baseline characteristic (a modest defect).
-- **Outcome:** $Y = 0.8\,U + \text{noise}$ (SD 1), with **no** treatment effect, so every significant treatment test is a false positive.
+```{r scenario-a}
+#| code-summary: "▶ Scenario A: a valid randomization with a real effect (3,000 experiments)"
+#| output: false
+
+set.seed(9)
+tau_a <- 0.6
+sc_a <- as_tibble(t(replicate(3000, {
+  Tr <- sample(rep(0:1, 40)); X <- matrix(rbinom(80 * 10, 1, 0.5), nrow = 80)
+  Y  <- tau_a * Tr + as.vector(X %*% chars_df$Effect) + rnorm(80, 0, noise_sd)
+  c(reject = t.test(Y[Tr == 1], Y[Tr == 0])$p.value < 0.05,
+    strict_balance_fails = max(abs(apply(X, 2, cor, Tr))) >= 0.10 - 1e-9,
+    estimate = mean(Y[Tr == 1]) - mean(Y[Tr == 0]))
+})))
+kable(tibble(`Experiments detecting the effect (p < .05)` = percent(mean(sc_a$reject), accuracy = 1),
+             `Experiments missing the strict 0.10 balance criterion` = percent(mean(sc_a$strict_balance_fails), accuracy = 0.1),
+             `Average estimate (true effect 0.6)` = sprintf("%.2f", mean(sc_a$estimate))),
+      caption = "Scenario A: valid randomization, 80 participants")
+```
+
+**A valid randomization.** With 80 participants, a true effect of 0.6 SD, and correct assignment, the effect is detected in `r percent(mean(sc_a$reject), accuracy = 1)` of experiments, even though `r percent(mean(sc_a$strict_balance_fails), accuracy = 0.1)` of them miss a strict balance rule (some characteristic with a treatment correlation of 0.10 or more). The estimates average `r sprintf("%.2f", mean(sc_a$estimate))`.
+
+**A defective assignment.** Now assignment depends modestly on a characteristic $U$ (environmental values) that also drives the outcome, and the true label effect is zero, so any significant treatment effect is a false positive. The researchers measure $U$ with error and run the usual diagnostic: does the measured proxy predict condition?
+
+- **Assignment:** each participant is treated with probability $\text{logistic}(0.3\,U)$, with $U$ standard normal.
+- **Outcome:** $Y = 0.8\,U + \text{noise}$ (SD 1), with no treatment effect.
 - **Measured:** a proxy $W = U + \text{noise}$ with reliability 0.6 ("decent") or 0.3 ("poor").
-- **Statistics:** the unadjusted treatment test (false-positive rate), and a logistic regression of treatment on $W$ (diagnostic detection rate, p < .05). 2,000 experiments per sample size, fixed seed.
+- **Statistics:** the unadjusted treatment test (false-positive rate) and a logistic regression of treatment on $W$ (detection rate, p < .05). 2,000 experiments per sample size, fixed seed.
+
+```{r scenario-b, fig.height=4.6}
+#| code-summary: "▶ Scenario B: defective assignment, zero true effect, N from 40 to 1,280 (≈40 s)"
+
+sim_flaw <- function(N, gamma = 0.3, beta = 0.8, rels = c(good = 0.6, poor = 0.3), nrep = 2000) {
+  out <- t(replicate(nrep, {
+    U  <- rnorm(N); Tr <- rbinom(N, 1, plogis(gamma * U))                  # defective: assignment depends on U
+    if (length(unique(Tr)) < 2) return(rep(NA_real_, 4))
+    Y  <- beta * U + rnorm(N)                                              # true treatment effect is ZERO
+    det <- sapply(rels, function(rel) {
+      W <- U + rnorm(N, 0, sqrt((1 - rel) / rel))                          # proxy with reliability `rel`
+      summary(glm(Tr ~ W, family = binomial))$coefficients["W", 4] < 0.05 })
+    c(false_pos = t.test(Y[Tr == 1], Y[Tr == 0])$p.value < 0.05, det, bias = mean(Y[Tr == 1]) - mean(Y[Tr == 0]))
+  }))
+  tibble(N = N, `False positive (treatment test)` = mean(out[, 1], na.rm = TRUE),
+         `Diagnostic detects it: decent proxy` = mean(out[, 2], na.rm = TRUE),
+         `Diagnostic detects it: poor proxy` = mean(out[, 3], na.rm = TRUE), bias = mean(out[, 4], na.rm = TRUE))
+}
+set.seed(3)
+flaw_res <- bind_rows(lapply(c(40, 80, 160, 320, 640, 1280), sim_flaw))
+flaw_long <- flaw_res |> pivot_longer(-c(N, bias), names_to = "what", values_to = "rate") |>
+  mutate(what = factor(what, c("False positive (treatment test)", "Diagnostic detects it: decent proxy", "Diagnostic detects it: poor proxy")))
+
+ggplot(flaw_long, aes(N, rate, colour = what, linetype = what)) +
+  geom_hline(yintercept = 0.05, colour = "gray60") +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.2) +
+  scale_x_continuous(trans = "log2", breaks = flaw_res$N) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+  scale_colour_manual(values = c("#D55E00", "#0072B2", "#6baed6"), name = NULL) +
+  scale_linetype_manual(values = c("solid", "solid", "dashed"), name = NULL) +
+  labs(x = "Sample size (N, log scale)", y = "Share of experiments",
+       title = "A Convincing-Looking Effect Can Outrun the Evidence About Assignment",
+       subtitle = "True effect = 0; assignment depends modestly on a predictor of the outcome; grey line = 5%") +
+  theme_minimal(base_size = 11) + theme(legend.position = "top", legend.text = element_text(size = 8.5), panel.grid.minor = element_blank())
+
+fp80 <- flaw_res[flaw_res$N == 80, ]; fp160 <- flaw_res[flaw_res$N == 160, ]; fp640 <- flaw_res[flaw_res$N == 640, ]
+```
+
+The orange line is how often a convincing-looking effect appears when there is none; the blue lines are how often the balance diagnostic notices the problem. Noisier measurement weakens the diagnostic, and an unmeasured characteristic can't be checked at all. The false positives are the systematic omitted-variable term: because assignment depends on environmental values, $\operatorname{Cov}(T,C)$ doesn't average to zero, and the unadjusted estimate is off by about `r sprintf("%.2f", mean(flaw_res$bias))` SD at every sample size. A significant treatment-outcome relationship doesn't validate the assignment mechanism, and a non-significant balance test doesn't show that important differences are absent.
 :::
 
 ::: {.callout-note collapse="true"}
@@ -884,10 +782,6 @@ chk(isTRUE(all.equal(ra$unadjusted - sate_ra, ra$y0_gap)), "estimation error equ
 chk(sd_adj < sd_unadj, "adjusting for the prognostic characteristics tightens the distribution")
 chk(isTRUE(all.equal(dim_tab$`SD of unadjusted estimates`[1], dim_tab$`SD of unadjusted estimates`[2])), "irrelevant extra characteristics do not change the distribution")
 chk(max(dim_tab$Ratio) / min(dim_tab$Ratio) < 1.06, "spread is proportional to outcome SD regardless of the number of characteristics")
-
-# ── Composite DV and SATE/PATE arithmetic ─────────────────────────────────────
-chk(abs(comp[[2]][3] - 0.3) < 1e-12, "equal-weighted composite effect is 0.3")
-chk(abs((0.6 * 0.8 + 0.4 * 0.2) - 0.56) < 1e-12 && abs((0.3 * 0.8 + 0.7 * 0.2) - 0.38) < 1e-12, "sample vs. population effect arithmetic")
 
 # ── Correlated characteristics: help or hurt depending on how the effects line up ──────
 p200 <- pass_df$p[pass_df$N == 200]                     # ordered by rho: 0, 0.35, 0.75
