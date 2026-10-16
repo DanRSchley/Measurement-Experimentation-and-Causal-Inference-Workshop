@@ -35,6 +35,20 @@ library(mclust)       # Gaussian mixture models / latent class analysis (Case 4)
 library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 ```
 
+<style>
+.venn-fig { margin: 1.2rem 0; }
+.venn-title { font-weight: 700; text-align: center; margin-bottom: .6rem; }
+.venn-panels { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.venn-legend { text-align: center; font-size: .88rem; margin-bottom: .5rem; }
+.venn-panels figure { flex: 1 1 175px; max-width: 340px; margin: 0; }
+.venn-panels svg { width: 100%; height: auto; display: block; }
+.venn-panels figcaption { font-size: .88rem; line-height: 1.35; margin-top: .3rem; }
+.venn-panels figcaption strong { display: block; }
+.eq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.eq-card { border: 1px solid #d9d9d9; border-radius: 8px; padding: .6rem .9rem; overflow-x: auto; }
+.eq-card .eq-head { font-weight: 700; margin-bottom: .2rem; }
+</style>
+
 ---
 
 
@@ -42,36 +56,100 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Case 5)
 
 ## Connecting to {{< ref sec-discriminant-validity style="part" link="false" >}} {#connecting-to-discriminant-validity}
 
-In {{< ref sec-discriminant-validity style="part" >}}, the GPI scale was contaminated: instead of purely measuring *Green Purchase Intention*, it also picked up *Environmental Concern*. The scale measured **X + something else**.
+In {{< ref sec-discriminant-validity style="part" >}}, we asked whether our measure of green purchase intention was actually distinguishing purchase intention from environmental concern. Here we ask a related question at a different level. When we estimate the relationship between advertising and sales, how do we know we're isolating advertising's effect rather than picking up other processes that make advertising and sales move together?
 
-Omitted variable bias (OVB) is a related — but distinct — problem. It occurs when you use observational (secondary) data to estimate the effect of one variable on another, but a third variable you didn't measure is influencing both.
+The underlying concern is similar. We observe something and want to attribute it to a particular process, but different processes can produce the same observable pattern. Unless we consider those alternatives, we may draw conclusions our data cannot support. The problem is not that outcomes have several causes; it is whether our evidence and assumptions justify attributing an observed quantity or relationship to the process we care about.
 
-Suppose you have sales figures and advertising spend for 500 stores. You want to know: *does more advertising lead to more sales?*
+The two problems are related, not equivalent. Discriminant validity concerns the interpretation of *measures*; omitted variable bias (OVB) concerns the interpretation of estimated *relationships*. Either can exist without the other, and a measurement problem can sometimes produce OVB or make confounding harder to address.
 
-The danger is that **store quality** — the physical location, the staff, the store atmosphere — affects *both* how much stores spend on advertising (premium stores invest more) *and* how much they sell. If you leave store quality out of your model, your estimate of advertising's effect on sales is contaminated. The advertising coefficient picks up **advertising + store quality**.
+```{r venn-figure}
+#| code-summary: "▶ Three-panel Venn figure (R-generated SVG)"
+#| results: asis
+#| echo: true
 
-::: {.callout-important}
-## How OVB relates to discriminant validity
+# Two equal circles (radius r, centres d apart); each region is traced as a polygon.
+r <- 60; d <- 72; cxA <- 150 - d/2; cxB <- 150 + d/2; cy <- 75
+h  <- sqrt(r^2 - (d/2)^2); th0 <- atan2(h, d/2)
+arc <- function(cx, from, to, n = 60) { th <- seq(from, to, length.out = n); cbind(cx + r * cos(th), cy - r * sin(th)) }
+as_path <- function(m) paste0("M", paste(sprintf("%.1f,%.1f", m[, 1], m[, 2]), collapse = " L"), " Z")
+left_only  <- rbind(arc(cxA, th0, 2*pi - th0), arc(cxB, pi + th0, pi - th0))      # circle A outside circle B
+lens       <- rbind(arc(cxA, -th0, th0),       arc(cxB, pi - th0, pi + th0))      # overlap
+right_only <- cbind(300 - left_only[, 1], left_only[, 2])                          # mirror image of left_only
+blue <- "#0072B2"; orange <- "#D55E00"; gold <- "#B8860B"
 
-These are two different problems with an important connection:
+panel <- function(region, fill, title, text) {
+  hl <- switch(region, left = left_only, both = lens, right = right_only)
+  sprintf('<figure><svg viewBox="0 0 300 150" role="img" aria-label="%s">
+  <circle cx="%.0f" cy="%.0f" r="%.0f" fill="%s" fill-opacity="0.08" stroke="%s" stroke-width="2.5"/>
+  <circle cx="%.0f" cy="%.0f" r="%.0f" fill="%s" fill-opacity="0.08" stroke="%s" stroke-width="2.5"/>
+  <path d="%s" fill="%s" fill-opacity="0.65"/>
+  <text x="%.0f" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="%s">DV</text>
+  <text x="%.0f" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="%s">OVB</text>
+  </svg><figcaption><strong>%s</strong> %s</figcaption></figure>',
+    title, cxA, cy, r, blue, blue, cxB, cy, r, orange, orange, as_path(hl), fill,
+    cxA - 24, blue, cxB + 24, orange, title, text)
+}
 
-- **Not all OVB is a discriminant validity violation.** OVB occurs in regression with any kind of outcome variable — sales figures, behavioral counts, stock prices. Discriminant validity failures specifically affect survey scales with multiple items. You can have OVB without any measurement issue at all.
+cat('<div class="venn-fig"><div class="venn-title">Related problems, but not the same problem</div>',
+    '<div class="venn-legend"><span style="color:#0072B2">&#9679;</span> DV = discriminant validity problem &nbsp; <span style="color:#D55E00">&#9679;</span> OVB = omitted variable bias</div><div class="venn-panels">',
+    panel("left", blue, "A. Measurement problem only",
+          "A purchase-intention scale also picks up pre-existing environmental concern, but ad exposure is randomized and unrelated to that concern. The scale is contaminated, yet the advertising coefficient is not biased."),
+    panel("both", gold, "B. Both problems",
+          "The scale also measures environmental concern, and ad exposure is observational: concerned consumers see more green ads. The contaminating construct now covaries with the predictor, and the coefficient can partly reflect it."),
+    panel("right", orange, "C. Estimation problem only",
+          "Advertising spend and sales are recorded accurately from store records, but store quality drives both. The measures are valid; the advertising coefficient is still confounded."),
+    '</div></div>', sep = "\n")
+```
 
-- **But all OVB produces a discriminant validity violation — if your outcome is a scale.** If store quality is omitted from your model and your "sales" variable were a multi-item Likert scale (e.g., a customer satisfaction scale that is itself influenced by store quality), that scale would fail discriminant validity tests with the advertising construct. The omitted variable would inflate the latent correlation.
+Neither concept is a subset of the other. The overlap means the two problems *can* coexist, not that measurement contamination always causes OVB when both are present.
 
-When OVB is present, your outcome variable Y effectively becomes a composite of two separate latent processes — the true causal effect you care about (advertising → sales) and the confounding pathway (quality → sales). This means Y no longer has a single, clean meaning. The fitted values Ŷ from your naive regression end up "measuring" a mixture of advertising effects and quality effects — just as a scale that fails discriminant validity measures a mixture of two constructs. That is why every case of OVB produces what would register as a discriminant validity violation if you tried to measure your outcome with a scale: the observed Y is a composite of two distinct latent data-generating processes, not a pure indicator of one.
+### The same logic, two equations
 
-| | What we think Y reflects | What Y actually reflects |
-|---|---|---|
-| **{{< ref sec-discriminant-validity style="part" >}}** | Green Purchase Intention (GPI) | GPI *and* Environmental Concern |
-| **{{< ref sec-omitted-variable-bias style="part" >}}** | Effect of advertising on sales | Advertising *and* store quality |
+{{< ref sec-discriminant-validity style="part" >}} started from the classical test theory equation and then allowed a second construct to contaminate the observed score. Here is the analogous decomposition for a regression coefficient.
+
+::: {.eq-grid}
+
+::: {.eq-card}
+<div class="eq-head">A. Measurement: what is in the observed score?</div>
+
+$$
+X_{\text{observed}} =
+\underbrace{\textcolor{#0072B2}{T_{\text{target}}}}_{\textcolor{#0072B2}{\text{intended construct}}}
++ \underbrace{\textcolor{#D55E00}{\lambda Z}}_{\textcolor{#D55E00}{\text{other construct}}}
++ \underbrace{\textcolor{#666666}{\varepsilon}}_{\textcolor{#666666}{\text{random error}}}
+$$
+
+A purchase-intention score ($X$) that reflects purchase intention ($T$) *and* environmental concern ($Z$).
+:::
+
+::: {.eq-card}
+<div class="eq-head">B. Estimation: what is in the coefficient?</div>
+
+$$
+\beta_{\text{naive}} =
+\underbrace{\textcolor{#0072B2}{\beta}}_{\textcolor{#0072B2}{\text{target effect}}}
++ \underbrace{\textcolor{#D55E00}{\gamma\,\frac{\operatorname{Cov}(X,U)}{\operatorname{Var}(X)}}}_{\textcolor{#D55E00}{\text{omitted-variable contribution}}}
+$$
+
+An advertising slope ($\beta_{\text{naive}}$) that reflects advertising's effect *and* store quality ($U$).
+:::
+
+:::
+
+The parallel: in measurement, the observed score can contain variation associated with another construct; in regression, the observed coefficient can contain an association created by another causal process. But the first equation decomposes an observed *score* and the second decomposes a regression *coefficient*. They are analogous, not mathematically interchangeable.
+
+::: {.callout-note collapse="true"}
+## Technical qualifications
+
+- Equation A is a *stylized* measurement model extending the classical test theory starting point; classical test theory itself doesn't require a contaminating construct. And the simulation in {{< ref sec-discriminant-validity style="part" >}} generates highly correlated GPI and EC *factors*; it doesn't build item-level EC contamination into the GPI items, so treat contamination here as a hypothetical model.
+- In Equation B, $Y = \alpha + \beta X + \gamma U + \varepsilon$ is a correctly specified additive structural model with $\varepsilon$ uncorrelated with $X$ and $U$. $\beta_{\text{naive}}$ is the *population* slope of the regression that omits $U$, not a finite-sample estimate.
 :::
 
 ## The Scenario
 
-A retail analytics team has secondary data on 500 stores: monthly advertising spend (in standardised units) and monthly sales (a standardised index). The research question is simple: *does advertising spend predict sales?*
+A retail analytics team has secondary data on 500 stores: monthly advertising spend (in standardised units) and monthly sales (a standardised index). The question: *does advertising spend predict sales?*
 
-What they cannot observe is **store quality** — a latent construct reflecting location desirability, staff quality, and store environment. Store quality correlates with advertising spend (premium stores can afford both) and strongly drives sales independently.
+What they cannot observe is **store quality**, a latent construct reflecting location, staff, and store environment. Premium stores advertise more *and* sell more for reasons unrelated to advertising.
 
 ## Simulating the Observational Dataset
 
@@ -89,10 +167,8 @@ U_quality <- rnorm(n_obs)
 X_ads <- 4 * U_quality + rnorm(n_obs, sd = 1.5)
 
 # ── Sales: driven by advertising (small true effect) AND store quality (large) ─
-# TRUE advertising coefficient: 0.20 (small)
-# Store quality drives sales very strongly, AND creates a dramatic fan pattern
-Y_sales <- 0.20 * X_ads + 5.00 * U_quality +
-           rnorm(n_obs, sd = 0.3 + 1.5 * abs(U_quality))
+# TRUE advertising coefficient: 0.20 (small). Errors are homoskedastic.
+Y_sales <- 0.20 * X_ads + 5.00 * U_quality + rnorm(n_obs, sd = 1.5)
 
 # ── Store size: a strong proxy for quality (corr ≈ 0.95 with U_quality) ──────
 store_size <- 1.5 * U_quality + rnorm(n_obs, sd = 0.5)
@@ -102,13 +178,13 @@ obs_df <- data.frame(
   advertising = X_ads,
   sales       = Y_sales,
   store_size  = store_size,
-  quality     = U_quality    # kept here only for the diagnostic "reveal" plots
+  quality     = U_quality    # kept here only because this is a simulation
 )
 ```
 
 ## Step 1: The Naive Analysis
 
-We run the regression that most analysts would reach for first.
+We run the regression most analysts would reach for first.
 
 ```{r case2-naive-reg}
 #| code-summary: "▶ Naive OLS: advertising predicts sales"
@@ -117,22 +193,37 @@ m_naive <- lm(sales ~ advertising, data = obs_df)
 summary(m_naive)
 ```
 
-::: {.callout-warning}
-## What jumps out?
-The advertising coefficient looks large and statistically highly significant. A researcher without knowledge of the data-generating process might conclude: "advertising has a strong effect on sales." But the **true** advertising coefficient is only **0.20**. The naive OLS estimate will be somewhere around **1.30** — more than six times the true value. Almost all of that estimated "effect" is actually store quality sneaking into the coefficient.
+```{r case2-decomposition}
+#| code-summary: "▶ The omitted-variable decomposition for this simulation"
+beta_true <- 0.20; gamma_u <- 5.00
+var_x     <- 4^2 * 1 + 1.5^2           # Var(X) = 4^2 Var(U) + 1.5^2
+cov_xu    <- 4 * 1                      # Cov(X, U) = 4 Var(U)
+delta_u   <- cov_xu / var_x             # Cov(X,U)/Var(X)
+ovb_term  <- gamma_u * delta_u
+beta_naive_pop <- beta_true + ovb_term
+b_naive <- unname(coef(m_naive)["advertising"])
+```
 
-Think of it this way: in our simulation, premium stores happen to advertise more AND sell more — not because advertising drives sales, but because store quality drives both. OLS cannot tell the difference between "advertising caused the sales" and "quality-driven stores also happened to advertise more." The coefficient absorbs both.
-:::
+The advertising coefficient looks large and highly significant (`r sprintf("%.2f", b_naive)`), but the **true** coefficient is only **0.20**. The omitted-variable equation shows where the rest comes from. Store quality drives sales strongly ($\gamma = 5$) and is closely tied to advertising ($\operatorname{Cov}(X,U)/\operatorname{Var}(X) = 4/`r var_x` = `r sprintf("%.2f", delta_u)`$), so
 
-## Step 2: Diagnosing the Problem Through Residuals
+$$\beta_{\text{naive}} = 0.20 + 5 \times `r sprintf("%.2f", delta_u)` = 0.20 + `r sprintf("%.2f", ovb_term)` \approx `r sprintf("%.2f", beta_naive_pop)`.$$
 
-A residual plot is one of the first places to look when you suspect something is wrong. If the model is correctly specified, the residuals should be scattered randomly around zero — no patterns, no fan shapes.
+About `r sprintf("%.0f%%", 100 * ovb_term / beta_naive_pop)` of the naive coefficient is variation associated with store quality, not advertising's direct effect. OLS cannot tell "advertising caused the sales" from "premium stores also advertise more"; the coefficient absorbs both.
 
-::: {.callout-important}
-## Always plot your residuals — before anything else
+### When does omitting a variable bias the coefficient?
 
-This is not optional. Before running any formal diagnostic tests, plot your residuals against fitted values. This single habit will catch the vast majority of model misspecification problems — omitted variables, non-linearities, heteroskedasticity — that formal tests can miss or that you might not know to test for. Make residual plotting the first step in any regression workflow, not an afterthought.
-:::
+Having several causes of sales is not enough. In this simple linear model, an omitted variable biases the advertising coefficient only if **both** hold: it predicts sales after accounting for advertising, *and* it is associated with advertising.
+
+| | Associated with advertising | Not associated with advertising |
+|---|---|---|
+| **Predicts sales** | **OVB** (store quality here) | No OVB (e.g., an independent store attribute) |
+| **Doesn't predict sales** | No OVB | No OVB |
+
+The bias can be positive or negative: its sign is the sign of $\gamma$ times the sign of $\operatorname{Cov}(X,U)$.
+
+## Step 2: Residual Diagnostics Can Look Fine
+
+A residual plot is a good first habit. It can reveal non-linearity, outliers, and non-constant variance. Does it reveal confounding?
 
 ```{r case2-resid-plot-naive, fig.height = 4.5}
 #| code-summary: "▶ Plot: residuals vs. fitted (naive model)"
@@ -141,133 +232,168 @@ obs_df <- obs_df |>
          resid_naive  = residuals(m_naive))
 
 ggplot(obs_df, aes(x = fitted_naive, y = resid_naive)) +
-  geom_point(alpha = 0.25, colour = "#4575b4") +
+  geom_point(alpha = 0.3, colour = "#4575b4") +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "black") +
-  geom_smooth(method = "loess", se = FALSE,
-              colour = "firebrick", linewidth = 1) +
-  labs(x     = "Fitted Values (predicted sales)",
-       y     = "Residuals",
+  labs(x = "Fitted values (predicted sales)", y = "Residuals",
        title = "Residual Plot: Naive Model (Advertising Only)",
-       subtitle = "A fanning pattern signals non-constant variance — something is missing") +
+       subtitle = "No fan shape and no obvious pattern") +
   theme_minimal(base_size = 12)
 ```
 
-::: {.callout-warning}
-## What the fan shape tells you
-The residuals spread out dramatically as fitted values increase. This **heteroskedasticity** is a red flag: non-constant variance suggests the model has left out something that also varies with X.
-
-Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is *consistent with* that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.
-
-Connect this back to {{< ref sec-discriminant-validity style="part" >}}: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in {{< ref sec-discriminant-validity style="part" >}} — telling you that Y reflects more than X.
-:::
-
-We can formally confirm the heteroskedasticity with a Breusch-Pagan test. A significant result means the variance of residuals is not constant — further evidence that something is systematically missing.
-
 ```{r case2-bp-test}
 #| code-summary: "▶ Breusch-Pagan test for heteroskedasticity"
-# Breusch-Pagan test: H0 = residuals have constant variance (homoskedasticity)
-lmtest::bptest(m_naive)
+bp <- lmtest::bptest(m_naive)
+bp
 ```
 
-Now let's do the "oracle reveal": colour the same residual plot by store quality to show where the heteroskedasticity comes from.
+The residuals look fine, and the Breusch-Pagan test doesn't reject constant variance (p = `r sprintf("%.2f", bp$p.value)`; and a non-significant test wouldn't *prove* constant variance anyway). Yet the estimate is about `r sprintf("%.0f", b_naive / 0.20)` times the true effect.
 
-```{r case2-resid-reveal, fig.height = 4.5}
-#| code-summary: "▶ Plot: residuals colored by true store quality"
-# Cut quality into tertiles for colour legend clarity
-obs_df <- obs_df |>
-  mutate(quality_group = cut(quality,
-                              breaks = quantile(quality, c(0, 1/3, 2/3, 1)),
-                              labels = c("Low quality", "Medium", "High quality"),
-                              include.lowest = TRUE))
+**A regression can satisfy the usual residual diagnostics and still provide a misleading estimate of the effect we're interested in. Residual diagnostics help us identify some modeling problems, but they cannot establish that a relationship is unconfounded.**
 
-ggplot(obs_df, aes(x = fitted_naive, y = resid_naive, colour = quality_group)) +
-  geom_point(alpha = 0.35) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "black") +
-  scale_colour_manual(
-    values = c("Low quality"  = "#4575b4",
-               "Medium"       = "#91bfdb",
-               "High quality" = "#d73027"),
-    name = "Store quality\n(hidden in real data)"
-  ) +
-  labs(x     = "Fitted Values",
-       y     = "Residuals",
-       title = "The Same Plot — Coloured by Store Quality",
-       subtitle = "The fan pattern is entirely explained by the omitted variable U") +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "right")
+## Step 3: Practical Diagnostics With Observational Data
+
+If routine diagnostics can't detect confounding, what can we do? Three approaches use the same store data. For each, ask what it can and cannot tell us.
+
+### A. Think through the confounding structure
+
+Before more statistics, name a plausible common cause of advertising and sales. Here it is store quality, which we can't observe. We can observe **store size**, a proxy.
+
+```{r dag-figure, fig.height = 3.6, fig.width = 8}
+#| code-summary: "▶ Diagram: store quality as a common cause"
+nodes <- data.frame(x = c(5, 1.5, 8.5, 5), y = c(2.9, 0.9, 0.9, 4.4),
+                    label = c("Store quality\n(unobserved)", "Advertising", "Sales", "Store size\n(observed proxy)"),
+                    fill = c("#fdd0a2", "#c6dbef", "#c6dbef", "#e5e5e5"))
+arr <- arrow(length = unit(0.22, "cm"))
+ggplot() +
+  geom_segment(aes(x = 4.2, xend = 2.2, y = 2.5, yend = 1.3), arrow = arr, colour = "#D55E00", linewidth = 1) +
+  geom_segment(aes(x = 5.8, xend = 7.8, y = 2.5, yend = 1.3), arrow = arr, colour = "#D55E00", linewidth = 1) +
+  geom_segment(aes(x = 2.5, xend = 7.4, y = 0.9, yend = 0.9), arrow = arr, colour = "#0072B2", linewidth = 1) +
+  geom_segment(aes(x = 5, xend = 5, y = 3.3, yend = 4.0), arrow = arr, colour = "gray50", linetype = "dashed") +
+  geom_label(data = nodes, aes(x, y, label = label, fill = fill), size = 3.6, label.padding = unit(0.55, "lines")) +
+  annotate("text", x = 5, y = 0.55, label = "true effect = 0.20", colour = "#0072B2", size = 3.4) +
+  annotate("text", x = 2.3, y = 2.35, label = "premium stores\nadvertise more", colour = "#D55E00", size = 3.2, hjust = 1) +
+  annotate("text", x = 7.7, y = 2.35, label = "and sell more", colour = "#D55E00", size = 3.2, hjust = 0) +
+  scale_fill_identity() + coord_cartesian(xlim = c(0, 10), ylim = c(0.3, 4.8)) + theme_void()
 ```
 
-::: {.callout-important}
-## The detective logic
-The fan pattern in the first plot told us *something* was wrong. The second plot (the "oracle reveal" — in practice you can't always do this) shows that the heteroskedasticity is driven entirely by the omitted variable. High-quality stores (red) cluster at the top right. Low-quality stores (blue) cluster at the bottom left. Store quality is confounding both advertising spend and sales.
-:::
+Omitting store quality creates the problem: it affects both advertising and sales. The observed proxy lets us check whether such a characteristic is associated with advertising, and with sales *given* advertising.
 
-## Step 3: The Sensitivity Test
+```{r proxy-associations}
+#| code-summary: "▶ Is the proxy associated with advertising, and with sales given advertising?"
+m_size_ads   <- lm(advertising ~ store_size, data = obs_df)
+m_proxy      <- lm(sales ~ advertising + store_size, data = obs_df)
+fmt_cf <- function(fit, term) { s <- summary(fit)$coefficients[term, ]; sprintf("%.2f (SE %.2f)", s[1], s[2]) }
+assoc_tab <- data.frame(
+  Association = c("Store size → advertising (slope of advertising on store size)",
+                  "Store size → sales, holding advertising fixed"),
+  Estimate    = c(fmt_cf(m_size_ads, "store_size"), fmt_cf(m_proxy, "store_size")))
+kable(assoc_tab, col.names = c("Association", "Estimate"))
+```
 
-In real research you rarely have access to the true omitted variable. But you may have a **proxy** — a variable that correlates with the unobserved confounder even if it doesn't perfectly capture it. Here, store size is such a proxy.
+- **What it can tell us:** a theoretically relevant pre-existing characteristic is associated with advertising and with sales given advertising, so it is worth treating store quality as a possible confounder.
+- **What it can't:** that the proxy is a valid control, or that it captures every unobserved common cause.
 
-The key diagnostic: **if adding a potential proxy to the model changes your main coefficient substantially, that proxy was correlated with both X and Y — and something in that proxy's space was biasing your original estimate.**
+### B. Coefficient stability across models
 
-```{r case2-sensitivity}
-#| code-summary: "▶ Coefficient sensitivity: adding a proxy control"
-# Model with store size proxy
-m_proxy  <- lm(sales ~ advertising + store_size, data = obs_df)
+Compare three advertising coefficients: the naive model, a model that adds the store-size proxy, and an **oracle** model that adds true store quality. The oracle is available *only* because the simulation gives us the data-generating process.
 
-# Oracle model (impossible in real life — store quality is unobserved)
+```{r coef-plot, fig.height = 3.6}
+#| code-summary: "▶ Plot: advertising coefficient across models, with 95% CIs"
 m_oracle <- lm(sales ~ advertising + quality, data = obs_df)
+cmp <- do.call(rbind, lapply(
+  list("Naive\n(advertising only)" = m_naive, "Adds store-size proxy" = m_proxy,
+       "Oracle: adds true quality\n(simulation only)" = m_oracle),
+  function(m) data.frame(est = coef(m)["advertising"], lo = confint(m)["advertising", 1], hi = confint(m)["advertising", 2])))
+cmp$model <- factor(rownames(cmp), levels = rev(rownames(cmp)))
 
-# Summary comparison table
-coef_compare <- data.frame(
-  Model = c("Naive (advertising only)",
-            "With store-size proxy",
-            "Oracle (true quality included)"),
-  `Advertising coefficient` = round(c(coef(m_naive)["advertising"],
-                                      coef(m_proxy)["advertising"],
-                                      coef(m_oracle)["advertising"]), 3),
-  `True value` = c(0.20, 0.20, 0.20)
-)
-
-kable(coef_compare,
-      col.names = c("Model", "Advertising Coefficient", "True Value"),
-      caption   = "Coefficient Sensitivity: How Much Does Adding a Proxy Change Things?")
+ggplot(cmp, aes(est, model)) +
+  geom_vline(xintercept = 0.20, linetype = "dashed", colour = "gray30") +
+  geom_pointrange(aes(xmin = lo, xmax = hi), colour = "#0072B2", linewidth = 0.9, size = 0.6) +
+  annotate("text", x = 0.20, y = 3.45, label = "true effect = 0.20", hjust = -0.05, size = 3.4, colour = "gray30") +
+  labs(x = "Estimated advertising coefficient (95% CI)", y = NULL,
+       title = "Accounting for More Relevant Information Moves the Estimate",
+       subtitle = "Only the oracle model recovers the true effect") +
+  coord_cartesian(xlim = c(0, 1.5), ylim = c(0.6, 3.5)) +
+  theme_minimal(base_size = 12) + theme(panel.grid.minor = element_blank())
 ```
 
-::: {.callout-warning}
-## How to interpret the sensitivity test
-If your advertising coefficient **drops substantially** when you add a control variable, that control was correlated with both advertising and sales — a sign it was a partial proxy for an omitted confounder. The larger the drop, the more worried you should be about the original estimate.
+The estimate falls from `r sprintf("%.2f", coef(m_naive)["advertising"])` (naive) to `r sprintf("%.2f", coef(m_proxy)["advertising"])` with the proxy, and to `r sprintf("%.2f", coef(m_oracle)["advertising"])` with the true confounder. Accounting for more relevant information moved us toward the truth.
 
-If the coefficient barely moves, that control was probably not picking up a meaningful confounder (though it doesn't fully rule out other unmeasured variables).
+- **What it can tell us:** adding a variable changes the conditional association between advertising and sales. If a theoretically relevant control moves the coefficient, that is a reason to worry about the naive estimate.
+- **What it can't:** a coefficient change doesn't establish OVB, and stability doesn't rule it out. Whether an adjustment moves us *closer* to the causal effect depends on the variable's causal role and how well it is measured. Controlling for a mediator or collider can introduce other problems, so we can't just add every available predictor.
 
-**Rule of thumb:** A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that drops substantially from its naive value — moving meaningfully toward the oracle — is a clear warning of omitted variable bias. The larger the drop, the stronger the evidence.
-:::
+### C. How strong would a hidden confounder have to be?
 
-## Summary: What OVB Teaches Us
+Rearranging the omitted-variable equation gives a simple sensitivity question: how strongly would an unmeasured confounder $U$ have to predict sales ($\gamma$), and be associated with advertising ($\delta = \operatorname{Cov}(X,U)/\operatorname{Var}(X)$, the slope of $U$ on advertising), to account for the coefficient we observed? If $U$ is measured in SD units, the adjusted advertising effect is the observed coefficient minus $\gamma\,\delta$.
 
-OVB and discriminant validity violations are different problems — OVB lives in the regression, DV violations live in the measurement model — but they share a common underlying logic. In both cases, the thing you are using as your outcome variable picks up more than one source of variance, and the contaminating source inflates the relationship you're trying to study.
+```{r sensitivity-heatmap, fig.height = 4.8, fig.width = 7.5}
+#| code-summary: "▶ Heatmap: advertising effect implied by hypothetical confounder strengths"
+grid <- expand.grid(gamma = seq(0, 6, by = 0.1), delta = seq(0, 0.4, by = 0.005))
+grid$adjusted <- b_naive - grid$gamma * grid$delta         # observed coefficient minus the omitted-variable term
 
-Discriminant validity checks ({{< ref sec-discriminant-validity style="part" >}}) and residual/sensitivity diagnostics ({{< ref sec-omitted-variable-bias style="part" >}}) are both ways of asking the same fundamental question: *is my Y truly measuring what I think it's measuring, or is something else riding along with it?*
+# Observed benchmark: what the store-size proxy alone accounts for (standardised, so units match)
+z_size  <- as.numeric(scale(obs_df$store_size))
+g_bench <- unname(coef(lm(sales ~ advertising + z_size, data = obs_df))["z_size"])
+d_bench <- unname(coef(lm(z_size ~ advertising, data = obs_df))["advertising"])
+stopifnot(abs((b_naive - coef(m_proxy)["advertising"]) - g_bench * d_bench) < 1e-8)   # OLS identity
 
-The key practical difference: if your Y is a multi-item scale and you have OVB (an omitted variable driving both X and Y), that omitted variable will inflate the latent correlation between your scales and cause them to fail discriminant validity tests too. So fixing the measurement model and fixing the regression model are not alternative strategies — you may need to address both.
+pts <- data.frame(gamma = c(gamma_u, g_bench), delta = c(delta_u, d_bench),
+                  label = c("True confounder\n(simulation only)", "Store size\n(observed benchmark)"))
+ggplot(grid, aes(delta, gamma, fill = adjusted)) +
+  geom_raster() +
+  geom_contour(aes(z = adjusted), breaks = 0, colour = "black", linewidth = 0.8) +
+  scale_fill_gradient2(low = "#b2182b", mid = "white", high = "#2166ac", midpoint = 0,
+                       name = "Adjusted\nadvertising\neffect") +
+  geom_point(data = pts, aes(delta, gamma), inherit.aes = FALSE, shape = 21, size = 4, fill = "gold", colour = "black") +
+  geom_text(data = pts, aes(delta, gamma, label = label), inherit.aes = FALSE, hjust = c(1.12, -0.12), vjust = 0.5, size = 3.3) +
+  annotate("text", x = 0.025, y = 5.7, hjust = 0, size = 3.3, label = "black line: confounder would\nexplain the whole coefficient") +
+  labs(x = expression("Association with advertising (" * delta * ", SD of U per unit advertising)"),
+       y = expression("Effect on sales (" * gamma * ", per SD of U)"),
+       title = "Sensitivity to an Omitted Confounder",
+       subtitle = "Adjusted effect = observed coefficient − γ × δ") +
+  theme_minimal(base_size = 12) + theme(panel.grid = element_blank())
+```
 
-The residual fan pattern you see here is also a hint that latent subgroups ({{< ref sec-latent-subgroups style="part" >}}) or collective outliers ({{< ref sec-outliers style="part" >}}) may be present — all three problems can produce heteroskedastic-looking residuals.
+Anything on or beyond the black line would fully account for the coefficient. The gold marker for the true confounder sits where the adjusted effect is about 0.2; the store-size benchmark shows how much an *observed* covariate of that strength accounts for.
+
+- **What it can tell us:** how strong an unmeasured confounder would need to be to explain the result, and whether that seems plausible given what we know (here we can calibrate against an observed covariate).
+- **What it can't:** it isn't a test, and it doesn't identify the actual omitted confounder. In real research the plausible ranges need substantive justification.
+
+No combination of routine regression diagnostics can prove that unobserved confounding is absent.
+
+## When the Control Is Itself a Measure
+
+We used store size as a proxy for store quality, but store size is not store quality. This brings back the measurement question from {{< ref sec-discriminant-validity style="part" >}}: what happens when the control is an imperfect measure of the confounder? The proxy reduced the bias (from `r sprintf("%.2f", coef(m_naive)["advertising"])` to `r sprintf("%.2f", coef(m_proxy)["advertising"])`) without eliminating it, even though it correlates `r sprintf("%.2f", cor(obs_df$store_size, obs_df$quality))` with true quality: the part of quality it misses still operates through the large $\gamma$. A reliable proxy can also have construct-validity problems (store size may reflect real-estate costs more than quality), and reliability and discriminant validity are distinct issues. So the validity of our controls matters as much as the validity of our outcomes. {{< ref sec-reestablishing-exchangeability style="long" >}} treats how poorly measured covariates undermine conditional independence.
+
+## Summary: Three Distinctions
+
+Related questions, but each needs different evidence:
+
+- **Measurement:** are we measuring the construct we think we're measuring? (Discriminant validity; {{< ref sec-discriminant-validity style="part" >}}.)
+- **Estimation:** does our coefficient isolate the relationship or effect we intend to estimate? (OVB; this part.)
+- **Identification:** what features of the data-generating process and research design justify that interpretation?
+
+Looking ahead to {{< ref sec-m2 style="long" >}}: randomization helps separate treatment assignment from pre-existing confounders, in expectation. It cannot automatically establish the construct validity of the outcome.
+
+The residual patterns that *do* appear in real data may also point to latent subgroups ({{< ref sec-latent-subgroups style="part" >}}) or collective outliers ({{< ref sec-outliers style="part" >}}), which are different problems from confounding.
 
 ## Other Methods for Diagnosing Endogeneity and OVB
 
-The residual diagnostics and proxy controls covered here are entry-level approaches. For more rigorous identification:
+The diagnostics covered here are entry-level approaches. For more rigorous identification:
 
 ::: {.callout-note}
 ## Coming up in {{< ref sec-m3 style="long" link="false" >}} {#coming-up-in-causal-inference}
 
-Several of the methods below are covered in depth in **{{< ref sec-m3 style="long" >}}: Causal Inference**. Regression discontinuity design ({{< ref sec-rdd style="long" >}}), difference-in-differences ({{< ref sec-did style="long" >}}), and propensity score / matching methods ({{< ref sec-psm style="long" >}}) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.
+Several of the methods below are covered in depth in **{{< ref sec-m3 style="long" >}}: Causal Inference**. Regression discontinuity design ({{< ref sec-rdd style="long" >}}), difference-in-differences ({{< ref sec-did style="long" >}}), and propensity score / matching methods ({{< ref sec-psm style="long" >}}) each get their own tutorial section with worked examples.
 :::
 
-- **Instrumental variables (IV) / Two-Stage Least Squares (2SLS):** Find a variable that predicts X but does not directly affect Y (an "instrument"). Use it to isolate the exogenous variation in X. Powerful but requires strong theoretical justification for the instrument's validity.
-- **Regression discontinuity design (RDD):** If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. *Covered in {{< ref sec-rdd style="long" >}}.*
-- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Controls for time-invariant confounders. Requires parallel trends assumption. *Covered in {{< ref sec-did style="long" >}}.*
-- **Propensity score methods:** Model the probability of "treatment" (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. *Covered in {{< ref sec-psm style="long" >}}.*
-- **Hausman test:** Formally tests whether OLS and IV estimates differ significantly. If they do, OLS is inconsistent (endogeneity is present). Requires a valid instrument.
-- **Sensitivity analysis (Oster, 2019):** How large would the omitted variable's effect need to be (relative to included controls) to fully explain away the estimated coefficient? Quantifies the "how worried should I be?" question without requiring an instrument.
-- **Panel data fixed effects:** If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.
+- **Instrumental variables (IV) / Two-Stage Least Squares (2SLS):** Find a variable that predicts X but does not directly affect Y (an "instrument") and use it to isolate the exogenous variation in X. Powerful, but requires strong theoretical justification.
+- **Regression discontinuity design (RDD):** If assignment is based on a threshold cutoff, the discontinuity creates locally exogenous variation. *Covered in {{< ref sec-rdd style="long" >}}.*
+- **Difference-in-differences (DiD):** Compare changes over time in treated vs. control units. Requires parallel trends. *Covered in {{< ref sec-did style="long" >}}.*
+- **Propensity score methods:** Model the probability of "treatment" given observed covariates, then match or weight. Handles observed confounders only. *Covered in {{< ref sec-psm style="long" >}}.*
+- **Hausman test:** Tests whether OLS and IV estimates differ significantly. Requires a valid instrument.
+- **Sensitivity analysis (Oster, 2019):** How large would the omitted variable's effect need to be, relative to included controls, to explain away the estimated coefficient? Diagnostic C above is a simplified version of this logic.
+- **Panel data fixed effects:** With repeated observations per unit, within-unit fixed effects remove all time-invariant confounders, including unobserved store quality.
 
 
 ---
@@ -277,8 +403,9 @@ Several of the methods below are covered in depth in **{{< ref sec-m3 style="lon
 ::: {.callout-note}
 ## Key questions before interpreting your regression
 
-- [ ] **Can you name the most plausible omitted variable in your regression?** For each predictor, identify what variable (a) affects Y and (b) correlates with X. That is your primary OVB threat.
-- [ ] **What direction is the bias?** The sign of the bias is the sign of β_omitted × r(X, omitted). Knowing the direction tells you whether your estimate is inflated or deflated.
-- [ ] **Does your coefficient change meaningfully when you add a proxy for the omitted variable?** Instability is evidence of OVB. Stability is reassuring but not proof.
-- [ ] **Do your residuals show a fan pattern or cluster by group?** This is *consistent with* a missing structuring variable, but heteroskedasticity has multiple causes. Pair the visual with a substantive theory of what might be omitted before concluding OVB.
+- [ ] **What are the plausible pre-treatment common causes of your predictor and outcome?** For each, ask whether it (a) affects Y and (b) is associated with X. Both are needed for OVB.
+- [ ] **Which of those did you measure, and how well?** An imperfect proxy can reduce confounding without eliminating it.
+- [ ] **Are your covariate adjustments theoretically justified?** Don't control for mediators or colliders just because they are available.
+- [ ] **How sensitive is your estimate to unobserved confounding?** Ask how strong a hidden confounder would need to be to explain your coefficient.
+- [ ] **Are you distinguishing statistical-model diagnostics from evidence of causal identification?** Clean residuals, a stable coefficient, or a high R² don't show that the relationship is unconfounded.
 :::
