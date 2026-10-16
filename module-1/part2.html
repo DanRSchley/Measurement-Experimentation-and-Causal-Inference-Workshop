@@ -111,6 +111,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Measurement, Experimentation, &amp; Causal Inference — RSM Workshop">
@@ -326,13 +355,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#sec-part2" id="toc-sec-part2" class="nav-link active" data-scroll-target="#sec-part2">Part 2: Omitted Variable Bias — A Related Problem in Observational Data</a>
   <ul class="collapse">
-  <li><a href="#connecting-to-discriminant-validity" id="toc-connecting-to-discriminant-validity" class="nav-link" data-scroll-target="#connecting-to-discriminant-validity">Connecting to Part 1</a></li>
+  <li><a href="#connecting-to-discriminant-validity" id="toc-connecting-to-discriminant-validity" class="nav-link" data-scroll-target="#connecting-to-discriminant-validity">Connecting to Part 1</a>
+  <ul class="collapse">
+  <li><a href="#the-same-logic-two-equations" id="toc-the-same-logic-two-equations" class="nav-link" data-scroll-target="#the-same-logic-two-equations">The same logic, two equations</a></li>
+  </ul></li>
   <li><a href="#the-scenario" id="toc-the-scenario" class="nav-link" data-scroll-target="#the-scenario">The Scenario</a></li>
   <li><a href="#simulating-the-observational-dataset" id="toc-simulating-the-observational-dataset" class="nav-link" data-scroll-target="#simulating-the-observational-dataset">Simulating the Observational Dataset</a></li>
-  <li><a href="#step-1-the-naive-analysis" id="toc-step-1-the-naive-analysis" class="nav-link" data-scroll-target="#step-1-the-naive-analysis">Step 1: The Naive Analysis</a></li>
-  <li><a href="#step-2-diagnosing-the-problem-through-residuals" id="toc-step-2-diagnosing-the-problem-through-residuals" class="nav-link" data-scroll-target="#step-2-diagnosing-the-problem-through-residuals">Step 2: Diagnosing the Problem Through Residuals</a></li>
-  <li><a href="#step-3-the-sensitivity-test" id="toc-step-3-the-sensitivity-test" class="nav-link" data-scroll-target="#step-3-the-sensitivity-test">Step 3: The Sensitivity Test</a></li>
-  <li><a href="#summary-what-ovb-teaches-us" id="toc-summary-what-ovb-teaches-us" class="nav-link" data-scroll-target="#summary-what-ovb-teaches-us">Summary: What OVB Teaches Us</a></li>
+  <li><a href="#step-1-the-naive-analysis" id="toc-step-1-the-naive-analysis" class="nav-link" data-scroll-target="#step-1-the-naive-analysis">Step 1: The Naive Analysis</a>
+  <ul class="collapse">
+  <li><a href="#when-does-omitting-a-variable-bias-the-coefficient" id="toc-when-does-omitting-a-variable-bias-the-coefficient" class="nav-link" data-scroll-target="#when-does-omitting-a-variable-bias-the-coefficient">When does omitting a variable bias the coefficient?</a></li>
+  </ul></li>
+  <li><a href="#step-2-residual-diagnostics-can-look-fine" id="toc-step-2-residual-diagnostics-can-look-fine" class="nav-link" data-scroll-target="#step-2-residual-diagnostics-can-look-fine">Step 2: Residual Diagnostics Can Look Fine</a></li>
+  <li><a href="#step-3-practical-diagnostics-with-observational-data" id="toc-step-3-practical-diagnostics-with-observational-data" class="nav-link" data-scroll-target="#step-3-practical-diagnostics-with-observational-data">Step 3: Practical Diagnostics With Observational Data</a>
+  <ul class="collapse">
+  <li><a href="#a.-think-through-the-confounding-structure" id="toc-a.-think-through-the-confounding-structure" class="nav-link" data-scroll-target="#a.-think-through-the-confounding-structure">A. Think through the confounding structure</a></li>
+  <li><a href="#b.-coefficient-stability-across-models" id="toc-b.-coefficient-stability-across-models" class="nav-link" data-scroll-target="#b.-coefficient-stability-across-models">B. Coefficient stability across models</a></li>
+  <li><a href="#c.-how-strong-would-a-hidden-confounder-have-to-be" id="toc-c.-how-strong-would-a-hidden-confounder-have-to-be" class="nav-link" data-scroll-target="#c.-how-strong-would-a-hidden-confounder-have-to-be">C. How strong would a hidden confounder have to be?</a></li>
+  </ul></li>
+  <li><a href="#when-the-control-is-itself-a-measure" id="toc-when-the-control-is-itself-a-measure" class="nav-link" data-scroll-target="#when-the-control-is-itself-a-measure">When the Control Is Itself a Measure</a></li>
+  <li><a href="#summary-three-distinctions" id="toc-summary-three-distinctions" class="nav-link" data-scroll-target="#summary-three-distinctions">Summary: Three Distinctions</a></li>
   <li><a href="#other-methods-for-diagnosing-endogeneity-and-ovb" id="toc-other-methods-for-diagnosing-endogeneity-and-ovb" class="nav-link" data-scroll-target="#other-methods-for-diagnosing-endogeneity-and-ovb">Other Methods for Diagnosing Endogeneity and OVB</a></li>
   <li><a href="#sec-checklist-omitted-variable-bias" id="toc-sec-checklist-omitted-variable-bias" class="nav-link" data-scroll-target="#sec-checklist-omitted-variable-bias">Researcher Checklist: Omitted Variable Bias</a></li>
   </ul></li>
@@ -382,104 +423,194 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dbscan)       <span class="co"># Local outlier factor and DBSCAN clustering (Case 5)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+<style>
+.venn-fig { margin: 1.2rem 0; }
+.venn-title { font-weight: 700; text-align: center; margin-bottom: .6rem; }
+.venn-panels { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.venn-legend { text-align: center; font-size: .88rem; margin-bottom: .5rem; }
+.venn-panels figure { flex: 1 1 175px; max-width: 340px; margin: 0; }
+.venn-panels svg { width: 100%; height: auto; display: block; }
+.venn-panels figcaption { font-size: .88rem; line-height: 1.35; margin-top: .3rem; }
+.venn-panels figcaption strong { display: block; }
+.eq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.eq-card { border: 1px solid #d9d9d9; border-radius: 8px; padding: .6rem .9rem; overflow-x: auto; }
+.eq-card .eq-head { font-weight: 700; margin-bottom: .2rem; }
+</style>
 <hr>
 <section id="sec-part2" class="level1">
 <h1>Part 2: Omitted Variable Bias — A Related Problem in Observational Data</h1>
 <section id="connecting-to-discriminant-validity" class="level2">
 <h2 class="anchored" data-anchor-id="connecting-to-discriminant-validity">Connecting to Part 1</h2>
-<p>In <a href="part1.html" class="xref-link">Part 1</a>, the GPI scale was contaminated: instead of purely measuring <em>Green Purchase Intention</em>, it also picked up <em>Environmental Concern</em>. The scale measured <strong>X + something else</strong>.</p>
-<p>Omitted variable bias (OVB) is a related — but distinct — problem. It occurs when you use observational (secondary) data to estimate the effect of one variable on another, but a third variable you didn’t measure is influencing both.</p>
-<p>Suppose you have sales figures and advertising spend for 500 stores. You want to know: <em>does more advertising lead to more sales?</em></p>
-<p>The danger is that <strong>store quality</strong> — the physical location, the staff, the store atmosphere — affects <em>both</em> how much stores spend on advertising (premium stores invest more) <em>and</em> how much they sell. If you leave store quality out of your model, your estimate of advertising’s effect on sales is contaminated. The advertising coefficient picks up <strong>advertising + store quality</strong>.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
+<p>In <a href="part1.html" class="xref-link">Part 1</a>, we asked whether our measure of green purchase intention was actually distinguishing purchase intention from environmental concern. Here we ask a related question at a different level. When we estimate the relationship between advertising and sales, how do we know we’re isolating advertising’s effect rather than picking up other processes that make advertising and sales move together?</p>
+<p>The underlying concern is similar. We observe something and want to attribute it to a particular process, but different processes can produce the same observable pattern. Unless we consider those alternatives, we may draw conclusions our data cannot support. The problem is not that outcomes have several causes; it is whether our evidence and assumptions justify attributing an observed quantity or relationship to the process we care about.</p>
+<p>The two problems are related, not equivalent. Discriminant validity concerns the interpretation of <em>measures</em>; omitted variable bias (OVB) concerns the interpretation of estimated <em>relationships</em>. Either can exist without the other, and a measurement problem can sometimes produce OVB or make confounding harder to address.</p>
+<details class="code-fold">
+<summary>▶ Three-panel Venn figure (R-generated SVG)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Two equal circles (radius r, centres d apart); each region is traced as a polygon.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="dv">60</span>; d <span class="ot">&lt;-</span> <span class="dv">72</span>; cxA <span class="ot">&lt;-</span> <span class="dv">150</span> <span class="sc">-</span> d<span class="sc">/</span><span class="dv">2</span>; cxB <span class="ot">&lt;-</span> <span class="dv">150</span> <span class="sc">+</span> d<span class="sc">/</span><span class="dv">2</span>; cy <span class="ot">&lt;-</span> <span class="dv">75</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>h  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(r<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> (d<span class="sc">/</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span>); th0 <span class="ot">&lt;-</span> <span class="fu">atan2</span>(h, d<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>arc <span class="ot">&lt;-</span> <span class="cf">function</span>(cx, from, to, <span class="at">n =</span> <span class="dv">60</span>) { th <span class="ot">&lt;-</span> <span class="fu">seq</span>(from, to, <span class="at">length.out =</span> n); <span class="fu">cbind</span>(cx <span class="sc">+</span> r <span class="sc">*</span> <span class="fu">cos</span>(th), cy <span class="sc">-</span> r <span class="sc">*</span> <span class="fu">sin</span>(th)) }</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>as_path <span class="ot">&lt;-</span> <span class="cf">function</span>(m) <span class="fu">paste0</span>(<span class="st">"M"</span>, <span class="fu">paste</span>(<span class="fu">sprintf</span>(<span class="st">"%.1f,%.1f"</span>, m[, <span class="dv">1</span>], m[, <span class="dv">2</span>]), <span class="at">collapse =</span> <span class="st">" L"</span>), <span class="st">" Z"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>left_only  <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">arc</span>(cxA, th0, <span class="dv">2</span><span class="sc">*</span>pi <span class="sc">-</span> th0), <span class="fu">arc</span>(cxB, pi <span class="sc">+</span> th0, pi <span class="sc">-</span> th0))      <span class="co"># circle A outside circle B</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>lens       <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">arc</span>(cxA, <span class="sc">-</span>th0, th0),       <span class="fu">arc</span>(cxB, pi <span class="sc">-</span> th0, pi <span class="sc">+</span> th0))      <span class="co"># overlap</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>right_only <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">300</span> <span class="sc">-</span> left_only[, <span class="dv">1</span>], left_only[, <span class="dv">2</span>])                          <span class="co"># mirror image of left_only</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>blue <span class="ot">&lt;-</span> <span class="st">"#0072B2"</span>; orange <span class="ot">&lt;-</span> <span class="st">"#D55E00"</span>; gold <span class="ot">&lt;-</span> <span class="st">"#B8860B"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>panel <span class="ot">&lt;-</span> <span class="cf">function</span>(region, fill, title, text) {</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  hl <span class="ot">&lt;-</span> <span class="cf">switch</span>(region, <span class="at">left =</span> left_only, <span class="at">both =</span> lens, <span class="at">right =</span> right_only)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sprintf</span>(<span class="st">'&lt;figure&gt;&lt;svg viewBox="0 0 300 150" role="img" aria-label="%s"&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;circle cx="%.0f" cy="%.0f" r="%.0f" fill="%s" fill-opacity="0.08" stroke="%s" stroke-width="2.5"/&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;circle cx="%.0f" cy="%.0f" r="%.0f" fill="%s" fill-opacity="0.08" stroke="%s" stroke-width="2.5"/&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;path d="%s" fill="%s" fill-opacity="0.65"/&gt;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;text x="%.0f" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="%s"&gt;DV&lt;/text&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;text x="%.0f" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="%s"&gt;OVB&lt;/text&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;/svg&gt;&lt;figcaption&gt;&lt;strong&gt;%s&lt;/strong&gt; %s&lt;/figcaption&gt;&lt;/figure&gt;'</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    title, cxA, cy, r, blue, blue, cxB, cy, r, orange, orange, <span class="fu">as_path</span>(hl), fill,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    cxA <span class="sc">-</span> <span class="dv">24</span>, blue, cxB <span class="sc">+</span> <span class="dv">24</span>, orange, title, text)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">'&lt;div class="venn-fig"&gt;&lt;div class="venn-title"&gt;Related problems, but not the same problem&lt;/div&gt;'</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">'&lt;div class="venn-legend"&gt;&lt;span style="color:#0072B2"&gt;&amp;#9679;&lt;/span&gt; DV = discriminant validity problem &amp;nbsp; &lt;span style="color:#D55E00"&gt;&amp;#9679;&lt;/span&gt; OVB = omitted variable bias&lt;/div&gt;&lt;div class="venn-panels"&gt;'</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel</span>(<span class="st">"left"</span>, blue, <span class="st">"A. Measurement problem only"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>          <span class="st">"A purchase-intention scale also picks up pre-existing environmental concern, but ad exposure is randomized and unrelated to that concern. The scale is contaminated, yet the advertising coefficient is not biased."</span>),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel</span>(<span class="st">"both"</span>, gold, <span class="st">"B. Both problems"</span>,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>          <span class="st">"The scale also measures environmental concern, and ad exposure is observational: concerned consumers see more green ads. The contaminating construct now covaries with the predictor, and the coefficient can partly reflect it."</span>),</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel</span>(<span class="st">"right"</span>, orange, <span class="st">"C. Estimation problem only"</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Advertising spend and sales are recorded accurately from store records, but store quality drives both. The measures are valid; the advertising coefficient is still confounded."</span>),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">'&lt;/div&gt;&lt;/div&gt;'</span>, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="venn-fig">
+<div class="venn-title">
+Related problems, but not the same problem
+</div>
+<div class="venn-legend">
+<span style="color:#0072B2">●</span> DV = discriminant validity problem &nbsp; <span style="color:#D55E00">●</span> OVB = omitted variable bias
+</div>
+<div class="venn-panels">
+<figure class="figure">
+<svg viewbox="0 0 300 150" role="img" aria-label="A. Measurement problem only">
+<circle cx="114" cy="75" r="60" fill="#0072B2" fill-opacity="0.08" stroke="#0072B2" stroke-width="2.5"></circle> <circle cx="186" cy="75" r="60" fill="#D55E00" fill-opacity="0.08" stroke="#D55E00" stroke-width="2.5"></circle> <path d="M150.0,27.0 L146.3,24.4 L142.4,22.2 L138.4,20.2 L134.2,18.5 L129.9,17.1 L125.5,16.1 L121.1,15.4 L116.6,15.1 L112.1,15.0 L107.6,15.3 L103.1,16.0 L98.7,17.0 L94.4,18.3 L90.2,19.9 L86.2,21.8 L82.3,24.1 L78.5,26.6 L75.0,29.4 L71.7,32.5 L68.6,35.8 L65.8,39.3 L63.3,43.0 L61.0,46.9 L59.0,50.9 L57.4,55.1 L56.1,59.4 L55.1,63.8 L54.4,68.3 L54.0,72.7 L54.0,77.3 L54.4,81.7 L55.1,86.2 L56.1,90.6 L57.4,94.9 L59.0,99.1 L61.0,103.1 L63.3,107.0 L65.8,110.7 L68.6,114.2 L71.7,117.5 L75.0,120.6 L78.5,123.4 L82.3,125.9 L86.2,128.2 L90.2,130.1 L94.4,131.7 L98.7,133.0 L103.1,134.0 L107.6,134.7 L112.1,135.0 L116.6,134.9 L121.1,134.6 L125.5,133.9 L129.9,132.9 L134.2,131.5 L138.4,129.8 L142.4,127.8 L146.3,125.6 L150.0,123.0 L150.0,123.0 L148.5,121.8 L147.1,120.6 L145.6,119.4 L144.3,118.1 L142.9,116.8 L141.6,115.4 L140.4,114.0 L139.2,112.5 L138.0,111.0 L136.9,109.5 L135.9,108.0 L134.9,106.4 L133.9,104.7 L133.0,103.1 L132.1,101.4 L131.3,99.7 L130.6,98.0 L129.9,96.2 L129.2,94.4 L128.7,92.7 L128.1,90.8 L127.7,89.0 L127.2,87.2 L126.9,85.3 L126.6,83.5 L126.4,81.6 L126.2,79.7 L126.1,77.8 L126.0,75.9 L126.0,74.1 L126.1,72.2 L126.2,70.3 L126.4,68.4 L126.6,66.5 L126.9,64.7 L127.2,62.8 L127.7,61.0 L128.1,59.2 L128.7,57.3 L129.2,55.6 L129.9,53.8 L130.6,52.0 L131.3,50.3 L132.1,48.6 L133.0,46.9 L133.9,45.3 L134.9,43.6 L135.9,42.0 L136.9,40.5 L138.0,39.0 L139.2,37.5 L140.4,36.0 L141.6,34.6 L142.9,33.2 L144.3,31.9 L145.6,30.6 L147.1,29.4 L148.5,28.2 L150.0,27.0 Z" fill="#0072B2" fill-opacity="0.65"></path> <text x="90" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#0072B2">DV</text> <text x="210" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#D55E00">OVB</text>
+</svg>
+<figcaption>
+<strong>A. Measurement problem only</strong> A purchase-intention scale also picks up pre-existing environmental concern, but ad exposure is randomized and unrelated to that concern. The scale is contaminated, yet the advertising coefficient is not biased.
+</figcaption>
+</figure>
+<figure class="figure">
+<svg viewbox="0 0 300 150" role="img" aria-label="B. Both problems">
+<circle cx="114" cy="75" r="60" fill="#0072B2" fill-opacity="0.08" stroke="#0072B2" stroke-width="2.5"></circle> <circle cx="186" cy="75" r="60" fill="#D55E00" fill-opacity="0.08" stroke="#D55E00" stroke-width="2.5"></circle> <path d="M150.0,123.0 L151.5,121.8 L152.9,120.6 L154.4,119.4 L155.7,118.1 L157.1,116.8 L158.4,115.4 L159.6,114.0 L160.8,112.5 L162.0,111.0 L163.1,109.5 L164.1,108.0 L165.1,106.4 L166.1,104.7 L167.0,103.1 L167.9,101.4 L168.7,99.7 L169.4,98.0 L170.1,96.2 L170.8,94.4 L171.3,92.7 L171.9,90.8 L172.3,89.0 L172.8,87.2 L173.1,85.3 L173.4,83.5 L173.6,81.6 L173.8,79.7 L173.9,77.8 L174.0,75.9 L174.0,74.1 L173.9,72.2 L173.8,70.3 L173.6,68.4 L173.4,66.5 L173.1,64.7 L172.8,62.8 L172.3,61.0 L171.9,59.2 L171.3,57.3 L170.8,55.6 L170.1,53.8 L169.4,52.0 L168.7,50.3 L167.9,48.6 L167.0,46.9 L166.1,45.3 L165.1,43.6 L164.1,42.0 L163.1,40.5 L162.0,39.0 L160.8,37.5 L159.6,36.0 L158.4,34.6 L157.1,33.2 L155.7,31.9 L154.4,30.6 L152.9,29.4 L151.5,28.2 L150.0,27.0 L150.0,27.0 L148.5,28.2 L147.1,29.4 L145.6,30.6 L144.3,31.9 L142.9,33.2 L141.6,34.6 L140.4,36.0 L139.2,37.5 L138.0,39.0 L136.9,40.5 L135.9,42.0 L134.9,43.6 L133.9,45.3 L133.0,46.9 L132.1,48.6 L131.3,50.3 L130.6,52.0 L129.9,53.8 L129.2,55.6 L128.7,57.3 L128.1,59.2 L127.7,61.0 L127.2,62.8 L126.9,64.7 L126.6,66.5 L126.4,68.4 L126.2,70.3 L126.1,72.2 L126.0,74.1 L126.0,75.9 L126.1,77.8 L126.2,79.7 L126.4,81.6 L126.6,83.5 L126.9,85.3 L127.2,87.2 L127.7,89.0 L128.1,90.8 L128.7,92.7 L129.2,94.4 L129.9,96.2 L130.6,98.0 L131.3,99.7 L132.1,101.4 L133.0,103.1 L133.9,104.7 L134.9,106.4 L135.9,108.0 L136.9,109.5 L138.0,111.0 L139.2,112.5 L140.4,114.0 L141.6,115.4 L142.9,116.8 L144.3,118.1 L145.6,119.4 L147.1,120.6 L148.5,121.8 L150.0,123.0 Z" fill="#B8860B" fill-opacity="0.65"></path> <text x="90" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#0072B2">DV</text> <text x="210" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#D55E00">OVB</text>
+</svg>
+<figcaption>
+<strong>B. Both problems</strong> The scale also measures environmental concern, and ad exposure is observational: concerned consumers see more green ads. The contaminating construct now covaries with the predictor, and the coefficient can partly reflect it.
+</figcaption>
+</figure>
+<figure class="figure">
+<svg viewbox="0 0 300 150" role="img" aria-label="C. Estimation problem only">
+<circle cx="114" cy="75" r="60" fill="#0072B2" fill-opacity="0.08" stroke="#0072B2" stroke-width="2.5"></circle> <circle cx="186" cy="75" r="60" fill="#D55E00" fill-opacity="0.08" stroke="#D55E00" stroke-width="2.5"></circle> <path d="M150.0,27.0 L153.7,24.4 L157.6,22.2 L161.6,20.2 L165.8,18.5 L170.1,17.1 L174.5,16.1 L178.9,15.4 L183.4,15.1 L187.9,15.0 L192.4,15.3 L196.9,16.0 L201.3,17.0 L205.6,18.3 L209.8,19.9 L213.8,21.8 L217.7,24.1 L221.5,26.6 L225.0,29.4 L228.3,32.5 L231.4,35.8 L234.2,39.3 L236.7,43.0 L239.0,46.9 L241.0,50.9 L242.6,55.1 L243.9,59.4 L244.9,63.8 L245.6,68.3 L246.0,72.7 L246.0,77.3 L245.6,81.7 L244.9,86.2 L243.9,90.6 L242.6,94.9 L241.0,99.1 L239.0,103.1 L236.7,107.0 L234.2,110.7 L231.4,114.2 L228.3,117.5 L225.0,120.6 L221.5,123.4 L217.7,125.9 L213.8,128.2 L209.8,130.1 L205.6,131.7 L201.3,133.0 L196.9,134.0 L192.4,134.7 L187.9,135.0 L183.4,134.9 L178.9,134.6 L174.5,133.9 L170.1,132.9 L165.8,131.5 L161.6,129.8 L157.6,127.8 L153.7,125.6 L150.0,123.0 L150.0,123.0 L151.5,121.8 L152.9,120.6 L154.4,119.4 L155.7,118.1 L157.1,116.8 L158.4,115.4 L159.6,114.0 L160.8,112.5 L162.0,111.0 L163.1,109.5 L164.1,108.0 L165.1,106.4 L166.1,104.7 L167.0,103.1 L167.9,101.4 L168.7,99.7 L169.4,98.0 L170.1,96.2 L170.8,94.4 L171.3,92.7 L171.9,90.8 L172.3,89.0 L172.8,87.2 L173.1,85.3 L173.4,83.5 L173.6,81.6 L173.8,79.7 L173.9,77.8 L174.0,75.9 L174.0,74.1 L173.9,72.2 L173.8,70.3 L173.6,68.4 L173.4,66.5 L173.1,64.7 L172.8,62.8 L172.3,61.0 L171.9,59.2 L171.3,57.3 L170.8,55.6 L170.1,53.8 L169.4,52.0 L168.7,50.3 L167.9,48.6 L167.0,46.9 L166.1,45.3 L165.1,43.6 L164.1,42.0 L163.1,40.5 L162.0,39.0 L160.8,37.5 L159.6,36.0 L158.4,34.6 L157.1,33.2 L155.7,31.9 L154.4,30.6 L152.9,29.4 L151.5,28.2 L150.0,27.0 Z" fill="#D55E00" fill-opacity="0.65"></path> <text x="90" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#0072B2">DV</text> <text x="210" y="83" text-anchor="middle" font-size="24" font-weight="700" fill="#D55E00">OVB</text>
+</svg>
+<figcaption>
+<strong>C. Estimation problem only</strong> Advertising spend and sales are recorded accurately from store records, but store quality drives both. The measures are valid; the advertising coefficient is still confounded.
+</figcaption>
+</figure>
+</div>
+</div>
+<p>Neither concept is a subset of the other. The overlap means the two problems <em>can</em> coexist, not that measurement contamination always causes OVB when both are present.</p>
+<section id="the-same-logic-two-equations" class="level3">
+<h3 class="anchored" data-anchor-id="the-same-logic-two-equations">The same logic, two equations</h3>
+<p><a href="part1.html" class="xref-link">Part 1</a> started from the classical test theory equation and then allowed a second construct to contaminate the observed score. Here is the analogous decomposition for a regression coefficient.</p>
+<div class="eq-grid">
+<div class="eq-card">
+<div class="eq-head">
+A. Measurement: what is in the observed score?
+</div>
+<p><span class="math display">\[
+X_{\text{observed}} =
+\underbrace{\textcolor{#0072B2}{T_{\text{target}}}}_{\textcolor{#0072B2}{\text{intended construct}}}
++ \underbrace{\textcolor{#D55E00}{\lambda Z}}_{\textcolor{#D55E00}{\text{other construct}}}
++ \underbrace{\textcolor{#666666}{\varepsilon}}_{\textcolor{#666666}{\text{random error}}}
+\]</span></p>
+<p>A purchase-intention score (<span class="math inline">\(X\)</span>) that reflects purchase intention (<span class="math inline">\(T\)</span>) <em>and</em> environmental concern (<span class="math inline">\(Z\)</span>).</p>
+</div>
+<div class="eq-card">
+<div class="eq-head">
+B. Estimation: what is in the coefficient?
+</div>
+<p><span class="math display">\[
+\beta_{\text{naive}} =
+\underbrace{\textcolor{#0072B2}{\beta}}_{\textcolor{#0072B2}{\text{target effect}}}
++ \underbrace{\textcolor{#D55E00}{\gamma\,\frac{\operatorname{Cov}(X,U)}{\operatorname{Var}(X)}}}_{\textcolor{#D55E00}{\text{omitted-variable contribution}}}
+\]</span></p>
+<p>An advertising slope (<span class="math inline">\(\beta_{\text{naive}}\)</span>) that reflects advertising’s effect <em>and</em> store quality (<span class="math inline">\(U\)</span>).</p>
+</div>
+</div>
+<p>The parallel: in measurement, the observed score can contain variation associated with another construct; in regression, the observed coefficient can contain an association created by another causal process. But the first equation decomposes an observed <em>score</em> and the second decomposes a regression <em>coefficient</em>. They are analogous, not mathematically interchangeable.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>How OVB relates to discriminant validity
+<span class="screen-reader-only">Note</span>Technical qualifications
 </div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>These are two different problems with an important connection:</p>
 <ul>
-<li><p><strong>Not all OVB is a discriminant validity violation.</strong> OVB occurs in regression with any kind of outcome variable — sales figures, behavioral counts, stock prices. Discriminant validity failures specifically affect survey scales with multiple items. You can have OVB without any measurement issue at all.</p></li>
-<li><p><strong>But all OVB produces a discriminant validity violation — if your outcome is a scale.</strong> If store quality is omitted from your model and your “sales” variable were a multi-item Likert scale (e.g., a customer satisfaction scale that is itself influenced by store quality), that scale would fail discriminant validity tests with the advertising construct. The omitted variable would inflate the latent correlation.</p></li>
+<li>Equation A is a <em>stylized</em> measurement model extending the classical test theory starting point; classical test theory itself doesn’t require a contaminating construct. And the simulation in <a href="part1.html" class="xref-link">Part 1</a> generates highly correlated GPI and EC <em>factors</em>; it doesn’t build item-level EC contamination into the GPI items, so treat contamination here as a hypothetical model.</li>
+<li>In Equation B, <span class="math inline">\(Y = \alpha + \beta X + \gamma U + \varepsilon\)</span> is a correctly specified additive structural model with <span class="math inline">\(\varepsilon\)</span> uncorrelated with <span class="math inline">\(X\)</span> and <span class="math inline">\(U\)</span>. <span class="math inline">\(\beta_{\text{naive}}\)</span> is the <em>population</em> slope of the regression that omits <span class="math inline">\(U\)</span>, not a finite-sample estimate.</li>
 </ul>
-<p>When OVB is present, your outcome variable Y effectively becomes a composite of two separate latent processes — the true causal effect you care about (advertising → sales) and the confounding pathway (quality → sales). This means Y no longer has a single, clean meaning. The fitted values Ŷ from your naive regression end up “measuring” a mixture of advertising effects and quality effects — just as a scale that fails discriminant validity measures a mixture of two constructs. That is why every case of OVB produces what would register as a discriminant validity violation if you tried to measure your outcome with a scale: the observed Y is a composite of two distinct latent data-generating processes, not a pure indicator of one.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th></th>
-<th>What we think Y reflects</th>
-<th>What Y actually reflects</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong><a href="part1.html" class="xref-link">Part 1</a></strong></td>
-<td>Green Purchase Intention (GPI)</td>
-<td>GPI <em>and</em> Environmental Concern</td>
-</tr>
-<tr class="even">
-<td><strong><a href="part2.html" class="xref-link">Part 2</a></strong></td>
-<td>Effect of advertising on sales</td>
-<td>Advertising <em>and</em> store quality</td>
-</tr>
-</tbody>
-</table>
+</div>
 </div>
 </div>
 </section>
+</section>
 <section id="the-scenario" class="level2">
 <h2 class="anchored" data-anchor-id="the-scenario">The Scenario</h2>
-<p>A retail analytics team has secondary data on 500 stores: monthly advertising spend (in standardised units) and monthly sales (a standardised index). The research question is simple: <em>does advertising spend predict sales?</em></p>
-<p>What they cannot observe is <strong>store quality</strong> — a latent construct reflecting location desirability, staff quality, and store environment. Store quality correlates with advertising spend (premium stores can afford both) and strongly drives sales independently.</p>
+<p>A retail analytics team has secondary data on 500 stores: monthly advertising spend (in standardised units) and monthly sales (a standardised index). The question: <em>does advertising spend predict sales?</em></p>
+<p>What they cannot observe is <strong>store quality</strong>, a latent construct reflecting location, staff, and store environment. Premium stores advertise more <em>and</em> sell more for reasons unrelated to advertising.</p>
 </section>
 <section id="simulating-the-observational-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="simulating-the-observational-dataset">Simulating the Observational Dataset</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Simulate observational store dataset (n=500)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_obs <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store quality: continuous, unobserved ─────────────────────────────────────</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Positive = premium, negative = budget. Never in our dataset.</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>U_quality <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_obs)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Advertising spend: strongly correlated with store quality ──────────────────</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Premium stores invest much more — this is the source of OVB.</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>X_ads <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Sales: driven by advertising (small true effect) AND store quality (large) ─</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># TRUE advertising coefficient: 0.20 (small)</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Store quality drives sales very strongly, AND creates a dramatic fan pattern</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Y_sales <span class="ot">&lt;-</span> <span class="fl">0.20</span> <span class="sc">*</span> X_ads <span class="sc">+</span> <span class="fl">5.00</span> <span class="sc">*</span> U_quality <span class="sc">+</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">0.3</span> <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">abs</span>(U_quality))</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store size: a strong proxy for quality (corr ≈ 0.95 with U_quality) ──────</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>store_size <span class="ot">&lt;-</span> <span class="fl">1.5</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Observed dataset (quality is hidden; store_size is sometimes available) ───</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> X_ads,</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> Y_sales,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_size  =</span> store_size,</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality     =</span> U_quality    <span class="co"># kept here only for the diagnostic "reveal" plots</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_obs <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store quality: continuous, unobserved ─────────────────────────────────────</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Positive = premium, negative = budget. Never in our dataset.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>U_quality <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_obs)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Advertising spend: strongly correlated with store quality ──────────────────</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Premium stores invest much more — this is the source of OVB.</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>X_ads <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Sales: driven by advertising (small true effect) AND store quality (large) ─</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># TRUE advertising coefficient: 0.20 (small). Errors are homoskedastic.</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Y_sales <span class="ot">&lt;-</span> <span class="fl">0.20</span> <span class="sc">*</span> X_ads <span class="sc">+</span> <span class="fl">5.00</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Store size: a strong proxy for quality (corr ≈ 0.95 with U_quality) ──────</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>store_size <span class="ot">&lt;-</span> <span class="fl">1.5</span> <span class="sc">*</span> U_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_obs, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Observed dataset (quality is hidden; store_size is sometimes available) ───</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">advertising =</span> X_ads,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales       =</span> Y_sales,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">store_size  =</span> store_size,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality     =</span> U_quality    <span class="co"># kept here only because this is a simulation</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="step-1-the-naive-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-the-naive-analysis">Step 1: The Naive Analysis</h2>
-<p>We run the regression that most analysts would reach for first.</p>
+<p>We run the regression most analysts would reach for first.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Naive OLS: advertising predicts sales</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive regression — advertising is our only predictor</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> obs_df)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_naive)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive regression — advertising is our only predictor</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising, <span class="at">data =</span> obs_df)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_naive)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -488,68 +619,84 @@ lm(formula = sales ~ advertising, data = obs_df)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--7.9819 -1.6258 -0.0382  1.4527 15.6776 
+-7.1327 -1.5238 -0.0057  1.5790  5.9654 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  0.07910    0.11395   0.694    0.488    
-advertising  1.25280    0.02655  47.194   &lt;2e-16 ***
+(Intercept) -0.04740    0.09983  -0.475    0.635    
+advertising  1.27315    0.02326  54.745   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 2.548 on 498 degrees of freedom
-Multiple R-squared:  0.8173,    Adjusted R-squared:  0.8169 
-F-statistic:  2227 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>What jumps out?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The advertising coefficient looks large and statistically highly significant. A researcher without knowledge of the data-generating process might conclude: “advertising has a strong effect on sales.” But the <strong>true</strong> advertising coefficient is only <strong>0.20</strong>. The naive OLS estimate will be somewhere around <strong>1.30</strong> — more than six times the true value. Almost all of that estimated “effect” is actually store quality sneaking into the coefficient.</p>
-<p>Think of it this way: in our simulation, premium stores happen to advertise more AND sell more — not because advertising drives sales, but because store quality drives both. OLS cannot tell the difference between “advertising caused the sales” and “quality-driven stores also happened to advertise more.” The coefficient absorbs both.</p>
-</div>
-</div>
-</section>
-<section id="step-2-diagnosing-the-problem-through-residuals" class="level2">
-<h2 class="anchored" data-anchor-id="step-2-diagnosing-the-problem-through-residuals">Step 2: Diagnosing the Problem Through Residuals</h2>
-<p>A residual plot is one of the first places to look when you suspect something is wrong. If the model is correctly specified, the residuals should be scattered randomly around zero — no patterns, no fan shapes.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Always plot your residuals — before anything else
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>This is not optional. Before running any formal diagnostic tests, plot your residuals against fitted values. This single habit will catch the vast majority of model misspecification problems — omitted variables, non-linearities, heteroskedasticity — that formal tests can miss or that you might not know to test for. Make residual plotting the first step in any regression workflow, not an afterthought.</p>
+Residual standard error: 2.232 on 498 degrees of freedom
+Multiple R-squared:  0.8575,    Adjusted R-squared:  0.8572 
+F-statistic:  2997 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
+<summary>▶ The omitted-variable decomposition for this simulation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fl">0.20</span>; gamma_u <span class="ot">&lt;-</span> <span class="fl">5.00</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>var_x     <span class="ot">&lt;-</span> <span class="dv">4</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fl">1.5</span><span class="sc">^</span><span class="dv">2</span>           <span class="co"># Var(X) = 4^2 Var(U) + 1.5^2</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cov_xu    <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> <span class="dv">1</span>                      <span class="co"># Cov(X, U) = 4 Var(U)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>delta_u   <span class="ot">&lt;-</span> cov_xu <span class="sc">/</span> var_x             <span class="co"># Cov(X,U)/Var(X)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ovb_term  <span class="ot">&lt;-</span> gamma_u <span class="sc">*</span> delta_u</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>beta_naive_pop <span class="ot">&lt;-</span> beta_true <span class="sc">+</span> ovb_term</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>b_naive <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">coef</span>(m_naive)[<span class="st">"advertising"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>The advertising coefficient looks large and highly significant (1.27), but the <strong>true</strong> coefficient is only <strong>0.20</strong>. The omitted-variable equation shows where the rest comes from. Store quality drives sales strongly (<span class="math inline">\(\gamma = 5\)</span>) and is closely tied to advertising (<span class="math inline">\(\operatorname{Cov}(X,U)/\operatorname{Var}(X) = 4/18.25 = 0.22\)</span>), so</p>
+<p><span class="math display">\[\beta_{\text{naive}} = 0.20 + 5 \times 0.22 = 0.20 + 1.10 \approx 1.30.\]</span></p>
+<p>About 85% of the naive coefficient is variation associated with store quality, not advertising’s direct effect. OLS cannot tell “advertising caused the sales” from “premium stores also advertise more”; the coefficient absorbs both.</p>
+<section id="when-does-omitting-a-variable-bias-the-coefficient" class="level3">
+<h3 class="anchored" data-anchor-id="when-does-omitting-a-variable-bias-the-coefficient">When does omitting a variable bias the coefficient?</h3>
+<p>Having several causes of sales is not enough. In this simple linear model, an omitted variable biases the advertising coefficient only if <strong>both</strong> hold: it predicts sales after accounting for advertising, <em>and</em> it is associated with advertising.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Associated with advertising</th>
+<th>Not associated with advertising</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Predicts sales</strong></td>
+<td><strong>OVB</strong> (store quality here)</td>
+<td>No OVB (e.g., an independent store attribute)</td>
+</tr>
+<tr class="even">
+<td><strong>Doesn’t predict sales</strong></td>
+<td>No OVB</td>
+<td>No OVB</td>
+</tr>
+</tbody>
+</table>
+<p>The bias can be positive or negative: its sign is the sign of <span class="math inline">\(\gamma\)</span> times the sign of <span class="math inline">\(\operatorname{Cov}(X,U)\)</span>.</p>
+</section>
+</section>
+<section id="step-2-residual-diagnostics-can-look-fine" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-residual-diagnostics-can-look-fine">Step 2: Residual Diagnostics Can Look Fine</h2>
+<p>A residual plot is a good first habit. It can reveal non-linearity, outliers, and non-constant variance. Does it reveal confounding?</p>
+<div class="cell">
+<details class="code-fold">
 <summary>▶ Plot: residuals vs.&nbsp;fitted (naive model)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> obs_df <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted_naive =</span> <span class="fu">fitted</span>(m_naive),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">resid_naive  =</span> <span class="fu">residuals</span>(m_naive))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(obs_df, <span class="fu">aes</span>(<span class="at">x =</span> fitted_naive, <span class="at">y =</span> resid_naive)) <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.25</span>, <span class="at">colour =</span> <span class="st">"#4575b4"</span>) <span class="sc">+</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">colour =</span> <span class="st">"firebrick"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x     =</span> <span class="st">"Fitted Values (predicted sales)"</span>,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y     =</span> <span class="st">"Residuals"</span>,</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Residual Plot: Naive Model (Advertising Only)"</span>,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"A fanning pattern signals non-constant variance — something is missing"</span>) <span class="sc">+</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> obs_df <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted_naive =</span> <span class="fu">fitted</span>(m_naive),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">resid_naive  =</span> <span class="fu">residuals</span>(m_naive))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(obs_df, <span class="fu">aes</span>(<span class="at">x =</span> fitted_naive, <span class="at">y =</span> resid_naive)) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">colour =</span> <span class="st">"#4575b4"</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Fitted values (predicted sales)"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Residual Plot: Naive Model (Advertising Only)"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"No fan shape and no obvious pattern"</span>) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -559,169 +706,200 @@ F-statistic:  2227 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>What the fan shape tells you
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The residuals spread out dramatically as fitted values increase. This <strong>heteroskedasticity</strong> is a red flag: non-constant variance suggests the model has left out something that also varies with X.</p>
-<p>Here, the missing variable is store quality. High-advertising stores tend to be premium stores, and premium stores have far more variable sales (luxury flagships have big swings; budget stores are consistently mediocre). The fan shape is <em>consistent with</em> that missing variable — but heteroskedasticity can also arise from non-linearity, measurement error, or genuine outcome heterogeneity. In real data, a fan pattern is a prompt to investigate further, not a direct diagnosis of OVB.</p>
-<p>Connect this back to <a href="part1.html" class="xref-link">Part 1</a>: just as the GPI scale was picking up Environmental Concern alongside purchase intention, our sales variable here is picking up store quality alongside advertising effectiveness. The residual plot is doing the job that HTMT and DVI did in <a href="part1.html" class="xref-link">Part 1</a> — telling you that Y reflects more than X.</p>
-</div>
-</div>
-<p>We can formally confirm the heteroskedasticity with a Breusch-Pagan test. A significant result means the variance of residuals is not constant — further evidence that something is systematically missing.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>▶ Breusch-Pagan test for heteroskedasticity</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Breusch-Pagan test: H0 = residuals have constant variance (homoskedasticity)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>lmtest<span class="sc">::</span><span class="fu">bptest</span>(m_naive)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bp <span class="ot">&lt;-</span> lmtest<span class="sc">::</span><span class="fu">bptest</span>(m_naive)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>bp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     studentized Breusch-Pagan test
 
 data:  m_naive
-BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
+BP = 0.85487, df = 1, p-value = 0.3552</code></pre>
 </div>
 </div>
-<p>Now let’s do the “oracle reveal”: colour the same residual plot by store quality to show where the heteroskedasticity comes from.</p>
+<p>The residuals look fine, and the Breusch-Pagan test doesn’t reject constant variance (p = 0.36; and a non-significant test wouldn’t <em>prove</em> constant variance anyway). Yet the estimate is about 6 times the true effect.</p>
+<p><strong>A regression can satisfy the usual residual diagnostics and still provide a misleading estimate of the effect we’re interested in. Residual diagnostics help us identify some modeling problems, but they cannot establish that a relationship is unconfounded.</strong></p>
+</section>
+<section id="step-3-practical-diagnostics-with-observational-data" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-practical-diagnostics-with-observational-data">Step 3: Practical Diagnostics With Observational Data</h2>
+<p>If routine diagnostics can’t detect confounding, what can we do? Three approaches use the same store data. For each, ask what it can and cannot tell us.</p>
+<section id="a.-think-through-the-confounding-structure" class="level3">
+<h3 class="anchored" data-anchor-id="a.-think-through-the-confounding-structure">A. Think through the confounding structure</h3>
+<p>Before more statistics, name a plausible common cause of advertising and sales. Here it is store quality, which we can’t observe. We can observe <strong>store size</strong>, a proxy.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Plot: residuals colored by true store quality</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cut quality into tertiles for colour legend clarity</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>obs_df <span class="ot">&lt;-</span> obs_df <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">quality_group =</span> <span class="fu">cut</span>(quality,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">breaks =</span> <span class="fu">quantile</span>(quality, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span>)),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low quality"</span>, <span class="st">"Medium"</span>, <span class="st">"High quality"</span>),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">include.lowest =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(obs_df, <span class="fu">aes</span>(<span class="at">x =</span> fitted_naive, <span class="at">y =</span> resid_naive, <span class="at">colour =</span> quality_group)) <span class="sc">+</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Low quality"</span>  <span class="ot">=</span> <span class="st">"#4575b4"</span>,</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Medium"</span>       <span class="ot">=</span> <span class="st">"#91bfdb"</span>,</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>               <span class="st">"High quality"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>),</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Store quality</span><span class="sc">\n</span><span class="st">(hidden in real data)"</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x     =</span> <span class="st">"Fitted Values"</span>,</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">y     =</span> <span class="st">"Residuals"</span>,</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"The Same Plot — Coloured by Store Quality"</span>,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"The fan pattern is entirely explained by the omitted variable U"</span>) <span class="sc">+</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"right"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>▶ Diagram: store quality as a common cause</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="fl">1.5</span>, <span class="fl">8.5</span>, <span class="dv">5</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.9</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">4.4</span>),</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Store quality</span><span class="sc">\n</span><span class="st">(unobserved)"</span>, <span class="st">"Advertising"</span>, <span class="st">"Sales"</span>, <span class="st">"Store size</span><span class="sc">\n</span><span class="st">(observed proxy)"</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">fill =</span> <span class="fu">c</span>(<span class="st">"#fdd0a2"</span>, <span class="st">"#c6dbef"</span>, <span class="st">"#c6dbef"</span>, <span class="st">"#e5e5e5"</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>arr <span class="ot">&lt;-</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.22</span>, <span class="st">"cm"</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fl">4.2</span>, <span class="at">xend =</span> <span class="fl">2.2</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">yend =</span> <span class="fl">1.3</span>), <span class="at">arrow =</span> arr, <span class="at">colour =</span> <span class="st">"#D55E00"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fl">5.8</span>, <span class="at">xend =</span> <span class="fl">7.8</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">yend =</span> <span class="fl">1.3</span>), <span class="at">arrow =</span> arr, <span class="at">colour =</span> <span class="st">"#D55E00"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fl">2.5</span>, <span class="at">xend =</span> <span class="fl">7.4</span>, <span class="at">y =</span> <span class="fl">0.9</span>, <span class="at">yend =</span> <span class="fl">0.9</span>), <span class="at">arrow =</span> arr, <span class="at">colour =</span> <span class="st">"#0072B2"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">5</span>, <span class="at">xend =</span> <span class="dv">5</span>, <span class="at">y =</span> <span class="fl">3.3</span>, <span class="at">yend =</span> <span class="fl">4.0</span>), <span class="at">arrow =</span> arr, <span class="at">colour =</span> <span class="st">"gray50"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="at">data =</span> nodes, <span class="fu">aes</span>(x, y, <span class="at">label =</span> label, <span class="at">fill =</span> fill), <span class="at">size =</span> <span class="fl">3.6</span>, <span class="at">label.padding =</span> <span class="fu">unit</span>(<span class="fl">0.55</span>, <span class="st">"lines"</span>)) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">5</span>, <span class="at">y =</span> <span class="fl">0.55</span>, <span class="at">label =</span> <span class="st">"true effect = 0.20"</span>, <span class="at">colour =</span> <span class="st">"#0072B2"</span>, <span class="at">size =</span> <span class="fl">3.4</span>) <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">2.3</span>, <span class="at">y =</span> <span class="fl">2.35</span>, <span class="at">label =</span> <span class="st">"premium stores</span><span class="sc">\n</span><span class="st">advertise more"</span>, <span class="at">colour =</span> <span class="st">"#D55E00"</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">7.7</span>, <span class="at">y =</span> <span class="fl">2.35</span>, <span class="at">label =</span> <span class="st">"and sell more"</span>, <span class="at">colour =</span> <span class="st">"#D55E00"</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_identity</span>() <span class="sc">+</span> <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">4.8</span>)) <span class="sc">+</span> <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="figs/case2-resid-reveal-1.svg" class="img-fluid figure-img" width="768"></p>
+<p><img src="figs/dag-figure-1.svg" class="img-fluid figure-img" width="768"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>The detective logic
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The fan pattern in the first plot told us <em>something</em> was wrong. The second plot (the “oracle reveal” — in practice you can’t always do this) shows that the heteroskedasticity is driven entirely by the omitted variable. High-quality stores (red) cluster at the top right. Low-quality stores (blue) cluster at the bottom left. Store quality is confounding both advertising spend and sales.</p>
-</div>
-</div>
-</section>
-<section id="step-3-the-sensitivity-test" class="level2">
-<h2 class="anchored" data-anchor-id="step-3-the-sensitivity-test">Step 3: The Sensitivity Test</h2>
-<p>In real research you rarely have access to the true omitted variable. But you may have a <strong>proxy</strong> — a variable that correlates with the unobserved confounder even if it doesn’t perfectly capture it. Here, store size is such a proxy.</p>
-<p>The key diagnostic: <strong>if adding a potential proxy to the model changes your main coefficient substantially, that proxy was correlated with both X and Y — and something in that proxy’s space was biasing your original estimate.</strong></p>
+<p>Omitting store quality creates the problem: it affects both advertising and sales. The observed proxy lets us check whether such a characteristic is associated with advertising, and with sales <em>given</em> advertising.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>▶ Coefficient sensitivity: adding a proxy control</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model with store size proxy</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_proxy  <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> store_size, <span class="at">data =</span> obs_df)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Oracle model (impossible in real life — store quality is unobserved)</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>m_oracle <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> quality, <span class="at">data =</span> obs_df)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary comparison table</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>coef_compare <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Naive (advertising only)"</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"With store-size proxy"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Oracle (true quality included)"</span>),</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Advertising coefficient</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">coef</span>(m_naive)[<span class="st">"advertising"</span>],</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">coef</span>(m_proxy)[<span class="st">"advertising"</span>],</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">coef</span>(m_oracle)[<span class="st">"advertising"</span>]), <span class="dv">3</span>),</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">True value</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.20</span>, <span class="fl">0.20</span>, <span class="fl">0.20</span>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(coef_compare,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Advertising Coefficient"</span>, <span class="st">"True Value"</span>),</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption   =</span> <span class="st">"Coefficient Sensitivity: How Much Does Adding a Proxy Change Things?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>▶ Is the proxy associated with advertising, and with sales given advertising?</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>m_size_ads   <span class="ot">&lt;-</span> <span class="fu">lm</span>(advertising <span class="sc">~</span> store_size, <span class="at">data =</span> obs_df)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>m_proxy      <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> store_size, <span class="at">data =</span> obs_df)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fmt_cf <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, term) { s <span class="ot">&lt;-</span> <span class="fu">summary</span>(fit)<span class="sc">$</span>coefficients[term, ]; <span class="fu">sprintf</span>(<span class="st">"%.2f (SE %.2f)"</span>, s[<span class="dv">1</span>], s[<span class="dv">2</span>]) }</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>assoc_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Association =</span> <span class="fu">c</span>(<span class="st">"Store size → advertising (slope of advertising on store size)"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Store size → sales, holding advertising fixed"</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate    =</span> <span class="fu">c</span>(<span class="fu">fmt_cf</span>(m_size_ads, <span class="st">"store_size"</span>), <span class="fu">fmt_cf</span>(m_proxy, <span class="st">"store_size"</span>)))</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(assoc_tab, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Association"</span>, <span class="st">"Estimate"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Coefficient Sensitivity: How Much Does Adding a Proxy Change Things?</caption>
+<colgroup>
+<col style="width: 80%">
+<col style="width: 19%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Model</th>
-<th style="text-align: right;">Advertising Coefficient</th>
-<th style="text-align: right;">True Value</th>
+<th style="text-align: left;">Association</th>
+<th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Naive (advertising only)</td>
-<td style="text-align: right;">1.253</td>
-<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">Store size → advertising (slope of advertising on store size)</td>
+<td style="text-align: left;">2.46 (SE 0.06)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">With store-size proxy</td>
-<td style="text-align: right;">0.779</td>
-<td style="text-align: right;">0.2</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Oracle (true quality included)</td>
-<td style="text-align: right;">0.301</td>
-<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">Store size → sales, holding advertising fixed</td>
+<td style="text-align: left;">1.57 (SE 0.12)</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>How to interpret the sensitivity test
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If your advertising coefficient <strong>drops substantially</strong> when you add a control variable, that control was correlated with both advertising and sales — a sign it was a partial proxy for an omitted confounder. The larger the drop, the more worried you should be about the original estimate.</p>
-<p>If the coefficient barely moves, that control was probably not picking up a meaningful confounder (though it doesn’t fully rule out other unmeasured variables).</p>
-<p><strong>Rule of thumb:</strong> A coefficient that changes by more than 10–15% when you add a theoretically motivated control deserves serious scrutiny. A coefficient that drops substantially from its naive value — moving meaningfully toward the oracle — is a clear warning of omitted variable bias. The larger the drop, the stronger the evidence.</p>
-</div>
-</div>
+<ul>
+<li><strong>What it can tell us:</strong> a theoretically relevant pre-existing characteristic is associated with advertising and with sales given advertising, so it is worth treating store quality as a possible confounder.</li>
+<li><strong>What it can’t:</strong> that the proxy is a valid control, or that it captures every unobserved common cause.</li>
+</ul>
 </section>
-<section id="summary-what-ovb-teaches-us" class="level2">
-<h2 class="anchored" data-anchor-id="summary-what-ovb-teaches-us">Summary: What OVB Teaches Us</h2>
-<p>OVB and discriminant validity violations are different problems — OVB lives in the regression, DV violations live in the measurement model — but they share a common underlying logic. In both cases, the thing you are using as your outcome variable picks up more than one source of variance, and the contaminating source inflates the relationship you’re trying to study.</p>
-<p>Discriminant validity checks (<a href="part1.html" class="xref-link">Part 1</a>) and residual/sensitivity diagnostics (<a href="part2.html" class="xref-link">Part 2</a>) are both ways of asking the same fundamental question: <em>is my Y truly measuring what I think it’s measuring, or is something else riding along with it?</em></p>
-<p>The key practical difference: if your Y is a multi-item scale and you have OVB (an omitted variable driving both X and Y), that omitted variable will inflate the latent correlation between your scales and cause them to fail discriminant validity tests too. So fixing the measurement model and fixing the regression model are not alternative strategies — you may need to address both.</p>
-<p>The residual fan pattern you see here is also a hint that latent subgroups (<a href="part4.html" class="xref-link">Part 4</a>) or collective outliers (<a href="part5.html" class="xref-link">Part 5</a>) may be present — all three problems can produce heteroskedastic-looking residuals.</p>
+<section id="b.-coefficient-stability-across-models" class="level3">
+<h3 class="anchored" data-anchor-id="b.-coefficient-stability-across-models">B. Coefficient stability across models</h3>
+<p>Compare three advertising coefficients: the naive model, a model that adds the store-size proxy, and an <strong>oracle</strong> model that adds true store quality. The oracle is available <em>only</em> because the simulation gives us the data-generating process.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Plot: advertising coefficient across models, with 95% CIs</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>m_oracle <span class="ot">&lt;-</span> <span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> quality, <span class="at">data =</span> obs_df)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cmp <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"Naive</span><span class="sc">\n</span><span class="st">(advertising only)"</span> <span class="ot">=</span> m_naive, <span class="st">"Adds store-size proxy"</span> <span class="ot">=</span> m_proxy,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>       <span class="st">"Oracle: adds true quality</span><span class="sc">\n</span><span class="st">(simulation only)"</span> <span class="ot">=</span> m_oracle),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(m) <span class="fu">data.frame</span>(<span class="at">est =</span> <span class="fu">coef</span>(m)[<span class="st">"advertising"</span>], <span class="at">lo =</span> <span class="fu">confint</span>(m)[<span class="st">"advertising"</span>, <span class="dv">1</span>], <span class="at">hi =</span> <span class="fu">confint</span>(m)[<span class="st">"advertising"</span>, <span class="dv">2</span>])))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>cmp<span class="sc">$</span>model <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rownames</span>(cmp), <span class="at">levels =</span> <span class="fu">rev</span>(<span class="fu">rownames</span>(cmp)))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cmp, <span class="fu">aes</span>(est, model)) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.20</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"gray30"</span>) <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lo, <span class="at">xmax =</span> hi), <span class="at">colour =</span> <span class="st">"#0072B2"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>, <span class="at">size =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.20</span>, <span class="at">y =</span> <span class="fl">3.45</span>, <span class="at">label =</span> <span class="st">"true effect = 0.20"</span>, <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.05</span>, <span class="at">size =</span> <span class="fl">3.4</span>, <span class="at">colour =</span> <span class="st">"gray30"</span>) <span class="sc">+</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated advertising coefficient (95% CI)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Accounting for More Relevant Information Moves the Estimate"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Only the oracle model recovers the true effect"</span>) <span class="sc">+</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.5</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.6</span>, <span class="fl">3.5</span>)) <span class="sc">+</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/coef-plot-1.svg" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The estimate falls from 1.27 (naive) to 0.77 with the proxy, and to 0.29 with the true confounder. Accounting for more relevant information moved us toward the truth.</p>
+<ul>
+<li><strong>What it can tell us:</strong> adding a variable changes the conditional association between advertising and sales. If a theoretically relevant control moves the coefficient, that is a reason to worry about the naive estimate.</li>
+<li><strong>What it can’t:</strong> a coefficient change doesn’t establish OVB, and stability doesn’t rule it out. Whether an adjustment moves us <em>closer</em> to the causal effect depends on the variable’s causal role and how well it is measured. Controlling for a mediator or collider can introduce other problems, so we can’t just add every available predictor.</li>
+</ul>
+</section>
+<section id="c.-how-strong-would-a-hidden-confounder-have-to-be" class="level3">
+<h3 class="anchored" data-anchor-id="c.-how-strong-would-a-hidden-confounder-have-to-be">C. How strong would a hidden confounder have to be?</h3>
+<p>Rearranging the omitted-variable equation gives a simple sensitivity question: how strongly would an unmeasured confounder <span class="math inline">\(U\)</span> have to predict sales (<span class="math inline">\(\gamma\)</span>), and be associated with advertising (<span class="math inline">\(\delta = \operatorname{Cov}(X,U)/\operatorname{Var}(X)\)</span>, the slope of <span class="math inline">\(U\)</span> on advertising), to account for the coefficient we observed? If <span class="math inline">\(U\)</span> is measured in SD units, the adjusted advertising effect is the observed coefficient minus <span class="math inline">\(\gamma\,\delta\)</span>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>▶ Heatmap: advertising effect implied by hypothetical confounder strengths</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">gamma =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="at">by =</span> <span class="fl">0.1</span>), <span class="at">delta =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.4</span>, <span class="at">by =</span> <span class="fl">0.005</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>grid<span class="sc">$</span>adjusted <span class="ot">&lt;-</span> b_naive <span class="sc">-</span> grid<span class="sc">$</span>gamma <span class="sc">*</span> grid<span class="sc">$</span>delta         <span class="co"># observed coefficient minus the omitted-variable term</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed benchmark: what the store-size proxy alone accounts for (standardised, so units match)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>z_size  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(obs_df<span class="sc">$</span>store_size))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>g_bench <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">coef</span>(<span class="fu">lm</span>(sales <span class="sc">~</span> advertising <span class="sc">+</span> z_size, <span class="at">data =</span> obs_df))[<span class="st">"z_size"</span>])</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>d_bench <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">coef</span>(<span class="fu">lm</span>(z_size <span class="sc">~</span> advertising, <span class="at">data =</span> obs_df))[<span class="st">"advertising"</span>])</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>((b_naive <span class="sc">-</span> <span class="fu">coef</span>(m_proxy)[<span class="st">"advertising"</span>]) <span class="sc">-</span> g_bench <span class="sc">*</span> d_bench) <span class="sc">&lt;</span> <span class="fl">1e-8</span>)   <span class="co"># OLS identity</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>pts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">gamma =</span> <span class="fu">c</span>(gamma_u, g_bench), <span class="at">delta =</span> <span class="fu">c</span>(delta_u, d_bench),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"True confounder</span><span class="sc">\n</span><span class="st">(simulation only)"</span>, <span class="st">"Store size</span><span class="sc">\n</span><span class="st">(observed benchmark)"</span>))</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grid, <span class="fu">aes</span>(delta, gamma, <span class="at">fill =</span> adjusted)) <span class="sc">+</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>() <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_contour</span>(<span class="fu">aes</span>(<span class="at">z =</span> adjusted), <span class="at">breaks =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#b2182b"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#2166ac"</span>, <span class="at">midpoint =</span> <span class="dv">0</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">name =</span> <span class="st">"Adjusted</span><span class="sc">\n</span><span class="st">advertising</span><span class="sc">\n</span><span class="st">effect"</span>) <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> pts, <span class="fu">aes</span>(delta, gamma), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">fill =</span> <span class="st">"gold"</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> pts, <span class="fu">aes</span>(delta, gamma, <span class="at">label =</span> label), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, <span class="at">hjust =</span> <span class="fu">c</span>(<span class="fl">1.12</span>, <span class="sc">-</span><span class="fl">0.12</span>), <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="fl">3.3</span>) <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">0.025</span>, <span class="at">y =</span> <span class="fl">5.7</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.3</span>, <span class="at">label =</span> <span class="st">"black line: confounder would</span><span class="sc">\n</span><span class="st">explain the whole coefficient"</span>) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Association with advertising ("</span> <span class="sc">*</span> delta <span class="sc">*</span> <span class="st">", SD of U per unit advertising)"</span>),</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Effect on sales ("</span> <span class="sc">*</span> gamma <span class="sc">*</span> <span class="st">", per SD of U)"</span>),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Sensitivity to an Omitted Confounder"</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Adjusted effect = observed coefficient − γ × δ"</span>) <span class="sc">+</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figs/sensitivity-heatmap-1.svg" class="img-fluid figure-img" width="720"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Anything on or beyond the black line would fully account for the coefficient. The gold marker for the true confounder sits where the adjusted effect is about 0.2; the store-size benchmark shows how much an <em>observed</em> covariate of that strength accounts for.</p>
+<ul>
+<li><strong>What it can tell us:</strong> how strong an unmeasured confounder would need to be to explain the result, and whether that seems plausible given what we know (here we can calibrate against an observed covariate).</li>
+<li><strong>What it can’t:</strong> it isn’t a test, and it doesn’t identify the actual omitted confounder. In real research the plausible ranges need substantive justification.</li>
+</ul>
+<p>No combination of routine regression diagnostics can prove that unobserved confounding is absent.</p>
+</section>
+</section>
+<section id="when-the-control-is-itself-a-measure" class="level2">
+<h2 class="anchored" data-anchor-id="when-the-control-is-itself-a-measure">When the Control Is Itself a Measure</h2>
+<p>We used store size as a proxy for store quality, but store size is not store quality. This brings back the measurement question from <a href="part1.html" class="xref-link">Part 1</a>: what happens when the control is an imperfect measure of the confounder? The proxy reduced the bias (from 1.27 to 0.77) without eliminating it, even though it correlates 0.95 with true quality: the part of quality it misses still operates through the large <span class="math inline">\(\gamma\)</span>. A reliable proxy can also have construct-validity problems (store size may reflect real-estate costs more than quality), and reliability and discriminant validity are distinct issues. So the validity of our controls matters as much as the validity of our outcomes. <a href="../module-3/part2.html" class="xref-link">Module 3, Part 2</a> treats how poorly measured covariates undermine conditional independence.</p>
+</section>
+<section id="summary-three-distinctions" class="level2">
+<h2 class="anchored" data-anchor-id="summary-three-distinctions">Summary: Three Distinctions</h2>
+<p>Related questions, but each needs different evidence:</p>
+<ul>
+<li><strong>Measurement:</strong> are we measuring the construct we think we’re measuring? (Discriminant validity; <a href="part1.html" class="xref-link">Part 1</a>.)</li>
+<li><strong>Estimation:</strong> does our coefficient isolate the relationship or effect we intend to estimate? (OVB; this part.)</li>
+<li><strong>Identification:</strong> what features of the data-generating process and research design justify that interpretation?</li>
+</ul>
+<p>Looking ahead to <a href="../module-2/intro.html" class="xref-link">Module 2</a>: randomization helps separate treatment assignment from pre-existing confounders, in expectation. It cannot automatically establish the construct validity of the outcome.</p>
+<p>The residual patterns that <em>do</em> appear in real data may also point to latent subgroups (<a href="part4.html" class="xref-link">Part 4</a>) or collective outliers (<a href="part5.html" class="xref-link">Part 5</a>), which are different problems from confounding.</p>
 </section>
 <section id="other-methods-for-diagnosing-endogeneity-and-ovb" class="level2">
 <h2 class="anchored" data-anchor-id="other-methods-for-diagnosing-endogeneity-and-ovb">Other Methods for Diagnosing Endogeneity and OVB</h2>
-<p>The residual diagnostics and proxy controls covered here are entry-level approaches. For more rigorous identification:</p>
+<p>The diagnostics covered here are entry-level approaches. For more rigorous identification:</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -732,17 +910,17 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Several of the methods below are covered in depth in <strong><a href="../module-3/intro.html" class="xref-link">Module 3</a>: Causal Inference</strong>. Regression discontinuity design (<a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>), difference-in-differences (<a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>), and propensity score / matching methods (<a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>) each get their own tutorial section with worked examples. The concepts introduced briefly here will be developed into full analysis workflows there.</p>
+<p>Several of the methods below are covered in depth in <strong><a href="../module-3/intro.html" class="xref-link">Module 3</a>: Causal Inference</strong>. Regression discontinuity design (<a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>), difference-in-differences (<a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>), and propensity score / matching methods (<a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>) each get their own tutorial section with worked examples.</p>
 </div>
 </div>
 <ul>
-<li><strong>Instrumental variables (IV) / Two-Stage Least Squares (2SLS):</strong> Find a variable that predicts X but does not directly affect Y (an “instrument”). Use it to isolate the exogenous variation in X. Powerful but requires strong theoretical justification for the instrument’s validity.</li>
-<li><strong>Regression discontinuity design (RDD):</strong> If assignment to X (or a confounding condition) is based on a threshold cutoff, the discontinuity creates a locally exogenous variation you can exploit. Requires the right data structure but provides clean causal identification. <em>Covered in <a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>.</em></li>
-<li><strong>Difference-in-differences (DiD):</strong> Compare changes over time in treated vs.&nbsp;control units. Controls for time-invariant confounders. Requires parallel trends assumption. <em>Covered in <a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>.</em></li>
-<li><strong>Propensity score methods:</strong> Model the probability of “treatment” (high advertising) as a function of observed covariates, then match or weight observations. Controls for observed confounders; does not handle unobserved ones. <em>Covered in <a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>.</em></li>
-<li><strong>Hausman test:</strong> Formally tests whether OLS and IV estimates differ significantly. If they do, OLS is inconsistent (endogeneity is present). Requires a valid instrument.</li>
-<li><strong>Sensitivity analysis (Oster, 2019):</strong> How large would the omitted variable’s effect need to be (relative to included controls) to fully explain away the estimated coefficient? Quantifies the “how worried should I be?” question without requiring an instrument.</li>
-<li><strong>Panel data fixed effects:</strong> If you have repeated observations per unit (stores over time), within-unit fixed effects remove all time-invariant confounders — including unobserved store quality.</li>
+<li><strong>Instrumental variables (IV) / Two-Stage Least Squares (2SLS):</strong> Find a variable that predicts X but does not directly affect Y (an “instrument”) and use it to isolate the exogenous variation in X. Powerful, but requires strong theoretical justification.</li>
+<li><strong>Regression discontinuity design (RDD):</strong> If assignment is based on a threshold cutoff, the discontinuity creates locally exogenous variation. <em>Covered in <a href="../module-3/part3.html#sec-rdd" class="xref-link">Module 3, Part 3</a>.</em></li>
+<li><strong>Difference-in-differences (DiD):</strong> Compare changes over time in treated vs.&nbsp;control units. Requires parallel trends. <em>Covered in <a href="../module-3/part3.html#sec-did" class="xref-link">Module 3, Part 3</a>.</em></li>
+<li><strong>Propensity score methods:</strong> Model the probability of “treatment” given observed covariates, then match or weight. Handles observed confounders only. <em>Covered in <a href="../module-3/part2.html#sec-psm" class="xref-link">Module 3, Part 2</a>.</em></li>
+<li><strong>Hausman test:</strong> Tests whether OLS and IV estimates differ significantly. Requires a valid instrument.</li>
+<li><strong>Sensitivity analysis (Oster, 2019):</strong> How large would the omitted variable’s effect need to be, relative to included controls, to explain away the estimated coefficient? Diagnostic C above is a simplified version of this logic.</li>
+<li><strong>Panel data fixed effects:</strong> With repeated observations per unit, within-unit fixed effects remove all time-invariant confounders, including unobserved store quality.</li>
 </ul>
 <hr>
 </section>
@@ -759,10 +937,11 @@ BP = 0.14306, df = 1, p-value = 0.7053</code></pre>
 </div>
 <div class="callout-body-container callout-body">
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>Can you name the most plausible omitted variable in your regression?</strong> For each predictor, identify what variable (a) affects Y and (b) correlates with X. That is your primary OVB threat.</label></li>
-<li><label><input type="checkbox"><strong>What direction is the bias?</strong> The sign of the bias is the sign of β_omitted × r(X, omitted). Knowing the direction tells you whether your estimate is inflated or deflated.</label></li>
-<li><label><input type="checkbox"><strong>Does your coefficient change meaningfully when you add a proxy for the omitted variable?</strong> Instability is evidence of OVB. Stability is reassuring but not proof.</label></li>
-<li><label><input type="checkbox"><strong>Do your residuals show a fan pattern or cluster by group?</strong> This is <em>consistent with</em> a missing structuring variable, but heteroskedasticity has multiple causes. Pair the visual with a substantive theory of what might be omitted before concluding OVB.</label></li>
+<li><label><input type="checkbox"><strong>What are the plausible pre-treatment common causes of your predictor and outcome?</strong> For each, ask whether it (a) affects Y and (b) is associated with X. Both are needed for OVB.</label></li>
+<li><label><input type="checkbox"><strong>Which of those did you measure, and how well?</strong> An imperfect proxy can reduce confounding without eliminating it.</label></li>
+<li><label><input type="checkbox"><strong>Are your covariate adjustments theoretically justified?</strong> Don’t control for mediators or colliders just because they are available.</label></li>
+<li><label><input type="checkbox"><strong>How sensitive is your estimate to unobserved confounding?</strong> Ask how strong a hidden confounder would need to be to explain your coefficient.</label></li>
+<li><label><input type="checkbox"><strong>Are you distinguishing statistical-model diagnostics from evidence of causal identification?</strong> Clean residuals, a stable coefficient, or a high R² don’t show that the relationship is unconfounded.</label></li>
 </ul>
 </div>
 </div>
