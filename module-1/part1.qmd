@@ -48,26 +48,31 @@ library(dbscan)       # Local outlier factor and DBSCAN clustering (Part 5)
 
 ## The Classical Test Theory Starting Point
 
-Every measurement model in the social sciences begins from the same core assumption: the observed score you record is a sum of the *true* score and *measurement error*.
+Classical test theory begins with a simple distinction. An observed score reflects a true score plus measurement error.
 
 $$X_\text{observed} = T_\text{true} + \varepsilon$$
 
-Classical test theory (CTT) assumes the error term $\varepsilon$ is *random and symmetric*: equally likely to push the observed score up or down, averaging to zero. Under this assumption, observed scores are noisy but unbiased indicators of the latent construct you care about.
+The error is assumed to average to zero and to be uncorrelated with the true score. But that leaves an important question unanswered: *what does the true score actually represent?* A measure can consistently capture something other than the construct we intended. For example, a scale designed to measure green purchase intention might also capture environmental concern. That is a problem of **construct interpretation**, even if the measure is highly reliable.
 
-But this assumption is almost always violated in practice. The measurement error is not symmetric; it is contaminated by *something else*. The {{< nparts >}} parts in this tutorial are {{< nparts >}} different ways that "something else" creeps into your observed score:
+**Discriminant validity** concerns whether measures provide adequate evidence for distinguishing theoretically different constructs. There are at least two situations:
 
-- When your scale picks up a second construct (**{{< ref sec-discriminant-validity style="part" >}}**), ε includes that construct's variance and is no longer random.
-- When an omitted variable drives both your predictor and outcome (**{{< ref sec-omitted-variable-bias style="part" >}}**), the "error" in your regression coefficient is systematic, not random.
-- When scale items shift their baseline across groups (**{{< ref sec-measurement-invariance style="part" >}}**), ε differs systematically between conditions.
-- When your sample mixes two populations (**{{< ref sec-latent-subgroups style="part" >}}**), ε has a bimodal structure that standard models cannot represent.
-- When your data contain influential outliers (**{{< ref sec-outliers style="part" >}}**), ε includes extreme values that disproportionately distort regression coefficients.
-- When your outcome scale has hard bounds (**{{< ref sec-bounded-scales style="part" >}}**), ε is truncated at the ends of the scale, so observed means are pulled toward the middle.
+- **A. High correlation between distinct constructs.** Two constructs may be correctly measured but so strongly correlated that the data give limited evidence that they are empirically distinguishable.
+- **B. Construct contamination.** Items intended to measure one construct also directly reflect another, through cross-loadings or other systematic measurement processes.
 
-**Discriminant validity failure is the case where the error in your observed scale is not random noise but structured variance from a second latent construct.** Suppose we are trying to measure Green Purchase Intentions (GPI), but our measure also captures a related construct, Environmental Concern (EC). Then the CTT equation becomes
+Both can create discriminant validity concerns, but evidence of one doesn't establish the other. The simulation below demonstrates A; B remains a separate possible explanation in real research. One hypothetical mechanism for B is a cross-loading model, in which an item reflects both GPI and Environmental Concern (EC):
 
-$$X_\text{GPI} = T_\text{true GPI} + \lambda \cdot T_\text{EC} + \varepsilon_\text{random},$$
+$$X_\text{GPI} = \lambda_G\, T_\text{GPI} + \lambda_E\, T_\text{EC} + \varepsilon .$$
 
-where $\lambda$ is how much Environmental Concern bleeds into your GPI items. This is no longer a pure measure of one construct.
+This is a hypothetical model of contamination, *not* the model used to generate the simulated data in this part.
+
+The {{< nparts >}} parts of this tutorial are different problems that arise when observed data fail to isolate the quantity or relationship we want to interpret:
+
+- When two scales are hard to tell apart, or a scale may reflect more than its intended construct, we can't be sure what a score means (**{{< ref sec-discriminant-validity style="part" >}}**).
+- When an omitted variable drives both predictor and outcome, a regression coefficient mixes the effect we want with something else (**{{< ref sec-omitted-variable-bias style="part" >}}**).
+- When items work differently across groups, group differences in scores may not be group differences in the construct (**{{< ref sec-measurement-invariance style="part" >}}**).
+- When a sample mixes populations, a single model can misdescribe everyone (**{{< ref sec-latent-subgroups style="part" >}}**).
+- When a few influential observations dominate an analysis, estimates can reflect them rather than the typical case (**{{< ref sec-outliers style="part" >}}**).
+- When an outcome scale has hard bounds, observed means and associations are distorted near the limits (**{{< ref sec-bounded-scales style="part" >}}**).
 
 ::: {.callout-note collapse="true"}
 ## The same problem in other disciplines
@@ -92,12 +97,14 @@ We simulate a **green marketing experiment** with 400 participants, asking wheth
 | Green Purchase Intention | GPI | 4 | Dependent Variable |
 | Brand Attitude | BA | 3 | Covariate |
 
-**The hidden problem we planted:** the GPI items are nearly indistinguishable from the EC items (the latent correlation is 0.93). Any effect of the campaign on GPI is then hard to interpret: are participants more willing to buy, or just more environmentally concerned? In all {{< nparts >}} parts, the core problem is the same: the **observed Y** is an imperfect, contaminated proxy for the **latent Y** you want to study.
+**The hidden problem we planted:** environmental concern and green purchase intention are extremely highly correlated (0.93 at the latent level), even though their indicators are generated from separate latent factors. The marketing treatment raises latent GPI by 0.40 SD and does not change EC. The question is whether the measures provide enough evidence to treat these as empirically distinct constructs. Strong internal consistency within each scale is not sufficient to answer that question.
+
+Because we built the data, we know the treatment effect is on GPI. The discriminant validity tests ask something different: how confidently could a researcher *who doesn't know the data-generating process* distinguish the constructs from the observed measurement patterns? A failed criterion doesn't show that the treatment affected the wrong construct.
 
 ::: {.callout-important}
-## These statistical tests only apply in specific situations
+## These statistical tests need a suitable measurement structure
 
-Discriminant validity is a concern whenever two related constructs are in your study, but the tests below (HTMT and DVI) require **multi-item Likert scales with at least four items per construct**. They do *not* apply to single-item outcomes, willingness to pay, choice data, or behavior. If your DV is one of those, discriminant validity is still your responsibility; it is just harder to detect, and the last section of this part covers what to do.
+HTMT and the DVI both require **multi-indicator reflective measurement**: several items per construct, with the within-construct correlations (or a factor model) they rely on. They are not specific to Likert responses. HTMT averages correlations among indicators of the same construct, so it needs at least two per construct; the CFA-based DVI needs a latent measurement model that can be estimated, for which three or more indicators per factor is the straightforward case. More indicators generally help, but four is not a universal requirement. **Single-item measures** (a WTP response, a choice, a behavior) don't supply the within-construct information these analyses need. That doesn't make discriminant validity less important; it makes it harder to assess, and the last section of this part covers what to do.
 :::
 
 ## Simulating the Data
@@ -105,7 +112,7 @@ Discriminant validity is a concern whenever two related constructs are in your s
 ::::: {.callout-note collapse="true"}
 ## Simulation details and descriptives
 
-We use `MASS::mvrnorm()` to generate correlated latent factor scores, create item scores from those factors plus random error, and round to a 7-point scale. EC and GPI are correlated at **0.93** in the population, well above the 0.90 threshold used in HTMT-based tests ([Henseler et al., 2015](https://doi.org/10.1007/s11747-014-0403-8)).
+We use `MASS::mvrnorm()` to generate correlated latent factor scores, create item scores from those factors plus random error, and round to a 7-point scale. EC and GPI are correlated at **0.93** in the population, above the 0.90 criterion commonly applied to HTMT ([Henseler et al., 2015](https://doi.org/10.1007/s11747-014-0403-8)). Each item is generated from its own construct's factor only: there are no direct EC cross-loadings on GPI items. The treatment adds 0.40 SD to the latent GPI scores and leaves EC alone.
 
 ```{r simulate-data}
 #| code-summary: "▶ Simulate green marketing dataset (n=400)"
@@ -224,7 +231,7 @@ corrplot(item_cors,
          mar      = c(0, 0, 1.5, 0))
 ```
 
-The EC–EC and GPI–GPI blocks are high, as they should be. But the **EC–GPI block is just as high**, so the two scales cannot be told apart. The table summarizes the same thing in numbers.
+The EC–EC and GPI–GPI blocks are high, as they should be. But the EC–GPI block is nearly as high, so these items give little empirical basis for telling the scales apart. The table summarizes the same thing in numbers.
 
 ```{r htmt-illustration}
 #| code-summary: "▶ Compute average within- and between-scale correlations"
@@ -249,7 +256,7 @@ kable(avg_cor_summary, col.names = c("Correlation Type", "Average |r|"),
       caption = "Average within-scale and between-scale correlations")
 ```
 
-EC items correlate with each other at about `r sprintf("%.2f", within_EC)`, GPI items at about `r sprintf("%.2f", within_GPI)`, and EC with GPI items at about `r sprintf("%.2f", between_EC_GPI)`. Knowing someone's EC score tells you almost as much about their GPI items as their own GPI scores do. The HTMT ratio formalises exactly this comparison: if within- and between-scale correlations are similar, HTMT is close to 1.
+EC items correlate with each other at about `r sprintf("%.2f", within_EC)`, GPI items at about `r sprintf("%.2f", within_GPI)`, and EC with GPI items at about `r sprintf("%.2f", between_EC_GPI)`. Knowing someone's EC score tells you almost as much about their GPI items as their own GPI scores do. The HTMT ratio formalises this comparison: if within- and between-scale correlations are similar, HTMT is close to 1.
 
 ## Factor Analysis and Convergent Validity {#sec-factor-analysis}
 
@@ -275,7 +282,7 @@ fa.parallel(
 )
 ```
 
-With 11 items designed as three constructs we hope to see three factors. Because EC and GPI are simulated with a 0.93 correlation, the data may clearly support only two, and that ambiguity is itself a warning about discriminant validity.
+Parallel analysis suggests three factors, matching the three constructs we generated. That doesn't mean the solution will separate EC from GPI, as the loadings below show.
 
 We then extract three factors with **oblique rotation** (`oblimin`), which lets factors correlate, as constructs in one survey typically do.
 
@@ -291,9 +298,12 @@ efa_fit <- fa(
 
 # Print loadings; values below 0.30 suppressed to highlight the pattern
 print(loadings(efa_fit), cutoff = 0.30, sort = FALSE)
+
+# the prose below assumes all EC and GPI items load most strongly on one factor
+stopifnot(length(unique(apply(abs(unclass(loadings(efa_fit))[1:8, ]), 1, which.max))) == 1)
 ```
 
-Loadings above 0.40 are meaningful and above 0.70 strong. Good convergent validity means EC items load on one factor, GPI items on another, and BA items on a third. Here GPI items may also load on the EC factor (*cross-loading*), the factor-analytic signature of discriminant validity failure.
+Loadings above 0.40 are meaningful and above 0.70 strong. Good convergent validity would show EC items on one factor, GPI items on another, and BA items on a third. Here all eight EC and GPI items load on the **same** factor (EC about 0.78, GPI about 0.61 to 0.70), BA items load on a second, and the third factor has no salient loadings. The estimated solution doesn't separate EC from GPI. That is what very highly correlated factors can do to a rotated solution, so it is evidence about empirical distinguishability, not about how the items were generated: the data contain no cross-loadings. Apparent cross-loadings in an estimated EFA would not establish them either.
 
 ```{r efa-variance-table}
 #| code-summary: "▶ Variance explained by each factor"
@@ -368,15 +378,19 @@ fit_summary <- data.frame(
 kable(fit_summary,
       col.names = c("Fit Index","Value","Good Fit Benchmark"),
       caption   = "CFA model fit indices")
+
+# estimated EC-GPI factor correlation (standardised), used in the text below
+phi_conv <- standardizedSolution(fit_conv) |>
+  filter(op == "~~", lhs == "EC", rhs == "GPI") |> pull(est.std)
 ```
 :::::
 
 ::: {.callout-warning}
 ## What the results reveal: a two-part story
 
-**Convergent validity is fine.** Loadings are strong (> 0.70) for EC, GPI, and BA items; the items cohere within each scale.
+**Convergent validity is fine.** Loadings are strong (> 0.70) for EC, GPI, and BA items, and the model fits well; the items cohere within each scale.
 
-**Discriminant validity is not.** The EC and GPI factors correlate at about 0.93 (the `~~` rows in the CFA `summary()`). Convergent and discriminant validity are distinct assessments and can give opposite verdicts: items can hang together within each scale while the scales themselves remain statistically indistinguishable.
+**Discriminant validity is the open question.** The estimated EC–GPI factor correlation is `r sprintf("%.2f", phi_conv)` (0.93 in the generating model; slightly lower in the observed data because the treatment adds variance to GPI). Convergent and discriminant validity are distinct: items can hang together within each scale while the scales remain hard to distinguish from each other. A good-fitting CFA with a correlation this high shows the constructs are *empirically close*. It doesn't show that either scale measures the other construct.
 :::
 
 ## Discriminant Validity Testing Methods {#sec-dv-methods}
@@ -385,15 +399,17 @@ The items converge within their intended scales. The question now is whether the
 
 ### Method 1: HTMT Analysis
 
-HTMT is the **Heterotrait-Monotrait ratio of correlations**. *Monotrait* correlations are between items of the *same* scale; *heterotrait* correlations are between items of *different* scales. HTMT asks how large the between-scale correlations are relative to the within-scale ones. Near 1.0, the scales are not distinguishable.
+HTMT is the **Heterotrait-Monotrait ratio of correlations**. *Monotrait* correlations are between items of the *same* scale; *heterotrait* correlations are between items of *different* scales. HTMT asks how large the between-scale correlations are relative to the within-scale ones. Near 1.0, the scales are not empirically distinguishable. Under reflective measurement assumptions it approximates the correlation between the constructs.
 
-- **HTMT < 0.85**: discriminant validity supported (strict)
-- **HTMT < 0.90**: supported (lenient)
-- **HTMT ≥ 0.90**: **violated**
+Two common decision criteria:
 
-We use **HTMT2**, the updated index based on the geometric mean of within-scale correlations, which is now recommended over the original.
+- **HTMT < 0.85**: criterion met (stricter)
+- **HTMT < 0.90**: criterion met (more lenient)
+- **HTMT ≥ 0.90**: discriminant validity **not supported under this criterion**
 
-::::: {.callout-note collapse="true"}
+These are conventions, not proofs. A high HTMT is evidence that the constructs may not be adequately distinguishable under the chosen criterion. It doesn't establish that they are theoretically identical or that items cross-load. We use **HTMT2**, the updated index based on the geometric mean of within-scale correlations, which is appropriate for congeneric indicators ([Roemer et al., 2021](https://doi.org/10.1108/IMDS-02-2021-0082)).
+
+::: {.callout-note collapse="true"}
 ## Run the HTMT analysis in R
 
 `htmt()` needs a data frame of *only the scale items* (no IDs, condition, or demographics) and a model string in lavaan syntax.
@@ -444,7 +460,7 @@ htmt_pairs <- data.frame(
   htmt  = c(get_htmt(htmt_mat, "EC", "GPI"),
             get_htmt(htmt_mat, "EC", "BA"),
             get_htmt(htmt_mat, "GPI", "BA")),
-  label = c("Focal problem pair", "OK", "OK")
+  label = c("Concern", "Criterion met", "Criterion met")
 )
 
 ggplot(htmt_pairs, aes(x = reorder(pair, -htmt), y = htmt, fill = label)) +
@@ -459,44 +475,44 @@ ggplot(htmt_pairs, aes(x = reorder(pair, -htmt), y = htmt, fill = label)) +
             fontface = "bold", size = 4) +
   # Threshold annotations
   annotate("text", x = 3.45, y = 0.915,
-           label = "Strict threshold (0.90)", colour = "firebrick",
+           label = "Lenient criterion (0.90)", colour = "firebrick",
            size = 3.3, hjust = 1) +
   annotate("text", x = 3.45, y = 0.865,
-           label = "Lenient threshold (0.85)", colour = "darkorange",
+           label = "Strict criterion (0.85)", colour = "darkorange",
            size = 3.3, hjust = 1) +
-  scale_fill_manual(values = c("Focal problem pair" = "#d73027",
-                               "OK"                 = "#4575b4"),
+  scale_fill_manual(values = c("Concern"       = "#d73027",
+                               "Criterion met" = "#4575b4"),
                     name = NULL) +
   scale_y_continuous(limits = c(0, 1.08), expand = c(0, 0)) +
   labs(
     x        = NULL,
     y        = "HTMT Value",
-    title    = "HTMT2 Analysis: Discriminant Validity Check",
-    subtitle = "Bars above the dashed line indicate discriminant validity concerns"
+    title    = "HTMT2 Analysis: Discriminant Validity Criteria",
+    subtitle = "Bars above the dashed line do not meet the 0.90 criterion"
   ) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "bottom",
         panel.grid.major.x = element_blank())
 ```
 
-**Reading the chart.** EC ↔ GPI exceeds both thresholds: a clear discriminant validity violation, so the GPI scale cannot be statistically distinguished from EC. EC ↔ BA and GPI ↔ BA are well below the thresholds. HTMT gives one number per pair and a rule of thumb; it ignores how *reliable* the scales are and offers no confidence interval, which is where the DVI comes in.
+**Reading the chart.** EC ↔ GPI is at `r sprintf("%.2f", get_htmt(htmt_mat, "EC", "GPI"))`, at or above both criteria, so discriminant validity is not supported under either. EC ↔ BA and GPI ↔ BA are well below them. A caution: a high HTMT says the scales are hard to tell apart; it doesn't say *why*. HTMT is built from indicator correlations, so it is not independent of measurement quality (HTMT2 is designed to approximate the latent correlation under congeneric measurement). What it doesn't provide is an explicit comparison of the factor correlation with each scale's reliability, or confidence intervals; the DVI does both.
 :::::
 
 ### Method 2: The DVI Method (Pieters et al., 2025)
 
-HTMT is a good screen but has two gaps: its thresholds are rules of thumb, not formal tests, and it ignores scale reliability. A pair of highly reliable scales *should* be able to discriminate even when the factor correlation is somewhat high. Pieters et al. (2025) propose the **Discriminant Validity Index (DVI)**, which tests whether a scale's reliability is high enough, relative to the factor correlation, to support discriminant validity, in two steps.
+HTMT is a good screen, but its criteria are conventions applied to a point estimate. Pieters et al. (2025; [JMR](https://doi.org/10.1177/00222437251388994)) propose pairing a **phi criterion** with a **congeneric reliability (CR) criterion**, giving a two-step procedure with confidence intervals that explicitly relates the factor correlation to each scale's reliability. We call the resulting quantities the **Discriminant Validity Index (DVI)**.
 
 **Step 1, the phi test:** is the factor correlation φ meaningfully below 1?
 
 $$\text{DVI}_1 = 1 - |\phi|$$
 
-If DVI₁ is not significantly above zero, stop: discriminant validity has failed.
+If DVI₁ is not significantly above zero, stop: we can't establish that the constructs are distinct.
 
 **Step 2, the CR test:** even if φ < 1, is the scale reliable enough to "rise above" the factor correlation?
 
 $$\text{DVI}_{CR} = \sqrt{CR} - |\phi|$$
 
-where CR is the congeneric reliability (McDonald's omega). If DVI_CR > 0 with a confidence interval excluding zero, the scale can distinguish itself from the other construct. For example, with φ = 0.93 and CR = 0.83, √CR ≈ 0.91, which is below 0.93: DVI_CR is negative, and discriminant validity fails. Reliability sets an upper bound on how distinctly a scale can behave; if that bound is below the factor correlation, the scale is compromised.
+where CR is the congeneric reliability (McDonald's omega). If DVI_CR > 0 with a confidence interval excluding zero, the scale can distinguish itself from the other construct. For example, with φ = 0.93 and CR = 0.83, √CR ≈ 0.91, which is below 0.93: DVI_CR is negative, so the CR criterion is not met. Reliability sets an upper bound on how distinctly a scale can behave; if that bound is below the factor correlation, the scale can't show that it is distinct from the other.
 
 ::::: {.callout-note collapse="true"}
 ## Run the DVI analysis in R (model, Wald and bootstrap CIs, forest plot, decision rule)
@@ -616,7 +632,7 @@ kable(
 )
 ```
 
-**Forest plot.** A CI that crosses the dashed zero line means discriminant validity is not supported.
+**Forest plot.** A CI that crosses the dashed zero line means the criterion is not established.
 
 ```{r dvi-forest-plot, fig.height = 5}
 #| code-summary: "▶ Plot: DVI forest plot"
@@ -644,14 +660,14 @@ ggplot(dvi_plot_df, aes(x = est, y = reorder(label_nice, est), colour = supporte
   # Colour: green = supported, red = not supported
   scale_colour_manual(values = c("TRUE"  = "#2c7bb6",
                                  "FALSE" = "#d7191c"),
-                      labels = c("TRUE"  = "DV supported (CI > 0)",
-                                 "FALSE" = "DV NOT supported (CI ≤ 0)"),
+                      labels = c("TRUE"  = "Criterion met (CI above 0)",
+                                 "FALSE" = "Not established (CI includes 0)"),
                       name   = NULL) +
   labs(
     x        = "DVI Estimate (with 95% Bootstrap CI)",
     y        = NULL,
     title    = "DVI Forest Plot: EC ↔ GPI Pair",
-    subtitle = "If the CI bar crosses the dashed line (0), discriminant validity is not supported"
+    subtitle = "If the CI bar crosses the dashed line (0), the criterion is not established"
   ) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "bottom",
@@ -667,7 +683,7 @@ dvi_results <- dvi_boot_table |>
   filter(label %in% c("DVI_1", "DVI_CR_EC", "DVI_CR_GPI")) |>
   mutate(
     significant = ci.lower > 0,
-    verdict     = if_else(significant, "Supported ✓", "Not supported ✗")
+    verdict     = if_else(significant, "Criterion met ✓", "Not established")
   ) |>
   select(label, est, ci.lower, ci.upper, verdict)
 
@@ -678,10 +694,10 @@ kable(
 )
 ```
 
-- **Step 1 (DVI₁ > 0?)** If not, EC and GPI are statistically indistinguishable and cannot be treated as separate constructs.
-- **Step 2 (DVI_CR > 0 for both scales?)** If yes, discriminant validity is fully supported. If only one scale passes, the problem is asymmetric and the weaker scale's items are too close to the other construct. If neither passes, you cannot draw clean conclusions about which construct your DV measures.
+- **Step 1 (DVI₁ > 0?)** If not, we can't establish that EC and GPI are distinct constructs.
+- **Step 2 (DVI_CR > 0 for both scales?)** If yes, the criterion is fully met. If only one scale passes, the weaker scale is the one whose items need attention. If neither passes, the data don't give clear evidence that either scale can distinguish itself from the other.
 
-In our data φ is 0.93, so Step 1 barely passes (or fails) and Step 2 fails for at least one scale, likely both.
+In our data, Step 1 is met: φ is reliably below 1. Step 2 is not established for either scale, because both DVI_CR intervals include zero. Keep three claims apart: *failing to establish* discriminant validity under a criterion; *positive evidence* that two constructs are statistically indistinguishable (a φ whose interval includes values near 1); and *evidence that particular items capture more than one construct* (which needs a model with cross-loadings). A non-significant DVI_CR is the first, not the second or third.
 :::::
 
 ### Comparing the Two Methods
@@ -698,20 +714,20 @@ comparison <- data.frame(
   Feature         = c("What it tests",
                       "Key output",
                       "Threshold / decision rule",
-                      "Accounts for reliability?",
+                      "Relation to reliability",
                       "Formal statistical test?",
                       "EC ↔ GPI result"),
   HTMT            = c("Between-scale vs. within-scale correlations",
                       paste0("HTMT2 = ", htmt_val),
                       "< 0.85 (strict) or < 0.90 (lenient)",
-                      "No",
-                      "No — rule of thumb only",
-                      if_else(htmt_val >= 0.90, "FAILED ✗ (≥ 0.90)", "OK ✓")),
+                      "Indirect: built from indicator correlations; HTMT2 targets the latent correlation",
+                      "Criterion on a point estimate (no CI by default)",
+                      if_else(htmt_val >= 0.90, "Criterion not met (≥ 0.90)", "Criterion met ✓")),
   `DVI (Pieters et al., 2025)` = c("Factor correlation and scale reliability",
                       paste0("φ = ", phi_est, " [", phi_ci_lo, ", ", phi_ci_hi, "]"),
                       "DVI > 0 with CI excluding zero",
-                      "Yes — uses Congeneric Reliability",
-                      "Yes — bootstrap CIs",
+                      "Explicit: compares φ with √CR",
+                      "Yes: Wald and bootstrap CIs",
                       "See DVI table above")
 )
 
@@ -722,32 +738,32 @@ kable(
 )
 ```
 
-### What to Do When Discriminant Validity Fails
+### What to Do When Discriminant Validity Isn't Established
+
+First ask which situation you are in: constructs that are highly correlated (A), or items that seem to reflect the other construct (B). Then:
 
 1. **Reconceptualise**: are the constructs genuinely different, or two facets of one?
-2. **Revise the scale**: remove or rewrite items too close in meaning to the other construct, and re-collect.
+2. **Revise the scale**: if items appear to reflect the other construct, remove or rewrite them, and re-collect.
 3. **Combine the scales**: if they cannot be separated, treat them as one broader construct (e.g., "pro-environmental orientation").
-4. **Report transparently**: at minimum, report the failure and what it implies for interpreting your effects.
+4. **Report transparently**: say what the evidence does and doesn't establish for your interpretation.
 
 ::: {.callout-important}
 ## The core take-home message
 
-An effect on a GPI scale that fails discriminant validity from EC is not clearly interpretable. You cannot claim the campaign increased *purchase intention* if the scale is indistinguishable from *environmental concern*. Discriminant validity testing is a prerequisite for meaningful inference about relationships between constructs.
+When two scales fail to demonstrate adequate discriminant validity, we should be cautious about treating associations involving them as evidence about theoretically distinct constructs. A high correlation between factors does not prove that one scale measures the other construct, but it does raise questions about whether the available measurements can support the distinction we're making.
+
+Keep the treatment effect on the *observed scale* apart from its interpretation as an effect on a particular *construct*. Randomization can identify the effect on the observed response; establishing what that response measures requires additional validity evidence. The next part, and later the randomization module, return to this.
 :::
 
 ## Other Methods for Assessing Discriminant Validity
 
 - **Average Variance Extracted (Fornell & Larcker, 1981):** compare the square root of each construct's AVE with its inter-construct correlations. It was dominant before HTMT but is often too lenient.
 - **Multitrait-multimethod analysis (Campbell & Fiske, 1959):** measure several traits with several methods and examine the pattern of correlations. Resource-intensive, but the gold standard.
-- **Network psychometrics:** Gaussian graphical models make discriminant validity failures visible as dense cross-scale connections.
+- **Network psychometrics:** Gaussian graphical models can show dense cross-scale connections among items, which is one way to see that scales are hard to separate.
 
 ## Validity Testing for Non-Likert Data {#sec-nonlikert}
 
-The CTT equation, observed = true + error, is a property of *measurement itself*, not of Likert scales. A willingness-to-pay (WTP) response of \$20 might reflect true utility of \$15 plus \$5 of upward error from luxury packaging that inflated perceived market price. A text response of "fine" carries different sentiment depending on who wrote it. In every case the observed signal blends several latent sources:
-
-$$X_\text{observed} = T_\text{true construct} + \lambda \cdot T_\text{other construct} + \varepsilon_\text{random}.$$
-
-The failure mode is identical across formats; what changes is the *tools available to diagnose it*. HTMT and DVI don't apply to WTP, choices, or text, but the question they answer, *is this measure specific enough to support causal inference?*, applies universally. The two worked examples below are in dropdowns.
+Every measure, whatever its format, carries signal and noise, and an observed value can reflect more than one latent source. A willingness-to-pay (WTP) response may reflect personal utility *and* perceived market price. A text response of "fine" carries different sentiment depending on who wrote it. As with Likert scales, the issues are empirical distinguishability and, possibly, contamination of the measure by another construct. What changes across data types is the *tools available to diagnose them*. HTMT and the DVI don't apply to WTP, choices, or text, but the question they address, *does this measure support the distinction we want to draw?*, applies universally. The two worked examples below are in dropdowns.
 
 ### Willingness to Pay Data {#sec-wtp}
 
@@ -793,7 +809,7 @@ wtp_efa <- fa(log_wtp_df, nfactors = 2, rotate = "oblimin", fm = "ml")
 print(loadings(wtp_efa), cutoff = 0.30)
 ```
 
-A clean split into plain and luxury factors means the two sets of WTP responses are driven by different latent sources, the discriminant validity failure made visible in factor-analytic terms.
+A clean split into plain and luxury factors suggests the two sets of WTP responses are driven by different latent sources. Here that is by construction: price belief enters luxury WTP more strongly.
 
 **Discriminant validity: compare latent models.** For WTP the equivalent of HTMT and DVI is *confirmatory model comparison*: fit CFAs that assume different numbers of latent sources and see which fits better.
 
@@ -832,7 +848,7 @@ kable(wtp_compare,
 print(lavTestLRT(fit_wtp_1f, fit_wtp_2f))
 ```
 
-If the 2-factor model fits substantially better (higher CFI, lower RMSEA and SRMR, significant likelihood-ratio test), plain and luxury WTP are not measuring the same construct. If a green marketing treatment raises WTP, you cannot cleanly claim it raised eco-utility; it may have made the product seem more premium.
+If the 2-factor model fits substantially better (higher CFI, lower RMSEA and SRMR, significant likelihood-ratio test), the data favour two latent sources over one, so WTP for these products is not a pure indicator of eco-utility. If a green marketing treatment raises WTP, you would need further evidence before claiming it raised eco-utility; it may have made the product seem more premium.
 
 **Two checks without a full model.**
 
@@ -860,7 +876,7 @@ Suppose participants also wrote brief open-ended responses and you fit a 3-topic
 #   4. Correlate theta columns with the corresponding Likert scale scores
 
 # Below we simulate what those MTMM correlations look like
-# under two scenarios: clean validity vs. discriminant validity failure
+# under two scenarios: clean recovery vs. built-in contamination
 
 set.seed(42)
 ec_score  <- rowMeans(df[, c("EC1","EC2","EC3","EC4")])
@@ -874,7 +890,7 @@ ba_text_A  <- 0.08 * ec_score  + 0.07 * gpi_score + 0.60 * ba_score + rnorm(400,
 
 # Scenario B: GPI-text is dominated by environmental language (EC-contaminated)
 ec_text_B  <- 0.65 * ec_score  + 0.10 * gpi_score + 0.05 * ba_score + rnorm(400, 0, 0.5)
-gpi_text_B <- 0.58 * ec_score  + 0.20 * gpi_score + 0.07 * ba_score + rnorm(400, 0, 0.5) # ← failure
+gpi_text_B <- 0.58 * ec_score  + 0.20 * gpi_score + 0.07 * ba_score + rnorm(400, 0, 0.5) # ← built-in contamination
 ba_text_B  <- 0.08 * ec_score  + 0.07 * gpi_score + 0.60 * ba_score + rnorm(400, 0, 0.5)
 
 # MTMM correlation tables (text rows × Likert columns)
@@ -890,13 +906,13 @@ mtmm_B <- round(cor(
 
 cat("Scenario A — Good discriminant validity (text topics recover constructs cleanly):\n")
 print(mtmm_A)
-cat("\nScenario B — Discriminant validity failure (GPI-text bleeds into EC):\n")
+cat("\nScenario B — Contamination built in (GPI-text bleeds into EC):\n")
 print(mtmm_B)
 ```
 
 Each row is a text measure, each column a Likert measure. **Diagonal** entries are convergent validity correlations and should be the highest in each row; **off-diagonal** entries are discriminant checks and should be noticeably lower. In Scenario A, GPI-text correlates most with GPI-Likert. In Scenario B it correlates almost as strongly with EC-Likert: a treatment effect on this text measure could reflect more willingness to buy or simply more environmental language.
 
-Two diagnostics are specific to topic models. **Topic exclusivity** (the FREX metric in STM) asks whether each topic has distinctive vocabulary, the analogue of item specificity. **Topic correlations** (`topicCorr()`) are the analogue of the factor correlation φ: topic scores correlating at 0.93 is quantitatively the same failure as φ = 0.93 between latent factors.
+Two diagnostics are specific to topic models. **Topic exclusivity** (the FREX metric in STM) asks whether each topic has distinctive vocabulary, the analogue of item specificity. **Topic correlations** (`topicCorr()`) are the analogue of the factor correlation φ: topic scores correlating at 0.93 would raise the same question about empirical distinguishability as a factor correlation of 0.93.
 :::::
 
 ::: {.callout-tip}
@@ -907,7 +923,7 @@ Two diagnostics are specific to topic models. **Topic exclusivity** (the FREX me
 | **Convergent validity** | EFA loadings, CFA fit, α | EFA/CFA on log-WTP | Text–Likert MTMM correlations |
 | **Discriminant validity** | HTMT, DVI | CFA model comparison, falsification | Topic exclusivity, topic correlations |
 | **Gold standard design** | MTMM across methods | MTMM (WTP + liking + choice) | MTMM (text + Likert + behavior) |
-| **Key failure mode** | EC–GPI cross-loading | Price belief contamination | Environmental language in GPI topic |
+| **Key concern** | High EC–GPI latent correlation, limited empirical distinguishability | Price belief contamination | Environmental language in GPI topic |
 
 Regardless of data type, ask: *what else, besides my intended construct, could plausibly move this measure?*
 :::
@@ -924,7 +940,7 @@ Willingness to pay is typically used as a measure of people's latent *value* for
 
 $$\text{WTP} = \alpha + \lambda_V \cdot \text{Value} + \lambda_P \cdot \text{PriceExpectation} + \varepsilon .$$
 
-Value and price expectations are *related* (eco-conscious consumers expect eco products to cost more), which is what makes this a discriminant validity problem and not random noise. Other candidate contaminants include strategic bidding (buyers shading WTP below their valuation to get a good deal), hypothetical bias (overstating when nothing is at stake), and budget constraints. Which of these threaten *your* inference depends on whether they differ across your conditions or predictors.
+Value and price expectations are *related* (eco-conscious consumers expect eco products to cost more), which is what makes this a discriminant validity problem and not random noise. Other candidate contaminants include strategic bidding (buyers shading WTP below their valuation to get a good deal), hypothetical bias (overstating when nothing is at stake), and budget constraints. Not every competing influence on an outcome is a discriminant validity problem; the concern arises when it undermines the interpretation of the measure as an indicator of the intended construct. Which of these threaten *your* inference depends on whether they differ across your conditions or predictors.
 
 ### Step 2: Ask what independent variation the design can supply
 
@@ -988,7 +1004,7 @@ Reading the table: the label raises WTP, which looks like evidence that it raise
 
 ### Step 3: State what you can and cannot claim
 
-Report the claim the design identifies. "The label raised stated WTP" is supported by randomization. "The label raised consumers' *value* for the product" additionally requires evidence that price expectations did not drive the result. If you cannot supply that evidence, scope the claim to the observed DV, say which rival constructs remain open, and say which design feature (a measured expectation item, a price-cue manipulation, an incentive-compatible follow-up) would close them. This is the same logic as {{< ref sec-single-dv style="long" >}}, applied to discriminant validity: there, the question was whether the reporting relationship differs across groups; here, it is whether the number measures one construct at all.
+Report the claim the design identifies. "The label raised stated WTP" is supported by randomization. "The label raised consumers' *value* for the product" additionally requires evidence that price expectations did not drive the result. If you cannot supply that evidence, scope the claim to the observed DV, say which rival constructs remain open, and say which design feature (a measured expectation item, a price-cue manipulation, an incentive-compatible follow-up) would close them. This is the same logic as {{< ref sec-single-dv style="long" >}}, applied to discriminant validity: there, the question was whether the reporting relationship differs across groups; here, it is whether the number supports interpretation as one construct.
 
 ---
 
@@ -996,15 +1012,15 @@ Report the claim the design identifies. "The label raised stated WTP" is support
 
 ## The Core Distinction
 
-The sections above showed how to detect discriminant validity failures. A related failure trips up researchers constantly: **a scale can be highly reliable and still be invalid.**
+The sections above showed how to assess discriminant validity. A related point trips up researchers constantly: **a scale can be highly reliable and still not be valid for the construct you intend.**
 
 **Reliability** is *consistency*: do the items within a scale hang together? Cronbach's alpha, the most common index, is computed entirely *within* a scale:
 
 $$\alpha = \frac{k\,\bar{\rho}}{1 + (k-1)\,\bar{\rho}},$$
 
-where $k$ is the number of items and $\bar{\rho}$ is the average inter-item correlation within the scale. Nothing in it refers to other constructs, so alpha is blind to discriminant validity by design. A scale can have alpha = 0.95 and an HTMT of 1.20: perfectly reliable at measuring something indistinguishable from another construct.
+where $k$ is the number of items and $\bar{\rho}$ is the average inter-item correlation within the scale. Nothing in it refers to other constructs, so alpha says nothing about discriminant validity. It also isn't the same as unidimensionality or construct validity: a scale can have high alpha while measuring a blend of things. A scale can have a high alpha and still fail an HTMT criterion.
 
-The Spearman–Brown prophecy makes it worse: **adding items always raises alpha**, whether or not the new items tap your construct or an adjacent one. Researchers who respond to low alpha by writing more items can push alpha up while discriminant validity erodes. The consequences are inflated correlations between constructs, uninterpretable regression and mediation coefficients, and results that replicate reliably but mean little.
+The Spearman–Brown prophecy shows that adding items *like the existing ones* (a positive average inter-item correlation) raises alpha. Adding poor or inconsistent items can lower it. So researchers who respond to low alpha by writing more items can push alpha up while the scale drifts toward an adjacent construct. Reliability can improve while discriminant validity weakens, and the consequences, such as inflated correlations between constructs, can then make regression and mediation results harder to interpret.
 
 ## Interactive Simulator: Reliability vs. Discriminant Validity
 
@@ -1014,7 +1030,7 @@ Use the controls to see how alpha and HTMT respond *independently* to changes in
 ## What to try
 
 1. **Add items and watch alpha climb while HTMT stays flat.** Go from 4 to 12 items: alpha rises from moderate to excellent; HTMT does not move.
-2. **The "looks great, is broken" scenario.** 8 items, within-correlation 0.55, between-correlation 0.50: alpha = 0.91 (excellent) but HTMT = 0.91 (violated). This is common in sustainability, well-being, and attitude research.
+2. **The "looks great, is broken" scenario.** 8 items, within-correlation 0.55, between-correlation 0.50: alpha = 0.91 (excellent) but HTMT = 0.91 (criterion not met). This is common in sustainability, well-being, and attitude research.
 3. **Set within = between.** Alpha is unchanged; HTMT reaches 1.0.
 :::
 
@@ -1051,9 +1067,9 @@ alpha_label = rel_alpha >= 0.90 ? "Excellent"
             : rel_alpha >= 0.70 ? "Acceptable"
             : "Too low"
 
-htmt_label = rel_htmt < 0.85 ? "✓ Discriminant validity supported"
-           : rel_htmt < 0.90 ? "⚠ Borderline — approaching threshold"
-           : "✗ Discriminant validity VIOLATED"
+htmt_label = rel_htmt < 0.85 ? "✓ Criterion met"
+           : rel_htmt < 0.90 ? "⚠ Borderline, approaching criterion"
+           : "✗ Criterion not met (concern)"
 
 html`<div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;">
   <div style="flex:1;min-width:200px;border:2px solid ${alpha_col};border-radius:8px;padding:16px;text-align:center;background:${alpha_col}18;">
@@ -1109,7 +1125,7 @@ Plot.plot({
 ::: {.callout-warning}
 ## The bottom line
 
-A high alpha confirms your items measure *something* consistently. It does not confirm that the something is your intended construct or that it is distinct from adjacent constructs.
+A high alpha confirms your items measure *something* consistently. It does not confirm that the something is your intended construct, that the scale is unidimensional, or that it is distinct from adjacent constructs.
 :::
 
 ---
@@ -1119,9 +1135,9 @@ A high alpha confirms your items measure *something* consistently. It does not c
 ::: {.callout-note}
 ## Key questions before using your scales
 
-- [ ] **Does each measured scale correspond to a single latent dimension?** Items should load strongly on one factor and weakly on all others (cross-loadings < 0.30).
-- [ ] **Do you have evidence that your constructs are empirically distinct?** HTMT < 0.85 for all construct pairs is the standard threshold. A high Cronbach's alpha does not answer this question.
-- [ ] **If HTMT is high, is the problem in the items or in the theory?** High cross-loadings mean contaminated items; a high factor correlation may mean theoretically redundant constructs.
-- [ ] **Will discriminant validity failure bias your downstream analysis?** Two discriminantly invalid predictors in one regression produce unstable coefficients; a mediator that overlaps with the outcome inflates indirect effects.
+- [ ] **Does each measured scale correspond to a single latent dimension?** Items should load strongly on one factor and weakly on others (a common rule of thumb is cross-loadings < 0.30).
+- [ ] **Do you have evidence that your constructs are empirically distinct?** HTMT < 0.85 (or 0.90) for all construct pairs is a common criterion. A high Cronbach's alpha does not answer this question.
+- [ ] **If HTMT is high, is it high construct correlation or contaminated items?** Cross-loadings point to the items; a high factor correlation with clean items may mean the constructs are close or theoretically overlapping.
+- [ ] **Could a discriminant validity concern affect your downstream analysis?** It can, depending on the measurement model, the regression specification, and the data-generating process (for example, highly correlated predictors can make coefficients unstable). Say which applies.
 - [ ] **If you have only one DV (WTP, a choice, a behavior), have you written down its data-generating process?** Name the other latent variables that could move it, and the design feature (a measure, a manipulation, a comparison group) that rules each one out.
 :::
